@@ -41,16 +41,20 @@ The only difference between tools is WHERE skills are placed and HOW they're reg
 _Avoid_: tool-specific content, per-tool skill variants
 
 **Monorepo layout**:
-Tier-first: `atomics/` (skills, protocols, steering, reasoning-modes, prompts, eval-definitions), `compositions/` (agent-archetypes, crew-patterns, workspace-conventions), `tools/` (proofs, evals). Reflects the two-tier model directly in filesystem structure.
-_Avoid_: flat layouts, domain-first grouping
+Tier-first: `atomics/` (skills, steering, prompts, eval-definitions), `compositions/` (agent-archetypes, crew-patterns, workspace-conventions), `tools/` (proofs, evals). Skills encompass all on-demand content types (protocols, reasoning-modes, reference, decision, process) distinguished by a `type` field in frontmatter.
+_Avoid_: separate directories per skill type, flat layouts, domain-first grouping
 
 **Practice**:
 A human-readable research document capturing how to do something well, with rationale and sources. Audience is developers designing the system. May produce zero, one, or many skills as distilled deployment artifacts.
 _Avoid_: guide (too vague), tutorial (implies step-by-step learning)
 
 **Skill (refined)**:
-An agent-loadable knowledge pack: focused, concise (<100 lines SKILL.md), trigger-rich (description doubles as activation signal). SKILL.md = what to DO; references/ = what to KNOW. Loaded on-demand when description matches current task.
+An agent-loadable knowledge pack: focused, concise (<100 lines SKILL.md), trigger-rich (description doubles as activation signal). SKILL.md = what to DO; references/ = what to KNOW. Loaded on-demand when description matches current task. Skills are the universal delivery mechanism for all on-demand content types.
 _Avoid_: command (procedures are not skills), reference doc (too passive)
+
+**Skill type**:
+A frontmatter field (`type:`) that classifies the internal structure of a skill. Types: `protocol` (imperative steps with gates), `reasoning-mode` (thinking pattern activation), `reference` (lookup tables, patterns), `decision` (selection criteria), `process` (numbered workflow steps). Naming convention provides additional signal (e.g., `-protocol` suffix).
+_Avoid_: separate filesystem directories per type
 
 **Practice-to-skill relationship**:
 Practices are the source research layer; skills are the distilled deployment artifacts. Same slug tracks lineage. Not every practice produces a skill; not every skill needs a backing practice.
