@@ -97,8 +97,8 @@ Depth-on-demand within an already-loaded skill. SKILL.md is the entry point (<10
 _Avoid_: monolithic skills, loading all companion files upfront
 
 **Prompt (atomic module)**:
-A user-invoked action that produces specific artifacts or initiates a workflow. Triggered explicitly by the user, not by agent decision. Can reference skills it needs via frontmatter. Prompts are orchestration — they can specify model, delegation, and chaining beyond what skills provide.
-_Avoid_: conflating with skills (different trigger mechanism), calling them "commands" (tool-specific term)
+An orchestration wrapper that composes skills with execution control: model switching, delegation, chaining, argument handling, and hard constraints. User-invoked explicitly. Not all skills need a prompt wrapper; not all prompts reference skills. The generator emits prompts as kiro-cli `@prompt-name`, Claude Code `.claude/commands/`, or Pi prompt templates.
+_Avoid_: conflating with skills (prompts orchestrate, skills provide knowledge), assuming prompts are the only way to user-invoke skills (skills are also directly invocable as `/skill-name` in most tools)
 
 **Skill-backed prompt**:
 A prompt that declares skill dependencies in its frontmatter (`skill: verification-protocol`). The prompt provides the invocation trigger and orchestration; the skill provides the knowledge. The generator emits this differently per tool (Pi: `skill:` frontmatter; Claude Code: unified skill; kiro-cli: separate files).
