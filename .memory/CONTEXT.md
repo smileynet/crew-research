@@ -95,3 +95,11 @@ _Avoid_: eager loading situational content (wastes context budget)
 **Progressive loading (within skills)**:
 Depth-on-demand within an already-loaded skill. SKILL.md is the entry point (<100 lines); companion files (references/, EXAMPLES.md, cookbook/) load only when the agent needs more detail. Keeps token cost proportional to task complexity.
 _Avoid_: monolithic skills, loading all companion files upfront
+
+**Prompt (atomic module)**:
+A user-invoked action that produces specific artifacts or initiates a workflow. Triggered explicitly by the user, not by agent decision. Can reference skills it needs via frontmatter. Prompts are orchestration — they can specify model, delegation, and chaining beyond what skills provide.
+_Avoid_: conflating with skills (different trigger mechanism), calling them "commands" (tool-specific term)
+
+**Skill-backed prompt**:
+A prompt that declares skill dependencies in its frontmatter (`skill: verification-protocol`). The prompt provides the invocation trigger and orchestration; the skill provides the knowledge. The generator emits this differently per tool (Pi: `skill:` frontmatter; Claude Code: unified skill; kiro-cli: separate files).
+_Avoid_: duplicating skill content inside prompts, tight coupling between prompt and skill internals
