@@ -9,7 +9,7 @@ crew-research — Monorepo of independent tools for building consistent, reusabl
 - `.memory/` — Durable artifacts (CONTEXT.md glossary, ADRs)
 - `.scratch/` — Ephemeral artifacts (handoffs, scratch notes)
 - `docs/` — Plan, inventory, practices (human-readable)
-- `atomics/` — Atomic modules (skills, eager-context, prompts, eval-definitions)
+- `atomics/` — Atomic modules (skills, eager-context, eval-definitions)
 - `compositions/` — Compositions (agent-archetypes, crew-patterns, workspace-conventions)
 - `tools/` — Proof harness, eval harness
 - `resources/` — Symlinked reference repos (read-only prior art)

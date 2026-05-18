@@ -41,7 +41,7 @@ The only difference between tools is WHERE skills are placed and HOW they're reg
 _Avoid_: tool-specific content, per-tool skill variants
 
 **Monorepo layout**:
-Tier-first: `atomics/` (skills, eager-context, prompts, eval-definitions), `compositions/` (agent-archetypes, crew-patterns, workspace-conventions), `tools/` (proofs, evals). Skills encompass all on-demand content types (protocols, reasoning-modes, reference, decision, process) distinguished by a `type` field in frontmatter. Eager-context modules are the portable equivalent of kiro-cli steering / CLAUDE.md / AGENTS.md.
+Tier-first: `atomics/` (skills, eager-context, eval-definitions), `compositions/` (agent-archetypes, crew-patterns, workspace-conventions), `tools/` (proofs, evals). Skills encompass all on-demand content types (protocols, reasoning-modes, reference, decision, process, user-invoked actions) distinguished by `type` and `invocation` fields in frontmatter. The generator maps `invocation: user-only` skills to kiro-cli's `.kiro/prompts/` directory.
 _Avoid_: separate directories per skill type, flat layouts, domain-first grouping
 
 **Practice**:
@@ -97,9 +97,13 @@ Depth-on-demand within an already-loaded skill. SKILL.md is the entry point (<10
 _Avoid_: monolithic skills, loading all companion files upfront
 
 **Prompt (atomic module)**:
-An orchestration wrapper that composes skills with execution control: model switching, delegation, chaining, argument handling, and hard constraints. User-invoked explicitly. Not all skills need a prompt wrapper; not all prompts reference skills. The generator emits prompts as kiro-cli `@prompt-name`, Claude Code `.claude/commands/`, or Pi prompt templates.
-_Avoid_: conflating with skills (prompts orchestrate, skills provide knowledge), assuming prompts are the only way to user-invoke skills (skills are also directly invocable as `/skill-name` in most tools)
+Deprecated as a separate concept. Prompts are skills with `invocation: user-only` frontmatter. The generator handles per-tool delivery: Claude Code emits as a skill with `disable-model-invocation: true`; kiro-cli emits to `.kiro/prompts/` (since kiro-cli maintains a separate prompts directory); Pi emits as a prompt template.
+_Avoid_: treating prompts as a fundamentally different artifact type, maintaining a separate `atomics/prompts/` directory
+
+**Invocation control (frontmatter)**:
+A field on skills that determines who can trigger them. Values: `user-only` (user invokes explicitly, agent cannot auto-load), `agent-only` (agent loads when relevant, hidden from user menu), `both` (default — dual-mode). The generator maps this to tool-specific mechanisms.
+_Avoid_: assuming all tools handle invocation the same way (kiro-cli still needs separate prompts directory)
 
 **Skill-backed prompt**:
-A prompt that declares skill dependencies in its frontmatter (`skill: verification-protocol`). The prompt provides the invocation trigger and orchestration; the skill provides the knowledge. The generator emits this differently per tool (Pi: `skill:` frontmatter; Claude Code: unified skill; kiro-cli: separate files).
+Deprecated term. In the unified model, a "prompt" is just a skill with `invocation: user-only` that may reference other skills via progressive loading. No separate concept needed.
 _Avoid_: duplicating skill content inside prompts, tight coupling between prompt and skill internals
