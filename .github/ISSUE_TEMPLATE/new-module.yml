@@ -1,0 +1,41 @@
+name: New Module
+description: Track a new skill, protocol, practice, or other module to create
+labels: ["content"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What
+      description: What module needs to be created and what it does.
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Skill
+        - Protocol
+        - Reasoning mode
+        - Steering
+        - Prompt
+        - Practice
+        - Agent archetype
+        - Crew pattern
+        - Eval definition
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: Where the content comes from (reference repo, new research, existing practice).
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How we know this module is complete.
+    validations:
+      required: true

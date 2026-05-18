@@ -1,0 +1,32 @@
+name: Design Question
+description: A deferred design decision that needs resolution
+labels: ["design"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What needs to be decided and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions to Resolve
+      description: Specific questions that must be answered.
+    validations:
+      required: true
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior Art
+      description: How reference repos or external systems handle this.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How we know this is resolved.
+    validations:
+      required: true

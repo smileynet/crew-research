@@ -23,6 +23,14 @@ When filing issues:
 - Body: Problem, Questions to Resolve, Prior Art, Acceptance Criteria
 - Use issues for anything deferred, out-of-scope, or needing future design work
 
+Labels (exclusive — one per issue):
+- `design` — needs design decisions before implementation
+- `tooling` — proof harness, eval harness, lint scripts
+- `content` — new/updated skills, practices, protocols
+- `bug` — something broken
+
+Issue templates enforce structure. Don't file issues for work you can finish in one sitting.
+
 ## Key Conventions
 
 - **Glossary**: `.memory/CONTEXT.md` — update immediately when terms are resolved
