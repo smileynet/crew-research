@@ -41,7 +41,7 @@ The only difference between tools is WHERE skills are placed and HOW they're reg
 _Avoid_: tool-specific content, per-tool skill variants
 
 **Monorepo layout**:
-Tier-first: `atomics/` (skills, steering, prompts, eval-definitions), `compositions/` (agent-archetypes, crew-patterns, workspace-conventions), `tools/` (proofs, evals). Skills encompass all on-demand content types (protocols, reasoning-modes, reference, decision, process) distinguished by a `type` field in frontmatter.
+Tier-first: `atomics/` (skills, eager-context, prompts, eval-definitions), `compositions/` (agent-archetypes, crew-patterns, workspace-conventions), `tools/` (proofs, evals). Skills encompass all on-demand content types (protocols, reasoning-modes, reference, decision, process) distinguished by a `type` field in frontmatter. Eager-context modules are the portable equivalent of kiro-cli steering / CLAUDE.md / AGENTS.md.
 _Avoid_: separate directories per skill type, flat layouts, domain-first grouping
 
 **Practice**:
@@ -75,3 +75,23 @@ _Avoid_: relying solely on naming convention without explicit frontmatter links
 **Reasoning mode**:
 A named keyword that activates a specific thinking pattern (e.g., five-whys, pre-mortem, steel-man). Each mode is its own atomic skill with a distinct trigger, independently composable and testable.
 _Avoid_: bundling modes into a single collective skill, always-loading as steering
+
+**Context loading strategy**:
+The fundamental mechanism by which content reaches an agent's context window. Three tiers: eager (always-on), lazy (on-demand), progressive (depth-on-demand within a loaded skill).
+_Avoid_: conflating delivery timing with content type
+
+**Eager-loaded context**:
+Content injected at session start and present every turn regardless of task. The portable concept behind kiro-cli "steering," Claude Code "CLAUDE.md," and Codex/Pi "AGENTS.md." Use for content that applies regardless of task (conventions, constraints, workspace contract).
+_Avoid_: steering (tool-specific term), system prompt (too broad)
+
+**Hierarchical eager loading**:
+Per-directory eager context loaded bottom-up based on which file is being worked on. Currently Claude Code-specific (nested CLAUDE.md files). Provides localized eager context without bloating the root.
+_Avoid_: assuming all tools support this (kiro-cli steering is flat)
+
+**Lazy-loaded context (skills)**:
+Content loaded on-demand when the skill's description matches the current task. The agent sees only name + description at startup; full content loads when triggered. All tools support this via SKILL.md directories.
+_Avoid_: eager loading situational content (wastes context budget)
+
+**Progressive loading (within skills)**:
+Depth-on-demand within an already-loaded skill. SKILL.md is the entry point (<100 lines); companion files (references/, EXAMPLES.md, cookbook/) load only when the agent needs more detail. Keeps token cost proportional to task complexity.
+_Avoid_: monolithic skills, loading all companion files upfront
