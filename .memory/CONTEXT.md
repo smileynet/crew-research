@@ -107,3 +107,11 @@ _Avoid_: assuming all tools handle invocation the same way (kiro-cli still needs
 **Skill-backed prompt**:
 Deprecated term. In the unified model, a "prompt" is just a skill with `invocation: user-only` that may reference other skills via progressive loading. No separate concept needed.
 _Avoid_: duplicating skill content inside prompts, tight coupling between prompt and skill internals
+
+**Skill evaluation (dual-run comparison)**:
+The method for proving a skill adds value: run the same task WITH and WITHOUT the skill loaded, score both against criteria derived from the skill's instructions, and measure the delta. The delta is the skill's contribution. Without a baseline comparison, a score is meaningless.
+_Avoid_: testing only with skill loaded, leaking skill content into task descriptions, testing generic competence instead of skill-specific behavior
+
+**Activation test**:
+A secondary evaluation that checks whether an agent activates a skill when it's available but not forced. Tests description quality and trigger coverage. Expected activation rate without forcing is ~40-50%; with forced evaluation hooks ~84%.
+_Avoid_: conflating activation failure with skill quality (may be a description problem, not a content problem)
