@@ -101,8 +101,8 @@ Deprecated as a separate concept. Prompts are skills with `invocation: user-only
 _Avoid_: treating prompts as a fundamentally different artifact type, maintaining a separate `atomics/prompts/` directory
 
 **Invocation control (frontmatter)**:
-A field on skills that determines who can trigger them. Values: `user-only` (user invokes explicitly, agent cannot auto-load), `agent-only` (agent loads when relevant, hidden from user menu), `both` (default — dual-mode). The generator maps this to tool-specific mechanisms.
-_Avoid_: assuming all tools handle invocation the same way (kiro-cli still needs separate prompts directory)
+A field inside `metadata` (`metadata.invocation`) that determines who can trigger a skill. Values: `user-only` (user invokes explicitly, agent cannot auto-load), `agent-only` (agent loads when relevant, hidden from user menu), `both` (default — dual-mode). The generator reads this and emits tool-native fields during deployment. Only standard-compliant fields (`name`, `description`, `metadata`) appear at top level in source.
+_Avoid_: putting custom fields at top level (risk of collision with future tool fields), assuming all tools handle invocation the same way
 
 **Skill-backed prompt**:
 Deprecated term. In the unified model, a "prompt" is just a skill with `invocation: user-only` that may reference other skills via progressive loading. No separate concept needed.

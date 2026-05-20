@@ -24,9 +24,12 @@ name: {slug}
 description: >
   What this skill does (first sentence). Use when [specific triggers]
   (second sentence with keywords that match activation contexts).
-type: protocol | reasoning-mode | reference | decision | process
-invocation: both | user-only | agent-only
-practice: {slug}          # optional: source practice that produced this skill
+metadata:
+  type: protocol | reasoning-mode | reference | decision | process
+  invocation: both | user-only | agent-only
+  practice: {slug}          # optional: source practice that produced this skill
+  params:                   # optional: project-customizable values with defaults
+    build_command: "npm run build"
 ---
 
 # Skill Title
@@ -36,13 +39,22 @@ practice: {slug}          # optional: source practice that produced this skill
 
 ## Frontmatter Fields
 
+### Standard (top-level, spec-compliant)
+
 | Field | Required | Description |
 |-------|----------|-------------|
 | `name` | Yes | Lowercase a-z, 0-9, hyphens. Must match directory name. Max 64 chars. |
 | `description` | Yes | Max 1024 chars. First sentence = what it does. Second = trigger phrases. |
+| `metadata` | No | Arbitrary key-value map for our custom fields. Preserved in deployed files. |
+
+### Custom (inside `metadata`, consumed by our tooling)
+
+| Field | Required | Description |
+|-------|----------|-------------|
 | `type` | Yes | Content type: `protocol`, `reasoning-mode`, `reference`, `decision`, `process` |
 | `invocation` | No | Who can trigger: `both` (default), `user-only`, `agent-only` |
 | `practice` | No | Slug of the source practice in `docs/practices/` |
+| `params` | No | Project-customizable values with defaults (see ADR 0002) |
 
 ## Content Guidelines
 
@@ -124,19 +136,23 @@ If the approach isn't working, see [references/troubleshooting.md](references/tr
 
 ## Generator Delivery
 
-The generator maps skills to tool-specific locations:
+The generator reads `metadata.invocation` and emits tool-native fields during deployment:
 
-| Tool | Location | Notes |
-|------|----------|-------|
-| kiro-cli | `.kiro/skills/{name}/SKILL.md` | `invocation: user-only` → `.kiro/prompts/{name}.md` |
-| Claude Code | `.claude/skills/{name}/SKILL.md` | `invocation: user-only` → `disable-model-invocation: true` |
-| Pi | `~/.pi/agent/skills/{name}/SKILL.md` | `invocation: user-only` → prompt template |
-| Codex | `~/.codex/skills/{name}/SKILL.md` | Standard delivery |
+| Tool | Location | `invocation: user-only` | `invocation: agent-only` |
+|------|----------|------------------------|-------------------------|
+| kiro-cli | `.kiro/skills/{name}/SKILL.md` | Emits to `.kiro/prompts/{name}.md` instead | Default (no change) |
+| Claude Code | `.claude/skills/{name}/SKILL.md` | Adds `disable-model-invocation: true` | Adds `user-invocable: false` |
+| Pi | `~/.pi/agent/skills/{name}/SKILL.md` | Emits as prompt template | Default (no change) |
+| Codex | `~/.codex/skills/{name}/SKILL.md` | Standard delivery | Standard delivery |
+
+The `metadata` block is preserved in deployed files (spec-compliant, tools ignore it). Tool-native fields are ADDED by the generator — they don't exist in source.
 
 ## Validation Rules
 
 - Directory name matches `name` field in frontmatter
 - `description` is non-empty and under 1024 chars
 - SKILL.md body is under 100 lines (warn) or 500 lines (error)
-- `type` is one of the allowed values
-- `practice` reference resolves to an existing file (if present)
+- `metadata.type` is one of the allowed values (if present)
+- `metadata.practice` reference resolves to an existing file (if present)
+- `metadata.invocation` is one of: `both`, `user-only`, `agent-only` (if present)
+- Only standard fields at top level (`name`, `description`, `metadata`, `license`, `compatibility`)
