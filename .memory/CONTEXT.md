@@ -115,3 +115,19 @@ _Avoid_: testing only with skill loaded, leaking skill content into task descrip
 **Activation test**:
 A secondary evaluation that checks whether an agent activates a skill when it's available but not forced. Tests description quality and trigger coverage. Expected activation rate without forcing is ~40-50%; with forced evaluation hooks ~84%.
 _Avoid_: conflating activation failure with skill quality (may be a description problem, not a content problem)
+
+**Composition format**:
+YAML manifests in `compositions/`. Compositions are structured references to atomic modules (agent lists, skill references, routing tables), not prose instructions. Machine-readable for generators; companion README for human context.
+_Avoid_: using SKILL.md format for compositions, mixing prose instructions with structured declarations
+
+**Agent archetype (composition)**:
+A YAML manifest declaring an agent's name, description, tools, skill references, eager-context references, and behavioral prompt. The generator emits tool-specific agent configs from this.
+_Avoid_: hardcoding tool-specific fields (JSON agent format is a delivery detail)
+
+**Crew pattern (composition)**:
+A YAML manifest declaring which agent archetypes compose the crew, routing rules, delegation structure, and shared context. The generator emits tool-specific multi-agent deployments from this.
+_Avoid_: embedding agent definitions inline (reference by name instead)
+
+**Workspace convention (composition)**:
+A YAML manifest declaring file/folder structures, artifact templates, lifecycle rules, and eager-context modules that a project adopts. Defines the shared contract agents rely on for coordination.
+_Avoid_: mixing workspace structure with agent behavior (workspace is infrastructure, not behavior)
