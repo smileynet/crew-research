@@ -44,5 +44,5 @@ base_commit: 42d04e8
 **S1 PASSES with caveats.** The unified model holds — skills ARE slash commands in TUI mode. For our harness (non-interactive), the generator correctly emits user-only skills to `.kiro/prompts/` where they're invocable via `@name`. No spec changes needed.
 
 ## Caveat to Verify Later
-- Confirm skills-as-slash-commands works in TUI mode (manual test, not automatable)
-- Confirm `$ARGUMENTS` resolves in TUI mode
+- Skills-as-slash-commands: NOT confirmed working in kiro-cli 2.3.0. Changelog mentions the feature and a fix for it, but embedded docs don't document it and our non-interactive test failed. May be TUI-only, may require newer version, or may need specific configuration.
+- `$ARGUMENTS` substitution: NOT a kiro-cli feature (it's Claude Code specific). Neither prompts nor skills resolve `$ARGUMENTS` in kiro-cli.
