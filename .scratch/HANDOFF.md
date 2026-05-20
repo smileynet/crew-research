@@ -1,46 +1,46 @@
 ---
-created_at: 2026-05-20T06:29:00-07:00
-base_commit: 42d04e8
+created_at: 2026-05-20T06:40:00-07:00
+base_commit: 6c00e15
 handoff_key: crew-research-bootstrap
 ---
 
 # Handoff
 
 ## Objective
-Begin spike S1 (kiro-cli prompt/skill invocation parity), then proceed through S2-S3 in sequence. These three spikes de-risk the frontmatter schema before any module authoring begins.
+Begin T1: scaffold the monorepo directory structure. All blocking spikes (S1-S3) are resolved.
 
 ## Constraints
 - Do not modify files in `resources/` (read-only symlinks)
-- Spikes S1-S3 must resolve before T1 (scaffold monorepo structure)
-- S4 and S5 can run in parallel with Phase 1 implementation
-- All decisions go in `.memory/CONTEXT.md`; ADRs only for hard-to-reverse choices
+- S4 (judge model) deferred to Phase 2 (needs eval harness first)
+- S5 (per-project customization) deferred to Phase 5 (doesn't block Phase 1-4)
 
 ## Prior Decisions
-- All design decisions captured in `.memory/CONTEXT.md` (20+ terms resolved)
-- 8 feature specs written in `docs/specs/`
-- Task graph with 5 spikes + 25 tasks in `docs/task-graph.md`
-- Detailed experiment plans in `docs/spike-plans.md`
-- Repo: `smileynet/crew-research` (private, GitHub)
-- Labels: design, tooling, content, bug
-- Issue templates: design-question, new-module, bug-report
+- 14 design decisions captured in `.memory/CONTEXT.md`
+- 8 feature specs in `docs/specs/`
+- Task graph in `docs/task-graph.md`
+- Spike plans in `docs/spike-plans.md`
+
+## Spike Results (S1-S3)
+
+| Spike | Result | Key Finding |
+|-------|--------|-------------|
+| S1 | PASS | Skills-as-slash-commands is TUI-only (shipped 2.1). `@prompt-name` works in non-interactive. Generator maps `invocation: user-only` → `.kiro/prompts/`. |
+| S2 | PASS | Claude Code strips unknown frontmatter harmlessly. Generator translates `invocation` → native `disable-model-invocation`/`user-invocable`. |
+| S3 | PARTIAL PASS | Agent Skills standard is extensible. Codex/Pi likely safe. Live testing deferred (no access). Generator has strip escape hatch. |
+| S4 | DEFERRED | Blocked by eval harness implementation (T9). |
+| S5 | DEFERRED | Doesn't block until Phase 5 (generator). Issue #1 tracks this. |
 
 ## Current State
-- Repo scaffolded with: `.memory/`, `.scratch/`, `docs/`, `resources/`, `.kiro/prompts/`, `.github/`
-- No `atomics/`, `compositions/`, or `tools/` directories yet (created in T1 after spikes)
-- 2 open issues: #1 (per-project customization), #2 (issue management automation)
-- All specs are design docs only — no implementation code exists yet
+- Repo: `smileynet/crew-research` (private GitHub, 6c00e15)
+- All specs written, all blocking spikes resolved
+- No implementation code yet — ready for T1
 
 ## Next Steps
-1. Run spike S1: create test workspace, deploy skill + prompt fixtures, run 5 test cases against kiro-cli
-2. Record results in `.scratch/spike-s1-results.md`
-3. If S1 passes: confirm `invocation: user-only` model works, update CONTEXT.md
-4. If S1 fails: document which features are prompt-only, update generator spec
-5. Proceed to S2 (Claude Code frontmatter tolerance)
-6. Proceed to S3 (Codex/Pi — may defer if no access)
+1. T1: Create `atomics/skills/`, `atomics/eager-context/`, `compositions/agent-archetypes/`, `compositions/crew-patterns/`, `compositions/workspace-conventions/`, `tools/proofs/`, `tools/evals/`, `docs/practices/`
+2. T2: Implement tool adapter YAML schema + kiro-cli adapter
+3. T3: Implement proof harness
 
 ## Evidence
-- Spike experiment plans: `docs/spike-plans.md`
+- Spike results: `.scratch/spike-s1-results.md`, `.scratch/spike-s2-results.md`, `.scratch/spike-s3-results.md`
+- Specs: `docs/specs/*.md`
 - Task graph: `docs/task-graph.md`
-- Feature specs: `docs/specs/*.md`
-- Glossary: `.memory/CONTEXT.md`
-- Prior art: `resources/agent-crews/`, `resources/best_practices/`, `resources/ai-references/`
