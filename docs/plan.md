@@ -45,13 +45,22 @@ resources/                 # symlinked reference repos (read-only)
 
 ## Phases
 
-### Phase 1: Proof Harness
-Validate platform assumptions (context loading, skill activation, agent isolation) across tools using declarative proof definitions + tool adapters.
+### Phase 1: Proof Harness ✅ COMPLETE
+Validate platform assumptions across tools using declarative proof definitions + tool adapters.
+
+- Harness supports abstract fixture types (`eager_files`, `skills`, `agents`)
+- Adapter-driven: same proof definition runs against kiro-cli and Claude Code
+- 4 proof definitions ported, passing on both tools
+- Key finding: eager context delivery differs (kiro-cli: `file://` resources; Claude Code: CLAUDE.md)
 
 Spec: [docs/specs/proof-harness.md](specs/proof-harness.md)
 
 ### Phase 2: Eval Harness
 LLM-as-judge behavioral evaluation with dual-run skill comparison. Proves skills add value against baseline.
+
+- Judge variance confirmed zero on fixed inputs (S4)
+- Natural language query = argument (no `$ARGUMENTS` needed)
+- Config: 1 judge trial, 3 agent trials
 
 Spec: [docs/specs/eval-harness.md](specs/eval-harness.md)
 
@@ -85,6 +94,30 @@ Spec: [docs/specs/generator.md](specs/generator.md)
 - **Tool adapter**: maps abstract operations to tool-specific CLI syntax
 - **Dual-run evaluation**: with/without skill comparison proving skill value
 - **Progressive loading**: depth-on-demand within skills (references/, examples)
+
+## Cross-Tool Architecture
+
+| Feature | kiro-cli | Claude Code |
+|---------|----------|-------------|
+| Agent format | JSON | Markdown + YAML frontmatter |
+| Eager context (universal) | `.kiro/steering/` via resources | `CLAUDE.md` (all agents) |
+| Eager context (scoped) | Per-agent steering via resources | Subagent system prompt body |
+| Skill delivery | `skill://` URI in agent resources | `.claude/skills/` (project-wide) |
+| Skill scoping | Per-agent (declared in resources) | Subagent `skills` field (preloaded) |
+| User-only skills | `.kiro/prompts/` | `disable-model-invocation: true` |
+| Non-interactive | `--no-interactive -a` | `--print` |
+
+## Spikes Resolved
+
+| Spike | Decision |
+|-------|----------|
+| S1 | Skills = slash commands (TUI). Generator maps `invocation: user-only` → `.kiro/prompts/` |
+| S2 | Claude Code strips unknown frontmatter. `metadata` block preserved. |
+| S3 | Agent Skills standard extensible. Strip escape hatch if needed. |
+| S4 | Judge variance = 0. Config: 1 judge trial, 3 agent trials. |
+| S5 | Hybrid Params + Extends for customization. ADR 0002. |
+| S6 | Abstract fixture types in proofs. Adapter maps to tool mechanism. |
+| S7 | Subagent `skills` field solves per-agent scoping. Scoped eager-context → system prompt. |
 
 ## Backlog
 

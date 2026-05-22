@@ -143,3 +143,61 @@ The `input` field IS the argument. No special handling needed. This is actually 
 - The autocomplete/menu experience
 
 These are UX features, not behavioral features. The skill's actual behavior (protocol followed, output shaped correctly) is fully testable via natural language activation.
+
+---
+
+## S6: Cross-Tool Proof Abstraction
+
+### Hypothesis
+A single proof definition can work across tools if fixture types are abstract (eager_file, skill, agent) and the adapter maps them to tool-specific delivery.
+
+### Finding
+Confirmed. The abstraction layer is:
+
+| Abstract Type | kiro-cli Delivery | Claude Code Delivery |
+|---------------|-------------------|---------------------|
+| `eager_file` | `file://` in agent resources | Content in CLAUDE.md |
+| `skill` | `skill://` in agent resources + SKILL.md file | `.claude/skills/` directory |
+| `agent` | JSON in `.kiro/agents/` | Markdown in `.claude/agents/` |
+
+### Decision
+Proof definitions use abstract fixture types. The harness reads the adapter to determine HOW to deploy each fixture type. One definition, multiple tools.
+
+---
+
+## S7: Per-Agent Skill Scoping in Claude Code
+
+### Hypothesis
+Claude Code's project-wide skill discovery prevents per-agent skill assignment needed for crew patterns.
+
+### Finding
+**Solved.** Claude Code subagents have a `skills` frontmatter field that preloads full skill content at startup. Combined with `disallowedTools: Skill`, this gives strict per-agent scoping.
+
+### Generator Mapping
+
+| Our Concept | Claude Code Mechanism |
+|-------------|---------------------|
+| Archetype `skills: [list]` | Subagent `skills: [list]` (preloaded at spawn) |
+| Archetype `tools: [list]` | Subagent `tools: [list]` |
+| Archetype `eager-context` (scoped) | Content in subagent system prompt body |
+| Archetype `eager-context` (universal) | Content in CLAUDE.md |
+
+### Limitation
+CLAUDE.md loads for ALL agents (project-wide). Scoped eager-context (orchestrator-only, worker-only) must go in the subagent's system prompt body, not CLAUDE.md. The generator handles this mapping.
+
+---
+
+## Cross-Tool Architecture Summary
+
+| Feature | kiro-cli | Claude Code |
+|---------|----------|-------------|
+| Agent format | JSON (`.kiro/agents/`) | Markdown + YAML frontmatter (`.claude/agents/`) |
+| Context binding | Per-agent via `resources` field | Project-wide discovery + subagent `skills` preloading |
+| Eager context (universal) | `.kiro/steering/` via resources | `CLAUDE.md` (all agents) |
+| Eager context (scoped) | Per-agent steering via resources | Subagent system prompt body |
+| Skill delivery | `skill://` URI in agent resources | `.claude/skills/` directory (project-wide) |
+| Skill scoping | Per-agent (only sees declared skills) | Subagent `skills` field + optional `disallowedTools: Skill` |
+| Subagent spawning | `subagent` tool | Agent tool (auto or @-mention) |
+| Non-interactive invocation | `kiro-cli chat --no-interactive -a` | `claude --print` |
+| User-only skills | `.kiro/prompts/` directory | `disable-model-invocation: true` on skill |
+| Headless agent selection | `--agent name` | `--agent name` |

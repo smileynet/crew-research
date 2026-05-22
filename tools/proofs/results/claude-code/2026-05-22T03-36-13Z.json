@@ -1,0 +1,9 @@
+{
+  "tool": "claude-code",
+  "tool_version": "2.1.148 (Claude Code)",
+  "timestamp": "2026-05-22T03-36-13Z",
+  "passed": 1,
+  "failed": 0,
+  "total": 1,
+  "tests": [{"id":"A3-skill-not-loaded-unrelated","status":"PASS","reason":""}]
+}
