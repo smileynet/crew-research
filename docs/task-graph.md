@@ -11,30 +11,22 @@
 
 These must resolve before the main work begins.
 
-### S1: Spike — kiro-cli prompt/skill invocation parity
-**Question:** kiro-cli now supports skills as slash commands (`/skill-name`). Does this fully replace `.kiro/prompts/`, or do prompts still offer capabilities skills don't (e.g., argument handling, model switching)?
-**Method:** Test with kiro-cli current version. Create a skill with `invocation: user-only` equivalent and verify it behaves identically to a prompt.
-**Acceptance:** Documented matrix of what prompts can do vs skills-as-slash-commands in kiro-cli.
+### S1–S5: COMPLETE (see docs/spike-findings.md)
 
-### S2: Spike — Claude Code skill frontmatter compatibility
-**Question:** Our spec adds `type`, `invocation`, and `practice` frontmatter fields. Does Claude Code ignore unknown frontmatter fields, or does it error?
-**Method:** Deploy a skill with extra frontmatter to Claude Code, verify it loads and activates correctly.
-**Acceptance:** Confirmed that our extended frontmatter is safe across tools.
+### S6: Spike — Cross-tool proof abstraction layer
+**Question:** Should proof definitions be tool-agnostic (one definition, adapter handles deployment differences) or tool-specific (separate definitions per tool)?
+**Context:** kiro-cli binds context to agents via `resources` field. Claude Code uses project-wide skill discovery + CLAUDE.md. Same proof concept ("file always loaded") requires different fixture deployment per tool.
+**Options:**
+- A) Abstract fixture types in proof definitions (`context_type: eager | lazy`) — adapter maps to tool mechanism
+- B) Tool-specific fixture sections in proof definitions (`fixtures.kiro-cli:` / `fixtures.claude-code:`)
+- C) Separate proof files per tool (duplicate definitions, tool-specific fixtures)
+**Method:** Attempt to express A4 (file always loaded) in each format. Pick whichever is simplest to author and maintain.
+**Acceptance:** One proof definition that runs against both kiro-cli and Claude Code, or a documented decision for why tool-specific is better.
 
-### S3: Spike — Codex/Pi skill format validation
-**Question:** Do Codex and Pi follow the Agent Skills standard strictly? What frontmatter fields do they require/reject?
-**Method:** Deploy test skills to each tool, verify loading behavior.
-**Acceptance:** Compatibility matrix documenting which frontmatter fields each tool supports.
-
-### S4: Spike — Eval harness judge model selection
-**Question:** Which judge model + configuration produces the most reliable scoring for our eval types? What's the cost/reliability tradeoff?
-**Method:** Run 10 representative evals with 3 different judge models, compare score variance and agreement with human judgment.
-**Acceptance:** Recommended judge configuration with documented reliability metrics.
-
-### S5: Spike — Per-project customization design (Issue #1)
-**Question:** How do project-specific overlays work? Override files? Inheritance? Parameterized templates?
-**Method:** Research CSS cascade, Helm values, Terraform overrides. Prototype 2-3 approaches with a concrete example (Godot troubleshooting overlay).
-**Acceptance:** ADR with chosen approach and one working example.
+### S7: Spike — Per-agent skill scoping in Claude Code
+**Question:** Claude Code has no per-agent skill scoping (all skills are project-wide). Does this matter for our crew patterns, and can subagent skill preloading solve it?
+**Method:** Test Claude Code's subagent `skills` field — does it restrict which skills a subagent sees?
+**Acceptance:** Documented behavior of subagent skill preloading. Decision on whether crew patterns need to account for this limitation.
 
 ---
 
