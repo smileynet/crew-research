@@ -1,0 +1,24 @@
+id: A1-steering-not-auto-loaded
+assumption: "Custom agents do NOT inherit .kiro/steering/**/*.md automatically"
+category: context-loading
+
+fixtures:
+  files:
+    .kiro/steering/universal/test-steering.md: |
+      ---
+      inclusion: always
+      ---
+      The steering secret is: STEERING_SECRET_2W4P6
+  agents:
+    bare-agent:
+      tools: []
+      resources: []
+      prompt: "You are a test agent. Report ONLY what is pre-loaded in your context. If you do not have steering content, say so clearly."
+
+query: "Quote any pre-loaded steering content you have. What is the steering secret value?"
+
+expect:
+  present: []
+  absent: ["2W4P6"]
+
+timeout: 90

@@ -1,0 +1,20 @@
+id: A4-file-resource-always-loaded
+assumption: "file:// resources are always loaded into agent context"
+category: context-loading
+
+fixtures:
+  files:
+    context-files/canary.md: "The canary phrase is: CANARY_FILE_7X9Q2"
+  agents:
+    file-resource-agent:
+      tools: []
+      resources: ["file://context-files/canary.md"]
+      prompt: "You are a test agent. Report the canary phrase from your pre-loaded context. Be exact."
+
+query: "What is the canary phrase in your pre-loaded context?"
+
+expect:
+  present: ["CANARY_FILE_7X9Q2"]
+  absent: []
+
+timeout: 90

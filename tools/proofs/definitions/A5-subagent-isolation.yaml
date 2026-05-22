@@ -1,0 +1,25 @@
+id: A5-subagent-isolation
+assumption: "Subagents get their OWN agent config, not parent's context"
+category: agent-isolation
+
+fixtures:
+  files:
+    context-files/parent-canary.md: "Parent secret: PARENT_ONLY_3Z7W5"
+    context-files/child-canary.md: "Child secret: CHILD_ONLY_9R2X8"
+  agents:
+    parent-agent:
+      tools: ["subagent"]
+      resources: ["file://context-files/parent-canary.md"]
+      prompt: "You are a parent agent. Delegate to child-agent with this task: Quote all secret phrases in your pre-loaded context. Report back exactly what the child says."
+    child-agent:
+      tools: []
+      resources: ["file://context-files/child-canary.md"]
+      prompt: "You are a child agent. Quote all secret phrases from your pre-loaded context exactly."
+
+query: "Delegate to child-agent and ask it to quote its secret phrases. Report what it says."
+
+expect:
+  present: ["CHILD_ONLY_9R2X8"]
+  absent: []
+
+timeout: 120

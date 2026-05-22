@@ -1,0 +1,40 @@
+tool: kiro-cli
+version_command: "kiro-cli --version"
+
+invoke:
+  command: 'kiro-cli chat --no-interactive -a --wrap never --agent {agent} "{query}"'
+  command_no_agent: 'kiro-cli chat --no-interactive -a --wrap never "{query}"'
+  timeout: 90
+
+agent:
+  format: json
+  location: ".kiro/agents/{name}.json"
+  template: |
+    {
+      "name": "{name}",
+      "description": "{description}",
+      "tools": {tools},
+      "allowedTools": {allowed_tools},
+      "resources": {resources},
+      "prompt": "{prompt}"
+    }
+
+skill:
+  location: ".kiro/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+  glob_resource: "skill://.kiro/skills/**/SKILL.md"
+
+eager_context:
+  location: ".kiro/steering/{scope}/{name}.md"
+  format: markdown-frontmatter
+  extra_frontmatter:
+    inclusion: always
+
+prompt:
+  location: ".kiro/prompts/{name}.md"
+  format: markdown-frontmatter
+  invocation_prefix: "@"
+
+output:
+  strip_ansi: true
+  encoding: utf-8

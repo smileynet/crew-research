@@ -1,0 +1,25 @@
+id: A3-skill-not-loaded-unrelated
+assumption: "skill:// resources do NOT load for unrelated queries"
+category: skill-activation
+
+fixtures:
+  files:
+    .kiro/skills/flamingo-facts/SKILL.md: |
+      ---
+      name: flamingo-facts
+      description: Facts about flamingos. Use when asked about flamingos, pink birds, or wading birds.
+      ---
+      The flamingo skill secret is: FLAMINGO_SKILL_6V8R3
+  agents:
+    skill-agent:
+      tools: []
+      resources: ["skill://.kiro/skills/flamingo-facts/SKILL.md"]
+      prompt: "You are a test agent. Answer questions precisely."
+
+query: "What is 2+2? Answer with just the number."
+
+expect:
+  present: []
+  absent: ["6V8R3"]
+
+timeout: 90
