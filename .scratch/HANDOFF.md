@@ -1,46 +1,43 @@
 ---
-created_at: 2026-05-20T06:40:00-07:00
-base_commit: 6c00e15
-handoff_key: crew-research-bootstrap
+created_at: 2026-05-21T21:26:00-07:00
+base_commit: 4ec811a
+handoff_key: proof-harness
 ---
 
 # Handoff
 
 ## Objective
-Begin T1: scaffold the monorepo directory structure. All blocking spikes (S1-S3) are resolved.
+Begin Phase 2 (eval harness) or Phase 3 (author first skills). Phase 1 is complete.
+
+## Task Graph Position
+- **Complete:** S1–S7 (all spikes), T1 (scaffold), T2 (kiro-cli adapter), T3 (proof harness), T4 (4 proofs ported), T5 (proofs pass kiro-cli), T6 (Claude Code adapter), T7 (proofs pass Claude Code)
+- **Next on critical path:** T9 (eval harness) or T13 (author first skills — can run in parallel)
+- **Deferred:** T22-T25 (generator, Phase 5)
 
 ## Constraints
-- Do not modify files in `resources/` (read-only symlinks)
-- S4 (judge model) deferred to Phase 2 (needs eval harness first)
-- S5 (per-project customization) deferred to Phase 5 (doesn't block Phase 1-4)
+- Do not modify `resources/` (read-only symlinks)
+- Custom frontmatter goes in `metadata` block (Agent Skills standard compliant)
+- Proof definitions use abstract fixture types (`eager_files`, `skills`, `agents`)
+- Skills must be <100 lines SKILL.md body
 
 ## Prior Decisions
-- 14 design decisions captured in `.memory/CONTEXT.md`
-- 8 feature specs in `docs/specs/`
-- Task graph in `docs/task-graph.md`
-- Spike plans in `docs/spike-plans.md`
-
-## Spike Results (S1-S3)
-
-| Spike | Result | Key Finding |
-|-------|--------|-------------|
-| S1 | PASS | Skills-as-slash-commands is TUI-only (shipped 2.1). `@prompt-name` works in non-interactive. Generator maps `invocation: user-only` → `.kiro/prompts/`. |
-| S2 | PASS | Claude Code strips unknown frontmatter harmlessly. Generator translates `invocation` → native `disable-model-invocation`/`user-invocable`. |
-| S3 | PARTIAL PASS | Agent Skills standard is extensible. Codex/Pi likely safe. Live testing deferred (no access). Generator has strip escape hatch. |
-| S4 | DEFERRED | Blocked by eval harness implementation (T9). |
-| S5 | DEFERRED | Doesn't block until Phase 5 (generator). Issue #1 tracks this. |
+- All 14 design decisions in `.memory/CONTEXT.md`
+- 2 ADRs: cross-linking (0001), per-project customization (0002)
+- Skill format uses `metadata` block for custom fields (spec-compliant, preserved in deployment)
+- Harness uses abstract fixtures — same definition runs on kiro-cli + Claude Code
 
 ## Current State
-- Repo: `smileynet/crew-research` (private GitHub, 6c00e15)
-- All specs written, all blocking spikes resolved
-- No implementation code yet — ready for T1
+- Proof harness working: 4 proofs pass on both kiro-cli 2.3.0 and Claude Code 2.1.148
+- 8 specs in `docs/specs/`, all findings in `docs/spike-findings.md`
+- Claude Code architecture documented in `.scratch/claude-code-architecture.md`
+- GitHub Issues: #1 closed (customization), #2 open (issue automation, deferred)
 
 ## Next Steps
-1. T1: Create `atomics/skills/`, `atomics/eager-context/`, `compositions/agent-archetypes/`, `compositions/crew-patterns/`, `compositions/workspace-conventions/`, `tools/proofs/`, `tools/evals/`, `docs/practices/`
-2. T2: Implement tool adapter YAML schema + kiro-cli adapter
-3. T3: Implement proof harness
+1. T9: Implement eval harness (judge invocation + scoring pipeline)
+2. T13: Author first 5 skills (one per type: protocol, reasoning-mode, reference, decision, process)
+3. T10: Add dual-run mode to eval harness (with/without skill comparison)
 
 ## Evidence
-- Spike results: `.scratch/spike-s1-results.md`, `.scratch/spike-s2-results.md`, `.scratch/spike-s3-results.md`
-- Specs: `docs/specs/*.md`
-- Task graph: `docs/task-graph.md`
+- Spike results: `.scratch/spike-s1-results.md` through `.scratch/spike-s6-s7-results.md`
+- Claude Code reference: `.scratch/claude-code-architecture.md`
+- Proof results: `tools/proofs/results/kiro-cli/`, `tools/proofs/results/claude-code/`
