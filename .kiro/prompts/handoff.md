@@ -25,22 +25,30 @@ What the receiving session should accomplish next.
 ## Task Graph Position
 Where we are on docs/task-graph.md — completed tasks, current task, next on critical path.
 
-## Constraints
-Rules, boundaries, or things not to change.
+## Mental Model
+Key terms/decisions the next session must internalize before acting. Point to .memory/CONTEXT.md and highlight the 3-5 most important resolved terms for the current workstream.
 
-## Prior Decisions
-Choices made this session with brief rationale. Include rejected paths only when they prevent repeated dead ends.
+## Constraints
+- Rules, boundaries, things not to change
+- Tool prerequisites (versions, auth, installed binaries)
+
+## What Was Tried
+Approaches attempted this session that didn't work, with brief reason why. Prevents repeated dead ends.
 
 ## Current State
 - Files created/modified this session
 - Proofs/evals run and their results
 - Open issues filed or closed
+- Unresolved design questions (if any)
 
 ## Next Steps
 Ordered next actions (reference task IDs from docs/task-graph.md).
 
 ## Evidence
 Pointers to spike results, test output, or research notes worth reading on demand.
+
+## Available Prompts
+List project prompts the next session can use: @handoff, @read-handoff, @grill-with-docs, @research-prior-art
 ```
 
 ## Rules
@@ -49,4 +57,5 @@ Pointers to spike results, test output, or research notes worth reading on deman
 - `base_commit`: run `git rev-parse --short HEAD` at handoff time
 - Be specific — file paths, task IDs, function names
 - Point to evidence in `.scratch/`; do not paste logs
-- Keep under 60 lines
+- Keep under 80 lines
+- Always include "What Was Tried" even if empty ("Nothing failed this session")
