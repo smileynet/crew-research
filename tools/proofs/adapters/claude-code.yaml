@@ -1,0 +1,38 @@
+tool: claude-code
+version_command: "claude --version"
+
+invoke:
+  command: 'claude --print --agent {agent} "{query}"'
+  command_no_agent: 'claude --print "{query}"'
+  timeout: 90
+
+agent:
+  format: markdown-frontmatter
+  location: ".claude/agents/{name}.md"
+  template: |
+    ---
+    name: {name}
+    description: {description}
+    tools: {tools}
+    allowedTools: {allowed_tools}
+    ---
+    {prompt}
+
+skill:
+  location: ".claude/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+
+eager_context:
+  location: "CLAUDE.md"
+  format: markdown
+  merge_strategy: append
+
+prompt:
+  location: ".claude/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+  extra_frontmatter:
+    disable-model-invocation: true
+
+output:
+  strip_ansi: true
+  encoding: utf-8
