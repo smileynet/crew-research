@@ -1,0 +1,30 @@
+name: development
+description: General software development crew for building, fixing, and shipping code.
+
+agents:
+  lead: lead
+  workers:
+    - planner
+    - implementer
+    - reviewer
+    - writer
+
+routing:
+  - pattern: "plan|break down|decompose|sequence"
+    target: planner
+  - pattern: "build|implement|fix|add|create|refactor"
+    target: implementer
+  - pattern: "review|check|audit|evaluate"
+    target: reviewer
+  - pattern: "document|write up|README|changelog"
+    target: writer
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Workers cannot delegate to other workers
+    - Lead verifies implementer output before accepting
+    - Reviewer must not modify code
+
+shared-skills:
+  - verification-protocol

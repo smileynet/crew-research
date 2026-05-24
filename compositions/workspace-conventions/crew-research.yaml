@@ -1,0 +1,47 @@
+name: crew-research
+description: Workspace convention for the crew-research monorepo. Two-root layout with handoff artifacts and frontmatter requirements.
+
+roots:
+  ephemeral: .scratch
+  durable: .memory
+
+artifacts:
+  handoff:
+    path: "{ephemeral}/HANDOFF.md"
+    template: handoff
+    frontmatter:
+      - created_at
+      - base_commit
+      - handoff_key
+    sections:
+      - Objective
+      - Constraints
+      - Prior Decisions
+      - Current State
+      - Next Steps
+      - Evidence
+  glossary:
+    path: "{durable}/CONTEXT.md"
+    description: Term definitions only. No implementation details.
+  adr:
+    path: "{durable}/adr/NNNN-slug.md"
+    description: Hard-to-reverse decisions with real trade-offs.
+
+frontmatter-rule: |
+  Any artifact another agent or future session may read MUST carry
+  created_at and base_commit in YAML frontmatter.
+
+structure:
+  atomics/skills: Agent-loadable modules (<100 lines SKILL.md)
+  atomics/eager-context: Always-loaded context modules
+  compositions/agent-archetypes: YAML agent role definitions
+  compositions/crew-patterns: YAML team compositions
+  compositions/workspace-conventions: YAML workspace contracts
+  tools/proofs: Platform assumption validation
+  tools/evals: Behavioral evaluation harness
+  docs/practices: Human research documents
+  docs/specs: Feature specifications
+  resources: Read-only symlinked reference repos
+
+eager-context:
+  - workspace

@@ -1,58 +1,52 @@
 ---
-created_at: 2026-05-21T22:36:00-07:00
-base_commit: a7c04d0
-handoff_key: skill-authoring
+created_at: 2026-05-23T21:40:00-07:00
+base_commit: 9600bd0
+handoff_key: eval-harness
 ---
 
 # Handoff
 
 ## Objective
-Build the eval harness (T9) to enable dual-run skill evaluation, then validate the 5 authored skills prove value against baseline.
+Continue critical path: T17 → T18 → T22 (composition authoring, generator).
 
 ## Task Graph Position
-- **Complete:** S1–S7, T1–T7 (proof harness + both adapters), T13 (5 skills authored)
-- **Current:** Phase 1 done, T13 done. Next is T9 (eval harness) → T10 (dual-run) → T16 (eval skills).
-- **Critical path:** T9 → T10 → T16 → T17 → T18 → T22
-
-## Mental Model
-Read `.memory/CONTEXT.md` — key terms for this workstream:
-- **Skill (refined)** — on-demand knowledge, <100 lines, `metadata` block for custom fields
-- **Dual-run evaluation** — with/without skill comparison, delta = skill's value
-- **Context loading taxonomy** — eager/lazy/progressive (how content reaches agents)
-- **Invocation control** — `metadata.invocation`: user-only, agent-only, both
-- **Composition format** — YAML manifests referencing atomics by name
+- **Complete:** S1–S7, T1–T7, T9, T10, T13, T16 + eval methodology research
+- **Current:** Eval harness done, skills validated, methodology findings captured. Ready for T17.
+- **Critical path:** T17 → T18 → T22
+- **Deferred:** Remaining experiments (#3), T8 (cross-link lint)
 
 ## Constraints
-- `resources/` is read-only (symlinked reference repos)
-- Skills must use `metadata` block for custom fields (not top-level)
-- Proof harness requires `yq` (installed at `~/.local/bin/yq`)
-- kiro-cli 2.3.0, Claude Code 2.1.148 (both authenticated)
-- Judge config: 1 judge trial, 3 agent trials (S4 finding)
+- `resources/` is read-only
+- Skills use `metadata` block for custom fields
+- Proof harness requires `yq` (~/.local/bin/yq)
+- kiro-cli 2.3.0, Claude Code 2.1.148
+- Eval harness requires `claude` CLI for judge invocation
 
-## What Was Tried
-- Nothing failed this session. All implementation succeeded on first attempt.
-- Proof harness abstract fixtures work across both tools from same definition.
+## Prior Decisions
+- Eval methodology: grounded evals (real project fixture) are the valid methodology; empty-workspace evals inflate results
+- Skill value taxonomy: novel formats > enforcement gates > reasoning patterns
+- five-whys narrowed to "non-obvious/recurring technical problems" (not general debugging)
+- situation-routing description fixed (activates 100% now)
+- verification-protocol can't reliably activate on-demand; may need eager-loading
+- Overloading: 20% activation degradation with 5 skills present; strong activators immune
 
 ## Current State
-- 5 skills in `atomics/skills/`: verification-protocol, five-whys, eval-criteria, situation-routing, handoff
-- Proof harness passes 4 proofs on kiro-cli AND Claude Code
-- Generator architecture reverse-engineered (`.scratch/generator-architecture.md`)
-- Handoff/read-handoff prompts updated to match actual workflow
-- GitHub: smileynet/crew-research (private), #1 closed, #2 open (deferred)
-- No unresolved design questions
+- Eval harness: `tools/evals/harness/run.sh` (dual-run, activation detection, fixture support)
+- Activation detector: `tools/evals/harness/check-activation.sh`
+- Fixture: `tools/evals/fixtures/defu.yaml` (unjs/defu, TypeScript, vitest)
+- 5 skills in `atomics/skills/` (3 descriptions updated based on findings)
+- Findings docs: `docs/practices/eval-findings-v1.md`, `phase-2-grounded-results.md`, `experiment-1-activation-results.md`
+- Experiments plan: `docs/practices/eval-experiments-plan.md` (deferred to #3)
+- GitHub: #1 closed, #2 open (deferred), #3 open (experiments)
 
 ## Next Steps
-1. T9: Implement eval harness (judge invocation + scoring pipeline + results storage)
-2. T10: Add dual-run mode (with/without skill baseline comparison)
-3. T16: Run dual-run evals on the 5 authored skills (prove they add value)
-4. T8: Implement cross-link lint script (`tools/lint/check-crosslinks.sh`)
+1. T17: Begin composition authoring (agent archetypes as YAML manifests)
+2. T18: Crew patterns (multi-agent compositions)
+3. T22: Generator implementation
+4. Read `docs/specs/composition-format.md` for the spec before starting T17
 
 ## Evidence
+- Eval results: `tools/evals/results/` (multiple runs)
 - Spike findings: `docs/spike-findings.md`
-- Generator internals: `.scratch/generator-architecture.md`
-- Claude Code architecture: `.scratch/claude-code-architecture.md`
-- Proof results: `tools/proofs/results/{kiro-cli,claude-code}/`
 - All specs: `docs/specs/*.md`
-
-## Available Prompts
-`@handoff`, `@read-handoff`, `@grill-with-docs`, `@research-prior-art`
+- Experiment designs: `docs/practices/eval-experiments-plan.md`

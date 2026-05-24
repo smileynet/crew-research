@@ -1,0 +1,27 @@
+name: research
+description: Investigation and knowledge capture crew for exploring topics and producing findings.
+
+agents:
+  lead: lead
+  workers:
+    - researcher
+    - reviewer
+    - writer
+
+routing:
+  - pattern: "research|investigate|find out|explore|survey"
+    target: researcher
+  - pattern: "verify|fact-check|validate claims"
+    target: reviewer
+  - pattern: "write up|summarize|document findings"
+    target: writer
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Researcher gathers evidence; writer synthesizes it
+    - Reviewer validates claims against sources
+    - Lead ensures findings are cited and gaps are flagged
+
+shared-skills:
+  - five-whys
