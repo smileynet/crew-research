@@ -1,45 +1,58 @@
 ---
-created_at: 2026-05-23T23:37:00-07:00
-base_commit: c86ceff
+created_at: 2026-05-24T00:18:00-07:00
+base_commit: a32b771
 handoff_key: critical-path-complete
 ---
 
 # Handoff
 
 ## Objective
-Critical path complete. All planned tasks (T1–T22) are done. Remaining work is backlog items and future experiments.
+Critical path complete. Project is in expansion mode — porting skills, adding crews, growing the library.
 
 ## Task Graph Position
-- **Complete:** ALL tasks on critical path — S1–S7, T1–T10, T13, T16–T18, T22, T8
+- **Complete:** ALL critical path tasks (S1–S7, T1–T22, T8)
 - **Deferred:** #2 (issue automation), #3 (remaining eval experiments)
-- **No blocking work remains.**
+- **Current mode:** Library expansion (more skills, more crews)
 
 ## Current State
-- 5 skills authored and evaluated (`atomics/skills/`)
-- 6 agent archetypes (`compositions/agent-archetypes/`)
-- 2 crew patterns (`compositions/crew-patterns/`)
-- 1 workspace convention (`compositions/workspace-conventions/`)
-- Eval harness with dual-run, activation detection, fixture support (`tools/evals/harness/`)
-- Generator producing kiro-cli + claude-code deployments (`tools/generator/generate.sh`)
-- Cross-link lint passing clean (`tools/lint/check-crosslinks.sh`)
-- Proof harness passing on both tools (`tools/proofs/harness/run.sh`)
 
-## Key Findings (from eval research)
-- Empty-workspace evals inflate skill value; use real project fixtures
-- Skills for novel formats (eval-criteria) > enforcement gates (verification-protocol) > reasoning patterns (five-whys)
-- five-whys helps with non-obvious/recurring diagnosis (+1.0 delta) but hurts on code-tracing tasks (-1.34)
-- Activation reliability varies: 3/5 skills activate perfectly; verification-protocol needs eager-loading
-- Overloading: 20% activation degradation with 5 skills present; strong activators immune
-- Skill descriptions need distinctive trigger words to survive multi-skill environments
+### Inventory
+- 11 skills, 3 eager-context modules, 7 archetypes, 4 crew patterns, 1 workspace convention
+- Generator produces deployments for kiro-cli + claude-code
+- All validation passes (generator validate + cross-link lint)
+- Pushed to GitHub: smileynet/crew-research
 
-## Next Steps (backlog, not blocking)
-1. Run remaining experiments (#3): token efficiency, process tracing, interference, diversity, compression
-2. Author more skills from reference repos (Phase 3 expansion)
-3. Per-project customization overlays (#1)
-4. Write backing practices for skills that need them
+### Skills
+assumption-tracking, changelog-discipline, code-review, eval-criteria, five-whys, git-protocol, handoff, situation-routing, troubleshooting-protocol, verification-protocol, writing-style
+
+### Archetypes
+implementer, lead, planner, researcher, reviewer, tester, writer
+
+### Crews
+bugfix, development, documentation, research
+
+### Tooling
+- Proof harness (4 proofs, 2 adapters)
+- Eval harness (dual-run, activation detection, fixture support)
+- Activation test runner
+- Overloading test runner
+- Generator (validate + generate)
+- Cross-link lint
+
+## Key Findings (eval research)
+- Grounded evals (real project) are the valid methodology; empty-workspace inflates results
+- Skills for novel formats > enforcement gates > reasoning patterns
+- five-whys narrowed to non-obvious/recurring technical problems
+- verification-protocol can't reliably activate; needs eager-loading (solved with eager-context/verification.md)
+- 20% activation degradation with 5+ skills; strong activators immune
+
+## Next Steps (expansion)
+1. Port more skills from reference repos (~20 candidates remain)
+2. Add more crew patterns (infrastructure, onboarding, content)
+3. Run deferred experiments (#3) before next skill authoring batch
+4. Per-project customization overlays (#1)
 
 ## Evidence
-- Eval findings: `docs/practices/eval-findings-v1.md`, `phase-2-grounded-results.md`, `experiment-1-activation-results.md`
-- Experiment designs: `docs/practices/eval-experiments-plan.md`
-- All specs: `docs/specs/*.md`
-- Generator output: `tools/generator/generate.sh generate --output ./deploy`
+- Findings: `docs/practices/eval-findings-v1.md`, `phase-2-grounded-results.md`, `experiment-1-activation-results.md`
+- Experiments plan: `docs/practices/eval-experiments-plan.md`
+- Specs: `docs/specs/*.md`
