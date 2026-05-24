@@ -4,6 +4,7 @@ archetype: worker
 
 skills:
   - five-whys
+  - troubleshooting-protocol
 
 tools:
   - read

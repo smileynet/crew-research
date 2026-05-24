@@ -4,6 +4,8 @@ archetype: worker
 
 skills:
   - verification-protocol
+  - git-protocol
+  - troubleshooting-protocol
 
 tools:
   - read

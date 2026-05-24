@@ -4,6 +4,7 @@ archetype: worker
 
 skills:
   - eval-criteria
+  - code-review
 
 tools:
   - read
