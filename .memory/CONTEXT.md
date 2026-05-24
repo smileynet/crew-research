@@ -116,6 +116,14 @@ _Avoid_: testing only with skill loaded, leaking skill content into task descrip
 A secondary evaluation that checks whether an agent activates a skill when it's available but not forced. Tests description quality and trigger coverage. Expected activation rate without forcing is ~40-50%; with forced evaluation hooks ~84%.
 _Avoid_: conflating activation failure with skill quality (may be a description problem, not a content problem)
 
+**Skill focusing effect**:
+The empirically observed phenomenon where loading skills REDUCES token usage (counter to the "skills add overhead" hypothesis). Skills provide structure that helps the agent follow a more direct path. Measured: 6 skills = 33% fewer tokens than no skills. Only applies when skills are concise (<100 lines).
+_Avoid_: assuming skills always add context pressure
+
+**Activation bottleneck**:
+The primary limitation of on-demand skill loading: skills work when loaded but kiro-cli's semantic matching frequently fails to trigger them. Distinctive trigger words in descriptions survive; generic phrases don't. Skills that can't reliably activate should be eager-loaded instead.
+_Avoid_: blaming skill content for activation failures (it's a description/matching problem)
+
 **Composition format**:
 YAML manifests in `compositions/`. Compositions are structured references to atomic modules (agent lists, skill references, routing tables), not prose instructions. Machine-readable for generators; companion README for human context.
 _Avoid_: using SKILL.md format for compositions, mixing prose instructions with structured declarations
