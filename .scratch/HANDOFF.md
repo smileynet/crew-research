@@ -1,52 +1,45 @@
 ---
-created_at: 2026-05-23T21:40:00-07:00
-base_commit: 9600bd0
-handoff_key: eval-harness
+created_at: 2026-05-23T23:37:00-07:00
+base_commit: c86ceff
+handoff_key: critical-path-complete
 ---
 
 # Handoff
 
 ## Objective
-Continue critical path: T17 → T18 → T22 (composition authoring, generator).
+Critical path complete. All planned tasks (T1–T22) are done. Remaining work is backlog items and future experiments.
 
 ## Task Graph Position
-- **Complete:** S1–S7, T1–T7, T9, T10, T13, T16 + eval methodology research
-- **Current:** Eval harness done, skills validated, methodology findings captured. Ready for T17.
-- **Critical path:** T17 → T18 → T22
-- **Deferred:** Remaining experiments (#3), T8 (cross-link lint)
-
-## Constraints
-- `resources/` is read-only
-- Skills use `metadata` block for custom fields
-- Proof harness requires `yq` (~/.local/bin/yq)
-- kiro-cli 2.3.0, Claude Code 2.1.148
-- Eval harness requires `claude` CLI for judge invocation
-
-## Prior Decisions
-- Eval methodology: grounded evals (real project fixture) are the valid methodology; empty-workspace evals inflate results
-- Skill value taxonomy: novel formats > enforcement gates > reasoning patterns
-- five-whys narrowed to "non-obvious/recurring technical problems" (not general debugging)
-- situation-routing description fixed (activates 100% now)
-- verification-protocol can't reliably activate on-demand; may need eager-loading
-- Overloading: 20% activation degradation with 5 skills present; strong activators immune
+- **Complete:** ALL tasks on critical path — S1–S7, T1–T10, T13, T16–T18, T22, T8
+- **Deferred:** #2 (issue automation), #3 (remaining eval experiments)
+- **No blocking work remains.**
 
 ## Current State
-- Eval harness: `tools/evals/harness/run.sh` (dual-run, activation detection, fixture support)
-- Activation detector: `tools/evals/harness/check-activation.sh`
-- Fixture: `tools/evals/fixtures/defu.yaml` (unjs/defu, TypeScript, vitest)
-- 5 skills in `atomics/skills/` (3 descriptions updated based on findings)
-- Findings docs: `docs/practices/eval-findings-v1.md`, `phase-2-grounded-results.md`, `experiment-1-activation-results.md`
-- Experiments plan: `docs/practices/eval-experiments-plan.md` (deferred to #3)
-- GitHub: #1 closed, #2 open (deferred), #3 open (experiments)
+- 5 skills authored and evaluated (`atomics/skills/`)
+- 6 agent archetypes (`compositions/agent-archetypes/`)
+- 2 crew patterns (`compositions/crew-patterns/`)
+- 1 workspace convention (`compositions/workspace-conventions/`)
+- Eval harness with dual-run, activation detection, fixture support (`tools/evals/harness/`)
+- Generator producing kiro-cli + claude-code deployments (`tools/generator/generate.sh`)
+- Cross-link lint passing clean (`tools/lint/check-crosslinks.sh`)
+- Proof harness passing on both tools (`tools/proofs/harness/run.sh`)
 
-## Next Steps
-1. T17: Begin composition authoring (agent archetypes as YAML manifests)
-2. T18: Crew patterns (multi-agent compositions)
-3. T22: Generator implementation
-4. Read `docs/specs/composition-format.md` for the spec before starting T17
+## Key Findings (from eval research)
+- Empty-workspace evals inflate skill value; use real project fixtures
+- Skills for novel formats (eval-criteria) > enforcement gates (verification-protocol) > reasoning patterns (five-whys)
+- five-whys helps with non-obvious/recurring diagnosis (+1.0 delta) but hurts on code-tracing tasks (-1.34)
+- Activation reliability varies: 3/5 skills activate perfectly; verification-protocol needs eager-loading
+- Overloading: 20% activation degradation with 5 skills present; strong activators immune
+- Skill descriptions need distinctive trigger words to survive multi-skill environments
+
+## Next Steps (backlog, not blocking)
+1. Run remaining experiments (#3): token efficiency, process tracing, interference, diversity, compression
+2. Author more skills from reference repos (Phase 3 expansion)
+3. Per-project customization overlays (#1)
+4. Write backing practices for skills that need them
 
 ## Evidence
-- Eval results: `tools/evals/results/` (multiple runs)
-- Spike findings: `docs/spike-findings.md`
-- All specs: `docs/specs/*.md`
+- Eval findings: `docs/practices/eval-findings-v1.md`, `phase-2-grounded-results.md`, `experiment-1-activation-results.md`
 - Experiment designs: `docs/practices/eval-experiments-plan.md`
+- All specs: `docs/specs/*.md`
+- Generator output: `tools/generator/generate.sh generate --output ./deploy`
