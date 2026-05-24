@@ -6,6 +6,9 @@ skills:
   - situation-routing
   - verification-protocol
 
+eager-context:
+  - delegation
+
 tools:
   - read
   - glob
