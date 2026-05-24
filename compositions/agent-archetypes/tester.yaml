@@ -5,6 +5,7 @@ archetype: worker
 skills:
   - verification-protocol
   - troubleshooting-protocol
+  - testing-guide
 
 tools:
   - read

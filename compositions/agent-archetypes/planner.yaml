@@ -5,6 +5,7 @@ archetype: worker
 skills:
   - situation-routing
   - assumption-tracking
+  - planning-cycles
 
 tools:
   - read

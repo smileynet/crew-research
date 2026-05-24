@@ -6,6 +6,9 @@ skills:
   - verification-protocol
   - git-protocol
   - troubleshooting-protocol
+  - testing-guide
+  - commit-pr-discipline
+  - ai-generation-hygiene
 
 tools:
   - read

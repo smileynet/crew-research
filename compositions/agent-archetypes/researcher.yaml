@@ -5,6 +5,7 @@ archetype: worker
 skills:
   - five-whys
   - troubleshooting-protocol
+  - research-methodology
 
 tools:
   - read
