@@ -1,0 +1,17 @@
+project: rust-cli-example
+language: rust
+
+crews:
+  - development
+  - bugfix
+
+verification:
+  build: "cargo check"
+  test: "cargo test"
+  lint: "cargo clippy --all-targets -- -D warnings"
+
+params:
+  verification-protocol:
+    build_command: "cargo check"
+    test_command: "cargo test"
+    lint_command: "cargo clippy -- -D warnings"

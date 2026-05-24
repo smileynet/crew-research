@@ -1,0 +1,17 @@
+project: node-webapp-example
+language: typescript
+
+crews:
+  - development
+  - documentation
+
+verification:
+  build: "npm run build"
+  test: "npm test"
+  lint: "npm run lint"
+
+params:
+  verification-protocol:
+    build_command: "npm run build"
+    test_command: "npm test"
+    lint_command: "npm run lint"

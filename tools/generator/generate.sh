@@ -14,14 +14,29 @@ shift || true
 
 TOOL="all"
 OUTPUT="$ROOT_DIR/deploy"
+PROJECT=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --tool) TOOL="$2"; shift 2 ;;
     --output) OUTPUT="$2"; shift 2 ;;
+    --project) PROJECT="$2"; shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
+
+# Load project overlay if specified
+PROJECT_CONFIG=""
+PROJECT_CREWS=""
+if [[ -n "$PROJECT" ]]; then
+  PROJECT_CONFIG="$PROJECT/.crew-config.yaml"
+  if [[ -f "$PROJECT_CONFIG" ]]; then
+    PROJECT_CREWS=$(yq '.crews[]?' "$PROJECT_CONFIG" 2>/dev/null | tr '\n' ' ')
+    echo "Project: $(yq '.project' "$PROJECT_CONFIG") ($(echo $PROJECT_CREWS | wc -w) crews)"
+  else
+    echo "Warning: --project specified but no .crew-config.yaml found" >&2
+  fi
+fi
 
 # --- Validation ---
 
@@ -68,6 +83,22 @@ validate() {
 
 # --- Generation ---
 
+# Get extra skills for an archetype from project config
+get_extra_skills() {
+  local archetype_name="$1"
+  if [[ -n "$PROJECT_CONFIG" && -f "$PROJECT_CONFIG" ]]; then
+    yq ".extend.$archetype_name.skills[]?" "$PROJECT_CONFIG" 2>/dev/null
+  fi
+}
+
+# Get param value for a skill from project config
+get_param() {
+  local skill_name="$1" param_name="$2"
+  if [[ -n "$PROJECT_CONFIG" && -f "$PROJECT_CONFIG" ]]; then
+    yq ".params.\"$skill_name\".$param_name // \"\"" "$PROJECT_CONFIG" 2>/dev/null
+  fi
+}
+
 generate_agent_kiro() {
   local archetype_file="$1" output_dir="$2"
   local name=$(yq '.name' "$archetype_file")
@@ -78,7 +109,12 @@ generate_agent_kiro() {
   # Build resources array: skills as skill:// URIs
   local resources="[]"
   local skills=$(yq '.skills[]?' "$archetype_file" 2>/dev/null)
-  for s in $skills; do
+  # Add extra skills from project overlay
+  local extra_skills=$(get_extra_skills "$name")
+  local all_skills="$skills $extra_skills"
+
+  for s in $all_skills; do
+    [[ -z "$s" ]] && continue
     resources=$(echo "$resources" | yq -o=json ". + [\"skill://.kiro/skills/$s/SKILL.md\"]")
   done
 
@@ -87,6 +123,13 @@ generate_agent_kiro() {
   for e in $eager; do
     resources=$(echo "$resources" | yq -o=json ". + [\"file://.kiro/steering/universal/$e.md\"]")
   done
+
+  # Add project-level eager-context
+  if [[ -n "$PROJECT_CONFIG" && -f "$PROJECT_CONFIG" ]]; then
+    for e in $(yq '.["eager-context"][]?' "$PROJECT_CONFIG" 2>/dev/null); do
+      resources=$(echo "$resources" | yq -o=json ". + [\"file://.kiro/steering/universal/$e.md\"]")
+    done
+  fi
 
   mkdir -p "$output_dir/.kiro/agents"
   cat > "$output_dir/.kiro/agents/$name.json" << EOF
@@ -108,12 +151,15 @@ generate_agent_claude() {
   local prompt=$(yq '.prompt' "$archetype_file")
   local tools=$(yq -r '.tools | join(", ")' "$archetype_file")
 
-  # Build skills list
+  # Build skills list (base + overlay extras)
   local skills_field=""
   local skills=$(yq '.skills[]?' "$archetype_file" 2>/dev/null)
-  if [[ -n "$skills" ]]; then
+  local extra_skills=$(get_extra_skills "$name")
+  local all_skills="$skills $extra_skills"
+  all_skills=$(echo "$all_skills" | tr ' ' '\n' | grep -v '^$' | sort -u)
+  if [[ -n "$all_skills" ]]; then
     skills_field="skills:"
-    for s in $skills; do
+    for s in $all_skills; do
       skills_field="$skills_field
   - $s"
     done
@@ -170,9 +216,26 @@ generate_tool() {
 
   echo "  Generating for $tool → $tool_output/"
 
+  # Determine which archetypes to include
+  local archetypes_to_generate=""
+  if [[ -n "$PROJECT_CONFIG" && -f "$PROJECT_CONFIG" ]]; then
+    # Only include archetypes referenced by selected crews
+    for crew in $(yq '.crews[]?' "$PROJECT_CONFIG" 2>/dev/null); do
+      local crew_file="$COMPOSITIONS_DIR/crew-patterns/$crew.yaml"
+      [[ -f "$crew_file" ]] || continue
+      archetypes_to_generate="$archetypes_to_generate $(yq '.agents.lead, .agents.workers[]?' "$crew_file" 2>/dev/null)"
+    done
+    archetypes_to_generate=$(echo "$archetypes_to_generate" | tr ' ' '\n' | sort -u | grep -v '^$')
+  fi
+
   # Generate agent configs
   for f in "$COMPOSITIONS_DIR"/agent-archetypes/*.yaml; do
     [[ -f "$f" ]] || continue
+    local aname=$(yq '.name' "$f")
+    # Filter if project config specifies crews
+    if [[ -n "$archetypes_to_generate" ]]; then
+      echo "$archetypes_to_generate" | grep -qx "$aname" || continue
+    fi
     if [[ "$tool" == "kiro-cli" ]]; then
       generate_agent_kiro "$f" "$tool_output"
     elif [[ "$tool" == "claude-code" ]]; then
