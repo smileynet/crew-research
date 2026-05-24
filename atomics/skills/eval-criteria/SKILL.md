@@ -7,7 +7,7 @@ description: >
 metadata:
   type: reference
   invocation: both
-  practice: evaluation-methodology
+  practice: null
 ---
 
 # Eval Criteria Style Guide

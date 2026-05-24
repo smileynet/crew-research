@@ -8,7 +8,7 @@ description: >
 metadata:
   type: protocol
   invocation: both
-  practice: verification
+  practice: null
   params:
     build_command: ""
     test_command: ""

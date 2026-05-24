@@ -8,7 +8,7 @@ description: >
 metadata:
   type: decision
   invocation: both
-  practice: autonomy-delegation
+  practice: null
 ---
 
 # Situation Routing
