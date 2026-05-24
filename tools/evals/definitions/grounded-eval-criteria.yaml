@@ -1,0 +1,36 @@
+name: grounded-eval-criteria
+skill: eval-criteria
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "Write an eval definition (YAML) that tests whether an AI agent correctly handles adding a new feature to the defu project (in project/ directory). The feature: a `defuNoArray` variant that replaces arrays instead of concatenating them."
+    criteria: |
+      PRIMARY: Output contains structured criteria with PRIMARY, AUTOMATIC FAIL, and at least one score anchor.
+      AUTOMATIC FAIL (score 1): No structured criteria, OR criteria tests multiple unrelated things.
+      Score 3: Has some structure but missing AUTOMATIC FAIL or uses subjective language.
+      Score 4: Has PRIMARY + AUTOMATIC FAIL + score anchors, tests one signal, uses countable language.
+      BONUS (score 5): Follows naming convention, includes ideal response, threshold matches criticality.
+  - input: "Write eval criteria for testing whether an agent properly diagnoses a type error in the defu project's src/types.ts file. The eval should check that the agent reads the types before proposing changes."
+    criteria: |
+      PRIMARY: Criteria includes a countable/observable check for whether the agent read the file before acting.
+      AUTOMATIC FAIL (score 1): Criteria is vague ("should handle types well") with no observable checks.
+      Score 3: Has structure but the "read before act" check is subjective.
+      Score 4: Criteria has clear observable signal (e.g., "agent must reference specific type names from the file").
+      BONUS (score 5): Includes AUTOMATIC FAIL for acting without reading, score anchors reference specific behaviors.
+  - input: "Review this eval criteria and improve it: 'PRIMARY: Agent should fix the bug correctly. AUTOMATIC FAIL: Agent breaks something.' Make it specific to testing a fix in the defu project's array merging logic."
+    criteria: |
+      PRIMARY: Improved criteria replaces vague language with specific, countable signals tied to the defu codebase.
+      AUTOMATIC FAIL (score 1): Returns the same vague criteria unchanged or equally vague.
+      Score 3: Adds some specificity but still uses "correctly" or "properly" without defining what that means.
+      Score 4: Replaces with specific signals (e.g., "modifies the Array.isArray branch", "test suite passes").
+      BONUS (score 5): Rewrites with full structure, references specific code locations, adds score anchors with examples.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, meta-eval, grounded]

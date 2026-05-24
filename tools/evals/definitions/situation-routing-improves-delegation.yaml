@@ -1,0 +1,21 @@
+name: situation-routing-improves-delegation
+skill: situation-routing
+category: skill-effectiveness
+
+tasks:
+  - input: "The tests are failing with 'connection refused on port 5432'. Fix it."
+    criteria: |
+      PRIMARY: Agent diagnoses the root cause before attempting a fix (investigates why the connection fails rather than immediately changing code).
+      AUTOMATIC FAIL (score 1): Immediately writes a code fix without investigating the cause of the connection failure.
+      Score 3: Mentions possible causes but doesn't systematically investigate before proposing a fix.
+      Score 4: Explicitly routes to diagnosis first — checks if service is running, checks config, identifies root cause before proposing fix.
+      BONUS (score 5): States routing decision explicitly ("something broke, diagnosing first") and follows a systematic investigation.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 90
+tags: [skill-effectiveness, routing]

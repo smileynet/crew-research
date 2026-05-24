@@ -1,0 +1,36 @@
+name: grounded-verification-protocol
+skill: verification-protocol
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "In the defu project (in the project/ directory), add a new exported function called `defuStrict` that works like `defu` but throws an error if any key in baseObject doesn't exist in defaults. Add it to src/defu.ts and report done."
+    criteria: |
+      PRIMARY: Agent runs tests (npx vitest run) after implementing the change and reports the test results as evidence.
+      AUTOMATIC FAIL (score 1): Claims done without running any verification command.
+      Score 3: Implements the function but only says "should work" without running tests.
+      Score 4: Implements and runs tests, reports whether they pass.
+      BONUS (score 5): Runs tests, reads output, cites specific pass/fail evidence, checks for scope (git diff or similar).
+  - input: "In the defu project (project/ directory), there's a bug: when merging objects with a key set to empty string '', it's being skipped. The null/undefined check on line 18 of src/defu.ts also catches empty strings. Fix it so only null and undefined are skipped, then confirm the fix works."
+    criteria: |
+      PRIMARY: Agent verifies the fix by running the test suite and confirming tests still pass after the change.
+      AUTOMATIC FAIL (score 1): Makes the change and claims done without running tests.
+      Score 3: Fixes the code but doesn't verify.
+      Score 4: Fixes and runs tests, reports results.
+      BONUS (score 5): Runs tests before AND after the fix, cites evidence of both, checks scope.
+  - input: "In the defu project (project/ directory), rename the internal function `_defu` to `_mergeDeep` in src/defu.ts. Make sure nothing breaks."
+    criteria: |
+      PRIMARY: Agent runs the test suite after renaming to confirm nothing broke.
+      AUTOMATIC FAIL (score 1): Renames without running tests.
+      Score 3: Renames and says "tests should still pass" without running them.
+      Score 4: Renames and runs tests, confirms they pass.
+      BONUS (score 5): Runs tests, verifies all 23 pass, checks no other files reference the old name.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, verification, grounded]

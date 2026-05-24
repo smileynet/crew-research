@@ -1,0 +1,36 @@
+name: grounded-five-whys
+skill: five-whys
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "In the defu project (project/ directory), running `npx vitest run` shows a test failure in 'should handle prototype pollution'. The test expects __proto__ keys to be skipped but they're appearing in output. Diagnose why this is happening — trace the root cause through the code."
+    criteria: |
+      PRIMARY: Agent produces a causal chain of at least 3 linked reasoning steps tracing from symptom to root cause.
+      AUTOMATIC FAIL (score 1): Immediately proposes a fix without investigating the cause chain.
+      Score 3: Identifies the immediate cause (the continue statement) but doesn't trace deeper.
+      Score 4: Chains 3+ reasoning steps from test failure → merge loop → key filter → root cause.
+      BONUS (score 5): Full causal chain with explicit "Root cause" and "Action" stated, reads the actual code.
+  - input: "In the defu project (project/ directory), a user reports that `defu({a: [1,2]}, {a: [3,4]})` returns `{a: [1,2,3,4]}` but they expected `{a: [1,2]}` (base should win for arrays). Figure out why arrays concatenate instead of being replaced."
+    criteria: |
+      PRIMARY: Agent traces the causal chain: user expectation → actual behavior → code path → design decision.
+      AUTOMATIC FAIL (score 1): Just says "change the array handling" without explaining why it works this way.
+      Score 3: Points to the array concatenation line but doesn't explain the design reasoning.
+      Score 4: Traces through the code, identifies the specific line, explains it's intentional behavior (arrays merge by design).
+      BONUS (score 5): Full why-chain, reads the code, identifies this is by-design not a bug, suggests how to override with createDefu.
+  - input: "In the defu project (project/ directory), `defu({nested: {a: 1}}, {nested: {b: 2}})` works fine but `defu({nested: null}, {nested: {b: 2}})` returns `{nested: null}` instead of falling through to the default. Why does null block the default?"
+    criteria: |
+      PRIMARY: Agent traces the causal chain from behavior → code → the null check logic.
+      AUTOMATIC FAIL (score 1): Proposes a fix without explaining the cause.
+      Score 3: Says "there's a null check" without tracing the full logic.
+      Score 4: Traces: null value → line 18 check → continue skips → object[key] stays as default → wait, actually null means "explicitly set, don't override". Identifies the design intent.
+      BONUS (score 5): Full chain with code references, identifies this is intentional (null = "I explicitly want nothing here"), suggests workaround.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, reasoning, grounded]

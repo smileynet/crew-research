@@ -1,0 +1,10 @@
+{"skill":"situation-routing","input":"I'm not sure whether to use Redis or Memcached for our cachi","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"We need to add search functionality. Should I use Elasticsea","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"The auth system is broken and users can't log in. Also we ne","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"I have a bug report, a feature request, and a refactoring ta","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"Should I investigate this performance issue myself or delega","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"Add a border-radius of 8px to the card component.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Convert this callback-based function to use async/await.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Write a SQL query to get all users who signed up last month.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Update the package.json to use exact versions.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Add a .gitignore entry for .env files.","expect":false,"activated":false,"result":"TN"}

@@ -1,0 +1,30 @@
+name: activation-situation-routing
+skill: situation-routing
+category: activation
+
+tasks:
+  # 5 relevant tasks (skill SHOULD activate)
+  - input: "I'm not sure whether to use Redis or Memcached for our caching layer. Can you help me decide?"
+    expect_activation: true
+  - input: "We need to add search functionality. Should I use Elasticsearch or just add a LIKE query?"
+    expect_activation: true
+  - input: "The auth system is broken and users can't log in. Also we need to plan the new dashboard. What should I tackle first?"
+    expect_activation: true
+  - input: "I have a bug report, a feature request, and a refactoring task. Help me prioritize."
+    expect_activation: true
+  - input: "Should I investigate this performance issue myself or delegate it to the backend team?"
+    expect_activation: true
+  # 5 irrelevant tasks (skill should NOT activate)
+  - input: "Add a border-radius of 8px to the card component."
+    expect_activation: false
+  - input: "Convert this callback-based function to use async/await."
+    expect_activation: false
+  - input: "Write a SQL query to get all users who signed up last month."
+    expect_activation: false
+  - input: "Update the package.json to use exact versions."
+    expect_activation: false
+  - input: "Add a .gitignore entry for .env files."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

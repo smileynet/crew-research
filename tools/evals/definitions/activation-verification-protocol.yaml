@@ -1,0 +1,30 @@
+name: activation-verification-protocol
+skill: verification-protocol
+category: activation
+
+# 5 relevant tasks (skill SHOULD activate)
+tasks:
+  - input: "Add a greeting function to utils.py and let me know when it's done."
+    expect_activation: true
+  - input: "Fix the typo in the README and report back."
+    expect_activation: true
+  - input: "Refactor the parse_config function to use dataclasses. Tell me when complete."
+    expect_activation: true
+  - input: "Update the CI workflow to run on Node 20 and confirm it works."
+    expect_activation: true
+  - input: "Implement the missing error handling in the API route and mark done."
+    expect_activation: true
+  # 5 irrelevant tasks (skill should NOT activate)
+  - input: "What's the difference between TCP and UDP?"
+    expect_activation: false
+  - input: "Explain how Python's GIL works."
+    expect_activation: false
+  - input: "List the pros and cons of microservices vs monoliths."
+    expect_activation: false
+  - input: "What design patterns are used in React?"
+    expect_activation: false
+  - input: "Summarize the CAP theorem."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

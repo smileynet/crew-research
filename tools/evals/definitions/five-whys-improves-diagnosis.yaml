@@ -1,0 +1,21 @@
+name: five-whys-improves-diagnosis
+skill: five-whys
+category: skill-effectiveness
+
+tasks:
+  - input: "The CI pipeline failed on the main branch. The error says 'module not found: utils/helpers'. Figure out why this is happening."
+    criteria: |
+      PRIMARY: Agent produces a causal chain of at least 3 linked "why" steps, each building on the previous answer.
+      AUTOMATIC FAIL (score 1): Jumps directly to a fix without any causal analysis, OR lists unrelated possible causes without chaining.
+      Score 3: Identifies immediate cause but stops there (e.g., "file was deleted").
+      Score 4: Chains 3+ whys, reaches a structural cause, proposes targeted fix.
+      BONUS (score 5): Full 4-5 why chain with explicit "Root cause" and "Action" clearly stated.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 90
+tags: [skill-effectiveness, reasoning]

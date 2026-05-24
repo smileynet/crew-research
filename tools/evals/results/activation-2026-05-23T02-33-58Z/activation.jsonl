@@ -1,0 +1,50 @@
+{"skill":"eval-criteria","input":"Write an eval definition that tests whether the agent correc","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Create scoring criteria for evaluating code review quality.","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Design a rubric to judge whether an agent follows security b","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"I need to evaluate how well the agent handles error messages","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Review this eval definition and improve the scoring criteria","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Implement a binary search algorithm in Python.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Create a Dockerfile for a Node.js application.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Write a bash script that backs up a PostgreSQL database.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Explain the difference between REST and GraphQL.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Add pagination to the /users endpoint.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"The deploy failed with exit code 137. Why is this happening?","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"Users are reporting slow page loads. Diagnose the root cause","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"The test suite started failing after the last merge. Figure ","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"Memory usage keeps climbing until the service crashes. What'","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"The API returns 500 errors intermittently. Do a root cause a","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"Create a new React component called UserCard.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Write unit tests for the calculateTotal function.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Add TypeScript types to the config module.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Set up a GitHub Actions workflow for linting.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Rename the variable 'x' to 'itemCount' throughout the file.","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Write a handoff document for this session. We fixed the logi","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"I'm ending my work session. Create a handoff so the next per","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"Document the current state of work before I take a break.","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"Prepare a session summary with next steps for whoever picks ","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"I need to hand off this task to another developer. Write up ","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"Sort this array of objects by the 'name' field.","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"What's the time complexity of quicksort?","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Add input validation to the registration form.","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Create a migration to add an 'email' column to the users tab","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Write a regex that matches email addresses.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"I'm not sure whether to use Redis or Memcached for our cachi","expect":true,"activated":false,"result":"FN"}
+{"skill":"situation-routing","input":"We need to add search functionality. Should I use Elasticsea","expect":true,"activated":false,"result":"FN"}
+{"skill":"situation-routing","input":"The auth system is broken and users can't log in. Also we ne","expect":true,"activated":false,"result":"FN"}
+{"skill":"situation-routing","input":"I have a bug report, a feature request, and a refactoring ta","expect":true,"activated":false,"result":"FN"}
+{"skill":"situation-routing","input":"Should I investigate this performance issue myself or delega","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"Add a border-radius of 8px to the card component.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Convert this callback-based function to use async/await.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Write a SQL query to get all users who signed up last month.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Update the package.json to use exact versions.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Add a .gitignore entry for .env files.","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"Add a greeting function to utils.py and let me know when it'","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Fix the typo in the README and report back.","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Refactor the parse_config function to use dataclasses. Tell ","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Update the CI workflow to run on Node 20 and confirm it work","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Implement the missing error handling in the API route and ma","expect":true,"activated":true,"result":"TP"}
+{"skill":"verification-protocol","input":"What's the difference between TCP and UDP?","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"Explain how Python's GIL works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"List the pros and cons of microservices vs monoliths.","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"What design patterns are used in React?","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"Summarize the CAP theorem.","expect":false,"activated":false,"result":"TN"}

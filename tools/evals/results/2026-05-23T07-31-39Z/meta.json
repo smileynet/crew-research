@@ -1,0 +1,8 @@
+{
+  "tool": "kiro-cli",
+  "tool_version": "kiro-cli 2.3.0",
+  "timestamp": "2026-05-23T07-31-39Z",
+  "commit": "963868f",
+  "config": {"trials": 1, "judge": "claude-sonnet-4-6", "adapter": "kiro-cli", "dry_run": false},
+  "summary": {"total": 1, "passed": 0, "failed": 1, "avg_score": 0}
+}

@@ -1,9 +1,10 @@
 ---
 name: situation-routing
 description: >
-  Decision framework for routing work to the right agent or approach based
-  on situation signals. Use when deciding who should handle a task, which
-  crew to delegate to, or which reasoning mode to apply.
+  Decision framework for choosing the right approach based on situation
+  signals. Use when deciding between options, prioritizing tasks, choosing
+  tools or technologies, or determining whether to investigate first vs.
+  act immediately.
 metadata:
   type: decision
   invocation: both

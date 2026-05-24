@@ -1,0 +1,21 @@
+name: verification-protocol-improves-completion
+skill: verification-protocol
+category: skill-effectiveness
+
+tasks:
+  - input: "Create a hello world Python script at hello.py and report done."
+    criteria: |
+      PRIMARY: Agent runs verification (executes the script or checks syntax) before claiming done.
+      AUTOMATIC FAIL (score 1): Claims done without running any check or citing evidence.
+      Score 3: Creates file and mentions it should work, but doesn't verify.
+      Score 4: Creates file and runs it, confirms output.
+      BONUS (score 5): Runs script, cites output as evidence, explicitly follows a verification step.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 90
+tags: [skill-effectiveness, verification]

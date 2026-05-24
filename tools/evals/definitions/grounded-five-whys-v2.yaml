@@ -1,0 +1,50 @@
+name: grounded-five-whys-v2
+skill: five-whys
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  # Diagnosis task: real bug with non-obvious root cause
+  - input: "In the defu project (project/ directory), a user reports: 'When I do defu({items: [1,2,3]}, {items: [4,5,6]}), I get {items: [1,2,3,4,5,6]} but I expected {items: [1,2,3]}. My base object should win.' They filed a bug. Diagnose whether this is actually a bug or expected behavior, and explain the root cause of the user's confusion."
+    criteria: |
+      PRIMARY: Agent produces a causal chain explaining WHY the user is confused (not just what the code does).
+      AUTOMATIC FAIL (score 1): Just says "arrays concatenate" without explaining why the user's mental model is wrong.
+      Score 3: Identifies the array behavior but doesn't trace the reasoning chain of the confusion.
+      Score 4: Chains: user expects "base wins" → but defu's design is "merge, not override" → arrays merge by concatenation → user's mental model assumes replacement semantics → root cause is documentation/naming confusion.
+      BONUS (score 5): Full causal chain, identifies the root cause as a design communication problem (not a code bug), suggests what would fix the user's confusion.
+
+  # Diagnosis task: intermittent failure
+  - input: "In the defu project (project/ directory), a CI pipeline intermittently fails with 'heap out of memory' when running tests. It passes 9/10 times. The test suite is only 23 tests on a 200-line library. This shouldn't be possible. Diagnose why a tiny test suite could intermittently OOM."
+    criteria: |
+      PRIMARY: Agent produces a causal chain of at least 3 linked why-steps investigating possible causes of intermittent OOM.
+      AUTOMATIC FAIL (score 1): Says "increase memory" or "add --max-old-space-size" without investigating why.
+      Score 3: Lists possible causes without chaining them (parallel list, not causal chain).
+      Score 4: Chains: OOM on tiny suite → not the tests themselves → something in the environment → CI runner memory limits / parallel processes / vitest worker overhead → root cause hypothesis.
+      BONUS (score 5): Full chain with explicit "Root cause" and "Action", considers multiple hypotheses but follows one chain to a structural cause.
+
+  # Non-coding task: process/organizational diagnosis
+  - input: "Our team keeps missing sprint deadlines. Last 4 sprints we delivered 60-70% of committed work. The team says they're working hard and estimates seem reasonable at planning time. Diagnose why we're consistently over-committing."
+    criteria: |
+      PRIMARY: Agent produces a causal chain of at least 4 linked why-steps, each building on the previous answer.
+      AUTOMATIC FAIL (score 1): Lists tips for better estimation without any causal analysis.
+      Score 3: Identifies one cause ("estimates are too optimistic") without chaining deeper.
+      Score 4: Chains 4+ whys: miss deadlines → over-commit → estimates seem right at planning → something changes after planning → unplanned work / scope creep / interrupts → no buffer for unknowns → planning process doesn't account for X.
+      BONUS (score 5): Full 5-why chain with explicit root cause and action, single causal thread (not branching), reaches a structural/systemic cause.
+
+  # Non-coding task: incident diagnosis
+  - input: "Our production API went down for 2 hours last Tuesday. The immediate cause was a database connection pool exhaustion. We restarted the service and it recovered. But this is the third time this quarter. Do a root cause analysis — why does this keep happening?"
+    criteria: |
+      PRIMARY: Agent chains past the immediate cause (connection pool) to ask WHY it keeps recurring.
+      AUTOMATIC FAIL (score 1): Says "increase pool size" or "add monitoring" without analyzing recurrence.
+      Score 3: Identifies the immediate cause but stops there.
+      Score 4: Chains: pool exhaustion → connections not released → likely a leak or slow queries → but why does it recur? → the restart is a band-aid, not a fix → nobody investigated the leak → root cause is incident response process (fix symptoms, not causes).
+      BONUS (score 5): Full chain reaching a systemic root cause (process, not technical), explicitly distinguishes "why it happened" from "why it keeps happening."
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, reasoning, diagnosis, grounded]

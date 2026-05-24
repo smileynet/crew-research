@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-23T02-33-58Z",
+  "tool": "kiro-cli",
+  "total": 50,
+  "tp": 17, "fp": 0, "tn": 25, "fn": 8,
+  "true_positive_rate": .68,
+  "false_positive_rate": 0,
+  "accuracy": .84
+}

@@ -1,0 +1,5 @@
+{"name":"eval-criteria-improves-scoring","status":"PASS","score":5.00,"reason":"with=5.00 without=2.33 delta=2.67","with_score":5.00,"without_score":2.33,"delta":2.67}
+{"name":"five-whys-improves-diagnosis","status":"PASS","score":5.00,"reason":"with=5.00 without=1.00 delta=4.00","with_score":5.00,"without_score":1.00,"delta":4.00}
+{"name":"handoff-improves-continuity","status":"PASS","score":5.00,"reason":"with=5.00 without=3.00 delta=2.00","with_score":5.00,"without_score":3.00,"delta":2.00}
+{"name":"situation-routing-improves-delegation","status":"PASS","score":4.66,"reason":"with=4.66 without=3.00 delta=1.66","with_score":4.66,"without_score":3.00,"delta":1.66}
+{"name":"verification-protocol-improves-completion","status":"PASS","score":5.00,"reason":"with=5.00 without=1.00 delta=4.00","with_score":5.00,"without_score":1.00,"delta":4.00}

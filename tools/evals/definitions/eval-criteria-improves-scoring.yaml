@@ -1,0 +1,21 @@
+name: eval-criteria-improves-scoring
+skill: eval-criteria
+category: skill-effectiveness
+
+tasks:
+  - input: "Write an eval definition that tests whether a code review agent catches security vulnerabilities in pull requests."
+    criteria: |
+      PRIMARY: Output contains all required fields (PRIMARY, AUTOMATIC FAIL, at least one score anchor) in the correct criteria format.
+      AUTOMATIC FAIL (score 1): No structured criteria at all, OR criteria tests multiple unrelated things in one eval.
+      Score 3: Has some structure but missing AUTOMATIC FAIL or uses subjective language ("should handle well").
+      Score 4: Has PRIMARY + AUTOMATIC FAIL + score anchors, tests one signal, uses countable language.
+      BONUS (score 5): Follows naming convention, includes ideal response, threshold matches criticality rationale.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 90
+tags: [skill-effectiveness, meta-eval]

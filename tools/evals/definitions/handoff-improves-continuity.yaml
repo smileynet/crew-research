@@ -1,0 +1,21 @@
+name: handoff-improves-continuity
+skill: handoff
+category: skill-effectiveness
+
+tasks:
+  - input: "Write a handoff document for the current session. We fixed a bug in the auth middleware (src/middleware/auth.ts line 42, null check) and updated tests. Next step is deploying to staging."
+    criteria: |
+      PRIMARY: Output contains structured handoff with at least: base_commit (or attempt to get it), objective, current state, and next steps sections.
+      AUTOMATIC FAIL (score 1): Produces a generic summary with no actionable next steps, OR omits file paths and specifics.
+      Score 3: Has some structure but missing key sections (e.g., no next steps, no file paths).
+      Score 4: All required sections present, includes specific file paths, next steps are actionable.
+      BONUS (score 5): Includes frontmatter with base_commit, mentions what was tried, evidence pointers, under 60 lines.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 90
+tags: [skill-effectiveness, process]

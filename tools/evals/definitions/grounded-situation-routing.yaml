@@ -1,0 +1,36 @@
+name: grounded-situation-routing
+skill: situation-routing
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "In the defu project (project/ directory), I need to do three things: 1) fix a typo in a comment, 2) investigate why TypeScript strict mode shows errors, 3) add a new merge strategy. Which should I tackle first and why?"
+    criteria: |
+      PRIMARY: Agent explicitly routes/prioritizes based on observable signals (complexity, dependencies, risk) rather than just listing them.
+      AUTOMATIC FAIL (score 1): Just does all three without prioritizing, OR picks randomly without reasoning.
+      Score 3: Picks an order but reasoning is generic ("start with the easiest").
+      Score 4: Routes based on specific signals (typo is trivial/no-risk, TS errors might block other work, new feature needs design).
+      BONUS (score 5): Explicitly states the routing decision framework, identifies dependencies between tasks.
+  - input: "In the defu project (project/ directory), the tests are passing but a user reported that `defu` is slow on deeply nested objects (100+ levels). Should I investigate the performance issue or just add a depth limit?"
+    criteria: |
+      PRIMARY: Agent routes to investigation/diagnosis before jumping to a fix.
+      AUTOMATIC FAIL (score 1): Immediately implements a depth limit without investigating.
+      Score 3: Mentions investigation but then immediately proposes a fix anyway.
+      Score 4: Explicitly investigates first (reads the recursive code, considers the recursion depth, checks if it's actually a problem).
+      BONUS (score 5): States routing decision ("user reports problem, need to understand before fixing"), investigates, then proposes informed solution.
+  - input: "In the defu project (project/ directory), I'm not sure whether to use a recursive approach or an iterative approach for a new `defuFlat` function that only merges top-level keys. Help me decide."
+    criteria: |
+      PRIMARY: Agent investigates the existing codebase patterns before recommending an approach.
+      AUTOMATIC FAIL (score 1): Immediately writes code without looking at existing patterns.
+      Score 3: Gives generic advice about recursive vs iterative without checking the codebase.
+      Score 4: Reads the existing code, notes it uses recursion, makes a recommendation based on the specific context.
+      BONUS (score 5): Explicitly states "user expressed uncertainty, researching first", reads code, compares approaches in context.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, routing, grounded]

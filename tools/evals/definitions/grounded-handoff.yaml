@@ -1,0 +1,36 @@
+name: grounded-handoff
+skill: handoff
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "I've been working on the defu project (in project/ directory). I added a `defuStrict` function to src/defu.ts and wrote tests for it. Write a handoff document so the next developer can continue. They need to add TypeScript types for the new function."
+    criteria: |
+      PRIMARY: Handoff contains specific file paths, what was done, and actionable next steps.
+      AUTOMATIC FAIL (score 1): Generic summary with no file paths or specific next steps.
+      Score 3: Mentions the function but missing file paths or next steps aren't actionable.
+      Score 4: Includes src/defu.ts, mentions defuStrict, next step is "add types in src/types.ts".
+      BONUS (score 5): Structured with sections (objective, current state, next steps), includes specific file paths, mentions what to test.
+  - input: "Write a handoff for the defu project (project/ directory). I was investigating a performance issue with deeply nested objects but didn't finish. I found the recursion in _defu but haven't profiled it yet."
+    criteria: |
+      PRIMARY: Handoff captures the investigation state — what was found, what wasn't done yet, where to continue.
+      AUTOMATIC FAIL (score 1): Just says "was working on performance" with no specifics.
+      Score 3: Mentions recursion but doesn't say where in the code or what's left to do.
+      Score 4: References _defu function, src/defu.ts, states "profiling not done yet" as next step.
+      BONUS (score 5): Includes what was tried, what wasn't, specific file:line references, clear next steps.
+  - input: "I'm ending my session on the defu project (project/ directory). I refactored the array handling to use a helper function but tests are currently failing (2 failures in defu.test.ts). Document this for whoever picks it up."
+    criteria: |
+      PRIMARY: Handoff explicitly states the broken state — which tests fail and what the likely cause is.
+      AUTOMATIC FAIL (score 1): Says "made some changes" without mentioning the failures.
+      Score 3: Mentions tests fail but not which ones or why.
+      Score 4: States 2 failures in defu.test.ts, mentions the array refactor as likely cause, suggests running tests first.
+      BONUS (score 5): Structured handoff with broken state clearly flagged, specific test names if possible, recovery steps.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, process, grounded]

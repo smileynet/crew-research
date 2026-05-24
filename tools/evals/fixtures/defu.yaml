@@ -1,0 +1,13 @@
+repo: https://github.com/unjs/defu.git
+commit: main
+install: pnpm install
+test: npx vitest run
+build: npx unbuild
+language: typescript
+framework: vitest
+loc: 197
+test_count: 23
+description: >
+  Deep merge utility for JavaScript/TypeScript objects.
+  Small, well-tested, uses vitest. Good for testing
+  bug-fix, refactoring, and verification workflows.

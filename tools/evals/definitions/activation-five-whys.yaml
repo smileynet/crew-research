@@ -1,0 +1,30 @@
+name: activation-five-whys
+skill: five-whys
+category: activation
+
+tasks:
+  # 5 relevant tasks (skill SHOULD activate)
+  - input: "The deploy failed with exit code 137. Why is this happening?"
+    expect_activation: true
+  - input: "Users are reporting slow page loads. Diagnose the root cause."
+    expect_activation: true
+  - input: "The test suite started failing after the last merge. Figure out why."
+    expect_activation: true
+  - input: "Memory usage keeps climbing until the service crashes. What's the root cause?"
+    expect_activation: true
+  - input: "The API returns 500 errors intermittently. Do a root cause analysis."
+    expect_activation: true
+  # 5 irrelevant tasks (skill should NOT activate)
+  - input: "Create a new React component called UserCard."
+    expect_activation: false
+  - input: "Write unit tests for the calculateTotal function."
+    expect_activation: false
+  - input: "Add TypeScript types to the config module."
+    expect_activation: false
+  - input: "Set up a GitHub Actions workflow for linting."
+    expect_activation: false
+  - input: "Rename the variable 'x' to 'itemCount' throughout the file."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

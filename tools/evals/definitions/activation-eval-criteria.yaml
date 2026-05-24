@@ -1,0 +1,30 @@
+name: activation-eval-criteria
+skill: eval-criteria
+category: activation
+
+tasks:
+  # 5 relevant tasks (skill SHOULD activate)
+  - input: "Write an eval definition that tests whether the agent correctly handles file permissions."
+    expect_activation: true
+  - input: "Create scoring criteria for evaluating code review quality."
+    expect_activation: true
+  - input: "Design a rubric to judge whether an agent follows security best practices."
+    expect_activation: true
+  - input: "I need to evaluate how well the agent handles error messages. Write the criteria."
+    expect_activation: true
+  - input: "Review this eval definition and improve the scoring criteria to be less subjective."
+    expect_activation: true
+  # 5 irrelevant tasks (skill should NOT activate)
+  - input: "Implement a binary search algorithm in Python."
+    expect_activation: false
+  - input: "Create a Dockerfile for a Node.js application."
+    expect_activation: false
+  - input: "Write a bash script that backs up a PostgreSQL database."
+    expect_activation: false
+  - input: "Explain the difference between REST and GraphQL."
+    expect_activation: false
+  - input: "Add pagination to the /users endpoint."
+    expect_activation: false
+
+threshold: 4
+timeout: 60
