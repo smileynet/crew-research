@@ -105,22 +105,21 @@ for task_idx in $(seq 0 $((TASK_COUNT - 1))); do
       deploy_condition "$workdir" "$cond_idx"
 
       # Invoke (from project dir if fixture exists, else workdir)
-      local invoke_dir="$workdir"
+      invoke_dir="$workdir"
       [[ -d "$workdir/project" ]] && invoke_dir="$workdir/project"
       cmd=$(echo "$INVOKE_CMD" | sed "s|{query}|$task_input|")
       cd "$invoke_dir"
       timeout "$TIMEOUT" bash -c "$cmd" > /dev/null 2>&1 || true
+      cd "$SCRIPT_DIR"
 
-      # Extract metrics
-      metrics=$("$SCRIPT_DIR/extract-metrics.sh" "$workdir" 2>/dev/null || echo '{}')
+      # Extract metrics (keyed by invoke_dir — where kiro-cli ran)
+      metrics=$("$SCRIPT_DIR/extract-metrics.sh" "$invoke_dir" 2>/dev/null || echo '{}')
 
-      # Check activation for each skill in condition
-      local check_dir="$workdir"
-      [[ -d "$workdir/project" ]] && check_dir="$workdir/project"
+      # Check activation (also keyed by invoke_dir)
       activated=0; activation_total=0
       for sk in $(yq ".conditions[$cond_idx].skills[]?" "$EXPERIMENT_FILE" 2>/dev/null); do
         activation_total=$((activation_total + 1))
-        if "$SCRIPT_DIR/check-activation.sh" "$check_dir" "$sk" &>/dev/null; then
+        if "$SCRIPT_DIR/check-activation.sh" "$invoke_dir" "$sk" &>/dev/null; then
           activated=$((activated + 1))
         fi
       done

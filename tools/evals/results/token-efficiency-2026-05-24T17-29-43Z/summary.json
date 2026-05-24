@@ -1,0 +1,27 @@
+{
+  "experiment": "token-efficiency",
+  "timestamp": "2026-05-24T17-29-43Z",
+  "trials": 3,
+  "conditions": {
+    "no-skill": {
+      "avg_tokens": 4837.0,
+      "avg_duration_ms": 32599.222222222223,
+      "avg_llm_calls": 4.777777777777778
+    },
+    "single-skill": {
+      "avg_tokens": 6457.222222222223,
+      "avg_duration_ms": 40823.333333333336,
+      "avg_llm_calls": 4.111111111111111
+    },
+    "three-skills": {
+      "avg_tokens": 3816.777777777778,
+      "avg_duration_ms": 29467.0,
+      "avg_llm_calls": 4.333333333333333
+    },
+    "six-skills": {
+      "avg_tokens": 3219.4444444444443,
+      "avg_duration_ms": 24676.11111111111,
+      "avg_llm_calls": 3.5555555555555554
+    }
+  }
+}

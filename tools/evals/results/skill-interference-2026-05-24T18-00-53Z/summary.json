@@ -1,0 +1,32 @@
+{
+  "experiment": "skill-interference",
+  "timestamp": "2026-05-24T18-00-53Z",
+  "trials": 3,
+  "conditions": {
+    "single-verification": {
+      "avg_tokens": 10046.444444444445,
+      "avg_duration_ms": 71913.88888888889,
+      "avg_llm_calls": 11.11111111111111
+    },
+    "single-troubleshooting": {
+      "avg_tokens": 9055.888888888889,
+      "avg_duration_ms": 74893.22222222222,
+      "avg_llm_calls": 11.666666666666666
+    },
+    "pair-orthogonal": {
+      "avg_tokens": 8242.777777777777,
+      "avg_duration_ms": 63110.88888888889,
+      "avg_llm_calls": 10.11111111111111
+    },
+    "pair-adjacent": {
+      "avg_tokens": 9888.666666666666,
+      "avg_duration_ms": 84396.22222222222,
+      "avg_llm_calls": 10.88888888888889
+    },
+    "implementer-full": {
+      "avg_tokens": 8744.555555555555,
+      "avg_duration_ms": 79651.0,
+      "avg_llm_calls": 11.0
+    }
+  }
+}
