@@ -55,6 +55,42 @@ We measure skill value through **controlled comparison**:
 - **No leakage**: judge never sees skill content or which condition is being scored
 - **Idempotent**: running the same experiment twice produces comparable results (within agent variance)
 
+## Context Isolation Model
+
+Three roles, three isolated contexts — no shared state between them:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ORCHESTRATOR (bash script)                                  │
+│ - No AI in the loop                                         │
+│ - Manages temp dirs, invokes subject + judge separately     │
+│ - Cannot bias either role                                   │
+├─────────────────────────────────────────────────────────────┤
+│ SUBJECT (kiro-cli, fresh temp dir per trial)                │
+│ - Sees: task prompt + deployed skills + fixture project     │
+│ - Does NOT see: criteria, other trials, judge output        │
+│ - Isolated: new conversation per invocation                 │
+├─────────────────────────────────────────────────────────────┤
+│ JUDGE (kiro-cli, separate empty temp dir)                   │
+│ - Sees: agent output + criteria only                        │
+│ - Does NOT see: skill content, which condition, task intent │
+│ - Isolated: empty dir, no skills, no project context        │
+│ - Model: claude-sonnet-4.6 (can differ from subject)        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Why this prevents context poisoning:**
+1. Subject and judge never share a conversation or temp dir
+2. Judge has no skills deployed (empty dir) — can't be influenced by skill content
+3. Orchestrator is bash (not AI) — no accumulated context across trials
+4. Each trial is a fresh kiro-cli session (new conversation_id in sqlite)
+
+**If we ever move to agent-orchestrated experiments:**
+- Judge MUST run as isolated subagent (no access to experiment context)
+- Subject MUST run in fresh session (no memory of prior trials)
+- Analysis agent MUST be separate from both subject and judge
+- Never reuse a conversation_id across conditions
+
 ## Experiment Types
 
 ### Type A: Quality Comparison (existing)

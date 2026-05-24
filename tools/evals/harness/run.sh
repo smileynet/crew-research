@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate tools
-for cmd in yq claude; do
+for cmd in yq kiro-cli; do
   if ! command -v "$cmd" &>/dev/null; then
     echo "Error: $cmd required" >&2; exit 2
   fi
@@ -153,8 +153,13 @@ REASON: <one sentence>"
     return
   fi
 
-  claude --print --model "$JUDGE_MODEL" "$judge_prompt" 2>/dev/null || echo "SCORE: 0
+  # Judge runs in isolated empty dir (no skills, no context contamination)
+  local judge_dir=$(mktemp -d -t "judge-XXXX")
+  local judge_result
+  judge_result=$(cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$judge_prompt" 2>/dev/null | strip_ansi) || judge_result="SCORE: 0
 REASON: judge invocation failed"
+  rm -rf "$judge_dir"
+  echo "$judge_result"
 }
 
 # Parse score from judge output
