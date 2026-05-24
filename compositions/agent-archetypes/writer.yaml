@@ -4,6 +4,8 @@ archetype: worker
 
 skills:
   - handoff
+  - writing-style
+  - changelog-discipline
 
 tools:
   - read
