@@ -1,0 +1,31 @@
+name: bugfix
+description: Diagnose, fix, and verify bugs with minimal scope.
+
+agents:
+  lead: lead
+  workers:
+    - researcher
+    - implementer
+    - tester
+
+routing:
+  - pattern: "reproduce|repro|minimal case"
+    target: tester
+  - pattern: "diagnose|investigate|root cause|why"
+    target: researcher
+  - pattern: "fix|patch|resolve"
+    target: implementer
+  - pattern: "verify|confirm|test"
+    target: tester
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Researcher diagnoses root cause before implementer fixes
+    - Tester writes a failing test BEFORE the fix (proves the bug exists)
+    - Tester verifies AFTER the fix (proves it's resolved)
+    - Implementer's fix must be minimal (no unrelated changes)
+
+shared-skills:
+  - troubleshooting-protocol
+  - verification-protocol

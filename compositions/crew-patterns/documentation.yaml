@@ -1,0 +1,28 @@
+name: documentation
+description: Create and maintain project documentation, guides, and references.
+
+agents:
+  lead: lead
+  workers:
+    - researcher
+    - writer
+    - reviewer
+
+routing:
+  - pattern: "research|gather|find out|what does"
+    target: researcher
+  - pattern: "write|draft|create|document"
+    target: writer
+  - pattern: "review|check|verify|accuracy"
+    target: reviewer
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Researcher gathers source material before writer drafts
+    - Writer produces structured documents with citations
+    - Reviewer verifies accuracy against actual code/behavior
+    - All docs must reference real file paths (no invented examples)
+
+shared-skills:
+  - writing-style
