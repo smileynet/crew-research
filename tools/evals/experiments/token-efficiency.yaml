@@ -1,0 +1,34 @@
+question: "Does loading skills increase token usage? Is the quality improvement worth the cost?"
+experiment: token-efficiency
+category: methodology
+
+conditions:
+  - name: no-skill
+    skills: []
+  - name: single-skill
+    skills: [verification-protocol]
+  - name: three-skills
+    skills: [verification-protocol, git-protocol, troubleshooting-protocol]
+  - name: six-skills
+    skills: [verification-protocol, git-protocol, troubleshooting-protocol, testing-guide, commit-pr-discipline, ai-generation-hygiene]
+
+tasks:
+  - name: simple-fix
+    input: "Fix the typo in README.md — change 'teh' to 'the' on line 3. Report done."
+  - name: add-function
+    input: "Add a function called 'isEmpty' to src/utils.ts that returns true if an object has no keys. Include a test."
+  - name: diagnose-bug
+    input: "The tests are failing with 'TypeError: Cannot read property length of undefined' in src/defu.ts. Diagnose and fix."
+
+metrics:
+  - total_tokens
+  - context_usage_pct
+  - llm_calls
+  - tool_use_count
+  - duration_ms
+  - activated
+
+acceptance_criteria: |
+  - Token overhead per skill is quantified
+  - Identify the point where adding more skills shows diminishing returns
+  - Context usage % stays under 50% for all conditions

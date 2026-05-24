@@ -1,0 +1,33 @@
+question: "Does loading skills change HOW the agent works (process), not just WHAT it produces (output)?"
+experiment: process-tracing
+category: methodology
+
+conditions:
+  - name: no-skill
+    skills: []
+  - name: verification-protocol
+    skills: [verification-protocol]
+  - name: troubleshooting-protocol
+    skills: [troubleshooting-protocol]
+
+tasks:
+  - name: fix-and-verify
+    input: "In the project/ directory, the function _defu has a bug where empty string values are skipped. Fix it so only null and undefined are skipped, then confirm the fix works."
+  - name: diagnose-failure
+    input: "In the project/ directory, running 'npx vitest run' shows a test failure. Diagnose why and fix it."
+  - name: add-feature
+    input: "In the project/ directory, add a new exported function 'defuStrict' that throws if baseObject has keys not present in defaults. Write a test for it."
+
+metrics:
+  - phase_sequence
+  - phase_coherence
+  - read_before_write
+  - verify_after_change
+  - tool_use_count
+  - llm_calls
+
+acceptance_criteria: |
+  - verification-protocol increases verify_after_change rate
+  - troubleshooting-protocol increases read_before_write rate
+  - Phase coherence (E→I→V ordering) improves with skills loaded
+  - Process improvement is measurable independently of output quality

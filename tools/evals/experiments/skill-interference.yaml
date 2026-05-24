@@ -1,0 +1,36 @@
+question: "Do multiple skills loaded simultaneously degrade activation accuracy or quality?"
+experiment: skill-interference
+category: methodology
+
+conditions:
+  - name: single-verification
+    skills: [verification-protocol]
+  - name: single-troubleshooting
+    skills: [troubleshooting-protocol]
+  - name: pair-orthogonal
+    skills: [verification-protocol, writing-style]
+  - name: pair-adjacent
+    skills: [verification-protocol, troubleshooting-protocol]
+  - name: implementer-full
+    skills: [verification-protocol, git-protocol, troubleshooting-protocol, testing-guide, commit-pr-discipline, ai-generation-hygiene]
+
+tasks:
+  - name: fix-bug-verify
+    input: "Fix the null check bug in src/defu.ts (line 18 skips empty strings) and confirm the fix works."
+  - name: diagnose-issue
+    input: "The tests are intermittently failing. One run passes, next fails. Diagnose why."
+  - name: implement-feature
+    input: "Add a 'defuNoArray' function that replaces arrays instead of concatenating. Include tests."
+
+metrics:
+  - activated
+  - activation_total
+  - total_tokens
+  - context_usage_pct
+  - phase_coherence
+
+acceptance_criteria: |
+  - Quantify activation rate degradation as skill count increases
+  - Identify whether adjacent skills (both about verification) interfere more than orthogonal ones
+  - Determine the effective skill budget for the implementer archetype
+  - Context usage stays reasonable (<60%) even with 6 skills
