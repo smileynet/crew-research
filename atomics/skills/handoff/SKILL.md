@@ -10,6 +10,7 @@ metadata:
   params:
     ephemeral_path: ".scratch"
     handoff_file: "HANDOFF.md"
+    glossary_path: ".memory/CONTEXT.md"
 ---
 
 # Handoff

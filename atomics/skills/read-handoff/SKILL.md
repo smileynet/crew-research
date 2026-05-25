@@ -1,0 +1,45 @@
+---
+name: read-handoff
+description: "Start-of-session orientation — read the handoff and continue work. Use when starting a new session, resuming after a break, or picking up someone else's work."
+metadata:
+  type: process
+  invocation: user-only
+  practice: null
+  params:
+    ephemeral_path: ".scratch"
+    handoff_file: "HANDOFF.md"
+    glossary_path: ".memory/CONTEXT.md"
+---
+
+# Read Handoff
+
+Orient yourself to continue work from where the last session left off.
+
+## Workflow
+
+1. Read `{{params.ephemeral_path}}/{{params.handoff_file}}`
+2. Read `{{params.glossary_path}}` (internalize key terms)
+3. Check staleness: `git log --oneline {base_commit}..HEAD`
+4. If task graph position is unclear, read `docs/plan.md`
+
+## Report After Reading
+
+1. **Handoff key** and how stale it is (commits since base_commit)
+2. **Objective** in one sentence
+3. **Task graph position** — what's done, what's next
+4. **Constraints** — especially tool prerequisites
+5. **What was tried** — acknowledge dead ends
+6. **First 1-2 next steps** you would take
+
+## Verify Before Acting
+
+- Has the repo changed since `base_commit`? Summarize if yes.
+- Are required tools available?
+- Are there unresolved design questions?
+- Do you need to read any evidence files?
+
+## Rules
+
+- Treat the handoff as point-in-time state, not durable truth
+- When in doubt, verify against the actual repo
+- Do NOT start working until orientation is reported
