@@ -69,7 +69,23 @@ For each eager-context file and skill:
 
 Flag any skill that references files/tools that no longer exist.
 
-## Phase 6: Dependency & Config Hygiene
+## Phase 6: README & AGENTS.md Currency
+
+**README.md** (user-facing entry point):
+- Does it reflect what the project IS and HOW to use it?
+- Focus on user concerns: what it does, quick start, how to get value
+- No sausage-making: no implementation details, no internal architecture
+- No commands/configs that only agents need — those go in AGENTS.md
+- Links to docs/ for deeper user-facing content
+
+**AGENTS.md** (agent-facing entry point):
+- Does it reflect current workspace structure and conventions?
+- Aware of BOTH user docs (docs/) and agent docs (.memory/, .kiro/)
+- Contains: workspace layout, commands, configs, tool references
+- Navigation map: where to look for what kind of information
+- Updated when scripts/tools/structure changes
+
+## Phase 7: Dependency & Config Hygiene
 
 - **Dependencies** — are all tools referenced by scripts actually installed?
 - **Git** — any untracked files that should be committed or gitignored?

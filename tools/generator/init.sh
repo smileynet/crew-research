@@ -35,13 +35,17 @@ echo ""
 echo "Creating workspace structure..."
 mkdir -p "$PROJECT/.scratch"
 mkdir -p "$PROJECT/.memory/adr"
+mkdir -p "$PROJECT/resources"
+mkdir -p "$PROJECT/docs"
 
 # 2. Create .gitignore entries
 if [[ -f "$PROJECT/.gitignore" ]]; then
   grep -qx '.scratch/' "$PROJECT/.gitignore" 2>/dev/null || echo '.scratch/' >> "$PROJECT/.gitignore"
+  grep -qx 'resources/' "$PROJECT/.gitignore" 2>/dev/null || echo 'resources/' >> "$PROJECT/.gitignore"
 else
   cat > "$PROJECT/.gitignore" << 'EOF'
 .scratch/
+resources/
 EOF
 fi
 echo "  ✅ .gitignore updated"
@@ -57,6 +61,71 @@ EOF
   echo "  ✅ .memory/CONTEXT.md created"
 else
   echo "  ⏭️  .memory/CONTEXT.md already exists"
+fi
+
+# 4. Create resources/ rehydration instructions
+if [[ ! -f "$PROJECT/.memory/resources.md" ]]; then
+  cat > "$PROJECT/.memory/resources.md" << 'EOF'
+# Resources (Rehydration)
+
+Third-party repos, tools, and code used for reference and analysis.
+The `resources/` directory is gitignored — use these instructions to restore.
+
+## Repos
+<!-- Add entries as resources are added:
+- `resources/repo-name` — `git clone <url>` — what it's used for
+-->
+EOF
+  echo "  ✅ .memory/resources.md created"
+else
+  echo "  ⏭️  .memory/resources.md already exists"
+fi
+
+# 5. Create AGENTS.md (agent-facing entry point)
+if [[ ! -f "$PROJECT/AGENTS.md" ]]; then
+  PROJECT_NAME=$(basename "$PROJECT")
+  cat > "$PROJECT/AGENTS.md" << EOF
+# AGENTS.md
+
+## Project
+$PROJECT_NAME
+
+## Workspace
+
+- \`.scratch/\` — Ephemeral artifacts (handoffs, scratch notes). Gitignored.
+- \`.memory/\` — Durable artifacts (glossary, ADRs, resource rehydration)
+- \`docs/\` — User-facing documents (placed here only when deliberately requested)
+- \`resources/\` — Third-party repos/tools for reference (gitignored; see .memory/resources.md to rehydrate)
+
+## Documentation Map
+
+| Need | Look in |
+|------|---------|
+| Term definitions | \`.memory/CONTEXT.md\` |
+| Architecture decisions | \`.memory/adr/\` |
+| Resource rehydration | \`.memory/resources.md\` |
+| User-facing docs | \`docs/\` |
+| Agent skills | \`.kiro/skills/\` |
+| Agent steering | \`.kiro/steering/\` |
+
+## Commands
+
+\`\`\`bash
+# Verification
+${BUILD_CMD:+$BUILD_CMD  # build}
+${TEST_CMD:+$TEST_CMD  # test}
+${LINT_CMD:+$LINT_CMD  # lint}
+\`\`\`
+
+## Conventions
+
+- Documents default to \`.scratch/\` (ephemeral) or \`.memory/\` (durable)
+- Only place documents in \`docs/\` when explicitly requested for user-facing publication
+- All shared artifacts require frontmatter: \`created_at\`, \`base_commit\`
+EOF
+  echo "  ✅ AGENTS.md created"
+else
+  echo "  ⏭️  AGENTS.md already exists"
 fi
 
 # 4. Detect verification commands

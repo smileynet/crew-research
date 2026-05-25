@@ -32,16 +32,20 @@ frontmatter-rule: |
   created_at and base_commit in YAML frontmatter.
 
 structure:
-  atomics/skills: Agent-loadable modules (<100 lines SKILL.md)
-  atomics/eager-context: Always-loaded context modules
-  compositions/agent-archetypes: YAML agent role definitions
-  compositions/crew-patterns: YAML team compositions
-  compositions/workspace-conventions: YAML workspace contracts
-  tools/proofs: Platform assumption validation
-  tools/evals: Behavioral evaluation harness
-  docs/practices: Human research documents
-  docs/specs: Feature specifications
-  resources: Read-only symlinked reference repos
+  .scratch: Ephemeral artifacts (handoffs, scratch notes). Gitignored.
+  .memory: Durable artifacts (glossary, ADRs, resource rehydration)
+  .memory/adr: Architecture Decision Records
+  .memory/resources.md: Rehydration instructions for resources/
+  docs: User-facing documents (placed here ONLY when deliberately requested)
+  resources: Third-party repos/tools for reference/analysis. Gitignored.
+  AGENTS.md: Agent-facing entry point (workspace map, commands, conventions)
+  README.md: User-facing entry point (what it is, how to use it)
+
+document-placement: |
+  Default: .scratch/ (ephemeral) or .memory/ (durable)
+  Only docs/: when explicitly requested for user-facing publication
+  Never docs/: internal findings, scratch work, agent-facing content
+  resources/: third-party code for analysis (gitignored, rehydrate from .memory/resources.md)
 
 eager-context:
   - workspace

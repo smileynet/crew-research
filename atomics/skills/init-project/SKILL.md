@@ -30,12 +30,16 @@ Set up a new project with crew-research workspace conventions.
    ```
 
 4. **Verify results** — confirm these exist:
-   - [ ] `.scratch/` directory created
+   - [ ] `.scratch/` directory created (gitignored)
    - [ ] `.memory/CONTEXT.md` exists with glossary template
+   - [ ] `.memory/resources.md` exists with rehydration template
+   - [ ] `resources/` directory created (gitignored)
+   - [ ] `docs/` directory created (user-facing only)
+   - [ ] `AGENTS.md` exists with workspace map and commands
    - [ ] `.crew-config.yaml` has correct crews and verification commands
    - [ ] Agent configs generated (`.kiro/agents/` or `.claude/agents/`)
    - [ ] Skills deployed
-   - [ ] `.gitignore` includes `.scratch/`
+   - [ ] `.gitignore` includes `.scratch/` and `resources/`
 
 5. **Report** — show the user what was created and next steps.
 
