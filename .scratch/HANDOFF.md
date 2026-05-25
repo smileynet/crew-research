@@ -1,45 +1,57 @@
 ---
-created_at: 2026-05-24T16:54:00-07:00
-base_commit: 009ffc9
-handoff_key: phase-10-ready
+created_at: 2026-05-25T09:09:00-07:00
+base_commit: fefdb69
+handoff_key: feature-complete
 ---
 
 # Handoff
 
 ## Objective
-Phases 6-8 complete. Ready for Phase 9 (more crew patterns) and Phase 10 (end-to-end validation with sample projects).
+System is feature-complete. Next: run remaining coverage experiments, eat our own dogfood with `@workspace-cleanup`, and use crew-test for sustained real work.
 
 ## Task Graph Position
-- **Complete:** Phases 1-8 (all critical path + experiments + customization)
-- **Current:** Phase 9 (additional crews) + Phase 10 (E2E validation)
-- **Deferred:** #2 (issue automation), remaining experiments from #3 (task diversity, compression)
+- **Complete:** All phases 1-10. Critical path done. 8 crews, 9 archetypes, 34 skills, full toolchain.
+- **Open issues:** #3 (remaining experiments: task diversity, compression, activation sweep), #2 (issue automation — deferred design)
+- **Next:** Coverage experiments (E7, E10, E14) or real-world usage of crew-test.
+
+## Mental Model
+- **Skill focusing effect** — more skills = fewer tokens (counterintuitive, confirmed in Phase 7)
+- **Activation bottleneck** — skills work when loaded but kiro-cli's matching is unreliable; distinctive trigger words survive, generic phrases don't
+- **Document placement rule** — default .scratch/.memory; docs/ only when deliberately requested for user-facing publication
+- **Context isolation model** — orchestrator (bash), subject (kiro-cli + skills), judge (kiro-cli, empty dir) — no shared context
+
+## Constraints
+- `resources/` is read-only (gitignored, rehydrate from .memory/resources.md)
+- Skills must be <100 lines SKILL.md
+- Generator requires `yq` (~/.local/bin/yq)
+- kiro-cli 2.3.0 authenticated
+- Param substitution uses awk frontmatter extraction (yq can't parse full SKILL.md)
+
+## What Was Tried
+- Nothing failed this session. All implementation succeeded.
+- Generator prompt deployment had a bug (yq on full markdown) — fixed with awk extraction.
+- Init script had ordering issue (detection after AGENTS.md creation) — fixed.
 
 ## Current State
-
-### Inventory
-- 27 skills, 3 eager-context, 7 archetypes, 4 crew patterns, 1 workspace convention
-- Generator with per-project overlay support (--project flag)
-- 2 example project configs (rust-cli, node-webapp)
-- Full experiment framework (token-efficiency, interference, process-tracing — all run)
-
-### Key Phase 7 Findings
-- More skills = fewer tokens (focusing effect, not bloat)
-- No interference at our scale (6 skills safe)
-- Adjacent skills add latency but not token cost
-- Troubleshooting-protocol: 84% token reduction on diagnosis tasks
-- Activation remains the bottleneck (skills work when loaded, don't load reliably)
-
-### Phase 8 Delivered
-- `.crew-config.yaml` format for per-project customization
-- Generator: crew filtering, skill extension, param injection
-- Examples: rust-cli (cargo), node-webapp (npm)
+- `~/code/crew-test` deployed with 7 agents, 31 skills, 6 prompts, 3 steering files
+- New skills this session: ux-walkthrough, fiction-craft (+ references), world-building, script-authoring, reference-exploration, research-output, cheatsheet, workspace-cleanup, read-handoff, init-project
+- Experiments ran: token-efficiency, skill-interference, process-tracing (Phase 7), E8/E9/E11/E12/E13 (Phase 10)
+- Findings: `docs/practices/phase-7-experiment-results.md`, `docs/practices/phase-10-e2e-results.md`
+- GitHub: all pushed to smileynet/crew-research
 
 ## Next Steps
-1. Phase 9: Add infrastructure, onboarding, content crew patterns
-2. Phase 10: Create real sample projects, deploy generated output, use for actual work
-3. Measure: does the system improve outcomes vs bare agent?
+1. Run `@workspace-cleanup` on crew-research itself (dogfood)
+2. Run E7 (activation sweep for 17 new skills)
+3. Run E10 (eager-context effectiveness)
+4. Use crew-test for sustained real work to surface integration issues
+5. Close #3 when experiments complete
 
 ## Evidence
 - Phase 7 results: `docs/practices/phase-7-experiment-results.md`
-- Customization spec: `docs/specs/per-project-customization.md`
-- All experiment data: `tools/evals/results/`
+- Phase 10 E2E: `docs/practices/phase-10-e2e-results.md`
+- Experiment coverage gaps: `docs/practices/experiment-coverage-proposal.md`
+- Screenwriting analysis: `.scratch/research/screenwriting-repo-analysis.md`
+- Phase 9 spikes: `docs/practices/phase-9-proposal.md`
+
+## Available Prompts
+`@cheatsheet`, `@handoff`, `@read-handoff`, `@init-project`, `@ux-walkthrough`, `@workspace-cleanup`
