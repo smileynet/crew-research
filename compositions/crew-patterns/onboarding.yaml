@@ -1,0 +1,26 @@
+name: onboarding
+description: New contributor orientation — codebase exploration, guide creation, environment setup.
+
+agents:
+  lead: lead
+  workers:
+    - researcher
+    - writer
+
+routing:
+  - pattern: "explore|understand|how does|architecture|structure"
+    target: researcher
+  - pattern: "write|guide|document|explain|tutorial"
+    target: writer
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Researcher explores the codebase and produces findings
+    - Writer synthesizes findings into newcomer-friendly guides
+    - All guides must reference real file paths (no invented examples)
+
+shared-skills:
+  - readme-writing
+  - diataxis-classification
+  - research-methodology

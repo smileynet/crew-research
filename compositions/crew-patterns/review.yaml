@@ -1,0 +1,25 @@
+name: review
+description: Code review, security audit, and quality evaluation. Read-only — identifies issues without fixing them.
+
+agents:
+  lead: lead
+  workers:
+    - reviewer
+    - researcher
+
+routing:
+  - pattern: "review|audit|check|evaluate|assess"
+    target: reviewer
+  - pattern: "investigate|understand|why|how does"
+    target: researcher
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Reviewer NEVER modifies files — findings only
+    - Researcher gathers context before reviewer evaluates
+    - Lead synthesizes findings into a single verdict
+
+shared-skills:
+  - code-review
+  - enforcement-hierarchy

@@ -1,0 +1,30 @@
+name: content
+description: Presentations, tutorials, workshops, and educational content creation.
+
+agents:
+  lead: lead
+  workers:
+    - researcher
+    - writer
+    - reviewer
+
+routing:
+  - pattern: "research|gather|find out|what does"
+    target: researcher
+  - pattern: "write|draft|create|slides|presentation|tutorial"
+    target: writer
+  - pattern: "review|check|accessibility|tone"
+    target: reviewer
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Researcher gathers source material and verifies facts
+    - Writer produces structured content with citations
+    - Reviewer checks accessibility, tone, and accuracy
+    - Lead ensures content lands with the target audience
+
+shared-skills:
+  - presentation-writing
+  - diataxis-classification
+  - writing-style

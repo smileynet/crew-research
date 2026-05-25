@@ -1,0 +1,29 @@
+name: infrastructure
+description: Infrastructure provisioning, deployment, CI/CD, and cloud resource management.
+
+agents:
+  lead: lead
+  workers:
+    - planner
+    - operator
+    - reviewer
+
+routing:
+  - pattern: "plan|sequence|dependencies|rollback strategy"
+    target: planner
+  - pattern: "deploy|provision|destroy|apply|build image"
+    target: operator
+  - pattern: "review|security|audit|check permissions"
+    target: reviewer
+
+delegation:
+  style: lead-delegates
+  constraints:
+    - Planner produces deployment sequence with rollback steps BEFORE operator executes
+    - Reviewer checks security (IAM, SGs, secrets) BEFORE operator deploys
+    - Operator verifies health AFTER every operation
+    - Lead does NOT proceed if reviewer flags security issues
+
+shared-skills:
+  - deployment-safety
+  - verification-protocol
