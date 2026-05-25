@@ -10,6 +10,9 @@ PROJECT=""
 CREWS=""
 TOOL="kiro-cli"
 LANGUAGE=""
+BUILD_CMD=""
+TEST_CMD=""
+LINT_CMD=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -81,10 +84,35 @@ else
   echo "  ⏭️  .memory/resources.md already exists"
 fi
 
-# 5. Create AGENTS.md (agent-facing entry point)
+# 5. Detect verification commands
+if [[ -f "$PROJECT/Cargo.toml" ]]; then
+  BUILD_CMD="cargo check"; TEST_CMD="cargo test"; LINT_CMD="cargo clippy -- -D warnings"
+  [[ -z "$LANGUAGE" ]] && LANGUAGE="rust"
+elif [[ -f "$PROJECT/package.json" ]]; then
+  BUILD_CMD="npm run build"
+  TEST_CMD="npm test"
+  LINT_CMD="npm run lint"
+  [[ -z "$LANGUAGE" ]] && LANGUAGE="typescript"
+  [[ -f "$PROJECT/pnpm-lock.yaml" ]] && { BUILD_CMD="pnpm build"; TEST_CMD="pnpm test"; LINT_CMD="pnpm lint"; }
+elif [[ -f "$PROJECT/pyproject.toml" ]] || [[ -f "$PROJECT/setup.py" ]]; then
+  BUILD_CMD=""; TEST_CMD="pytest"; LINT_CMD="ruff check ."
+  [[ -z "$LANGUAGE" ]] && LANGUAGE="python"
+elif [[ -f "$PROJECT/go.mod" ]]; then
+  BUILD_CMD="go build ./..."; TEST_CMD="go test ./..."; LINT_CMD="golangci-lint run"
+  [[ -z "$LANGUAGE" ]] && LANGUAGE="go"
+fi
+
+# 6. Create AGENTS.md (agent-facing entry point)
 if [[ ! -f "$PROJECT/AGENTS.md" ]]; then
   PROJECT_NAME=$(basename "$PROJECT")
-  cat > "$PROJECT/AGENTS.md" << EOF
+  CMDS=""
+  [[ -n "$BUILD_CMD" ]] && CMDS="${CMDS}${BUILD_CMD}  # build
+"
+  [[ -n "$TEST_CMD" ]] && CMDS="${CMDS}${TEST_CMD}  # test
+"
+  [[ -n "$LINT_CMD" ]] && CMDS="${CMDS}${LINT_CMD}  # lint
+"
+  cat > "$PROJECT/AGENTS.md" <<AGENTSEOF
 # AGENTS.md
 
 ## Project
@@ -111,47 +139,20 @@ $PROJECT_NAME
 ## Commands
 
 \`\`\`bash
-# Verification
-${BUILD_CMD:+$BUILD_CMD  # build}
-${TEST_CMD:+$TEST_CMD  # test}
-${LINT_CMD:+$LINT_CMD  # lint}
-\`\`\`
+${CMDS}\`\`\`
 
 ## Conventions
 
 - Documents default to \`.scratch/\` (ephemeral) or \`.memory/\` (durable)
 - Only place documents in \`docs/\` when explicitly requested for user-facing publication
 - All shared artifacts require frontmatter: \`created_at\`, \`base_commit\`
-EOF
+AGENTSEOF
   echo "  ✅ AGENTS.md created"
 else
   echo "  ⏭️  AGENTS.md already exists"
 fi
 
-# 4. Detect verification commands
-BUILD_CMD=""
-TEST_CMD=""
-LINT_CMD=""
-
-if [[ -f "$PROJECT/Cargo.toml" ]]; then
-  BUILD_CMD="cargo check"; TEST_CMD="cargo test"; LINT_CMD="cargo clippy -- -D warnings"
-  [[ -z "$LANGUAGE" ]] && LANGUAGE="rust"
-elif [[ -f "$PROJECT/package.json" ]]; then
-  BUILD_CMD="npm run build"
-  TEST_CMD="npm test"
-  LINT_CMD="npm run lint"
-  [[ -z "$LANGUAGE" ]] && LANGUAGE="typescript"
-  # Check for pnpm
-  [[ -f "$PROJECT/pnpm-lock.yaml" ]] && { BUILD_CMD="pnpm build"; TEST_CMD="pnpm test"; LINT_CMD="pnpm lint"; }
-elif [[ -f "$PROJECT/pyproject.toml" ]] || [[ -f "$PROJECT/setup.py" ]]; then
-  BUILD_CMD=""; TEST_CMD="pytest"; LINT_CMD="ruff check ."
-  [[ -z "$LANGUAGE" ]] && LANGUAGE="python"
-elif [[ -f "$PROJECT/go.mod" ]]; then
-  BUILD_CMD="go build ./..."; TEST_CMD="go test ./..."; LINT_CMD="golangci-lint run"
-  [[ -z "$LANGUAGE" ]] && LANGUAGE="go"
-fi
-
-# 5. Create .crew-config.yaml
+# 7. Create .crew-config.yaml
 if [[ ! -f "$PROJECT/.crew-config.yaml" ]]; then
   PROJECT_NAME=$(basename "$PROJECT")
   CREWS_YAML=$(echo "$CREWS" | tr ',' '\n' | sed 's/^/  - /')
