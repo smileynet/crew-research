@@ -6,10 +6,6 @@ metadata:
 name: enforcement-hierarchy
 description: Select the right enforcement mechanism for agent behavior rules. Use when configuring agent constraints, writing AGENTS.md, designing skills, or deciding how to enforce a new rule.
 ---
-metadata:
-  type: reference
-  invocation: both
-  practice: null
 
 # Enforcement Hierarchy
 

@@ -1,15 +1,11 @@
 ---
-metadata:
-  type: reference
-  invocation: both
-  practice: null
 name: diataxis-classification
 description: "Classify documentation by audience and content type. Use when planning, auditing, or placing project documentation."
----
 metadata:
   type: reference
   invocation: both
   practice: null
+---
 
 # Documentation Classification
 
@@ -38,27 +34,27 @@ Mixing audiences in one document serves neither. Split.
 
 | Type | Path | Litmus Test |
 |------|------|-------------|
-| Decision (ADR) | `decisions/` | "What did we decide and why?" |
-| Specification | `specs/` | "What must the system do?" |
-| User guide | top-level or `guides/` | "How does a user do this?" |
-| Architecture | `architecture/` | "How is it structured?" |
-| Research | `research/` | "What did we learn?" |
-| Runbook | `runbooks/` | "What steps fix this?" |
+| Scratch/working notes | `.scratch/` | "Am I still working on this?" |
+| Durable decisions | `.memory/adr/` | "What did we decide and why?" |
+| Glossary/terms | `.memory/CONTEXT.md` | "What does this term mean?" |
+| Research findings | `.scratch/research/` | "What did we learn?" (promote to .memory if lasting) |
+| User-facing docs | `docs/` | "Does a USER need to read this?" (only when deliberately requested) |
+| Agent skills/steering | `.kiro/skills/`, `.kiro/steering/` | "Does an AGENT need this every session?" |
 
-Before placing: check existing folder conventions first. Match what's there.
+**Default**: `.scratch/` (ephemeral) or `.memory/` (durable). Only `docs/` when explicitly requested for user-facing publication.
 
 ## 4. Right-Sizing
 
 | Project Maturity | Required Docs |
 |-----------------|---------------|
 | Weekend hack | README.md |
-| Team project (>2 weeks) | + AGENTS.md, CONTRIBUTING.md, architecture doc |
-| Multiple contributors | + tutorials, how-tos, ADRs, onboarding guide |
-| Public/OSS | + reference, explanation, troubleshooting, glossary |
+| Team project (>2 weeks) | + AGENTS.md, .memory/CONTEXT.md |
+| Multiple contributors | + ADRs, onboarding guide, CONTRIBUTING.md |
+| Public/OSS | + docs/ with tutorials, reference, troubleshooting |
 
 ## Rules
 
 - One audience per document (README is the exception — it routes)
-- ADRs are decision records with lifecycle, not "explanation"
 - Agent docs are separate from human docs (different requirements)
 - Don't create docs nobody will read — right-size to maturity
+- Check existing folder conventions before placing — match what's there

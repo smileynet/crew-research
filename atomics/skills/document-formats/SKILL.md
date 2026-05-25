@@ -6,10 +6,6 @@ metadata:
 name: document-formats
 description: "Markup language selection for documentation. Covers Markdown, AsciiDoc, reStructuredText, and Typst. Trigger terms: asciidoc, restructuredtext, rst, typst, document format, multi-format, PDF output."
 ---
-metadata:
-  type: reference
-  invocation: both
-  practice: null
 
 # Document Formats
 

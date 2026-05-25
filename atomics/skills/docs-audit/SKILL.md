@@ -6,10 +6,6 @@ metadata:
 name: docs-audit
 description: "Audit project documentation for quality, completeness, and freshness. Use when assessing documentation health, planning cleanup, or measuring improvement."
 ---
-metadata:
-  type: protocol
-  invocation: both
-  practice: null
 
 # Documentation Audit
 

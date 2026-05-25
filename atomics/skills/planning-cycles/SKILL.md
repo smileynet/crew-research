@@ -6,10 +6,6 @@ metadata:
 name: planning-cycles
 description: Structure work through phased planning — brainstorm, validate, scope, finalize. Use when starting new features, breaking down epics, or when a task feels too vague to implement directly.
 ---
-metadata:
-  type: protocol
-  invocation: both
-  practice: null
 
 # Planning Cycles
 

@@ -6,10 +6,6 @@ metadata:
 name: completion-protocol
 description: 'Task completion sequence including verification, git, signaling, and handoff. Use when finishing a task or reporting status.'
 ---
-metadata:
-  type: protocol
-  invocation: both
-  practice: null
 
 # Completion Protocol (Standard)
 

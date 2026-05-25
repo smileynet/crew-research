@@ -6,10 +6,6 @@ metadata:
 name: diagrams
 description: Architecture diagrams for documentation. Covers ASCII, Mermaid, C4, and D2. Applies C4 methodology by default. Trigger terms: diagram, flowchart, architecture diagram, sequence diagram, C4, mermaid, ascii diagram.
 ---
-metadata:
-  type: reference
-  invocation: both
-  practice: null
 
 # Diagrams Skill
 

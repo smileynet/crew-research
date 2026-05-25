@@ -6,10 +6,6 @@ metadata:
 name: ai-generation-hygiene
 description: Eliminate common AI-generation artifacts from produced code. Always active during code generation — catches redundant checks, gratuitous logging, restating comments, unnecessary casts, and over-abstraction before they enter the codebase.
 ---
-metadata:
-  type: protocol
-  invocation: both
-  practice: null
 
 # AI Generation Hygiene
 

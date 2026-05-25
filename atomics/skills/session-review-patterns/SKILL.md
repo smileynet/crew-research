@@ -6,10 +6,6 @@ metadata:
 name: session-review-patterns
 description: "Patterns for reviewing kiro-cli session transcripts. Use when analyzing sessions for protocol compliance, performance issues, or crew improvements."
 ---
-metadata:
-  type: reference
-  invocation: both
-  practice: null
 
 # Session Review Patterns
 
