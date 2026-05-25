@@ -181,29 +181,62 @@ EOF
 deploy_skills() {
   local tool="$1" output_dir="$2"
 
-  # Collect all referenced skills
+  # Collect all referenced skills from archetypes + crews
   local all_skills=$(for f in "$COMPOSITIONS_DIR"/agent-archetypes/*.yaml "$COMPOSITIONS_DIR"/crew-patterns/*.yaml; do
     [[ -f "$f" ]] || continue
     yq '.skills[]? // .["shared-skills"][]?' "$f" 2>/dev/null
   done | sort -u)
 
+  # Also include all user-only skills (prompts available to all users)
+  for f in "$ATOMICS_DIR"/skills/*/SKILL.md; do
+    [[ -f "$f" ]] || continue
+    local inv=$(awk '/^---$/{n++; next} n==1{print} n==2{exit}' "$f" | yq '.metadata.invocation // "both"' 2>/dev/null)
+    if [[ "$inv" == "user-only" ]]; then
+      local sname=$(basename "$(dirname "$f")")
+      all_skills="$all_skills $sname"
+    fi
+  done
+  all_skills=$(echo "$all_skills" | tr ' ' '\n' | sort -u | grep -v '^$')
+
   for s in $all_skills; do
     local src="$ATOMICS_DIR/skills/$s/SKILL.md"
     [[ -f "$src" ]] || continue
 
+    local dest=""
     if [[ "$tool" == "kiro-cli" ]]; then
       mkdir -p "$output_dir/.kiro/skills/$s"
-      cp "$src" "$output_dir/.kiro/skills/$s/SKILL.md"
+      dest="$output_dir/.kiro/skills/$s/SKILL.md"
+      cp "$src" "$dest"
     elif [[ "$tool" == "claude-code" ]]; then
       mkdir -p "$output_dir/.claude/skills/$s"
-      cp "$src" "$output_dir/.claude/skills/$s/SKILL.md"
+      dest="$output_dir/.claude/skills/$s/SKILL.md"
+      cp "$src" "$dest"
+    fi
+
+    # Param substitution: replace {{params.X}} with values from project config or skill defaults
+    if [[ -n "$dest" && -f "$dest" ]]; then
+      # Extract frontmatter (between first pair of --- lines)
+      local frontmatter=$(awk '/^---$/{n++; next} n==1{print} n==2{exit}' "$src")
+      local param_names=$(echo "$frontmatter" | yq '.metadata.params | keys | .[]?' 2>/dev/null)
+      for param in $param_names; do
+        local value=""
+        if [[ -n "$PROJECT_CONFIG" && -f "$PROJECT_CONFIG" ]]; then
+          value=$(yq ".params.\"$s\".\"$param\" // \"\"" "$PROJECT_CONFIG" 2>/dev/null)
+        fi
+        if [[ -z "$value" ]]; then
+          value=$(echo "$frontmatter" | yq ".metadata.params.\"$param\"" 2>/dev/null)
+        fi
+        if [[ -n "$value" && "$value" != "null" ]]; then
+          sed -i "s|{{params.$param}}|$value|g" "$dest"
+        fi
+      done
     fi
 
     # Handle invocation: user-only skills go to prompts (kiro) or get extra frontmatter (claude)
     local invocation=$(yq '.metadata.invocation // "both"' "$src" 2>/dev/null)
     if [[ "$invocation" == "user-only" && "$tool" == "kiro-cli" ]]; then
       mkdir -p "$output_dir/.kiro/prompts"
-      cp "$src" "$output_dir/.kiro/prompts/$s.md"
+      cp "$dest" "$output_dir/.kiro/prompts/$s.md"
     fi
   done
 }
