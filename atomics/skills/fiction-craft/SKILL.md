@@ -65,3 +65,8 @@ Every sentence does work. If it doesn't advance understanding, create atmosphere
 - Could any sentence be removed without losing information?
 - Does it sound like a person writing, or a model performing?
 - Read first sentences of each section — do they deliver value immediately?
+
+## References
+
+- [Minimum Story Elements](references/minimum-elements.md) — 8 required elements regardless of style
+- [Pipeline Routing by Style](references/pipeline-routing.md) — voice-heavy (single-pass) vs structure-heavy (ending-first)
