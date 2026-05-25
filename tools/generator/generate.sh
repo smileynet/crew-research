@@ -233,7 +233,7 @@ deploy_skills() {
     fi
 
     # Handle invocation: user-only skills go to prompts (kiro) or get extra frontmatter (claude)
-    local invocation=$(yq '.metadata.invocation // "both"' "$src" 2>/dev/null)
+    local invocation=$(awk '/^---$/{n++; next} n==1{print} n==2{exit}' "$src" | yq '.metadata.invocation // "both"' 2>/dev/null)
     if [[ "$invocation" == "user-only" && "$tool" == "kiro-cli" ]]; then
       mkdir -p "$output_dir/.kiro/prompts"
       cp "$dest" "$output_dir/.kiro/prompts/$s.md"
