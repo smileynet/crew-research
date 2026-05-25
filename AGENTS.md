@@ -6,12 +6,12 @@ crew-research — Monorepo of independent tools for building consistent, reusabl
 
 ## Workspace
 
-- `.memory/` — Durable artifacts (CONTEXT.md glossary, ADRs)
-- `.scratch/` — Ephemeral artifacts (handoffs, scratch notes)
-- `docs/` — Plan, inventory, practices (human-readable)
+- `.memory/` — Durable artifacts (CONTEXT.md glossary, ADRs, specs/)
+- `.scratch/` — Ephemeral artifacts (handoffs only)
+- `docs/` — Plan, inventory, practices, specs (human-readable)
 - `atomics/` — Atomic modules (skills, eager-context, eval-definitions)
 - `compositions/` — Compositions (agent-archetypes, crew-patterns, workspace-conventions)
-- `tools/` — Proof harness, eval harness
+- `tools/` — Generator, proof harness, eval harness, lint
 - `resources/` — Symlinked reference repos (read-only prior art)
 
 ## Backlog
@@ -43,10 +43,17 @@ Issue templates enforce structure. Don't file issues for work you can finish in 
 
 - `@grill-with-docs` — Design interrogation session
 - `@research-prior-art` — Research reference repos to inform a decision
+- `@handoff` — End-of-session handoff
+- `@read-handoff` — Start-of-session orientation
 
 ## Commands
 
 ```bash
+mise run validate                               # validate compositions + cross-links
+mise run generate -- --tool kiro-cli --output ./deploy  # generate deployment
+mise run eval                                   # run all evals
+mise run eval:activation                        # test skill activation
+mise run lint                                   # check cross-links
 gh issue list --repo smileynet/crew-research    # view backlog
 gh issue create --repo smileynet/crew-research  # file new item
 ```

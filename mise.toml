@@ -1,0 +1,38 @@
+[tasks.validate]
+description = "Validate all compositions and cross-links"
+run = """
+tools/generator/generate.sh validate
+tools/lint/check-crosslinks.sh
+"""
+
+[tasks.generate]
+description = "Generate deployment for a tool (default: kiro-cli)"
+run = "tools/generator/generate.sh generate {{arg(name='tool', default='kiro-cli')}}"
+
+[tasks.init]
+description = "Initialize a new project"
+run = "tools/generator/init.sh {{arg(name='args')}}"
+
+[tasks.eval]
+description = "Run all dual-run evals (3 trials)"
+run = "tools/evals/harness/run.sh --all --trials 3"
+
+[tasks."eval:one"]
+description = "Run a single eval definition"
+run = "tools/evals/harness/run.sh --definition {{arg(name='def')}} --trials 3"
+
+[tasks."eval:activation"]
+description = "Run activation tests for all skills"
+run = "tools/evals/harness/run-activation.sh --all"
+
+[tasks."eval:experiment"]
+description = "Run a multi-condition experiment"
+run = "tools/evals/harness/run-experiment.sh --experiment {{arg(name='name')}} --trials 3 --fixture defu"
+
+[tasks.lint]
+description = "Check cross-links between practices and skills"
+run = "tools/lint/check-crosslinks.sh"
+
+[tasks.proof]
+description = "Run all proofs against kiro-cli"
+run = "tools/proofs/harness/run.sh --adapter kiro-cli --all"
