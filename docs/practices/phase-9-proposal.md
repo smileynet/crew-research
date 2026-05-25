@@ -126,18 +126,54 @@ For each candidate crew, identify skills that don't exist yet and would need aut
 - [ ] New skills authored for crews are <100 lines and pass lint
 - [ ] At least one crew (review) is tested end-to-end with a real invocation
 
-## Estimated Effort
+## Spike Results
 
-| Crew | New Archetypes | New Skills | Sessions |
+### Spike 1: Archetype Coverage ✅
+
+| Crew | New Archetypes Needed | Notes |
+|------|:---------------------:|-------|
+| review | 0 | reviewer archetype covers all roles |
+| content | 0 | writer + researcher + reviewer cover all roles |
+| infrastructure | 1 (operator) | Provisioner/monitor/cleanup need different tool profile |
+| onboarding | 0 | researcher + writer cover all roles |
+
+**Decision**: Only infrastructure needs a new archetype. The "operator" runs infra commands (terraform, docker, aws), monitors state, and handles destructive operations — distinct from implementer which writes application code.
+
+### Spike 2: Crew Routing via --agent ✅
+
+**Result**: YES. A lead agent invoked via `--agent lead-name` can delegate to other agents in the same `.kiro/agents/` directory using the `subagent` tool. The worker executed the task and the lead reported back.
+
+**Implication**: No dispatcher needed for manual crew selection. Users invoke the crew lead directly.
+
+### Spike 3: Dispatcher Routing Between Crews ✅
+
+**Result**: YES. A dispatcher agent with only the `subagent` tool correctly routes:
+- "Fix the bug" → dev-lead
+- "Update the README" → docs-lead
+
+**Implication**: A dispatcher is optional but works. Enables automatic crew selection for projects that want it. Can be added to `.crew-config.yaml` as an opt-in.
+
+### Spike 4: Missing Skills Inventory ✅
+
+| Crew | Missing Skills |
+|------|---------------|
+| review | 0 — all covered |
+| content | 0 — all covered (presentation-writing, tutorial-authoring, diagrams, etc.) |
+| infrastructure | 1 — deployment-safety (rollback protocol, canary patterns) |
+| onboarding | 0 — all covered |
+
+**Note**: `use_aws` tool is NOT included by default. Infrastructure crew uses standard `shell` tool; projects that need AWS can extend via `.crew-config.yaml`.
+
+## Updated Implementation Plan
+
+Based on spike results, revised effort:
+
+| Crew | New Archetypes | New Skills | Effort |
 |------|:-:|:-:|:-:|
-| review | 0 | 0 | 0.5 |
-| content | 0 | 1-2 | 1 |
-| infrastructure | 1 (provisioner) | 2 | 2 |
-| onboarding | 0 | 1 | 1 |
-| **Total** | **1** | **3-5** | **4-5** |
+| review | 0 | 0 | 15 min |
+| content | 0 | 0 | 15 min |
+| onboarding | 0 | 0 | 15 min |
+| infrastructure | 1 | 1 | 1 session |
+| dispatcher (optional) | 1 | 0 | 15 min |
 
-## Open Questions
-
-1. Should the infrastructure crew have different tool permissions (e.g., `use_aws`)? This would require the archetype format to support tool overrides per-crew.
-2. Should crews declare their `scope` (what they handle/refuse) like the reference repo? This would help with routing.
-3. Is a dispatcher agent needed, or is manual crew selection (via `--agent`) sufficient for now?
+Review, content, and onboarding can be authored immediately — they're just new YAML compositions referencing existing archetypes and skills.
