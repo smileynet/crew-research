@@ -177,3 +177,13 @@ Based on spike results, revised effort:
 | dispatcher (optional) | 1 | 0 | 15 min |
 
 Review, content, and onboarding can be authored immediately — they're just new YAML compositions referencing existing archetypes and skills.
+
+## Additional Spike: Dispatcher Accuracy Without Scope Field
+
+**Question**: Does the dispatcher need explicit `scope` (handles/refuses) fields, or are descriptions sufficient?
+
+**Test**: 16 requests (10 clear + 6 ambiguous edge cases) routed across 4 crew leads using only descriptions in the dispatcher prompt.
+
+**Result**: 16/16 correct (100%). Even ambiguous cases like "Is this code secure?" (→ review-lead) and "Fix the docs — the API example is wrong" (→ docs-lead) routed correctly.
+
+**Decision**: No `scope` field needed. Descriptions are sufficient for routing. This keeps the crew pattern format simple.
