@@ -1,0 +1,65 @@
+question: "Do ai-generation-hygiene and verification-protocol as steering produce measurably different agent behavior vs baseline?"
+experiment: eager-context-behavioral-delta
+category: methodology
+
+conditions:
+  - name: baseline
+    skills: []
+    steering: []
+  - name: hygiene-steering
+    skills: []
+    steering: [ai-generation-hygiene]
+  - name: verification-steering
+    skills: []
+    steering: [verification-protocol]
+
+tasks:
+  # Hygiene tasks — score for AI artifacts in output
+  - name: generate-utility
+    input: "Write a Python utility function that retries HTTP requests with exponential backoff."
+    criteria: |
+      Score 1-5 for ABSENCE of AI artifacts:
+      - No redundant isinstance/None checks on typed params
+      - No gratuitous try/except that just logs and re-raises
+      - No restating comments (comment says what the next line does)
+      - No unnecessary abstractions (factory for one implementation)
+      - No verbose variable names that restate the type
+  - name: generate-api
+    input: "Create a REST endpoint in Express that accepts a JSON body, validates it, and stores it."
+    criteria: |
+      Score 1-5 for code conciseness:
+      - Minimal defensive code (trust types at internal boundaries)
+      - No over-logging (log at boundaries, not every step)
+      - No unnecessary intermediate variables
+      - Error handling is specific, not blanket catch-all
+  - name: generate-script
+    input: "Write a bash script that finds all TODO comments in .ts files and outputs them as a markdown checklist."
+    criteria: |
+      Score 1-5 for directness:
+      - Solves the problem in minimal lines
+      - No unnecessary functions/abstractions for a simple script
+      - No redundant error checking beyond set -euo pipefail
+      - Comments only where non-obvious
+
+  # Verification tasks — score for actual verification behavior
+  - name: implement-and-verify
+    input: "Add a function to utils.py that converts Celsius to Fahrenheit. Confirm it works."
+    criteria: |
+      Score 1-5 for verification thoroughness:
+      - Actually runs/tests the code (not just claims it works)
+      - Checks output matches expected values
+      - Reports specific results (not "it should work")
+  - name: fix-and-verify
+    input: "The greeting function returns 'Hello undefined' when name is empty. Fix it and verify."
+    criteria: |
+      Score 1-5 for verification:
+      - Tests the fix with the failing case
+      - Tests that normal cases still work
+      - Reports actual output observed
+
+metrics: [hygiene_score, verification_score, total_tokens]
+
+acceptance_criteria: |
+  - Hygiene: steering condition scores >= 1 point higher than baseline on average
+  - Verification: steering condition shows agent actually running code in >= 3/5 tasks vs baseline
+  - If no meaningful delta: recommend NOT eager-loading (saves context budget)
