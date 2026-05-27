@@ -1,50 +1,48 @@
 ---
-created_at: 2026-05-27T12:21:00-07:00
-base_commit: ef048e2
+created_at: 2026-05-27T15:03:00-07:00
+base_commit: cc7183b
 handoff_key: feature-complete
 ---
 
 # Handoff
 
 ## Objective
-Run E15 (cross-skill link activation) to validate whether linking between skills triggers progressive loading. This gates the activation improvement strategy for 3 failing skills.
+Run E16 (description rewriting vs eager loading) to fix the 3 failing skills. E15 proved cross-linking doesn't work.
 
 ## Task Graph Position
-- **Complete:** All phases 1-10. E7 (activation sweep — 33 skills, 81% recall). Workspace cleanup. New skills: prototype-protocol, architecture-deepening, poc-workflow.
-- **Open issues:** #3 (remaining experiments: E10, E15, E16), #2 (issue automation — deferred)
-- **Next:** E15 → E16 → E10 (in that order)
+- **Complete:** E7 (activation sweep), E15 (cross-skill linking — NOT viable), workspace cleanup, new skills (prototype-protocol, architecture-deepening, poc-workflow), spike/tracer/prototype framework
+- **Open issues:** #5 (E16), #6 (E10), #7 (E8), #8 (E9), #9-12 (E11-E14), #2 (deferred)
+- **Next:** E16 → E10 (activation chain), or E8/E9 (parallel track)
 
 ## Mental Model
-- **Spike/Tracer/Prototype** — three uncertainty-reduction tools. Spike = "can we?", prototype = "should we?", tracer = "does the path work?" Code fate is the differentiator.
-- **Cross-skill linking** — hypothesis that referencing a failing skill from a reliably-activating skill triggers progressive loading. Unvalidated.
-- **Activation tiers** — 16 skills at 100%, 10 at 80%, 4 at 60%, 3 failing (diagrams 0%, ai-gen-hygiene 20%, verification 40%)
-- **Skill focusing effect** — more skills = fewer tokens (confirmed)
-- **Activation bottleneck** — distinctive triggers survive, generic phrases don't
+- **Cross-skill linking disproven** — kiro-cli doesn't follow markdown links between skills in single-turn mode. Agent sees directives but doesn't proactively read linked files.
+- **Activation tiers** — 16 at 100%, 10 at 80%, 4 at 60%, 3 failing (diagrams 0%, ai-gen-hygiene 20%, verification 40%)
+- **Remaining options for failing skills**: description rewriting or eager loading
+- **Spike/Tracer/Prototype** — spike = "can we?", prototype = "should we?", tracer = "does the path work?"
 
 ## Constraints
-- `yq` v4.44.1, `kiro-cli` 2.3.0, `mise` 2026.5.7 — all available
-- Skills must be <100 lines SKILL.md
-- `resources/` is read-only
+- `yq` v4.44.1, `kiro-cli` 2.3.0, `mise` 2026.5.7
+- Skills <100 lines SKILL.md
+- E15 test environment caveat: empty workspace prevented agent from reaching delivery step
 
 ## What Was Tried
-- Nothing failed this session. All skill creation and enhancement succeeded.
-- E7 ran cleanly (330 tasks, 33 skills).
+- E15 treatments A-D all failed (<= 20% target activation)
+- Treatment D (strong directive) confirmed agent sees but doesn't follow links
+- Conversation analysis showed agent referenced "code-hygiene" but never read the file
 
 ## Current State
-- 38 skills total (was 34): +prototype-protocol, +architecture-deepening, +poc-workflow, +poc-workflow references
-- Enhanced: planning-cycles (Phase 2b, PRD output, spike/tracer/prototype framework), diagrams (HTML report mode)
-- E7 results: `tools/evals/results/activation-2026-05-27T06-07-54Z/`
-- Research: `docs/practices/e7-activation-sweep-results.md`, `docs/practices/cross-skill-linking-research.md`
-- CONTEXT.md updated with 5 new terms
+- 38 skills total, 4 prompts
+- E15 results: `tools/evals/results/e15-*`
+- Findings: `docs/practices/e15-cross-skill-linking-results.md`
+- Prompts written to `~/code/project-kickoff.md` and `~/code/project-cleanup.md`
 
 ## Next Steps
-1. Run E15 (cross-skill link activation) — test with planning-cycles → prototype-protocol link
-2. Based on E15: run E16 (description rewriting vs eager loading for 3 failing skills)
-3. Run E10 (eager-context effectiveness)
-4. Close #3 when experiments complete
+1. Run E16 — test description rewriting vs eager loading for diagrams, ai-gen-hygiene, verification-protocol
+2. Run E10 — eager-context effectiveness (does steering change behavior?)
+3. E8/E9 can run in parallel (multi-agent workflow, crew E2E)
 
 ## Evidence
+- E15 results: `docs/practices/e15-cross-skill-linking-results.md`
 - E7 results: `docs/practices/e7-activation-sweep-results.md`
 - Cross-skill research: `docs/practices/cross-skill-linking-research.md`
-- Experiment proposals: `docs/practices/experiment-coverage-proposal.md`
-- Spike/tracer/prototype framework: `atomics/skills/planning-cycles/references/spike-tracer-prototype.md`
+- Experiment script: `tools/evals/experiments/e15-cross-skill-linking.sh`
