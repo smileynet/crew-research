@@ -74,6 +74,17 @@ for task in "${TASKS[@]}"; do
       mkdir -p "$(dirname "$host_dest")/references"
       cp "$SKILLS_DIR/$TARGET_SKILL/SKILL.md" "$(dirname "$host_dest")/references/code-hygiene.md"
       ;;
+    directive)
+      # Strong imperative: explicit instruction to read companion file at a workflow step
+      cp "$SKILLS_DIR/$HOST_SKILL/SKILL.md" "$host_dest"
+      # Insert before the last section
+      echo "" >> "$host_dest"
+      echo "## Before Delivering" >> "$host_dest"
+      echo "" >> "$host_dest"
+      echo "After writing the script, read [references/code-hygiene.md](references/code-hygiene.md) and verify your output does not contain any of the listed anti-patterns. Fix all violations before responding to the user." >> "$host_dest"
+      mkdir -p "$(dirname "$host_dest")/references"
+      cp "$SKILLS_DIR/$TARGET_SKILL/SKILL.md" "$(dirname "$host_dest")/references/code-hygiene.md"
+      ;;
     *)
       echo "Unknown condition: $CONDITION" >&2; exit 1
       ;;

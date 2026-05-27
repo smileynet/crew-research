@@ -60,9 +60,37 @@ Since linking doesn't work, the options for fixing failing skills are:
 
 E16 should test options 1 and 2.
 
+## Additional Finding: Treatment D (Strong Directive)
+
+Added a 4th treatment with explicit imperative: "After writing the script, read [references/code-hygiene.md](references/code-hygiene.md) and verify your output does not contain any of the listed anti-patterns. Fix all violations before responding."
+
+Result: host 4/5 (80%), target 0/5 (0%).
+
+**Conversation analysis** revealed:
+- The agent DID see the directive (it referenced "code-hygiene" in its reasoning)
+- The agent did NOT follow the link to read the companion file
+- The agent asked clarifying questions instead of writing code (empty workspace → no code to check)
+
+**Root causes**:
+1. kiro-cli does not proactively follow relative file links from loaded skill content
+2. The agent only reads companion files when it actively decides it needs more information
+3. Our test environment (empty workspace) prevented the agent from reaching the "before delivering" step where the directive would apply
+
+**Caveat**: In a real project with existing code, the agent might reach the delivery step and follow the directive. But this would require multi-turn interaction, not single-turn `--no-interactive` mode.
+
+## Refined Conclusion
+
+Cross-skill linking via markdown links is not viable for **automatic activation** in single-turn non-interactive mode. However, the mechanism may work differently in:
+- Multi-turn interactive sessions (agent has more turns to follow links)
+- Tasks where the agent actually produces output (reaching the "before delivering" step)
+- Scenarios where the agent actively seeks more information
+
+For E16, the practical options remain: **description rewriting** or **eager loading**.
+
 ## Data
 
 - `tools/evals/results/e15-baseline-2026-05-27T19-57-43Z/`
 - `tools/evals/results/e15-link-2026-05-27T20-00-39Z/`
 - `tools/evals/results/e15-mention-2026-05-27T20-03-55Z/`
 - `tools/evals/results/e15-companion-2026-05-27T20-06-43Z/`
+- `tools/evals/results/e15-directive-2026-05-27T21-36-09Z/`
