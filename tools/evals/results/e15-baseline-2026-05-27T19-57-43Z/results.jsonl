@@ -1,0 +1,5 @@
+{"condition":"baseline","task":"Write a bash script to back up the database and rotate old b","host_activated":true,"target_activated":false}
+{"condition":"baseline","task":"Create a CLI utility that processes CSV files and outputs JS","host_activated":false,"target_activated":false}
+{"condition":"baseline","task":"Write an automation script to set up the development environ","host_activated":false,"target_activated":false}
+{"condition":"baseline","task":"Create a helper script for running the test suite with diffe","host_activated":true,"target_activated":false}
+{"condition":"baseline","task":"Write a deployment script that handles rollback on failure.","host_activated":true,"target_activated":false}

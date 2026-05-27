@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-27T19-57-43Z",
+  "condition": "baseline",
+  "host_skill": "script-authoring",
+  "target_skill": "ai-generation-hygiene",
+  "total_tasks": 5,
+  "host_activated": 3,
+  "target_activated": 0,
+  "host_rate": .60,
+  "target_rate": 0
+}
