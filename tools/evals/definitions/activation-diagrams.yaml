@@ -1,0 +1,28 @@
+name: activation-diagrams
+skill: diagrams
+category: activation
+
+tasks:
+  - input: "Create an architecture diagram showing how our microservices communicate."
+    expect_activation: true
+  - input: "Draw a sequence diagram for the OAuth2 login flow."
+    expect_activation: true
+  - input: "Generate a Mermaid flowchart of the order processing pipeline."
+    expect_activation: true
+  - input: "I need a C4 context diagram for our system."
+    expect_activation: true
+  - input: "Create an ASCII diagram showing the data flow between services."
+    expect_activation: true
+  - input: "Implement a rate limiter using the token bucket algorithm."
+    expect_activation: false
+  - input: "What's the best way to handle database transactions in Node.js?"
+    expect_activation: false
+  - input: "Write a Dockerfile for a Python Flask application."
+    expect_activation: false
+  - input: "Fix the race condition in the worker queue."
+    expect_activation: false
+  - input: "Add input sanitization to prevent XSS attacks."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

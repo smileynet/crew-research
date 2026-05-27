@@ -1,0 +1,330 @@
+{"skill":"adr-authoring","input":"We need to decide between PostgreSQL and DynamoDB for our us","expect":true,"activated":true,"result":"TP"}
+{"skill":"adr-authoring","input":"I chose Next.js over Remix for the frontend. Write an ADR ex","expect":true,"activated":true,"result":"TP"}
+{"skill":"adr-authoring","input":"Record the architectural decision to use event sourcing inst","expect":true,"activated":true,"result":"TP"}
+{"skill":"adr-authoring","input":"We're switching from REST to GraphQL. This is a significant ","expect":true,"activated":true,"result":"TP"}
+{"skill":"adr-authoring","input":"Document why we selected Kafka over RabbitMQ for our message","expect":true,"activated":true,"result":"TP"}
+{"skill":"adr-authoring","input":"Write unit tests for the payment processing module.","expect":false,"activated":false,"result":"TN"}
+{"skill":"adr-authoring","input":"Refactor the user service to use dependency injection.","expect":false,"activated":false,"result":"TN"}
+{"skill":"adr-authoring","input":"Fix the CSS alignment issue on the dashboard.","expect":false,"activated":false,"result":"TN"}
+{"skill":"adr-authoring","input":"Add pagination to the /products endpoint.","expect":false,"activated":false,"result":"TN"}
+{"skill":"adr-authoring","input":"Update the Node.js version in the Dockerfile to 20.","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"Generate a Python class for managing database connections wi","expect":true,"activated":true,"result":"TP"}
+{"skill":"ai-generation-hygiene","input":"Write a TypeScript utility module for date formatting.","expect":true,"activated":false,"result":"FN"}
+{"skill":"ai-generation-hygiene","input":"Create a REST API endpoint for user registration.","expect":true,"activated":false,"result":"FN"}
+{"skill":"ai-generation-hygiene","input":"Implement a caching layer for the product catalog service.","expect":true,"activated":false,"result":"FN"}
+{"skill":"ai-generation-hygiene","input":"Generate the CRUD operations for the orders table.","expect":true,"activated":false,"result":"FN"}
+{"skill":"ai-generation-hygiene","input":"What's the difference between merge and rebase?","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"Explain the CAP theorem in simple terms.","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"List the files in the src/ directory.","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"What version of Node.js is this project using?","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"Summarize the changes in the last 5 commits.","expect":false,"activated":false,"result":"TN"}
+{"skill":"assumption-tracking","input":"We're planning to migrate to microservices. Help me think th","expect":true,"activated":true,"result":"TP"}
+{"skill":"assumption-tracking","input":"Before we commit to this design, what assumptions are we mak","expect":true,"activated":true,"result":"TP"}
+{"skill":"assumption-tracking","input":"I'm scoping this feature at 2 weeks. Challenge my assumption","expect":true,"activated":true,"result":"TP"}
+{"skill":"assumption-tracking","input":"We assume the third-party API can handle our load. Should we","expect":true,"activated":true,"result":"TP"}
+{"skill":"assumption-tracking","input":"What are the hidden assumptions in this architecture proposa","expect":true,"activated":false,"result":"FN"}
+{"skill":"assumption-tracking","input":"Add a loading spinner to the login page.","expect":false,"activated":false,"result":"TN"}
+{"skill":"assumption-tracking","input":"Run the test suite and report failures.","expect":false,"activated":false,"result":"TN"}
+{"skill":"assumption-tracking","input":"Convert this JavaScript file to TypeScript.","expect":false,"activated":false,"result":"TN"}
+{"skill":"assumption-tracking","input":"What's the syntax for a Python list comprehension?","expect":false,"activated":false,"result":"TN"}
+{"skill":"assumption-tracking","input":"Delete the unused imports in this file.","expect":false,"activated":false,"result":"TN"}
+{"skill":"changelog-discipline","input":"Write a changelog entry for the new batch export feature we ","expect":true,"activated":true,"result":"TP"}
+{"skill":"changelog-discipline","input":"Review this changelog entry for quality: 'Fixed bug in auth ","expect":true,"activated":true,"result":"TP"}
+{"skill":"changelog-discipline","input":"Update CHANGELOG.md with the breaking changes from the v3 mi","expect":true,"activated":true,"result":"TP"}
+{"skill":"changelog-discipline","input":"Draft release notes for version 2.5.0 based on recent PRs.","expect":true,"activated":true,"result":"TP"}
+{"skill":"changelog-discipline","input":"This changelog entry doesn't communicate user value. Help me","expect":true,"activated":false,"result":"FN"}
+{"skill":"changelog-discipline","input":"Implement a binary search algorithm in Rust.","expect":false,"activated":false,"result":"TN"}
+{"skill":"changelog-discipline","input":"Set up ESLint with the Airbnb config.","expect":false,"activated":false,"result":"TN"}
+{"skill":"changelog-discipline","input":"Explain how WebSockets differ from Server-Sent Events.","expect":false,"activated":false,"result":"TN"}
+{"skill":"changelog-discipline","input":"Create a new database migration for the users table.","expect":false,"activated":false,"result":"TN"}
+{"skill":"changelog-discipline","input":"What's the best way to handle file uploads in Express?","expect":false,"activated":false,"result":"TN"}
+{"skill":"code-review","input":"Review this pull request for security issues and code qualit","expect":true,"activated":true,"result":"TP"}
+{"skill":"code-review","input":"Look at src/auth.ts and tell me if there are any problems wi","expect":true,"activated":false,"result":"FN"}
+{"skill":"code-review","input":"Do a code review of the changes in the last commit.","expect":true,"activated":true,"result":"TP"}
+{"skill":"code-review","input":"Check this function for correctness, edge cases, and potenti","expect":true,"activated":false,"result":"FN"}
+{"skill":"code-review","input":"Review the error handling in our API routes — is it consiste","expect":true,"activated":true,"result":"TP"}
+{"skill":"code-review","input":"Create a new endpoint for fetching user preferences.","expect":false,"activated":false,"result":"TN"}
+{"skill":"code-review","input":"What's the difference between let and const in JavaScript?","expect":false,"activated":false,"result":"TN"}
+{"skill":"code-review","input":"Deploy the staging environment to AWS.","expect":false,"activated":false,"result":"TN"}
+{"skill":"code-review","input":"Write a migration script to add the email_verified column.","expect":false,"activated":true,"result":"FP"}
+{"skill":"code-review","input":"Generate a UUID in Python.","expect":false,"activated":false,"result":"TN"}
+{"skill":"commit-pr-discipline","input":"Write a commit message for these changes to the authenticati","expect":true,"activated":false,"result":"FN"}
+{"skill":"commit-pr-discipline","input":"Create a pull request for the feature branch with a good des","expect":true,"activated":true,"result":"TP"}
+{"skill":"commit-pr-discipline","input":"How should I split these changes into separate commits?","expect":true,"activated":true,"result":"TP"}
+{"skill":"commit-pr-discipline","input":"Stage these files and write an appropriate commit message.","expect":true,"activated":false,"result":"FN"}
+{"skill":"commit-pr-discipline","input":"This PR description is too vague. Help me improve it.","expect":true,"activated":true,"result":"TP"}
+{"skill":"commit-pr-discipline","input":"Explain how async/await works in JavaScript.","expect":false,"activated":false,"result":"TN"}
+{"skill":"commit-pr-discipline","input":"Add input validation to the signup form.","expect":false,"activated":false,"result":"TN"}
+{"skill":"commit-pr-discipline","input":"What's the memory usage of this process?","expect":false,"activated":false,"result":"TN"}
+{"skill":"commit-pr-discipline","input":"Create a Docker compose file for local development.","expect":false,"activated":false,"result":"TN"}
+{"skill":"commit-pr-discipline","input":"Find all TODO comments in the codebase.","expect":false,"activated":false,"result":"TN"}
+{"skill":"completion-protocol","input":"Add the retry logic to the HTTP client and let me know when ","expect":true,"activated":false,"result":"FN"}
+{"skill":"completion-protocol","input":"Fix the failing test in user.spec.ts and report your status.","expect":true,"activated":true,"result":"TP"}
+{"skill":"completion-protocol","input":"Implement the caching layer and verify it works before marki","expect":true,"activated":true,"result":"TP"}
+{"skill":"completion-protocol","input":"Refactor the config parser. When you're finished, summarize ","expect":true,"activated":false,"result":"FN"}
+{"skill":"completion-protocol","input":"Complete the database migration and confirm everything passe","expect":true,"activated":true,"result":"TP"}
+{"skill":"completion-protocol","input":"What design patterns does this codebase use?","expect":false,"activated":true,"result":"FP"}
+{"skill":"completion-protocol","input":"Explain the difference between SQL and NoSQL databases.","expect":false,"activated":false,"result":"TN"}
+{"skill":"completion-protocol","input":"What are the pros and cons of server-side rendering?","expect":false,"activated":false,"result":"TN"}
+{"skill":"completion-protocol","input":"How does garbage collection work in Go?","expect":false,"activated":false,"result":"TN"}
+{"skill":"completion-protocol","input":"List all the environment variables this app uses.","expect":false,"activated":true,"result":"FP"}
+{"skill":"deployment-safety","input":"Deploy the new version to production with a canary rollout.","expect":true,"activated":true,"result":"TP"}
+{"skill":"deployment-safety","input":"We need to push this hotfix to prod. What's the safest way t","expect":true,"activated":true,"result":"TP"}
+{"skill":"deployment-safety","input":"Write a rollback plan for the database migration we're about","expect":true,"activated":true,"result":"TP"}
+{"skill":"deployment-safety","input":"Set up blue-green deployment for our Kubernetes cluster.","expect":true,"activated":true,"result":"TP"}
+{"skill":"deployment-safety","input":"What pre-deployment checks should we run before releasing v2","expect":true,"activated":true,"result":"TP"}
+{"skill":"deployment-safety","input":"Write a function to parse CSV files.","expect":false,"activated":false,"result":"TN"}
+{"skill":"deployment-safety","input":"Explain how React hooks work.","expect":false,"activated":false,"result":"TN"}
+{"skill":"deployment-safety","input":"Add a dark mode toggle to the settings page.","expect":false,"activated":false,"result":"TN"}
+{"skill":"deployment-safety","input":"What's the time complexity of quicksort?","expect":false,"activated":false,"result":"TN"}
+{"skill":"deployment-safety","input":"Create a unit test for the email validation function.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Create an architecture diagram showing how our microservices","expect":true,"activated":false,"result":"FN"}
+{"skill":"diagrams","input":"Draw a sequence diagram for the OAuth2 login flow.","expect":true,"activated":false,"result":"FN"}
+{"skill":"diagrams","input":"Generate a Mermaid flowchart of the order processing pipelin","expect":true,"activated":false,"result":"FN"}
+{"skill":"diagrams","input":"I need a C4 context diagram for our system.","expect":true,"activated":false,"result":"FN"}
+{"skill":"diagrams","input":"Create an ASCII diagram showing the data flow between servic","expect":true,"activated":false,"result":"FN"}
+{"skill":"diagrams","input":"Implement a rate limiter using the token bucket algorithm.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"What's the best way to handle database transactions in Node.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Write a Dockerfile for a Python Flask application.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Fix the race condition in the worker queue.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Add input sanitization to prevent XSS attacks.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diataxis-classification","input":"Classify our docs/ folder — which documents are tutorials, h","expect":true,"activated":true,"result":"TP"}
+{"skill":"diataxis-classification","input":"This document mixes tutorial steps with reference tables. He","expect":true,"activated":true,"result":"TP"}
+{"skill":"diataxis-classification","input":"Where should I put this new documentation? It's a step-by-st","expect":true,"activated":true,"result":"TP"}
+{"skill":"diataxis-classification","input":"Audit our documentation structure using the Diataxis framewo","expect":true,"activated":true,"result":"TP"}
+{"skill":"diataxis-classification","input":"I'm planning our docs. What types of documentation do we nee","expect":true,"activated":true,"result":"TP"}
+{"skill":"diataxis-classification","input":"Implement a WebSocket server in Go.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diataxis-classification","input":"What's the difference between a mutex and a semaphore?","expect":false,"activated":false,"result":"TN"}
+{"skill":"diataxis-classification","input":"Add retry logic to the API client.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diataxis-classification","input":"Create a GitHub Actions workflow for running tests.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diataxis-classification","input":"Optimize this SQL query — it's taking 3 seconds.","expect":false,"activated":false,"result":"TN"}
+{"skill":"docs-audit","input":"Audit our project documentation for completeness and freshne","expect":true,"activated":true,"result":"TP"}
+{"skill":"docs-audit","input":"Which docs are outdated? Check if our documentation matches ","expect":true,"activated":true,"result":"TP"}
+{"skill":"docs-audit","input":"Assess the health of our documentation — what's missing, sta","expect":true,"activated":true,"result":"TP"}
+{"skill":"docs-audit","input":"Plan a documentation cleanup sprint. What needs attention fi","expect":true,"activated":true,"result":"TP"}
+{"skill":"docs-audit","input":"Review docs/ and tell me which files haven't been updated si","expect":true,"activated":false,"result":"FN"}
+{"skill":"docs-audit","input":"Implement a connection pool for PostgreSQL.","expect":false,"activated":false,"result":"TN"}
+{"skill":"docs-audit","input":"What's the best state management library for React?","expect":false,"activated":false,"result":"TN"}
+{"skill":"docs-audit","input":"Add CORS headers to the Express server.","expect":false,"activated":false,"result":"TN"}
+{"skill":"docs-audit","input":"Write a regex to validate email addresses.","expect":false,"activated":false,"result":"TN"}
+{"skill":"docs-audit","input":"Set up Terraform for our AWS infrastructure.","expect":false,"activated":false,"result":"TN"}
+{"skill":"document-formats","input":"Should I use AsciiDoc or Markdown for our technical document","expect":true,"activated":true,"result":"TP"}
+{"skill":"document-formats","input":"I need to generate PDFs from our docs. What markup format su","expect":true,"activated":true,"result":"TP"}
+{"skill":"document-formats","input":"Convert this document to reStructuredText for our Sphinx doc","expect":true,"activated":false,"result":"FN"}
+{"skill":"document-formats","input":"We need multi-format output — PDF, HTML, and EPUB. What docu","expect":true,"activated":true,"result":"TP"}
+{"skill":"document-formats","input":"Write this specification in Typst format.","expect":true,"activated":true,"result":"TP"}
+{"skill":"document-formats","input":"Implement a binary tree traversal in Java.","expect":false,"activated":false,"result":"TN"}
+{"skill":"document-formats","input":"What's the difference between TCP and UDP?","expect":false,"activated":false,"result":"TN"}
+{"skill":"document-formats","input":"Add authentication middleware to the API.","expect":false,"activated":false,"result":"TN"}
+{"skill":"document-formats","input":"Create a Kubernetes deployment manifest.","expect":false,"activated":false,"result":"TN"}
+{"skill":"document-formats","input":"Fix the memory leak in the event listener.","expect":false,"activated":false,"result":"TN"}
+{"skill":"enforcement-hierarchy","input":"How should I enforce that agents always run tests before com","expect":true,"activated":true,"result":"TP"}
+{"skill":"enforcement-hierarchy","input":"I want to add a new rule to our agent behavior. What's the r","expect":true,"activated":true,"result":"TP"}
+{"skill":"enforcement-hierarchy","input":"Should this constraint go in AGENTS.md, a skill, or a pre-co","expect":true,"activated":true,"result":"TP"}
+{"skill":"enforcement-hierarchy","input":"Design the enforcement strategy for our coding standards acr","expect":true,"activated":true,"result":"TP"}
+{"skill":"enforcement-hierarchy","input":"We need agents to follow a specific workflow. Where do I con","expect":true,"activated":true,"result":"TP"}
+{"skill":"enforcement-hierarchy","input":"Write a function to merge two sorted arrays.","expect":false,"activated":false,"result":"TN"}
+{"skill":"enforcement-hierarchy","input":"Explain how DNS resolution works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"enforcement-hierarchy","input":"Add a search feature to the product listing page.","expect":false,"activated":false,"result":"TN"}
+{"skill":"enforcement-hierarchy","input":"What's the best way to handle environment variables in Docke","expect":false,"activated":false,"result":"TN"}
+{"skill":"enforcement-hierarchy","input":"Create an index on the orders table for faster queries.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Write an eval definition that tests whether the agent correc","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Create scoring criteria for evaluating code review quality.","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Design a rubric to judge whether an agent follows security b","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"I need to evaluate how well the agent handles error messages","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Review this eval definition and improve the scoring criteria","expect":true,"activated":true,"result":"TP"}
+{"skill":"eval-criteria","input":"Implement a binary search algorithm in Python.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Create a Dockerfile for a Node.js application.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Write a bash script that backs up a PostgreSQL database.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Explain the difference between REST and GraphQL.","expect":false,"activated":false,"result":"TN"}
+{"skill":"eval-criteria","input":"Add pagination to the /users endpoint.","expect":false,"activated":true,"result":"FP"}
+{"skill":"fiction-craft","input":"Write a short story scene where the protagonist discovers th","expect":true,"activated":true,"result":"TP"}
+{"skill":"fiction-craft","input":"This narrative prose feels flat. Help me improve the voice a","expect":true,"activated":true,"result":"TP"}
+{"skill":"fiction-craft","input":"Draft the opening chapter of a sci-fi novel set on a generat","expect":true,"activated":true,"result":"TP"}
+{"skill":"fiction-craft","input":"Write game narrative dialogue for the villain's monologue.","expect":true,"activated":true,"result":"TP"}
+{"skill":"fiction-craft","input":"Review this creative writing for overused phrases and weak p","expect":true,"activated":false,"result":"FN"}
+{"skill":"fiction-craft","input":"Implement a REST API for a todo list application.","expect":false,"activated":false,"result":"TN"}
+{"skill":"fiction-craft","input":"What's the difference between abstract classes and interface","expect":false,"activated":false,"result":"TN"}
+{"skill":"fiction-craft","input":"Set up a CI/CD pipeline with GitHub Actions.","expect":false,"activated":false,"result":"TN"}
+{"skill":"fiction-craft","input":"Optimize the database queries in the reporting module.","expect":false,"activated":false,"result":"TN"}
+{"skill":"fiction-craft","input":"Write a Bash script to rotate log files.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"The deploy failed with exit code 137. Why is this happening?","expect":true,"activated":false,"result":"FN"}
+{"skill":"five-whys","input":"Users are reporting slow page loads. Diagnose the root cause","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"The test suite started failing after the last merge. Figure ","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"Memory usage keeps climbing until the service crashes. What'","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"The API returns 500 errors intermittently. Do a root cause a","expect":true,"activated":true,"result":"TP"}
+{"skill":"five-whys","input":"Create a new React component called UserCard.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Write unit tests for the calculateTotal function.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Add TypeScript types to the config module.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Set up a GitHub Actions workflow for linting.","expect":false,"activated":false,"result":"TN"}
+{"skill":"five-whys","input":"Rename the variable 'x' to 'itemCount' throughout the file.","expect":false,"activated":false,"result":"TN"}
+{"skill":"git-protocol","input":"Commit these changes and push to the feature branch.","expect":true,"activated":true,"result":"TP"}
+{"skill":"git-protocol","input":"Create a new branch for the authentication feature.","expect":true,"activated":true,"result":"TP"}
+{"skill":"git-protocol","input":"When should I checkpoint my work with a commit?","expect":true,"activated":true,"result":"TP"}
+{"skill":"git-protocol","input":"Push the current changes to remote and set up tracking.","expect":true,"activated":true,"result":"TP"}
+{"skill":"git-protocol","input":"I have changes across 3 files. How should I organize the com","expect":true,"activated":true,"result":"TP"}
+{"skill":"git-protocol","input":"Explain how HTTP/2 multiplexing works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"git-protocol","input":"Write a recursive Fibonacci function in Python.","expect":false,"activated":false,"result":"TN"}
+{"skill":"git-protocol","input":"Add a health check endpoint to the service.","expect":false,"activated":false,"result":"TN"}
+{"skill":"git-protocol","input":"What's the best way to handle file uploads in a web app?","expect":false,"activated":false,"result":"TN"}
+{"skill":"git-protocol","input":"Create a Makefile for building the Go project.","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Write a handoff document for this session. We fixed the logi","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"I'm ending my work session. Create a handoff so the next per","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"Document the current state of work before I take a break.","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"Prepare a session summary with next steps for whoever picks ","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"I need to hand off this task to another developer. Write up ","expect":true,"activated":true,"result":"TP"}
+{"skill":"handoff","input":"Sort this array of objects by the 'name' field.","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"What's the time complexity of quicksort?","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Add input validation to the registration form.","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Create a migration to add an 'email' column to the users tab","expect":false,"activated":false,"result":"TN"}
+{"skill":"handoff","input":"Write a regex that matches email addresses.","expect":false,"activated":false,"result":"TN"}
+{"skill":"planning-cycles","input":"I need to build a notification system but it feels too vague","expect":true,"activated":true,"result":"TP"}
+{"skill":"planning-cycles","input":"Break down this epic into manageable phases with clear miles","expect":true,"activated":false,"result":"FN"}
+{"skill":"planning-cycles","input":"Let's brainstorm approaches for the new search feature befor","expect":true,"activated":true,"result":"TP"}
+{"skill":"planning-cycles","input":"This feature is too big to implement in one go. Help me scop","expect":true,"activated":true,"result":"TP"}
+{"skill":"planning-cycles","input":"I want to start a new feature but I'm not sure where to begi","expect":true,"activated":true,"result":"TP"}
+{"skill":"planning-cycles","input":"Fix the null pointer exception in the user service.","expect":false,"activated":false,"result":"TN"}
+{"skill":"planning-cycles","input":"What's the syntax for a SQL JOIN?","expect":false,"activated":false,"result":"TN"}
+{"skill":"planning-cycles","input":"Add TypeScript strict mode to the project.","expect":false,"activated":false,"result":"TN"}
+{"skill":"planning-cycles","input":"Explain how OAuth2 authorization code flow works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"planning-cycles","input":"Rename the 'data' variable to 'userRecords' throughout.","expect":false,"activated":false,"result":"TN"}
+{"skill":"presentation-writing","input":"Create a slide deck explaining our new architecture to stake","expect":true,"activated":true,"result":"TP"}
+{"skill":"presentation-writing","input":"Write a MARP presentation for the team demo on Friday.","expect":true,"activated":true,"result":"TP"}
+{"skill":"presentation-writing","input":"Build a workshop deck for onboarding new engineers.","expect":true,"activated":true,"result":"TP"}
+{"skill":"presentation-writing","input":"I need slides for a 10-minute lightning talk about our testi","expect":true,"activated":true,"result":"TP"}
+{"skill":"presentation-writing","input":"Draft a demo script for the product showcase next week.","expect":true,"activated":true,"result":"TP"}
+{"skill":"presentation-writing","input":"Implement a rate limiter using Redis.","expect":false,"activated":false,"result":"TN"}
+{"skill":"presentation-writing","input":"What's the difference between horizontal and vertical scalin","expect":false,"activated":false,"result":"TN"}
+{"skill":"presentation-writing","input":"Add pagination to the search results API.","expect":false,"activated":false,"result":"TN"}
+{"skill":"presentation-writing","input":"Write a Terraform module for an S3 bucket.","expect":false,"activated":false,"result":"TN"}
+{"skill":"presentation-writing","input":"Fix the flaky test in the integration suite.","expect":false,"activated":false,"result":"TN"}
+{"skill":"readme-writing","input":"Write a README for this project that explains what it does a","expect":true,"activated":true,"result":"TP"}
+{"skill":"readme-writing","input":"Our README is outdated. Rewrite it to reflect the current st","expect":true,"activated":true,"result":"TP"}
+{"skill":"readme-writing","input":"Create a project description and quick start guide for new c","expect":true,"activated":true,"result":"TP"}
+{"skill":"readme-writing","input":"Audit the README — does it orient readers and drive adoption","expect":true,"activated":true,"result":"TP"}
+{"skill":"readme-writing","input":"The getting started section is confusing. Improve the README","expect":true,"activated":true,"result":"TP"}
+{"skill":"readme-writing","input":"Implement a WebSocket chat server.","expect":false,"activated":false,"result":"TN"}
+{"skill":"readme-writing","input":"What's the best way to structure a monorepo?","expect":false,"activated":false,"result":"TN"}
+{"skill":"readme-writing","input":"Add error boundaries to the React components.","expect":false,"activated":false,"result":"TN"}
+{"skill":"readme-writing","input":"Create a cron job to clean up expired sessions.","expect":false,"activated":false,"result":"TN"}
+{"skill":"readme-writing","input":"Explain how TLS handshake works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"reference-exploration","input":"Explore the agent-crews repo in resources/ and summarize how","expect":true,"activated":false,"result":"FN"}
+{"skill":"reference-exploration","input":"Analyze the third-party library in resources/ to understand ","expect":true,"activated":true,"result":"TP"}
+{"skill":"reference-exploration","input":"Look at the reference implementation and document how they s","expect":true,"activated":true,"result":"TP"}
+{"skill":"reference-exploration","input":"Explore this codebase and extract the patterns we should ado","expect":true,"activated":true,"result":"TP"}
+{"skill":"reference-exploration","input":"Research how the nicobailon repo handles cross-tool compatib","expect":true,"activated":false,"result":"FN"}
+{"skill":"reference-exploration","input":"Add a logout button to the navigation bar.","expect":false,"activated":false,"result":"TN"}
+{"skill":"reference-exploration","input":"What's the time complexity of a hash table lookup?","expect":false,"activated":false,"result":"TN"}
+{"skill":"reference-exploration","input":"Write unit tests for the shopping cart module.","expect":false,"activated":false,"result":"TN"}
+{"skill":"reference-exploration","input":"Configure nginx as a reverse proxy.","expect":false,"activated":false,"result":"TN"}
+{"skill":"reference-exploration","input":"Fix the broken import in utils/helpers.ts.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-methodology","input":"Research how other projects handle database migrations at sc","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-methodology","input":"Investigate the trade-offs between different caching strateg","expect":true,"activated":false,"result":"FN"}
+{"skill":"research-methodology","input":"I need to evaluate 3 options for our message queue. Structur","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-methodology","input":"Explore how teams handle feature flags in production and sum","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-methodology","input":"Do a structured investigation into why our latency spikes on","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-methodology","input":"Add a favicon to the website.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-methodology","input":"What's the syntax for destructuring in JavaScript?","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-methodology","input":"Create a new migration to add the status column.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-methodology","input":"Fix the broken link in the footer.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-methodology","input":"Update the package.json scripts section.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-output","input":"Write up your research findings in a structured report forma","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-output","input":"Produce an investigation report on the authentication option","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-output","input":"Document the research results from our caching strategy anal","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-output","input":"Create a findings document summarizing what we learned about","expect":true,"activated":false,"result":"FN"}
+{"skill":"research-output","input":"Format these research notes into a proper output document wi","expect":true,"activated":true,"result":"TP"}
+{"skill":"research-output","input":"Implement a linked list in C.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-output","input":"What port is the dev server running on?","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-output","input":"Add a loading state to the button component.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-output","input":"Explain the difference between processes and threads.","expect":false,"activated":false,"result":"TN"}
+{"skill":"research-output","input":"Set up pre-commit hooks for linting.","expect":false,"activated":false,"result":"TN"}
+{"skill":"script-authoring","input":"Write a bash script to back up the database and rotate old b","expect":true,"activated":true,"result":"TP"}
+{"skill":"script-authoring","input":"Create a CLI utility that processes CSV files and outputs JS","expect":true,"activated":true,"result":"TP"}
+{"skill":"script-authoring","input":"Write an automation script to set up the development environ","expect":true,"activated":true,"result":"TP"}
+{"skill":"script-authoring","input":"Create a helper script for running the test suite with diffe","expect":true,"activated":true,"result":"TP"}
+{"skill":"script-authoring","input":"Write a deployment script that handles rollback on failure.","expect":true,"activated":true,"result":"TP"}
+{"skill":"script-authoring","input":"Explain how virtual memory works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"script-authoring","input":"What's the best React state management approach for our app?","expect":false,"activated":false,"result":"TN"}
+{"skill":"script-authoring","input":"Add a new column to the users table.","expect":false,"activated":false,"result":"TN"}
+{"skill":"script-authoring","input":"Review this TypeScript interface for correctness.","expect":false,"activated":false,"result":"TN"}
+{"skill":"script-authoring","input":"What's the difference between PUT and PATCH?","expect":false,"activated":false,"result":"TN"}
+{"skill":"session-review-patterns","input":"Review the last kiro-cli session transcript for protocol com","expect":true,"activated":true,"result":"TP"}
+{"skill":"session-review-patterns","input":"Analyze this session log — did the agent follow the verifica","expect":true,"activated":true,"result":"TP"}
+{"skill":"session-review-patterns","input":"Check the session transcript for performance issues and wast","expect":true,"activated":true,"result":"TP"}
+{"skill":"session-review-patterns","input":"Review how the crew performed in the last session and sugges","expect":true,"activated":true,"result":"TP"}
+{"skill":"session-review-patterns","input":"Analyze the session data to see if skills activated correctl","expect":true,"activated":true,"result":"TP"}
+{"skill":"session-review-patterns","input":"Implement a priority queue in Python.","expect":false,"activated":false,"result":"TN"}
+{"skill":"session-review-patterns","input":"What's the best way to handle pagination in GraphQL?","expect":false,"activated":false,"result":"TN"}
+{"skill":"session-review-patterns","input":"Add input validation to the registration form.","expect":false,"activated":false,"result":"TN"}
+{"skill":"session-review-patterns","input":"Create a Docker network for the microservices.","expect":false,"activated":false,"result":"TN"}
+{"skill":"session-review-patterns","input":"Explain how B-trees work in databases.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"I'm not sure whether to use Redis or Memcached for our cachi","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"We need to add search functionality. Should I use Elasticsea","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"The auth system is broken and users can't log in. Also we ne","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"I have a bug report, a feature request, and a refactoring ta","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"Should I investigate this performance issue myself or delega","expect":true,"activated":true,"result":"TP"}
+{"skill":"situation-routing","input":"Add a border-radius of 8px to the card component.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Convert this callback-based function to use async/await.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Write a SQL query to get all users who signed up last month.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Update the package.json to use exact versions.","expect":false,"activated":false,"result":"TN"}
+{"skill":"situation-routing","input":"Add a .gitignore entry for .env files.","expect":false,"activated":false,"result":"TN"}
+{"skill":"testing-guide","input":"Write tests for the payment processing module. What should I","expect":true,"activated":true,"result":"TP"}
+{"skill":"testing-guide","input":"Review the test quality in our test suite — are we testing t","expect":true,"activated":true,"result":"TP"}
+{"skill":"testing-guide","input":"What testing patterns should I use for this async event hand","expect":true,"activated":true,"result":"TP"}
+{"skill":"testing-guide","input":"Our test coverage is low. Help me decide what to test first.","expect":true,"activated":true,"result":"TP"}
+{"skill":"testing-guide","input":"Write integration tests for the user registration flow.","expect":true,"activated":true,"result":"TP"}
+{"skill":"testing-guide","input":"Explain how DNS caching works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"testing-guide","input":"Create a new API endpoint for fetching orders.","expect":false,"activated":false,"result":"TN"}
+{"skill":"testing-guide","input":"What's the difference between Docker and Podman?","expect":false,"activated":false,"result":"TN"}
+{"skill":"testing-guide","input":"Add a dark mode CSS theme to the app.","expect":false,"activated":false,"result":"TN"}
+{"skill":"testing-guide","input":"Set up a Redis cluster for session storage.","expect":false,"activated":true,"result":"FP"}
+{"skill":"troubleshooting-protocol","input":"The app crashes on startup with a segfault. Help me debug th","expect":true,"activated":true,"result":"TP"}
+{"skill":"troubleshooting-protocol","input":"I'm getting a 'connection refused' error when connecting to ","expect":true,"activated":true,"result":"TP"}
+{"skill":"troubleshooting-protocol","input":"The build is failing with a cryptic error message. Diagnose ","expect":true,"activated":true,"result":"TP"}
+{"skill":"troubleshooting-protocol","input":"Users report the page loads but shows no data. Investigate w","expect":true,"activated":true,"result":"TP"}
+{"skill":"troubleshooting-protocol","input":"The CI pipeline fails intermittently. Help me troubleshoot t","expect":true,"activated":true,"result":"TP"}
+{"skill":"troubleshooting-protocol","input":"Create a new React component for the sidebar navigation.","expect":false,"activated":false,"result":"TN"}
+{"skill":"troubleshooting-protocol","input":"What's the difference between SQL INNER JOIN and LEFT JOIN?","expect":false,"activated":false,"result":"TN"}
+{"skill":"troubleshooting-protocol","input":"Write a function to calculate compound interest.","expect":false,"activated":false,"result":"TN"}
+{"skill":"troubleshooting-protocol","input":"Add TypeScript types to the API response objects.","expect":false,"activated":false,"result":"TN"}
+{"skill":"troubleshooting-protocol","input":"Explain the SOLID principles with examples.","expect":false,"activated":false,"result":"TN"}
+{"skill":"tutorial-authoring","input":"Write a tutorial that takes someone from zero to a working R","expect":true,"activated":true,"result":"TP"}
+{"skill":"tutorial-authoring","input":"Create a getting started guide for new contributors to this ","expect":true,"activated":true,"result":"TP"}
+{"skill":"tutorial-authoring","input":"Write a step-by-step walkthrough for setting up the developm","expect":true,"activated":true,"result":"TP"}
+{"skill":"tutorial-authoring","input":"Create an onboarding guide that walks new hires through thei","expect":true,"activated":true,"result":"TP"}
+{"skill":"tutorial-authoring","input":"This doc drifted from a tutorial into reference material. He","expect":true,"activated":true,"result":"TP"}
+{"skill":"tutorial-authoring","input":"Implement a graph traversal algorithm.","expect":false,"activated":false,"result":"TN"}
+{"skill":"tutorial-authoring","input":"What's the best way to handle errors in async Rust?","expect":false,"activated":false,"result":"TN"}
+{"skill":"tutorial-authoring","input":"Add rate limiting to the API gateway.","expect":false,"activated":false,"result":"TN"}
+{"skill":"tutorial-authoring","input":"Create a Helm chart for the application.","expect":false,"activated":false,"result":"TN"}
+{"skill":"tutorial-authoring","input":"Optimize the webpack bundle size.","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"Add a greeting function to utils.py and let me know when it'","expect":true,"activated":true,"result":"TP"}
+{"skill":"verification-protocol","input":"Fix the typo in the README and report back.","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Refactor the parse_config function to use dataclasses. Tell ","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Update the CI workflow to run on Node 20 and confirm it work","expect":true,"activated":false,"result":"FN"}
+{"skill":"verification-protocol","input":"Implement the missing error handling in the API route and ma","expect":true,"activated":true,"result":"TP"}
+{"skill":"verification-protocol","input":"What's the difference between TCP and UDP?","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"Explain how Python's GIL works.","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"List the pros and cons of microservices vs monoliths.","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"What design patterns are used in React?","expect":false,"activated":false,"result":"TN"}
+{"skill":"verification-protocol","input":"Summarize the CAP theorem.","expect":false,"activated":false,"result":"TN"}
+{"skill":"world-building","input":"Define the magic system for my fantasy world — what it can d","expect":true,"activated":true,"result":"TP"}
+{"skill":"world-building","input":"I'm building a game world. Help me specify how the technolog","expect":true,"activated":true,"result":"TP"}
+{"skill":"world-building","input":"Create a world-building specification for a post-apocalyptic","expect":true,"activated":true,"result":"TP"}
+{"skill":"world-building","input":"Define the rules of the fictional conceit — what happens whe","expect":true,"activated":true,"result":"TP"}
+{"skill":"world-building","input":"Spec out the alien civilization's social structure and banne","expect":true,"activated":true,"result":"TP"}
+{"skill":"world-building","input":"Write a function to validate credit card numbers.","expect":false,"activated":false,"result":"TN"}
+{"skill":"world-building","input":"Set up monitoring with Prometheus and Grafana.","expect":false,"activated":false,"result":"TN"}
+{"skill":"world-building","input":"What's the difference between gRPC and REST?","expect":false,"activated":false,"result":"TN"}
+{"skill":"world-building","input":"Add a caching layer to the product catalog.","expect":false,"activated":false,"result":"TN"}
+{"skill":"world-building","input":"Create database seeds for the test environment.","expect":false,"activated":true,"result":"FP"}
+{"skill":"writing-style","input":"Review this documentation for writing quality — is it clear ","expect":true,"activated":true,"result":"TP"}
+{"skill":"writing-style","input":"Improve the writing style of these error messages to be more","expect":true,"activated":false,"result":"FN"}
+{"skill":"writing-style","input":"This PR description is too wordy. Help me tighten the techni","expect":true,"activated":true,"result":"TP"}
+{"skill":"writing-style","input":"Write clear, concise documentation for the configuration opt","expect":true,"activated":true,"result":"TP"}
+{"skill":"writing-style","input":"Review the commit messages in this branch for style and clar","expect":true,"activated":true,"result":"TP"}
+{"skill":"writing-style","input":"Implement a binary search in TypeScript.","expect":false,"activated":false,"result":"TN"}
+{"skill":"writing-style","input":"What's the best way to handle database connection pooling?","expect":false,"activated":false,"result":"TN"}
+{"skill":"writing-style","input":"Add a new route for the admin dashboard.","expect":false,"activated":false,"result":"TN"}
+{"skill":"writing-style","input":"Create a GitHub Actions workflow for deploying to AWS.","expect":false,"activated":false,"result":"TN"}
+{"skill":"writing-style","input":"Explain how consistent hashing works.","expect":false,"activated":true,"result":"FP"}

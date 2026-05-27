@@ -1,0 +1,28 @@
+name: activation-tutorial-authoring
+skill: tutorial-authoring
+category: activation
+
+tasks:
+  - input: "Write a tutorial that takes someone from zero to a working REST API."
+    expect_activation: true
+  - input: "Create a getting started guide for new contributors to this project."
+    expect_activation: true
+  - input: "Write a step-by-step walkthrough for setting up the development environment."
+    expect_activation: true
+  - input: "Create an onboarding guide that walks new hires through their first PR."
+    expect_activation: true
+  - input: "This doc drifted from a tutorial into reference material. Help me restructure it as a hands-on guide."
+    expect_activation: true
+  - input: "Implement a graph traversal algorithm."
+    expect_activation: false
+  - input: "What's the best way to handle errors in async Rust?"
+    expect_activation: false
+  - input: "Add rate limiting to the API gateway."
+    expect_activation: false
+  - input: "Create a Helm chart for the application."
+    expect_activation: false
+  - input: "Optimize the webpack bundle size."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

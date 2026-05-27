@@ -1,0 +1,28 @@
+name: activation-planning-cycles
+skill: planning-cycles
+category: activation
+
+tasks:
+  - input: "I need to build a notification system but it feels too vague. Help me plan it."
+    expect_activation: true
+  - input: "Break down this epic into manageable phases with clear milestones."
+    expect_activation: true
+  - input: "Let's brainstorm approaches for the new search feature before committing to one."
+    expect_activation: true
+  - input: "This feature is too big to implement in one go. Help me scope and phase it."
+    expect_activation: true
+  - input: "I want to start a new feature but I'm not sure where to begin. Walk me through planning it."
+    expect_activation: true
+  - input: "Fix the null pointer exception in the user service."
+    expect_activation: false
+  - input: "What's the syntax for a SQL JOIN?"
+    expect_activation: false
+  - input: "Add TypeScript strict mode to the project."
+    expect_activation: false
+  - input: "Explain how OAuth2 authorization code flow works."
+    expect_activation: false
+  - input: "Rename the 'data' variable to 'userRecords' throughout."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

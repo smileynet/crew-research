@@ -1,0 +1,28 @@
+name: activation-diataxis-classification
+skill: diataxis-classification
+category: activation
+
+tasks:
+  - input: "Classify our docs/ folder — which documents are tutorials, how-tos, reference, or explanation?"
+    expect_activation: true
+  - input: "This document mixes tutorial steps with reference tables. Help me split it properly."
+    expect_activation: true
+  - input: "Where should I put this new documentation? It's a step-by-step guide for setting up auth."
+    expect_activation: true
+  - input: "Audit our documentation structure using the Diataxis framework."
+    expect_activation: true
+  - input: "I'm planning our docs. What types of documentation do we need for each audience?"
+    expect_activation: true
+  - input: "Implement a WebSocket server in Go."
+    expect_activation: false
+  - input: "What's the difference between a mutex and a semaphore?"
+    expect_activation: false
+  - input: "Add retry logic to the API client."
+    expect_activation: false
+  - input: "Create a GitHub Actions workflow for running tests."
+    expect_activation: false
+  - input: "Optimize this SQL query — it's taking 3 seconds."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

@@ -1,0 +1,28 @@
+name: activation-changelog-discipline
+skill: changelog-discipline
+category: activation
+
+tasks:
+  - input: "Write a changelog entry for the new batch export feature we just shipped."
+    expect_activation: true
+  - input: "Review this changelog entry for quality: 'Fixed bug in auth module.'"
+    expect_activation: true
+  - input: "Update CHANGELOG.md with the breaking changes from the v3 migration."
+    expect_activation: true
+  - input: "Draft release notes for version 2.5.0 based on recent PRs."
+    expect_activation: true
+  - input: "This changelog entry doesn't communicate user value. Help me rewrite it."
+    expect_activation: true
+  - input: "Implement a binary search algorithm in Rust."
+    expect_activation: false
+  - input: "Set up ESLint with the Airbnb config."
+    expect_activation: false
+  - input: "Explain how WebSockets differ from Server-Sent Events."
+    expect_activation: false
+  - input: "Create a new database migration for the users table."
+    expect_activation: false
+  - input: "What's the best way to handle file uploads in Express?"
+    expect_activation: false
+
+threshold: 4
+timeout: 60

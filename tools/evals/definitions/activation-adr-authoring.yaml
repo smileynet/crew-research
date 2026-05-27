@@ -1,0 +1,28 @@
+name: activation-adr-authoring
+skill: adr-authoring
+category: activation
+
+tasks:
+  - input: "We need to decide between PostgreSQL and DynamoDB for our user data. Document the decision."
+    expect_activation: true
+  - input: "I chose Next.js over Remix for the frontend. Write an ADR explaining why."
+    expect_activation: true
+  - input: "Record the architectural decision to use event sourcing instead of CRUD."
+    expect_activation: true
+  - input: "We're switching from REST to GraphQL. This is a significant technical choice that needs documentation."
+    expect_activation: true
+  - input: "Document why we selected Kafka over RabbitMQ for our message queue."
+    expect_activation: true
+  - input: "Write unit tests for the payment processing module."
+    expect_activation: false
+  - input: "Refactor the user service to use dependency injection."
+    expect_activation: false
+  - input: "Fix the CSS alignment issue on the dashboard."
+    expect_activation: false
+  - input: "Add pagination to the /products endpoint."
+    expect_activation: false
+  - input: "Update the Node.js version in the Dockerfile to 20."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

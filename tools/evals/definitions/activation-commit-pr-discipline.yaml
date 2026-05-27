@@ -1,0 +1,28 @@
+name: activation-commit-pr-discipline
+skill: commit-pr-discipline
+category: activation
+
+tasks:
+  - input: "Write a commit message for these changes to the authentication module."
+    expect_activation: true
+  - input: "Create a pull request for the feature branch with a good description."
+    expect_activation: true
+  - input: "How should I split these changes into separate commits?"
+    expect_activation: true
+  - input: "Stage these files and write an appropriate commit message."
+    expect_activation: true
+  - input: "This PR description is too vague. Help me improve it."
+    expect_activation: true
+  - input: "Explain how async/await works in JavaScript."
+    expect_activation: false
+  - input: "Add input validation to the signup form."
+    expect_activation: false
+  - input: "What's the memory usage of this process?"
+    expect_activation: false
+  - input: "Create a Docker compose file for local development."
+    expect_activation: false
+  - input: "Find all TODO comments in the codebase."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

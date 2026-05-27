@@ -1,0 +1,28 @@
+name: activation-testing-guide
+skill: testing-guide
+category: activation
+
+tasks:
+  - input: "Write tests for the payment processing module. What should I test?"
+    expect_activation: true
+  - input: "Review the test quality in our test suite — are we testing the right things?"
+    expect_activation: true
+  - input: "What testing patterns should I use for this async event handler?"
+    expect_activation: true
+  - input: "Our test coverage is low. Help me decide what to test first."
+    expect_activation: true
+  - input: "Write integration tests for the user registration flow."
+    expect_activation: true
+  - input: "Explain how DNS caching works."
+    expect_activation: false
+  - input: "Create a new API endpoint for fetching orders."
+    expect_activation: false
+  - input: "What's the difference between Docker and Podman?"
+    expect_activation: false
+  - input: "Add a dark mode CSS theme to the app."
+    expect_activation: false
+  - input: "Set up a Redis cluster for session storage."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

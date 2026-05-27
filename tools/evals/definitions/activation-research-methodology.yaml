@@ -1,0 +1,28 @@
+name: activation-research-methodology
+skill: research-methodology
+category: activation
+
+tasks:
+  - input: "Research how other projects handle database migrations at scale."
+    expect_activation: true
+  - input: "Investigate the trade-offs between different caching strategies for our use case."
+    expect_activation: true
+  - input: "I need to evaluate 3 options for our message queue. Structure the research."
+    expect_activation: true
+  - input: "Explore how teams handle feature flags in production and summarize findings."
+    expect_activation: true
+  - input: "Do a structured investigation into why our latency spikes on Mondays."
+    expect_activation: true
+  - input: "Add a favicon to the website."
+    expect_activation: false
+  - input: "What's the syntax for destructuring in JavaScript?"
+    expect_activation: false
+  - input: "Create a new migration to add the status column."
+    expect_activation: false
+  - input: "Fix the broken link in the footer."
+    expect_activation: false
+  - input: "Update the package.json scripts section."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

@@ -1,0 +1,28 @@
+name: activation-writing-style
+skill: writing-style
+category: activation
+
+tasks:
+  - input: "Review this documentation for writing quality — is it clear and concise?"
+    expect_activation: true
+  - input: "Improve the writing style of these error messages to be more helpful."
+    expect_activation: true
+  - input: "This PR description is too wordy. Help me tighten the technical writing."
+    expect_activation: true
+  - input: "Write clear, concise documentation for the configuration options."
+    expect_activation: true
+  - input: "Review the commit messages in this branch for style and clarity."
+    expect_activation: true
+  - input: "Implement a binary search in TypeScript."
+    expect_activation: false
+  - input: "What's the best way to handle database connection pooling?"
+    expect_activation: false
+  - input: "Add a new route for the admin dashboard."
+    expect_activation: false
+  - input: "Create a GitHub Actions workflow for deploying to AWS."
+    expect_activation: false
+  - input: "Explain how consistent hashing works."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

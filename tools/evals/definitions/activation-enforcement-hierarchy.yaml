@@ -1,0 +1,28 @@
+name: activation-enforcement-hierarchy
+skill: enforcement-hierarchy
+category: activation
+
+tasks:
+  - input: "How should I enforce that agents always run tests before committing? Steering, skill, or hook?"
+    expect_activation: true
+  - input: "I want to add a new rule to our agent behavior. What's the right enforcement mechanism?"
+    expect_activation: true
+  - input: "Should this constraint go in AGENTS.md, a skill, or a pre-commit hook?"
+    expect_activation: true
+  - input: "Design the enforcement strategy for our coding standards across all agents."
+    expect_activation: true
+  - input: "We need agents to follow a specific workflow. Where do I configure agent constraints?"
+    expect_activation: true
+  - input: "Write a function to merge two sorted arrays."
+    expect_activation: false
+  - input: "Explain how DNS resolution works."
+    expect_activation: false
+  - input: "Add a search feature to the product listing page."
+    expect_activation: false
+  - input: "What's the best way to handle environment variables in Docker?"
+    expect_activation: false
+  - input: "Create an index on the orders table for faster queries."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

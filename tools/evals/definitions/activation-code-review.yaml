@@ -1,0 +1,28 @@
+name: activation-code-review
+skill: code-review
+category: activation
+
+tasks:
+  - input: "Review this pull request for security issues and code quality."
+    expect_activation: true
+  - input: "Look at src/auth.ts and tell me if there are any problems with the implementation."
+    expect_activation: true
+  - input: "Do a code review of the changes in the last commit."
+    expect_activation: true
+  - input: "Check this function for correctness, edge cases, and potential bugs."
+    expect_activation: true
+  - input: "Review the error handling in our API routes — is it consistent and secure?"
+    expect_activation: true
+  - input: "Create a new endpoint for fetching user preferences."
+    expect_activation: false
+  - input: "What's the difference between let and const in JavaScript?"
+    expect_activation: false
+  - input: "Deploy the staging environment to AWS."
+    expect_activation: false
+  - input: "Write a migration script to add the email_verified column."
+    expect_activation: false
+  - input: "Generate a UUID in Python."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

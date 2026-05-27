@@ -1,0 +1,28 @@
+name: activation-readme-writing
+skill: readme-writing
+category: activation
+
+tasks:
+  - input: "Write a README for this project that explains what it does and how to get started."
+    expect_activation: true
+  - input: "Our README is outdated. Rewrite it to reflect the current state of the project."
+    expect_activation: true
+  - input: "Create a project description and quick start guide for new contributors."
+    expect_activation: true
+  - input: "Audit the README — does it orient readers and drive adoption?"
+    expect_activation: true
+  - input: "The getting started section is confusing. Improve the README entry point."
+    expect_activation: true
+  - input: "Implement a WebSocket chat server."
+    expect_activation: false
+  - input: "What's the best way to structure a monorepo?"
+    expect_activation: false
+  - input: "Add error boundaries to the React components."
+    expect_activation: false
+  - input: "Create a cron job to clean up expired sessions."
+    expect_activation: false
+  - input: "Explain how TLS handshake works."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

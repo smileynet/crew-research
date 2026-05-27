@@ -1,0 +1,28 @@
+name: activation-research-output
+skill: research-output
+category: activation
+
+tasks:
+  - input: "Write up your research findings in a structured report format."
+    expect_activation: true
+  - input: "Produce an investigation report on the authentication options we explored."
+    expect_activation: true
+  - input: "Document the research results from our caching strategy analysis."
+    expect_activation: true
+  - input: "Create a findings document summarizing what we learned about the competitor's API."
+    expect_activation: true
+  - input: "Format these research notes into a proper output document with recommendations."
+    expect_activation: true
+  - input: "Implement a linked list in C."
+    expect_activation: false
+  - input: "What port is the dev server running on?"
+    expect_activation: false
+  - input: "Add a loading state to the button component."
+    expect_activation: false
+  - input: "Explain the difference between processes and threads."
+    expect_activation: false
+  - input: "Set up pre-commit hooks for linting."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

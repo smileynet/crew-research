@@ -1,0 +1,28 @@
+name: activation-completion-protocol
+skill: completion-protocol
+category: activation
+
+tasks:
+  - input: "Add the retry logic to the HTTP client and let me know when it's done."
+    expect_activation: true
+  - input: "Fix the failing test in user.spec.ts and report your status."
+    expect_activation: true
+  - input: "Implement the caching layer and verify it works before marking complete."
+    expect_activation: true
+  - input: "Refactor the config parser. When you're finished, summarize what changed."
+    expect_activation: true
+  - input: "Complete the database migration and confirm everything passes."
+    expect_activation: true
+  - input: "What design patterns does this codebase use?"
+    expect_activation: false
+  - input: "Explain the difference between SQL and NoSQL databases."
+    expect_activation: false
+  - input: "What are the pros and cons of server-side rendering?"
+    expect_activation: false
+  - input: "How does garbage collection work in Go?"
+    expect_activation: false
+  - input: "List all the environment variables this app uses."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

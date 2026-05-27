@@ -1,0 +1,28 @@
+name: activation-world-building
+skill: world-building
+category: activation
+
+tasks:
+  - input: "Define the magic system for my fantasy world — what it can do, its limits, and costs."
+    expect_activation: true
+  - input: "I'm building a game world. Help me specify how the technology works and its social impact."
+    expect_activation: true
+  - input: "Create a world-building specification for a post-apocalyptic setting."
+    expect_activation: true
+  - input: "Define the rules of the fictional conceit — what happens when it fails?"
+    expect_activation: true
+  - input: "Spec out the alien civilization's social structure and banned behaviors."
+    expect_activation: true
+  - input: "Write a function to validate credit card numbers."
+    expect_activation: false
+  - input: "Set up monitoring with Prometheus and Grafana."
+    expect_activation: false
+  - input: "What's the difference between gRPC and REST?"
+    expect_activation: false
+  - input: "Add a caching layer to the product catalog."
+    expect_activation: false
+  - input: "Create database seeds for the test environment."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

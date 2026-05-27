@@ -1,0 +1,28 @@
+name: activation-docs-audit
+skill: docs-audit
+category: activation
+
+tasks:
+  - input: "Audit our project documentation for completeness and freshness."
+    expect_activation: true
+  - input: "Which docs are outdated? Check if our documentation matches the current code."
+    expect_activation: true
+  - input: "Assess the health of our documentation — what's missing, stale, or redundant?"
+    expect_activation: true
+  - input: "Plan a documentation cleanup sprint. What needs attention first?"
+    expect_activation: true
+  - input: "Review docs/ and tell me which files haven't been updated since the refactor."
+    expect_activation: true
+  - input: "Implement a connection pool for PostgreSQL."
+    expect_activation: false
+  - input: "What's the best state management library for React?"
+    expect_activation: false
+  - input: "Add CORS headers to the Express server."
+    expect_activation: false
+  - input: "Write a regex to validate email addresses."
+    expect_activation: false
+  - input: "Set up Terraform for our AWS infrastructure."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

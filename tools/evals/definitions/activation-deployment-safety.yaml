@@ -1,0 +1,28 @@
+name: activation-deployment-safety
+skill: deployment-safety
+category: activation
+
+tasks:
+  - input: "Deploy the new version to production with a canary rollout."
+    expect_activation: true
+  - input: "We need to push this hotfix to prod. What's the safest way to do it?"
+    expect_activation: true
+  - input: "Write a rollback plan for the database migration we're about to run."
+    expect_activation: true
+  - input: "Set up blue-green deployment for our Kubernetes cluster."
+    expect_activation: true
+  - input: "What pre-deployment checks should we run before releasing v2.0?"
+    expect_activation: true
+  - input: "Write a function to parse CSV files."
+    expect_activation: false
+  - input: "Explain how React hooks work."
+    expect_activation: false
+  - input: "Add a dark mode toggle to the settings page."
+    expect_activation: false
+  - input: "What's the time complexity of quicksort?"
+    expect_activation: false
+  - input: "Create a unit test for the email validation function."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

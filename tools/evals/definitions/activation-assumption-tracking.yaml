@@ -1,0 +1,28 @@
+name: activation-assumption-tracking
+skill: assumption-tracking
+category: activation
+
+tasks:
+  - input: "We're planning to migrate to microservices. Help me think through what we're assuming will work."
+    expect_activation: true
+  - input: "Before we commit to this design, what assumptions are we making that could be wrong?"
+    expect_activation: true
+  - input: "I'm scoping this feature at 2 weeks. Challenge my assumptions about complexity."
+    expect_activation: true
+  - input: "We assume the third-party API can handle our load. Should we validate that before building?"
+    expect_activation: true
+  - input: "What are the hidden assumptions in this architecture proposal?"
+    expect_activation: true
+  - input: "Add a loading spinner to the login page."
+    expect_activation: false
+  - input: "Run the test suite and report failures."
+    expect_activation: false
+  - input: "Convert this JavaScript file to TypeScript."
+    expect_activation: false
+  - input: "What's the syntax for a Python list comprehension?"
+    expect_activation: false
+  - input: "Delete the unused imports in this file."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

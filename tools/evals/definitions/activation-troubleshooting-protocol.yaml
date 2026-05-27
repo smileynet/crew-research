@@ -1,0 +1,28 @@
+name: activation-troubleshooting-protocol
+skill: troubleshooting-protocol
+category: activation
+
+tasks:
+  - input: "The app crashes on startup with a segfault. Help me debug this."
+    expect_activation: true
+  - input: "I'm getting a 'connection refused' error when connecting to the database."
+    expect_activation: true
+  - input: "The build is failing with a cryptic error message. Diagnose the issue."
+    expect_activation: true
+  - input: "Users report the page loads but shows no data. Investigate what's wrong."
+    expect_activation: true
+  - input: "The CI pipeline fails intermittently. Help me troubleshoot the flakiness."
+    expect_activation: true
+  - input: "Create a new React component for the sidebar navigation."
+    expect_activation: false
+  - input: "What's the difference between SQL INNER JOIN and LEFT JOIN?"
+    expect_activation: false
+  - input: "Write a function to calculate compound interest."
+    expect_activation: false
+  - input: "Add TypeScript types to the API response objects."
+    expect_activation: false
+  - input: "Explain the SOLID principles with examples."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

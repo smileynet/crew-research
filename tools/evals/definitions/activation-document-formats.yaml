@@ -1,0 +1,28 @@
+name: activation-document-formats
+skill: document-formats
+category: activation
+
+tasks:
+  - input: "Should I use AsciiDoc or Markdown for our technical documentation?"
+    expect_activation: true
+  - input: "I need to generate PDFs from our docs. What markup format supports that best?"
+    expect_activation: true
+  - input: "Convert this document to reStructuredText for our Sphinx docs."
+    expect_activation: true
+  - input: "We need multi-format output — PDF, HTML, and EPUB. What document format should we use?"
+    expect_activation: true
+  - input: "Write this specification in Typst format."
+    expect_activation: true
+  - input: "Implement a binary tree traversal in Java."
+    expect_activation: false
+  - input: "What's the difference between TCP and UDP?"
+    expect_activation: false
+  - input: "Add authentication middleware to the API."
+    expect_activation: false
+  - input: "Create a Kubernetes deployment manifest."
+    expect_activation: false
+  - input: "Fix the memory leak in the event listener."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

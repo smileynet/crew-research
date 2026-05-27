@@ -1,0 +1,28 @@
+name: activation-git-protocol
+skill: git-protocol
+category: activation
+
+tasks:
+  - input: "Commit these changes and push to the feature branch."
+    expect_activation: true
+  - input: "Create a new branch for the authentication feature."
+    expect_activation: true
+  - input: "When should I checkpoint my work with a commit?"
+    expect_activation: true
+  - input: "Push the current changes to remote and set up tracking."
+    expect_activation: true
+  - input: "I have changes across 3 files. How should I organize the commits?"
+    expect_activation: true
+  - input: "Explain how HTTP/2 multiplexing works."
+    expect_activation: false
+  - input: "Write a recursive Fibonacci function in Python."
+    expect_activation: false
+  - input: "Add a health check endpoint to the service."
+    expect_activation: false
+  - input: "What's the best way to handle file uploads in a web app?"
+    expect_activation: false
+  - input: "Create a Makefile for building the Go project."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

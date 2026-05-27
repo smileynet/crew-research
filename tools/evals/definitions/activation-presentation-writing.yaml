@@ -1,0 +1,28 @@
+name: activation-presentation-writing
+skill: presentation-writing
+category: activation
+
+tasks:
+  - input: "Create a slide deck explaining our new architecture to stakeholders."
+    expect_activation: true
+  - input: "Write a MARP presentation for the team demo on Friday."
+    expect_activation: true
+  - input: "Build a workshop deck for onboarding new engineers."
+    expect_activation: true
+  - input: "I need slides for a 10-minute lightning talk about our testing strategy."
+    expect_activation: true
+  - input: "Draft a demo script for the product showcase next week."
+    expect_activation: true
+  - input: "Implement a rate limiter using Redis."
+    expect_activation: false
+  - input: "What's the difference between horizontal and vertical scaling?"
+    expect_activation: false
+  - input: "Add pagination to the search results API."
+    expect_activation: false
+  - input: "Write a Terraform module for an S3 bucket."
+    expect_activation: false
+  - input: "Fix the flaky test in the integration suite."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

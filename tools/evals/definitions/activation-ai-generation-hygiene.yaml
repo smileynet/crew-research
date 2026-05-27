@@ -1,0 +1,28 @@
+name: activation-ai-generation-hygiene
+skill: ai-generation-hygiene
+category: activation
+
+tasks:
+  - input: "Generate a Python class for managing database connections with proper error handling."
+    expect_activation: true
+  - input: "Write a TypeScript utility module for date formatting."
+    expect_activation: true
+  - input: "Create a REST API endpoint for user registration."
+    expect_activation: true
+  - input: "Implement a caching layer for the product catalog service."
+    expect_activation: true
+  - input: "Generate the CRUD operations for the orders table."
+    expect_activation: true
+  - input: "What's the difference between merge and rebase?"
+    expect_activation: false
+  - input: "Explain the CAP theorem in simple terms."
+    expect_activation: false
+  - input: "List the files in the src/ directory."
+    expect_activation: false
+  - input: "What version of Node.js is this project using?"
+    expect_activation: false
+  - input: "Summarize the changes in the last 5 commits."
+    expect_activation: false
+
+threshold: 4
+timeout: 60

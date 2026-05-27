@@ -1,0 +1,28 @@
+name: activation-fiction-craft
+skill: fiction-craft
+category: activation
+
+tasks:
+  - input: "Write a short story scene where the protagonist discovers the betrayal."
+    expect_activation: true
+  - input: "This narrative prose feels flat. Help me improve the voice and rhythm."
+    expect_activation: true
+  - input: "Draft the opening chapter of a sci-fi novel set on a generation ship."
+    expect_activation: true
+  - input: "Write game narrative dialogue for the villain's monologue."
+    expect_activation: true
+  - input: "Review this creative writing for overused phrases and weak prose."
+    expect_activation: true
+  - input: "Implement a REST API for a todo list application."
+    expect_activation: false
+  - input: "What's the difference between abstract classes and interfaces?"
+    expect_activation: false
+  - input: "Set up a CI/CD pipeline with GitHub Actions."
+    expect_activation: false
+  - input: "Optimize the database queries in the reporting module."
+    expect_activation: false
+  - input: "Write a Bash script to rotate log files."
+    expect_activation: false
+
+threshold: 4
+timeout: 60
