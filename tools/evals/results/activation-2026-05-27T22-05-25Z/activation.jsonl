@@ -1,0 +1,10 @@
+{"skill":"diagrams","input":"Create an architecture diagram showing how our microservices","expect":true,"activated":true,"result":"TP"}
+{"skill":"diagrams","input":"Draw a sequence diagram for the OAuth2 login flow.","expect":true,"activated":true,"result":"TP"}
+{"skill":"diagrams","input":"Generate a Mermaid flowchart of the order processing pipelin","expect":true,"activated":true,"result":"TP"}
+{"skill":"diagrams","input":"I need a C4 context diagram for our system.","expect":true,"activated":true,"result":"TP"}
+{"skill":"diagrams","input":"Create an ASCII diagram showing the data flow between servic","expect":true,"activated":true,"result":"TP"}
+{"skill":"diagrams","input":"Implement a rate limiter using the token bucket algorithm.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"What's the best way to handle database transactions in Node.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Write a Dockerfile for a Python Flask application.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Fix the race condition in the worker queue.","expect":false,"activated":false,"result":"TN"}
+{"skill":"diagrams","input":"Add input sanitization to prevent XSS attacks.","expect":false,"activated":false,"result":"TN"}

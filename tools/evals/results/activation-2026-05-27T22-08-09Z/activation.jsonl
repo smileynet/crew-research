@@ -1,0 +1,10 @@
+{"skill":"ai-generation-hygiene","input":"Generate a Python class for managing database connections wi","expect":true,"activated":true,"result":"TP"}
+{"skill":"ai-generation-hygiene","input":"Write a TypeScript utility module for date formatting.","expect":true,"activated":false,"result":"FN"}
+{"skill":"ai-generation-hygiene","input":"Create a REST API endpoint for user registration.","expect":true,"activated":true,"result":"TP"}
+{"skill":"ai-generation-hygiene","input":"Implement a caching layer for the product catalog service.","expect":true,"activated":false,"result":"FN"}
+{"skill":"ai-generation-hygiene","input":"Generate the CRUD operations for the orders table.","expect":true,"activated":true,"result":"TP"}
+{"skill":"ai-generation-hygiene","input":"What's the difference between merge and rebase?","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"Explain the CAP theorem in simple terms.","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"List the files in the src/ directory.","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"What version of Node.js is this project using?","expect":false,"activated":false,"result":"TN"}
+{"skill":"ai-generation-hygiene","input":"Summarize the changes in the last 5 commits.","expect":false,"activated":false,"result":"TN"}

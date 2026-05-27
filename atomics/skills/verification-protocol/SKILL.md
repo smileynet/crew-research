@@ -3,7 +3,7 @@ name: verification-protocol
 description: >
   Verification steps before reporting work is done. Use when finishing a
   task, fixing a bug, making changes, confirm your work is correct,
-  reporting done, checking if something works, or validating changes
+  reporting done, checking if something works, or validating changes.
   before committing. Applies to any task where you will report completion.
 metadata:
   type: protocol
