@@ -79,3 +79,21 @@ Every architecture diagram must answer:
 - [ ] What are the boundaries?
 - [ ] What are the relationships? (labeled with protocol)
 - [ ] Is there a legend?
+
+## HTML Report Delivery (Visual Reports)
+
+For multi-diagram output (architecture reviews, comparison reports), generate a self-contained HTML file:
+
+1. Write to OS temp dir: `$TMPDIR/architecture-review-<timestamp>.html` (or `/tmp` fallback)
+2. Include via CDN: Tailwind (styling) + Mermaid (diagrams)
+3. Open for user: `xdg-open` (Linux), `open` (macOS), `start` (Windows)
+4. Tell user the absolute path
+
+**When to use HTML delivery:**
+- Architecture review with multiple candidates (before/after diagrams)
+- Comparison reports (options side-by-side)
+- Any output with >2 diagrams that would clutter a markdown file
+
+**Structure:** Cards per topic, each with diagram + prose. Mix Mermaid (graph-shaped relationships) with hand-crafted CSS/SVG (editorial visuals, mass diagrams). End with a "Top recommendation" section.
+
+Nothing lands in the repo — temp dir only.

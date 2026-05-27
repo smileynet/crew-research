@@ -14,14 +14,9 @@ Separate divergent thinking from convergent thinking. Validate before committing
 
 ## Trigger Conditions
 
-Activate when:
-- Starting a new feature or epic
-- Task feels too vague to implement directly
-- User says "plan this", "how should we approach", "break this down"
-- Scope is unclear or requirements are ambiguous
-- Multiple approaches exist and none is obviously correct
+Activate when: starting a new feature/epic, task feels too vague, scope unclear, multiple approaches exist.
 
-Do NOT activate for: bug fixes, small well-defined tasks, tasks with clear specs already written.
+Do NOT activate for: bug fixes, small well-defined tasks, tasks with clear specs.
 
 ## The Four Phases
 
@@ -44,6 +39,14 @@ Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (co
 - **Output:** walkthrough document
 - **Skip when:** backend-only, UX already documented
 
+### Phase 2b: Prototype (optional)
+- Build throwaway code to answer a specific design question
+- Route: logic question → TUI state explorer; visual question → multi-variant UI
+- See [prototype-protocol](../prototype-protocol/SKILL.md) for full workflow
+- **Output:** answer to the question (captured in commit/ADR/notes), prototype deleted
+- **Use when:** "I'm not sure this state model works" or "I need to see options before committing"
+- **Skip when:** question can be answered by reasoning alone, or requirements are already validated
+
 ### Phase 3: Scope
 - Structure work into hierarchy (epic → feature → task)
 - Add dependencies, priorities, acceptance criteria
@@ -51,33 +54,19 @@ Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (co
 - **Review before proceeding**
 
 ### Phase 4: Finalize
-- Convert plan to tracked work items
-- Set up dependencies
-- Identify first actionable task
-- **Output:** tracked issues ready for execution
+- Convert plan to tracked work items (or PRD for larger features)
+- Set up dependencies, identify first actionable task
+- **Output:** tracked issues OR PRD (problem, solution, user stories, implementation decisions, testing decisions, out of scope)
 
-## Required Patterns
+## Rules
 
-**Pause between phases.** MUST stop after each phase for review. Do not flow continuously from brainstorm to finalize without the user seeing intermediate artifacts.
-
-**Match depth to complexity.** MUST select appropriate phases based on task size:
-- Epic (3+ sessions): all 4 phases
-- Feature (1-3 sessions): phases 1 + 3 minimum
-- Task (single session): phase 3 only, or skip planning entirely
-
-**Acceptance criteria are testable.** MUST write acceptance criteria that can be verified. "Works correctly" is not testable. "Returns 200 with paginated results when given valid auth token" is.
-
-**Plans are editable.** MUST present plans as artifacts the user can modify. Propose, don't prescribe.
-
-## Banned Patterns
-
-**Over-planning small tasks.** MUST NOT run a full 4-phase cycle for a bug fix or config change.
-
-**Brainstorming without converging.** MUST NOT explore endlessly. Brainstorm ends with a recommended direction.
-
-**Skipping Sample for user-facing work.** SHOULD NOT skip Phase 2 when the output has a user interface (CLI, web, API with human consumers).
-
-**Plans as immutable contracts.** SHOULD NOT treat finalized plans as unchangeable. Update as implementation reveals new information.
+- **Pause between phases** — stop after each for review. Never flow brainstorm→finalize without user seeing artifacts.
+- **Match depth to complexity** — epic (all phases), feature (1+3 minimum), task (3 only or skip).
+- **Acceptance criteria are testable** — "works correctly" fails; "returns 200 with paginated results" passes.
+- **Plans are editable** — propose, don't prescribe.
+- **Don't over-plan** — no 4-phase cycle for a bug fix.
+- **Brainstorm must converge** — ends with a recommended direction, not open exploration.
+- **Don't skip Sample for user-facing work** — if it has a UI, walk through it.
 
 ## Phase Selection Quick Reference
 
@@ -86,11 +75,30 @@ Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (co
 | New feature, unclear requirements | 1 → 2 → 3 → 4 |
 | Clear requirements, user-facing | 2 → 3 → 4 |
 | Clear requirements, backend-only | 3 → 4 |
+| Uncertain data model or state machine | 1 → 2b → 3 → 4 |
+| UI direction unclear | 2 → 2b → 3 → 4 |
 | Bug fix or small task | Skip (just do it) |
 | Exploring a new domain | 1 only |
 | Refactoring | 3 → 4 |
+| Large feature needing PRD | 1 → 2 → 3 → 4 (PRD output) |
 
 ## References
 
 - Source practice: [`docs/practices/planning-cycles.md`](../../../docs/practices/planning-cycles.md)
 - Origin: line-cook/docs/cycles/mise-cycle.md
+- Related: [prototype-protocol](../prototype-protocol/SKILL.md) for Phase 2b
+- Related: [architecture-deepening](../architecture-deepening/SKILL.md) for refactoring plans
+
+## Spike vs Tracer Bullet vs Prototype
+
+Three tools for reducing uncertainty — pick based on what's unknown:
+
+| Tool | Answers | Code fate |
+|------|---------|-----------|
+| **Spike** | "Is this feasible?" | Thrown away |
+| **Prototype** | "Does this design feel right?" | Thrown away |
+| **Tracer bullet** | "Does this path work end-to-end?" | Kept (production) |
+
+**Quick decision**: Unknown feasibility → spike. Unknown design → prototype. Known what, unknown path → tracer bullet. Everything clear → just build it.
+
+See [references/spike-tracer-prototype.md](references/spike-tracer-prototype.md) for the full decision framework.
