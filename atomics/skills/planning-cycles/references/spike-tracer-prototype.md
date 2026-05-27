@@ -58,6 +58,9 @@ Is the path through all layers unclear?
 | UX-heavy feature | Prototype → Tracer → Build |
 | Simple feature, known path | Just build it |
 | "Can we even do X?" | Spike (may kill the idea) |
+| Full PoC (new system) | Research → Spike → Design → Plan → Build → Validate |
+
+For full PoC workflows, see [poc-workflow](../../poc-workflow/SKILL.md) which orchestrates the complete lifecycle.
 
 ## Anti-Patterns
 

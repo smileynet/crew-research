@@ -81,6 +81,7 @@ Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (co
 | Exploring a new domain | 1 only |
 | Refactoring | 3 → 4 |
 | Large feature needing PRD | 1 → 2 → 3 → 4 (PRD output) |
+| Full PoC (new system/integration) | Use [poc-workflow](../poc-workflow/SKILL.md) instead |
 
 ## References
 
