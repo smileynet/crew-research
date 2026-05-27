@@ -1,0 +1,22 @@
+{
+  "experiment": "eager-context-behavioral-delta",
+  "timestamp": "2026-05-27T23-29-38Z",
+  "trials": 1,
+  "conditions": {
+    "baseline": {
+      "avg_tokens": 1251.6,
+      "avg_duration_ms": 25532.2,
+      "avg_llm_calls": 4.6
+    },
+    "hygiene-steering": {
+      "avg_tokens": 1034.4,
+      "avg_duration_ms": 19555.4,
+      "avg_llm_calls": 3.6
+    },
+    "verification-steering": {
+      "avg_tokens": 820.0,
+      "avg_duration_ms": 18847.2,
+      "avg_llm_calls": 3.6
+    }
+  }
+}
