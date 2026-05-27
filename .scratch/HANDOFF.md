@@ -1,57 +1,50 @@
 ---
-created_at: 2026-05-25T09:09:00-07:00
-base_commit: fefdb69
+created_at: 2026-05-27T12:21:00-07:00
+base_commit: ef048e2
 handoff_key: feature-complete
 ---
 
 # Handoff
 
 ## Objective
-System is feature-complete. Next: run remaining coverage experiments, eat our own dogfood with `@workspace-cleanup`, and use crew-test for sustained real work.
+Run E15 (cross-skill link activation) to validate whether linking between skills triggers progressive loading. This gates the activation improvement strategy for 3 failing skills.
 
 ## Task Graph Position
-- **Complete:** All phases 1-10. Critical path done. 8 crews, 9 archetypes, 34 skills, full toolchain.
-- **Open issues:** #3 (remaining experiments: task diversity, compression, activation sweep), #2 (issue automation — deferred design)
-- **Next:** Coverage experiments (E7, E10, E14) or real-world usage of crew-test.
+- **Complete:** All phases 1-10. E7 (activation sweep — 33 skills, 81% recall). Workspace cleanup. New skills: prototype-protocol, architecture-deepening, poc-workflow.
+- **Open issues:** #3 (remaining experiments: E10, E15, E16), #2 (issue automation — deferred)
+- **Next:** E15 → E16 → E10 (in that order)
 
 ## Mental Model
-- **Skill focusing effect** — more skills = fewer tokens (counterintuitive, confirmed in Phase 7)
-- **Activation bottleneck** — skills work when loaded but kiro-cli's matching is unreliable; distinctive trigger words survive, generic phrases don't
-- **Document placement rule** — default .scratch/.memory; docs/ only when deliberately requested for user-facing publication
-- **Context isolation model** — orchestrator (bash), subject (kiro-cli + skills), judge (kiro-cli, empty dir) — no shared context
+- **Spike/Tracer/Prototype** — three uncertainty-reduction tools. Spike = "can we?", prototype = "should we?", tracer = "does the path work?" Code fate is the differentiator.
+- **Cross-skill linking** — hypothesis that referencing a failing skill from a reliably-activating skill triggers progressive loading. Unvalidated.
+- **Activation tiers** — 16 skills at 100%, 10 at 80%, 4 at 60%, 3 failing (diagrams 0%, ai-gen-hygiene 20%, verification 40%)
+- **Skill focusing effect** — more skills = fewer tokens (confirmed)
+- **Activation bottleneck** — distinctive triggers survive, generic phrases don't
 
 ## Constraints
-- `resources/` is read-only (gitignored, rehydrate from .memory/resources.md)
+- `yq` v4.44.1, `kiro-cli` 2.3.0, `mise` 2026.5.7 — all available
 - Skills must be <100 lines SKILL.md
-- Generator requires `yq` (~/.local/bin/yq)
-- kiro-cli 2.3.0 authenticated
-- Param substitution uses awk frontmatter extraction (yq can't parse full SKILL.md)
+- `resources/` is read-only
 
 ## What Was Tried
-- Nothing failed this session. All implementation succeeded.
-- Generator prompt deployment had a bug (yq on full markdown) — fixed with awk extraction.
-- Init script had ordering issue (detection after AGENTS.md creation) — fixed.
+- Nothing failed this session. All skill creation and enhancement succeeded.
+- E7 ran cleanly (330 tasks, 33 skills).
 
 ## Current State
-- `~/code/crew-test` deployed with 7 agents, 31 skills, 6 prompts, 3 steering files
-- New skills this session: ux-walkthrough, fiction-craft (+ references), world-building, script-authoring, reference-exploration, research-output, cheatsheet, workspace-cleanup, read-handoff, init-project
-- Experiments ran: token-efficiency, skill-interference, process-tracing (Phase 7), E8/E9/E11/E12/E13 (Phase 10)
-- Findings: `docs/practices/phase-7-experiment-results.md`, `docs/practices/phase-10-e2e-results.md`
-- GitHub: all pushed to smileynet/crew-research
+- 38 skills total (was 34): +prototype-protocol, +architecture-deepening, +poc-workflow, +poc-workflow references
+- Enhanced: planning-cycles (Phase 2b, PRD output, spike/tracer/prototype framework), diagrams (HTML report mode)
+- E7 results: `tools/evals/results/activation-2026-05-27T06-07-54Z/`
+- Research: `docs/practices/e7-activation-sweep-results.md`, `docs/practices/cross-skill-linking-research.md`
+- CONTEXT.md updated with 5 new terms
 
 ## Next Steps
-1. Run `@workspace-cleanup` on crew-research itself (dogfood)
-2. Run E7 (activation sweep for 17 new skills)
+1. Run E15 (cross-skill link activation) — test with planning-cycles → prototype-protocol link
+2. Based on E15: run E16 (description rewriting vs eager loading for 3 failing skills)
 3. Run E10 (eager-context effectiveness)
-4. Use crew-test for sustained real work to surface integration issues
-5. Close #3 when experiments complete
+4. Close #3 when experiments complete
 
 ## Evidence
-- Phase 7 results: `docs/practices/phase-7-experiment-results.md`
-- Phase 10 E2E: `docs/practices/phase-10-e2e-results.md`
-- Experiment coverage gaps: `docs/practices/experiment-coverage-proposal.md`
-- Screenwriting analysis: `.scratch/research/screenwriting-repo-analysis.md`
-- Phase 9 spikes: `docs/practices/phase-9-proposal.md`
-
-## Available Prompts
-`@cheatsheet`, `@handoff`, `@read-handoff`, `@init-project`, `@ux-walkthrough`, `@workspace-cleanup`
+- E7 results: `docs/practices/e7-activation-sweep-results.md`
+- Cross-skill research: `docs/practices/cross-skill-linking-research.md`
+- Experiment proposals: `docs/practices/experiment-coverage-proposal.md`
+- Spike/tracer/prototype framework: `atomics/skills/planning-cycles/references/spike-tracer-prototype.md`

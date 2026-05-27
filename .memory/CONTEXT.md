@@ -139,3 +139,23 @@ _Avoid_: embedding agent definitions inline (reference by name instead)
 **Workspace convention (composition)**:
 A YAML manifest declaring file/folder structures, artifact templates, lifecycle rules, and eager-context modules that a project adopts. Defines the shared contract agents rely on for coordination.
 _Avoid_: mixing workspace structure with agent behavior (workspace is infrastructure, not behavior)
+
+**Spike**:
+Time-boxed throwaway investigation answering "is this feasible?" Output: findings + pass/fail verdict. Code discarded, learnings kept. One hypothesis per spike, time-box to 1 day.
+_Avoid_: prototype (answers different question), tracer bullet (code is kept)
+
+**Tracer bullet**:
+Thin end-to-end slice through all layers, kept as production code. Answers "does the path work?" Minimal but real — hardcoded values, single case, no edge cases. Becomes the skeleton for the full feature.
+_Avoid_: prototype (thrown away), spike (feasibility only)
+
+**Prototype**:
+Throwaway code answering a design question — "does this feel right?" Routes between logic (TUI state explorer) and UI (multi-variant page). Code discarded, answer captured in commit/ADR/notes.
+_Avoid_: spike (feasibility), tracer bullet (production code)
+
+**Validation checkpoint**:
+Mid-implementation comparison of plan vs reality. Produces a table (Plan Item | Implemented? | Issue), fixes misalignments, documents findings that impact future work, updates the plan. Used in poc-workflow and any multi-phase implementation.
+_Avoid_: post-mortem (that's after the fact), review (too vague)
+
+**Cross-skill linking**:
+Referencing one skill from another's workflow steps to trigger progressive loading of the referenced skill. Proposed mechanism for activating broad-applicability skills (ai-generation-hygiene, verification-protocol, diagrams) that fail direct description-based activation. Unvalidated — pending E15 experiment.
+_Avoid_: eager loading (always-on, different mechanism), skill composition (too vague)

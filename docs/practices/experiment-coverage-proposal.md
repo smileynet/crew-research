@@ -82,14 +82,28 @@ Gaps in test coverage for project items, with proposed experiments to close them
 **Method**: Give bugfix crew a task that requires infrastructure work. Verify it escalates or suggests handoff rather than attempting infra work itself.
 **Effort**: 0.5 session | **Priority**: P3
 
+### E15: Cross-Skill Link Activation
+**Goal**: Does referencing a failing skill from a reliably-activating skill cause the failing skill to load?
+**Method**: Modify planning-cycles to reference prototype-protocol via markdown link. Run tasks that activate planning-cycles and check if prototype-protocol also loads.
+**Conditions**: baseline (no link), treatment A (relative markdown link), treatment B (inline summary), treatment C (companion file).
+**Metrics**: activation rate for referenced skill, token usage delta.
+**Effort**: 1 session | **Priority**: P1
+
+### E16: Description Rewriting vs Eager Loading
+**Goal**: Can we fix the 3 failing skills (diagrams 0%, ai-generation-hygiene 20%, verification-protocol 40%) without eager-loading?
+**Method**: Test 3 conditions per skill: rewritten description, cross-linked from host skill (if E15 passes), eager-loaded as steering.
+**Metrics**: activation rate, false positive rate, token usage.
+**Effort**: 1 session | **Priority**: P1 (after E15)
+
 ## Priority Order
 
 | Priority | Experiments | Sessions |
 |----------|------------|:--------:|
-| P1 | E7 (activation sweep), E8 (multi-agent), E9 (crew E2E) | 3 |
+| P1 | E7 ✅, E15 (cross-skill linking), E16 (description rewriting) | 2 |
+| P1 | E8 (multi-agent), E9 (crew E2E) | 2 |
 | P2 | E10 (eager-context), E11 (research-output), E12 (handoff), E13 (init) | 2.5 |
 | P3 | E14 (cross-crew) | 0.5 |
-| **Total** | | **6** |
+| **Total** | | **7** |
 
 ## Relationship to Phase 10
 
