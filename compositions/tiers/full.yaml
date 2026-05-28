@@ -4,6 +4,7 @@ description: "Complete toolkit: core lifecycle + specialized activities, multi-a
 steering:
   - ai-generation-hygiene
   - verification-protocol
+  - project-conventions
 
 skills:
   - planning-cycles

@@ -4,6 +4,7 @@ description: "Core project lifecycle: setup → design → plan → build → ve
 steering:
   - ai-generation-hygiene
   - verification-protocol
+  - project-conventions
 
 skills:
   - planning-cycles

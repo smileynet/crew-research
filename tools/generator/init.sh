@@ -92,6 +92,9 @@ $PROJECT_NAME
 - \`.scratch/\` — Ephemeral (gitignored)
 - \`.memory/\` — Durable (glossary, ADRs)
 - \`docs/\` — User-facing (only when deliberately requested)
+- \`.kiro/steering/\` — Always-on rules (loaded every turn)
+- \`.kiro/skills/\` — On-demand knowledge (activates when relevant)
+- \`.kiro/prompts/\` — User-invoked workflows (\`@name\`)
 
 ## Commands
 \`\`\`bash
@@ -99,6 +102,23 @@ ${BUILD_CMD:+$BUILD_CMD  # build
 }${TEST_CMD:+$TEST_CMD  # test
 }${LINT_CMD:+$LINT_CMD  # lint
 }\`\`\`
+
+## Prompts
+- \`@grill-with-docs\` — Stress-test a plan before building
+- \`@handoff\` / \`@read-handoff\` — Session continuity
+- \`@workspace-cleanup\` — Periodic housekeeping
+- \`@init-project\` — Bootstrap workspace conventions
+
+## Customizing Skills
+
+Skills are in \`.kiro/skills/{name}/SKILL.md\`. To customize:
+
+- **Adjust params**: Edit the frontmatter \`params:\` section (build/test/lint commands, paths)
+- **Remove a skill**: Delete its directory from \`.kiro/skills/\`
+- **Disable steering**: Delete the file from \`.kiro/steering/\`
+- **Add a skill**: Copy a SKILL.md directory into \`.kiro/skills/\`
+
+Steering files (\`.kiro/steering/\`) are always loaded. Skills activate on-demand based on description match. If a skill isn't activating, check its \`description:\` field for trigger words.
 EOF
   echo "  ✅ AGENTS.md created"
 fi
