@@ -43,7 +43,6 @@ skills:
   - world-building
 
 prompts:
-  - init-project
   - grill-with-docs
   - handoff
   - read-handoff
