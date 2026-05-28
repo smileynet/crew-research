@@ -250,14 +250,40 @@ EOF
     echo "  ✅ Prompts: ${#PROMPTS[@]} deployed"
   fi
 
-  # Deploy agents
+  # Deploy agents (convert composition YAML → kiro-cli JSON)
   if [[ ${#AGENTS[@]} -gt 0 ]]; then
     mkdir -p "$PROJECT/.kiro/agents"
     for agent in "${AGENTS[@]}"; do
       src="$ROOT_DIR/compositions/agent-archetypes/$agent.yaml"
+      dest="$PROJECT/.kiro/agents/$agent.json"
       if [[ -f "$src" ]]; then
-        # Convert archetype YAML to kiro-cli agent JSON
-        yq -o=json '.' "$src" > "$PROJECT/.kiro/agents/$agent.json"
+        # Build resources array from skills + eager-context
+        resources=""
+        for skill in $(yq -r '.skills // [] | .[]' "$src" 2>/dev/null); do
+          resources="${resources}\"skill://.kiro/skills/$skill/SKILL.md\","
+        done
+        for ctx in $(yq -r '.["eager-context"] // [] | .[]' "$src" 2>/dev/null); do
+          resources="${resources}\"file://.kiro/steering/$ctx.md\","
+        done
+        resources="[${resources%,}]"
+
+        # Build tools array
+        tools=$(yq -r '.tools // [] | @json' "$src" 2>/dev/null)
+
+        # Build prompt (append escalation if present)
+        prompt=$(yq -r '.prompt // ""' "$src" 2>/dev/null)
+        escalation=$(yq -r '.escalation // ""' "$src" 2>/dev/null)
+        [[ -n "$escalation" && "$escalation" != "null" ]] && prompt="${prompt}\n## Escalation\n${escalation}"
+
+        # Write kiro-cli agent JSON
+        jq -n \
+          --arg name "$(yq -r '.name' "$src")" \
+          --arg desc "$(yq -r '.description' "$src")" \
+          --argjson tools "$tools" \
+          --argjson resources "$resources" \
+          --arg prompt "$prompt" \
+          '{name: $name, description: $desc, tools: $tools, allowedTools: $tools, resources: $resources, prompt: $prompt}' \
+          > "$dest"
       fi
     done
     echo "  ✅ Agents: ${#AGENTS[@]} deployed"
