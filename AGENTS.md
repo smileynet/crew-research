@@ -2,42 +2,77 @@
 
 ## Project
 
-crew-research — Monorepo of independent tools for building consistent, reusable behavioral modules across AI coding tools.
+crew-research — Portable skills and workflows for AI coding tools. Users install a tier of skills into their project to improve agent behavior across the full development lifecycle.
 
-## Workspace
+## How Users Set Up
+
+When a user wants to use crew-research in their project, guide them through:
+
+### 1. Choose a tier
+
+- **basic** — Core project lifecycle (11 skills + 2 steering + 5 prompts). Covers: setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
+- **full** — Everything in basic + specialized skills, multi-agent crews, research tools, creative writing.
+
+If unsure, recommend **basic**. It covers the full workflow without overwhelming.
+
+### 2. Initialize
+
+```bash
+# From the crew-research repo:
+mise run init -- --project ~/their-project --tier basic --tool kiro-cli
+```
+
+This deploys skills, steering, and prompts to their project's `.kiro/` directory.
+
+### 3. Verify
+
+```bash
+mise run doctor -- --project ~/their-project
+```
+
+### 4. Start using
+
+After init, the user just runs `kiro-cli chat` in their project. Skills activate automatically based on what they're doing. Prompts are invoked with `@name`.
+
+### Key prompts to teach users:
+- `@grill-with-docs` — stress-test a plan before building
+- `@handoff` / `@read-handoff` — session continuity
+- `@workspace-cleanup` — periodic housekeeping
+- `@init-project` — bootstrap a new project
+
+## Workspace (crew-research internal)
 
 - `.memory/` — Durable artifacts (CONTEXT.md glossary, ADRs, specs/)
 - `.scratch/` — Ephemeral artifacts (handoffs only)
-- `docs/` — Plan, inventory, practices, specs (human-readable)
+- `docs/` — Plan, practices, specs (human-readable research)
 - `atomics/` — Atomic modules (skills, eager-context, eval-definitions)
-- `compositions/` — Compositions (agent-archetypes, crew-patterns, workspace-conventions)
-- `tools/` — Generator, proof harness, eval harness, lint
-- `resources/` — Symlinked reference repos (read-only prior art)
+- `compositions/` — Compositions (agent-archetypes, crew-patterns, tiers, workspace-conventions)
+- `tools/` — Generator, eval harness, proof harness, lint
+- `resources/` — Symlinked reference repos (read-only)
 
-## Backlog
+## Commands
 
-GitHub Issues on `smileynet/crew-research`. Use `gh issue create` for new items.
+```bash
+# User-facing
+mise run init -- --project <path> --tier basic --tool kiro-cli
+mise run catalog                                # list available skills
+mise run doctor -- --project <path>             # health check
 
-When filing issues:
-- Title: imperative verb + what ("Design per-project customization")
-- Body: Problem, Questions to Resolve, Prior Art, Acceptance Criteria
-- Use issues for anything deferred, out-of-scope, or needing future design work
-
-Labels (exclusive — one per issue):
-- `design` — needs design decisions before implementation
-- `tooling` — proof harness, eval harness, lint scripts
-- `content` — new/updated skills, practices, protocols
-- `bug` — something broken
-
-Issue templates enforce structure. Don't file issues for work you can finish in one sitting.
+# Development
+mise run validate                               # validate compositions + cross-links
+mise run generate -- --tool kiro-cli --output ./deploy
+mise run eval                                   # run all evals
+mise run eval:activation                        # test skill activation
+mise run lint                                   # check cross-links
+```
 
 ## Key Conventions
 
 - **Glossary**: `.memory/CONTEXT.md` — update immediately when terms are resolved
-- **ADRs**: `.memory/adr/NNNN-slug.md` — only for hard-to-reverse decisions with real trade-offs
-- **Practices**: `docs/practices/{slug}.md` — human research docs
+- **ADRs**: `.memory/adr/NNNN-slug.md` — only for hard-to-reverse decisions
 - **Skills**: `atomics/skills/{slug}/SKILL.md` — agent-loadable modules (<100 lines)
-- **Cross-links**: practices declare `skills:` in frontmatter; skills declare `practice:` in frontmatter
+- **Tiers**: `compositions/tiers/{name}.yaml` — define what ships in each tier
+- **Cross-links**: practices declare `skills:` in frontmatter; skills declare `practice:`
 
 ## Prompts
 
@@ -45,18 +80,6 @@ Issue templates enforce structure. Don't file issues for work you can finish in 
 - `@research-prior-art` — Research reference repos to inform a decision
 - `@handoff` — End-of-session handoff
 - `@read-handoff` — Start-of-session orientation
-
-## Commands
-
-```bash
-mise run validate                               # validate compositions + cross-links
-mise run generate -- --tool kiro-cli --output ./deploy  # generate deployment
-mise run eval                                   # run all evals
-mise run eval:activation                        # test skill activation
-mise run lint                                   # check cross-links
-gh issue list --repo smileynet/crew-research    # view backlog
-gh issue create --repo smileynet/crew-research  # file new item
-```
 
 ## Do Not
 
