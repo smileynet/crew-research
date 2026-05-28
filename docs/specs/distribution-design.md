@@ -12,52 +12,45 @@ status: proposed
 
 ## Proposed Tiers
 
-### Basic (10 skills, 0 crews, 2 prompts)
+### Basic (11 skills + 2 steering + 5 prompts)
 
-For: Solo developer who wants better AI output without multi-agent complexity.
+For: Any developer working through a project. Covers the full lifecycle: setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
 
-**Skills (always-on via steering):**
-- ai-generation-hygiene — cleaner code output
-- verification-protocol — agent verifies before reporting done
+| Skill/Prompt | Phase | Role |
+|---|---|---|
+| ai-generation-hygiene *(steering)* | Build | Clean code every turn |
+| verification-protocol *(steering)* | Verify | Agent verifies before reporting done |
+| planning-cycles | Plan | Break down work, scope, phase it |
+| five-whys | Plan | Diagnose before solving |
+| assumption-tracking | Plan | Surface hidden assumptions |
+| script-authoring | Build | Quality scripts |
+| troubleshooting-protocol | Build | When things break |
+| code-review | Verify | Check your own work |
+| testing-guide | Verify | Know what to test |
+| git-protocol | Commit | Commit discipline |
+| writing-style | Deliver | Clear communication |
+| @init-project | Setup | Bootstrap workspace conventions |
+| @grill-with-docs | Design | Stress-test the plan, resolve decisions |
+| @handoff | Continuity | Session state capture |
+| @read-handoff | Continuity | Session orientation |
+| @workspace-cleanup | Cleanup | Periodic consolidation |
 
-**Skills (on-demand):**
-- five-whys — root cause analysis
-- planning-cycles — structured planning for complex tasks
-- git-protocol — commit/push discipline
-- code-review — review checklist
-- testing-guide — what/how to test
-- troubleshooting-protocol — systematic debugging
-- writing-style — clear technical writing
-- script-authoring — quality shell scripts
+### Full (35 skills + 2 steering + 6 prompts + 7 agents)
 
-**Prompts:**
-- @handoff — session continuity
-- @read-handoff — session orientation
+Everything in Basic, plus specialized skills for specific activities:
 
-**Workspace:**
-- `.memory/CONTEXT.md` — glossary
-- `.scratch/` — ephemeral notes
-- `AGENTS.md` — minimal (commands + conventions)
-
-**Init command:**
-```bash
-mise run init -- --project ~/myproject --tier basic --tool kiro-cli
-```
-
-### Full (38 skills, crews, 6 prompts)
-
-For: Team or power user who wants multi-agent workflows, specialized crews, and the complete toolkit.
-
-Everything in Basic, plus:
-- All remaining skills (architecture-deepening, prototype-protocol, poc-workflow, diagrams, etc.)
-- Multi-agent crew deployment (lead + workers)
-- All prompts (@grill-with-docs, @workspace-cleanup, @read-handoff, @handoff, etc.)
-- Workspace conventions with .memory/adr/, docs/ structure
-
-**Init command:**
-```bash
-mise run init -- --project ~/myproject --tier full --crews development --tool kiro-cli
-```
+| Category | Additional Skills |
+|----------|-----------------|
+| Plan | prototype-protocol, architecture-deepening, poc-workflow, situation-routing |
+| Verify | completion-protocol |
+| Commit | commit-pr-discipline, deployment-safety |
+| Deliver | changelog-discipline, readme-writing, tutorial-authoring, presentation-writing, diagrams, diataxis-classification, document-formats |
+| Design | research-methodology, research-output, reference-exploration, adr-authoring |
+| Cleanup | docs-audit |
+| Meta | enforcement-hierarchy, eval-criteria, session-review-patterns |
+| Creative | fiction-craft, world-building |
+| Prompt | @research-prior-art |
+| Agents | lead, planner, implementer, researcher, reviewer, tester, writer |
 
 ### Custom (pick and choose)
 
@@ -72,11 +65,10 @@ mise run init -- --project ~/myproject --skills "five-whys,planning-cycles,code-
 | Category | Basic | Full |
 |----------|:-----:|:----:|
 | Steering (always-on) | 2 | 2 |
-| On-demand skills | 8 | 36 |
-| Prompts | 2 | 6 |
-| Agents | 0 (default only) | 7+ |
-| Crews | 0 | 1-8 |
-| Workspace conventions | Minimal | Full |
+| On-demand skills | 11 | 35 |
+| Prompts | 5 | 6 |
+| Agents | 0 (default only) | 7 |
+| Lifecycle coverage | Full (setup→cleanup) | Full + specialized activities |
 
 ## UX Improvements
 
