@@ -50,6 +50,7 @@ prompts:
   - research-prior-art
   - project-audit
   - adopt-project
+  - plan-prereqs
 
 agents:
   - lead

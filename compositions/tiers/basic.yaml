@@ -25,3 +25,4 @@ prompts:
   - workspace-cleanup
   - project-audit
   - adopt-project
+  - plan-prereqs
