@@ -169,8 +169,15 @@ EOF
     for skill in "${STEERING[@]}"; do
       src="$SKILLS_DIR/$skill/SKILL.md"
       if [[ -f "$src" ]]; then
+        dest="$PROJECT/.kiro/steering/$skill.md"
         # Extract content after frontmatter for steering
-        awk 'BEGIN{skip=0} /^---$/{skip++; next} skip>=2{print}' "$src" > "$PROJECT/.kiro/steering/$skill.md"
+        awk 'BEGIN{skip=0} /^---$/{skip++; next} skip>=2{print}' "$src" > "$dest"
+        # Substitute verification commands at deploy time
+        if [[ "$skill" == "verification-protocol" ]]; then
+          sed -i "s|{{params.build_command}}|$BUILD_CMD|g" "$dest"
+          sed -i "s|{{params.test_command}}|$TEST_CMD|g" "$dest"
+          sed -i "s|{{params.lint_command}}|$LINT_CMD|g" "$dest"
+        fi
       fi
     done
     echo "  ✅ Steering: ${#STEERING[@]} files"

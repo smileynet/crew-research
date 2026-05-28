@@ -23,3 +23,5 @@ prompts:
   - handoff
   - read-handoff
   - workspace-cleanup
+  - project-audit
+  - adopt-project

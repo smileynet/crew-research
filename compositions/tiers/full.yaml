@@ -48,6 +48,8 @@ prompts:
   - read-handoff
   - workspace-cleanup
   - research-prior-art
+  - project-audit
+  - adopt-project
 
 agents:
   - lead
