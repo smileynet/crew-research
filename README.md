@@ -1,49 +1,77 @@
 # crew-research
 
-Monorepo of independent tools for building consistent, reusable behavioral modules across AI coding tools (kiro-cli, Claude Code, Codex, Pi).
-
-## What It Does
-
-- **Skills**: Portable, on-demand knowledge packs that improve agent behavior. Write once, deploy to any tool.
-- **Compositions**: Agent archetypes and crew patterns that assemble skills into multi-agent workflows.
-- **Generator**: Composes modules into tool-specific deployments from a single source of truth.
-- **Eval harness**: Proves skills add value via dual-run comparison (with/without skill, scored by LLM judge).
+Portable skills and workflows for AI coding tools. Install a tier of skills into your project to improve agent behavior across the full development lifecycle.
 
 ## Quick Start
 
 ```bash
-# Validate everything
-mise run validate
+# Initialize your project with the basic tier
+mise run init -- --project ~/your-project --tier basic --tool kiro-cli
 
-# Generate a deployment
-mise run generate -- --tool kiro-cli --output ./deploy
+# Verify the deployment
+mise run doctor -- --project ~/your-project
 
-# Initialize a new project with workspace conventions
-mise run init -- --project ~/code/myproject --crews general --tool kiro-cli
-
-# Run evals
-mise run eval
+# Start using
+cd ~/your-project && kiro-cli chat
 ```
 
-## Project Structure
+## Tiers
+
+**basic** — Core project lifecycle (11 skills + 2 steering + 5 prompts):
+setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
+
+**full** — Everything in basic + specialized skills, multi-agent crews, research tools, creative writing.
+
+```bash
+# See all available skills
+mise run catalog
+```
+
+## What Gets Deployed
 
 ```
-atomics/          Skills, eager-context, eval definitions
-compositions/     Agent archetypes, crew patterns, workspace conventions
-tools/            Generator, eval harness, proof harness, lint
-docs/             Plan, specs, practices (human-readable research)
-resources/        Symlinked reference repos (read-only)
+your-project/
+├── .kiro/
+│   ├── steering/        # Always-on rules (code hygiene, verification, conventions)
+│   ├── skills/          # On-demand knowledge (activates when relevant)
+│   └── prompts/         # User-invoked workflows (@handoff, @grill-with-docs, etc.)
+├── .memory/
+│   └── CONTEXT.md       # Project glossary (grows as you work)
+├── .scratch/            # Ephemeral notes (gitignored)
+└── AGENTS.md            # Agent-facing project reference
 ```
+
+## Key Prompts
+
+- `@grill-with-docs` — Stress-test a plan before building
+- `@handoff` / `@read-handoff` — Session continuity
+- `@workspace-cleanup` — Periodic housekeeping
 
 ## Requirements
 
+- `kiro-cli` 2.3.0+
 - `yq` (YAML processing)
-- `kiro-cli` 2.3.0+ (agent runtime)
-- `mise` (task runner, optional)
+- `mise` (task runner, optional — scripts work standalone)
+
+## Customizing
+
+After init, customize for your project:
+- Edit `.crew-config.yaml` for build/test/lint commands
+- Remove unwanted skills: delete from `.kiro/skills/`
+- Remove unwanted steering: delete from `.kiro/steering/`
+- Add project context: create `.kiro/skills/{name}/references/project-notes.md`
+
+## Development
+
+```bash
+mise run validate          # validate compositions + cross-links
+mise run eval              # run all evals
+mise run eval:activation   # test skill activation
+mise run lint              # check cross-links
+```
 
 ## Documentation
 
-- `docs/plan.md` — current plan and phase definitions
-- `docs/specs/` — technical specifications
-- `docs/practices/` — research findings and experiment results
+- `docs/specs/distribution-design.md` — tier design and UX
+- `docs/practices/` — experiment results and research findings
 - `tools/evals/README.md` — eval harness usage

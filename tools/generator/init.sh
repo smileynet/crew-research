@@ -1,7 +1,6 @@
 #!/bin/bash
-# tools/generator/init.sh — Initialize a project with crew-research workspace conventions
+# tools/generator/init.sh — Initialize a project with crew-research skills
 # Usage: ./init.sh --project <path> --tier <basic|full> --tool <kiro-cli|claude-code>
-#        ./init.sh --project <path> --crews <crew1,crew2> --tool <kiro-cli|claude-code>
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -30,7 +29,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$PROJECT" ]] || { echo "Usage: $0 --project <path> --tier <basic|full> --tool <tool>" >&2; exit 1; }
-[[ -n "$TIER" || -n "$CREWS" ]] || { echo "Error: --tier or --crews required" >&2; exit 1; }
+[[ -n "$TIER" ]] || { echo "Error: --tier required (basic or full)" >&2; exit 1; }
 
 # Validate tier
 if [[ -n "$TIER" ]]; then
@@ -201,12 +200,6 @@ if [[ -n "$TIER" ]]; then
     echo "  ✅ Agents: ${#AGENTS[@]} deployed"
   fi
 
-elif [[ -n "$CREWS" ]]; then
-  # Legacy crew-based deployment
-  echo ""
-  echo "Generating $TOOL deployment..."
-  "$SCRIPT_DIR/generate.sh" generate --project "$PROJECT" --tool "$TOOL" --output "$PROJECT" 2>/dev/null || true
-  [[ -d "$PROJECT/$TOOL" ]] && cp -r "$PROJECT/$TOOL/." "$PROJECT/" && rm -rf "$PROJECT/$TOOL"
 fi
 
 # --- Summary ---
