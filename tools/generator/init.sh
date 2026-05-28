@@ -222,6 +222,7 @@ EOF
   fi
 
   # Deploy prompts (skip existing — user may have customized)
+  # Strip metadata block, keep only name + description (kiro-cli prompt format)
   if [[ ${#PROMPTS[@]} -gt 0 ]]; then
     mkdir -p "$PROJECT/.kiro/prompts"
     for prompt in "${PROMPTS[@]}"; do
@@ -230,7 +231,18 @@ EOF
       src="$SKILLS_DIR/$prompt/SKILL.md"
       alt_src="$ROOT_DIR/.kiro/prompts/$prompt.md"
       if [[ -f "$src" ]]; then
-        cp "$src" "$dest"
+        # Extract name, description, and body — drop metadata block
+        awk '
+          BEGIN { in_front=0; front_count=0; name=""; desc=""; body="" }
+          /^---$/ { front_count++; if(front_count==2) { in_front=0; next } else { in_front=1; next } }
+          in_front && /^name:/ { name=$0; next }
+          in_front && /^description:/ { desc=$0; capturing_desc=1; next }
+          in_front && capturing_desc && /^  / { desc=desc "\n" $0; next }
+          in_front && capturing_desc { capturing_desc=0 }
+          in_front { next }
+          !in_front && front_count>=2 { body=body $0 "\n" }
+          END { print "---"; print name; print desc; print "---"; printf "%s", body }
+        ' "$src" > "$dest"
       elif [[ -f "$alt_src" ]]; then
         cp "$alt_src" "$dest"
       fi
