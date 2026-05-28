@@ -1,6 +1,6 @@
 ---
 name: init-project
-description: "Initialize a new project with crew-research workspace conventions. Sets up .scratch, .memory, CONTEXT.md, .crew-config.yaml, and generates the agent deployment."
+description: "Initialize a new project with crew-research workspace conventions. Sets up .scratch, .memory, CONTEXT.md, steering, skills, and prompts."
 metadata:
   type: process
   invocation: user-only
@@ -9,54 +9,45 @@ metadata:
 
 # Initialize Project
 
-Set up a new project with crew-research workspace conventions.
+Set up this project with crew-research conventions.
 
-## Workflow
+## If already initialized (`.kiro/` exists)
 
-1. **Gather info** — ask the user:
-   - Which crews do they want? (development, bugfix, research, documentation, review, content, infrastructure, onboarding)
-   - What tool? (kiro-cli or claude-code)
-   - Confirm the project directory (default: current working directory)
+This project already has crew-research deployed. To update/sync:
+```bash
+# From the crew-research repo:
+mise run init -- --project $(pwd) --tier <basic|full> --tool kiro-cli
+```
+This updates skills (preserves your customizations in references/ and prompts).
 
-2. **Detect environment** — check for:
-   - `package.json` → Node/TypeScript (npm/pnpm commands)
-   - `Cargo.toml` → Rust (cargo commands)
-   - `pyproject.toml` → Python (pytest/ruff)
-   - `go.mod` → Go (go build/test)
+## If not initialized
 
-3. **Run init script**:
-   ```bash
-   tools/generator/init.sh --project <path> --crews <selected> --tool <tool>
-   ```
+Guide the user through setup:
 
-4. **Verify results** — confirm these exist:
-   - [ ] `.scratch/` directory created (gitignored)
-   - [ ] `.memory/CONTEXT.md` exists with glossary template
-   - [ ] `.memory/resources.md` exists with rehydration template
-   - [ ] `resources/` directory created (gitignored)
-   - [ ] `docs/` directory created (user-facing only)
-   - [ ] `AGENTS.md` exists with workspace map and commands
-   - [ ] `.crew-config.yaml` has correct crews and verification commands
-   - [ ] Agent configs generated (`.kiro/agents/` or `.claude/agents/`)
-   - [ ] Skills deployed
-   - [ ] `.gitignore` includes `.scratch/` and `resources/`
+### 1. Choose tier
 
-5. **Report** — show the user what was created and next steps.
+- **basic** — Core project lifecycle (11 skills + 4 steering + 8 prompts). Covers: setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
+- **full** — Everything in basic + specialized skills (architecture, research, creative), multi-agent crews (7 agents), and additional prompts.
 
-## Available Crews
+Recommend **basic** unless the user needs multi-agent delegation or specialized activities.
 
-| Crew | Best For |
-|------|----------|
-| development | Features, refactoring, general code work |
-| bugfix | Diagnose → fix → verify bugs |
-| research | Investigation and knowledge capture |
-| documentation | Project docs, guides, references |
-| review | Code review, security audit (read-only) |
-| content | Presentations, tutorials, workshops |
-| infrastructure | Deploy, provision, CI/CD |
-| onboarding | New contributor orientation |
+### 2. Run init
 
-## Default Recommendation
+```bash
+# From the crew-research repo:
+mise run init -- --project <this-project-path> --tier <chosen-tier> --tool kiro-cli
+```
 
-For most projects: `development,bugfix` is a good starting point.
-Add `documentation` if the project has users. Add `infrastructure` if it deploys.
+### 3. After init
+
+- Review `.crew-config.yaml` — verify build/test/lint commands are correct
+- Add project terms to `.memory/CONTEXT.md` as they emerge
+- Start working — skills activate automatically
+
+### 4. Key prompts available after setup
+
+- `@grill-with-docs` — stress-test a plan
+- `@handoff` / `@read-handoff` — session continuity
+- `@plan-prereqs` — identify pre-work before building
+- `@workspace-cleanup` — periodic consolidation
+- `@project-audit` — check if deployment matches reality
