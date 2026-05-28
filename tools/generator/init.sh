@@ -133,6 +133,27 @@ fi
 
 # --- Deploy tier content ---
 if [[ -n "$TIER" ]]; then
+  # Create .crew-config.yaml for param overrides
+  if [[ ! -f "$PROJECT/.crew-config.yaml" ]]; then
+    PROJECT_NAME=$(basename "$PROJECT")
+    cat > "$PROJECT/.crew-config.yaml" << EOF
+project: $PROJECT_NAME
+tier: $TIER
+language: ${LANGUAGE:-unknown}
+
+verification:
+  build: "${BUILD_CMD}"
+  test: "${TEST_CMD}"
+  lint: "${LINT_CMD}"
+
+# Override skill params here. Keys match skill frontmatter params.
+# Example:
+#   workspace-cleanup:
+#     scripts_path: "scripts"
+#     mise_file: "Makefile"
+EOF
+  fi
+
   echo ""
   echo "Deploying tier: $TIER"
 
