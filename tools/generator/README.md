@@ -8,11 +8,11 @@ Composes atomic modules and compositions into tool-specific deployments.
 # Validate all compositions (check references, schema)
 ./generate.sh validate
 
-# Generate deployment for a specific tool
-./generate.sh generate --tool kiro-cli --output ./deploy
+# Initialize a project with a tier
+./init.sh --project ~/code/myproject --tier basic --tool kiro-cli
 
-# Initialize a new project with workspace conventions
-./init.sh --project ~/code/myproject --crews general,content --tool kiro-cli
+# Re-run to sync/update (idempotent — preserves customizations)
+./init.sh --project ~/code/myproject --tier full --tool kiro-cli
 ```
 
 ## Scripts
@@ -20,4 +20,6 @@ Composes atomic modules and compositions into tool-specific deployments.
 | Script | Purpose |
 |--------|---------|
 | `generate.sh` | Validate compositions and generate tool-specific output |
-| `init.sh` | Bootstrap a project with crew-research conventions |
+| `init.sh` | Deploy a tier to a project (steering, skills, prompts, agents) |
+| `catalog.sh` | List available skills with tier membership |
+| `doctor.sh` | Health check for a deployed project |

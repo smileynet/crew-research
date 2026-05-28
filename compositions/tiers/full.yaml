@@ -41,6 +41,7 @@ skills:
   - session-review-patterns
   - fiction-craft
   - world-building
+  - ux-walkthrough
 
 prompts:
   - grill-with-docs
@@ -51,6 +52,7 @@ prompts:
   - project-audit
   - adopt-project
   - plan-prereqs
+  - cheatsheet
 
 agents:
   - lead

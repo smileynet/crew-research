@@ -10,7 +10,6 @@ SKILLS_DIR="$ROOT_DIR/atomics/skills"
 
 PROJECT=""
 TIER=""
-CREWS=""
 TOOL="kiro-cli"
 LANGUAGE=""
 BUILD_CMD=""
@@ -21,7 +20,6 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     --project) PROJECT="$2"; shift 2 ;;
     --tier) TIER="$2"; shift 2 ;;
-    --crews) CREWS="$2"; shift 2 ;;
     --tool) TOOL="$2"; shift 2 ;;
     --language) LANGUAGE="$2"; shift 2 ;;
     *) echo "Unknown: $1" >&2; exit 1 ;;
@@ -41,7 +39,6 @@ PROJECT=$(cd "$PROJECT" 2>/dev/null && pwd || (mkdir -p "$PROJECT" && cd "$PROJE
 
 echo "Initializing workspace: $PROJECT"
 [[ -n "$TIER" ]] && echo "Tier: $TIER | Tool: $TOOL"
-[[ -n "$CREWS" ]] && echo "Crews: $CREWS | Tool: $TOOL"
 echo ""
 
 # --- Detect language and commands ---

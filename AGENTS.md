@@ -38,7 +38,8 @@ After init, the user just runs `kiro-cli chat` in their project. Skills activate
 - `@grill-with-docs` — stress-test a plan before building
 - `@handoff` / `@read-handoff` — session continuity
 - `@workspace-cleanup` — periodic housekeeping
-- `@init-project` — bootstrap a new project
+- `@plan-prereqs` — identify pre-work before building
+- `@cheatsheet` — quick reference for what's available
 
 ## Workspace (crew-research internal)
 
