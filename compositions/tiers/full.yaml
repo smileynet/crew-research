@@ -1,0 +1,58 @@
+tier: full
+description: "Complete toolkit: core lifecycle + specialized activities, multi-agent crews"
+
+steering:
+  - ai-generation-hygiene
+  - verification-protocol
+
+skills:
+  - planning-cycles
+  - five-whys
+  - assumption-tracking
+  - script-authoring
+  - troubleshooting-protocol
+  - code-review
+  - testing-guide
+  - git-protocol
+  - writing-style
+  - prototype-protocol
+  - architecture-deepening
+  - poc-workflow
+  - situation-routing
+  - completion-protocol
+  - commit-pr-discipline
+  - deployment-safety
+  - changelog-discipline
+  - readme-writing
+  - tutorial-authoring
+  - presentation-writing
+  - diagrams
+  - diataxis-classification
+  - document-formats
+  - docs-audit
+  - research-methodology
+  - research-output
+  - reference-exploration
+  - adr-authoring
+  - enforcement-hierarchy
+  - eval-criteria
+  - session-review-patterns
+  - fiction-craft
+  - world-building
+
+prompts:
+  - init-project
+  - grill-with-docs
+  - handoff
+  - read-handoff
+  - workspace-cleanup
+  - research-prior-art
+
+agents:
+  - lead
+  - planner
+  - implementer
+  - researcher
+  - reviewer
+  - tester
+  - writer

@@ -1,12 +1,16 @@
 #!/bin/bash
 # tools/generator/init.sh — Initialize a project with crew-research workspace conventions
-# Usage: ./init.sh --project <path> --crews <crew1,crew2> --tool <kiro-cli|claude-code> [--language <lang>]
+# Usage: ./init.sh --project <path> --tier <basic|full> --tool <kiro-cli|claude-code>
+#        ./init.sh --project <path> --crews <crew1,crew2> --tool <kiro-cli|claude-code>
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+TIERS_DIR="$ROOT_DIR/compositions/tiers"
+SKILLS_DIR="$ROOT_DIR/atomics/skills"
 
 PROJECT=""
+TIER=""
 CREWS=""
 TOOL="kiro-cli"
 LANGUAGE=""
@@ -17,6 +21,7 @@ LINT_CMD=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --project) PROJECT="$2"; shift 2 ;;
+    --tier) TIER="$2"; shift 2 ;;
     --crews) CREWS="$2"; shift 2 ;;
     --tool) TOOL="$2"; shift 2 ;;
     --language) LANGUAGE="$2"; shift 2 ;;
@@ -24,74 +29,28 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ -n "$PROJECT" ]] || { echo "Usage: $0 --project <path> --crews <crew1,crew2> --tool <tool>" >&2; exit 1; }
-[[ -n "$CREWS" ]] || { echo "Error: --crews required (e.g., development,bugfix)" >&2; exit 1; }
+[[ -n "$PROJECT" ]] || { echo "Usage: $0 --project <path> --tier <basic|full> --tool <tool>" >&2; exit 1; }
+[[ -n "$TIER" || -n "$CREWS" ]] || { echo "Error: --tier or --crews required" >&2; exit 1; }
 
-PROJECT=$(cd "$PROJECT" 2>/dev/null && pwd || echo "$PROJECT")
-mkdir -p "$PROJECT"
+# Validate tier
+if [[ -n "$TIER" ]]; then
+  TIER_FILE="$TIERS_DIR/$TIER.yaml"
+  [[ -f "$TIER_FILE" ]] || { echo "Error: unknown tier '$TIER'. Available: $(ls "$TIERS_DIR"/*.yaml 2>/dev/null | xargs -I{} basename {} .yaml | tr '\n' ' ')" >&2; exit 1; }
+fi
 
-echo "Initializing crew workspace: $PROJECT"
-echo "Crews: $CREWS | Tool: $TOOL"
+PROJECT=$(cd "$PROJECT" 2>/dev/null && pwd || (mkdir -p "$PROJECT" && cd "$PROJECT" && pwd))
+
+echo "Initializing workspace: $PROJECT"
+[[ -n "$TIER" ]] && echo "Tier: $TIER | Tool: $TOOL"
+[[ -n "$CREWS" ]] && echo "Crews: $CREWS | Tool: $TOOL"
 echo ""
 
-# 1. Create directory structure
-echo "Creating workspace structure..."
-mkdir -p "$PROJECT/.scratch"
-mkdir -p "$PROJECT/.memory/adr"
-mkdir -p "$PROJECT/resources"
-mkdir -p "$PROJECT/docs"
-
-# 2. Create .gitignore entries
-if [[ -f "$PROJECT/.gitignore" ]]; then
-  grep -qx '.scratch/' "$PROJECT/.gitignore" 2>/dev/null || echo '.scratch/' >> "$PROJECT/.gitignore"
-  grep -qx 'resources/' "$PROJECT/.gitignore" 2>/dev/null || echo 'resources/' >> "$PROJECT/.gitignore"
-else
-  cat > "$PROJECT/.gitignore" << 'EOF'
-.scratch/
-resources/
-EOF
-fi
-echo "  ✅ .gitignore updated"
-
-# 3. Create CONTEXT.md glossary template
-if [[ ! -f "$PROJECT/.memory/CONTEXT.md" ]]; then
-  cat > "$PROJECT/.memory/CONTEXT.md" << 'EOF'
-# Context
-
-<!-- Project glossary. Define terms as they are resolved. -->
-<!-- Format: **Term**: Definition. _Avoid_: what not to call it. -->
-EOF
-  echo "  ✅ .memory/CONTEXT.md created"
-else
-  echo "  ⏭️  .memory/CONTEXT.md already exists"
-fi
-
-# 4. Create resources/ rehydration instructions
-if [[ ! -f "$PROJECT/.memory/resources.md" ]]; then
-  cat > "$PROJECT/.memory/resources.md" << 'EOF'
-# Resources (Rehydration)
-
-Third-party repos, tools, and code used for reference and analysis.
-The `resources/` directory is gitignored — use these instructions to restore.
-
-## Repos
-<!-- Add entries as resources are added:
-- `resources/repo-name` — `git clone <url>` — what it's used for
--->
-EOF
-  echo "  ✅ .memory/resources.md created"
-else
-  echo "  ⏭️  .memory/resources.md already exists"
-fi
-
-# 5. Detect verification commands
+# --- Detect language and commands ---
 if [[ -f "$PROJECT/Cargo.toml" ]]; then
   BUILD_CMD="cargo check"; TEST_CMD="cargo test"; LINT_CMD="cargo clippy -- -D warnings"
   [[ -z "$LANGUAGE" ]] && LANGUAGE="rust"
 elif [[ -f "$PROJECT/package.json" ]]; then
-  BUILD_CMD="npm run build"
-  TEST_CMD="npm test"
-  LINT_CMD="npm run lint"
+  BUILD_CMD="npm run build"; TEST_CMD="npm test"; LINT_CMD="npm run lint"
   [[ -z "$LANGUAGE" ]] && LANGUAGE="typescript"
   [[ -f "$PROJECT/pnpm-lock.yaml" ]] && { BUILD_CMD="pnpm build"; TEST_CMD="pnpm test"; LINT_CMD="pnpm lint"; }
 elif [[ -f "$PROJECT/pyproject.toml" ]] || [[ -f "$PROJECT/setup.py" ]]; then
@@ -102,116 +61,138 @@ elif [[ -f "$PROJECT/go.mod" ]]; then
   [[ -z "$LANGUAGE" ]] && LANGUAGE="go"
 fi
 
-# 6. Create AGENTS.md (agent-facing entry point)
+# --- Create workspace structure ---
+echo "Creating workspace structure..."
+mkdir -p "$PROJECT/.scratch" "$PROJECT/.memory/adr" "$PROJECT/docs"
+
+# .gitignore
+if [[ -f "$PROJECT/.gitignore" ]]; then
+  grep -qx '.scratch/' "$PROJECT/.gitignore" 2>/dev/null || echo '.scratch/' >> "$PROJECT/.gitignore"
+else
+  echo '.scratch/' > "$PROJECT/.gitignore"
+fi
+echo "  ✅ .gitignore updated"
+
+# CONTEXT.md
+if [[ ! -f "$PROJECT/.memory/CONTEXT.md" ]]; then
+  printf '# Context\n\n<!-- Project glossary. **Term**: Definition. _Avoid_: synonym. -->\n' > "$PROJECT/.memory/CONTEXT.md"
+  echo "  ✅ .memory/CONTEXT.md created"
+fi
+
+# AGENTS.md
 if [[ ! -f "$PROJECT/AGENTS.md" ]]; then
   PROJECT_NAME=$(basename "$PROJECT")
-  CMDS=""
-  [[ -n "$BUILD_CMD" ]] && CMDS="${CMDS}${BUILD_CMD}  # build
-"
-  [[ -n "$TEST_CMD" ]] && CMDS="${CMDS}${TEST_CMD}  # test
-"
-  [[ -n "$LINT_CMD" ]] && CMDS="${CMDS}${LINT_CMD}  # lint
-"
-  cat > "$PROJECT/AGENTS.md" <<AGENTSEOF
+  cat > "$PROJECT/AGENTS.md" <<EOF
 # AGENTS.md
 
 ## Project
 $PROJECT_NAME
 
 ## Workspace
-
-- \`.scratch/\` — Ephemeral artifacts (handoffs, scratch notes). Gitignored.
-- \`.memory/\` — Durable artifacts (glossary, ADRs, resource rehydration)
-- \`docs/\` — User-facing documents (placed here only when deliberately requested)
-- \`resources/\` — Third-party repos/tools for reference (gitignored; see .memory/resources.md to rehydrate)
-
-## Documentation Map
-
-| Need | Look in |
-|------|---------|
-| Term definitions | \`.memory/CONTEXT.md\` |
-| Architecture decisions | \`.memory/adr/\` |
-| Resource rehydration | \`.memory/resources.md\` |
-| User-facing docs | \`docs/\` |
-| Agent skills | \`.kiro/skills/\` |
-| Agent steering | \`.kiro/steering/\` |
+- \`.scratch/\` — Ephemeral (gitignored)
+- \`.memory/\` — Durable (glossary, ADRs)
+- \`docs/\` — User-facing (only when deliberately requested)
 
 ## Commands
-
 \`\`\`bash
-${CMDS}\`\`\`
-
-## Conventions
-
-- Documents default to \`.scratch/\` (ephemeral) or \`.memory/\` (durable)
-- Only place documents in \`docs/\` when explicitly requested for user-facing publication
-- All shared artifacts require frontmatter: \`created_at\`, \`base_commit\`
-AGENTSEOF
-  echo "  ✅ AGENTS.md created"
-else
-  echo "  ⏭️  AGENTS.md already exists"
-fi
-
-# 7. Create .crew-config.yaml
-if [[ ! -f "$PROJECT/.crew-config.yaml" ]]; then
-  PROJECT_NAME=$(basename "$PROJECT")
-  CREWS_YAML=$(echo "$CREWS" | tr ',' '\n' | sed 's/^/  - /')
-  cat > "$PROJECT/.crew-config.yaml" << EOF
-project: $PROJECT_NAME
-language: ${LANGUAGE:-unknown}
-
-crews:
-$CREWS_YAML
-
-verification:
-  build: "${BUILD_CMD}"
-  test: "${TEST_CMD}"
-  lint: "${LINT_CMD}"
-
-params:
-  verification-protocol:
-    build_command: "${BUILD_CMD}"
-    test_command: "${TEST_CMD}"
-    lint_command: "${LINT_CMD}"
+${BUILD_CMD:+$BUILD_CMD  # build
+}${TEST_CMD:+$TEST_CMD  # test
+}${LINT_CMD:+$LINT_CMD  # lint
+}\`\`\`
 EOF
-  echo "  ✅ .crew-config.yaml created"
-else
-  echo "  ⏭️  .crew-config.yaml already exists"
+  echo "  ✅ AGENTS.md created"
 fi
 
-# 6. Generate deployment
-echo ""
-echo "Generating $TOOL deployment..."
-"$SCRIPT_DIR/generate.sh" generate --project "$PROJECT" --tool "$TOOL" --output "$PROJECT"
-# Move from nested tool dir to project root
-if [[ -d "$PROJECT/$TOOL" ]]; then
-  cp -r "$PROJECT/$TOOL/." "$PROJECT/"
-  rm -rf "$PROJECT/$TOOL"
+# --- Deploy tier content ---
+if [[ -n "$TIER" ]]; then
+  echo ""
+  echo "Deploying tier: $TIER"
+
+  # Read tier file
+  STEERING=($(yq -r '.steering[]' "$TIER_FILE" 2>/dev/null))
+  SKILLS=($(yq -r '.skills[]' "$TIER_FILE" 2>/dev/null))
+  PROMPTS=($(yq -r '.prompts[]' "$TIER_FILE" 2>/dev/null))
+  AGENTS=($(yq -r '.agents // [] | .[]' "$TIER_FILE" 2>/dev/null))
+
+  # Deploy steering
+  if [[ ${#STEERING[@]} -gt 0 ]]; then
+    mkdir -p "$PROJECT/.kiro/steering"
+    for skill in "${STEERING[@]}"; do
+      src="$SKILLS_DIR/$skill/SKILL.md"
+      if [[ -f "$src" ]]; then
+        # Extract content after frontmatter for steering
+        awk 'BEGIN{skip=0} /^---$/{skip++; next} skip>=2{print}' "$src" > "$PROJECT/.kiro/steering/$skill.md"
+      fi
+    done
+    echo "  ✅ Steering: ${#STEERING[@]} files"
+  fi
+
+  # Deploy skills
+  if [[ ${#SKILLS[@]} -gt 0 ]]; then
+    mkdir -p "$PROJECT/.kiro/skills"
+    for skill in "${SKILLS[@]}"; do
+      src_dir="$SKILLS_DIR/$skill"
+      if [[ -d "$src_dir" ]]; then
+        dest="$PROJECT/.kiro/skills/$skill"
+        mkdir -p "$dest"
+        cp "$src_dir/SKILL.md" "$dest/"
+        # Copy references if they exist
+        [[ -d "$src_dir/references" ]] && cp -r "$src_dir/references" "$dest/"
+      fi
+    done
+    echo "  ✅ Skills: ${#SKILLS[@]} deployed"
+  fi
+
+  # Deploy prompts
+  if [[ ${#PROMPTS[@]} -gt 0 ]]; then
+    mkdir -p "$PROJECT/.kiro/prompts"
+    for prompt in "${PROMPTS[@]}"; do
+      # Check skill dir first, then .kiro/prompts/ source
+      src="$SKILLS_DIR/$prompt/SKILL.md"
+      alt_src="$ROOT_DIR/.kiro/prompts/$prompt.md"
+      if [[ -f "$src" ]]; then
+        cp "$src" "$PROJECT/.kiro/prompts/$prompt.md"
+      elif [[ -f "$alt_src" ]]; then
+        cp "$alt_src" "$PROJECT/.kiro/prompts/$prompt.md"
+      fi
+    done
+    echo "  ✅ Prompts: ${#PROMPTS[@]} deployed"
+  fi
+
+  # Deploy agents
+  if [[ ${#AGENTS[@]} -gt 0 ]]; then
+    mkdir -p "$PROJECT/.kiro/agents"
+    for agent in "${AGENTS[@]}"; do
+      src="$ROOT_DIR/compositions/agent-archetypes/$agent.yaml"
+      if [[ -f "$src" ]]; then
+        # Convert archetype YAML to kiro-cli agent JSON
+        yq -o=json '.' "$src" > "$PROJECT/.kiro/agents/$agent.json"
+      fi
+    done
+    echo "  ✅ Agents: ${#AGENTS[@]} deployed"
+  fi
+
+elif [[ -n "$CREWS" ]]; then
+  # Legacy crew-based deployment
+  echo ""
+  echo "Generating $TOOL deployment..."
+  "$SCRIPT_DIR/generate.sh" generate --project "$PROJECT" --tool "$TOOL" --output "$PROJECT" 2>/dev/null || true
+  [[ -d "$PROJECT/$TOOL" ]] && cp -r "$PROJECT/$TOOL/." "$PROJECT/" && rm -rf "$PROJECT/$TOOL"
 fi
 
-# 7. Summary
+# --- Summary ---
 echo ""
 echo "=== Initialization Complete ==="
 echo ""
-echo "Created:"
-[[ -d "$PROJECT/.scratch" ]] && echo "  .scratch/              (ephemeral workspace)"
-[[ -f "$PROJECT/.memory/CONTEXT.md" ]] && echo "  .memory/CONTEXT.md     (project glossary)"
-[[ -f "$PROJECT/.crew-config.yaml" ]] && echo "  .crew-config.yaml      (crew configuration)"
-if [[ "$TOOL" == "kiro-cli" ]]; then
-  agent_count=$(ls "$PROJECT/.kiro/agents/"*.json 2>/dev/null | wc -l)
-  skill_count=$(find "$PROJECT/.kiro/skills" -name "SKILL.md" 2>/dev/null | wc -l)
-  echo "  .kiro/agents/          ($agent_count agents)"
-  echo "  .kiro/skills/          ($skill_count skills)"
-  [[ -d "$PROJECT/.kiro/steering" ]] && echo "  .kiro/steering/        (eager-context)"
-  [[ -d "$PROJECT/.kiro/prompts" ]] && echo "  .kiro/prompts/         (user-invoked prompts)"
-elif [[ "$TOOL" == "claude-code" ]]; then
-  agent_count=$(ls "$PROJECT/.claude/agents/"*.md 2>/dev/null | wc -l)
-  skill_count=$(find "$PROJECT/.claude/skills" -name "SKILL.md" 2>/dev/null | wc -l)
-  echo "  .claude/agents/        ($agent_count agents)"
-  echo "  .claude/skills/        ($skill_count skills)"
-fi
+skill_count=$(find "$PROJECT/.kiro/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
+steering_count=$(find "$PROJECT/.kiro/steering" -name "*.md" 2>/dev/null | wc -l || true)
+prompt_count=$(find "$PROJECT/.kiro/prompts" -name "*.md" 2>/dev/null | wc -l || true)
+agent_count=$(find "$PROJECT/.kiro/agents" -name "*.json" 2>/dev/null | wc -l || true)
+
+echo "Deployed:"
+[[ $steering_count -gt 0 ]] && echo "  .kiro/steering/   ($steering_count steering files)"
+[[ $skill_count -gt 0 ]] && echo "  .kiro/skills/     ($skill_count skills)"
+[[ $prompt_count -gt 0 ]] && echo "  .kiro/prompts/    ($prompt_count prompts)"
+[[ $agent_count -gt 0 ]] && echo "  .kiro/agents/     ($agent_count agents)"
 echo ""
-echo "Next steps:"
-echo "  1. Review .crew-config.yaml — adjust verification commands if needed"
-echo "  2. Add project terms to .memory/CONTEXT.md as they emerge"
-echo "  3. Start working: kiro-cli chat --agent lead"
+echo "Next: kiro-cli chat"

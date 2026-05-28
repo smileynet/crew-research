@@ -1,0 +1,24 @@
+tier: basic
+description: "Core project lifecycle: setup → design → plan → build → verify → commit → deliver → hand off → cleanup"
+
+steering:
+  - ai-generation-hygiene
+  - verification-protocol
+
+skills:
+  - planning-cycles
+  - five-whys
+  - assumption-tracking
+  - script-authoring
+  - troubleshooting-protocol
+  - code-review
+  - testing-guide
+  - git-protocol
+  - writing-style
+
+prompts:
+  - init-project
+  - grill-with-docs
+  - handoff
+  - read-handoff
+  - workspace-cleanup

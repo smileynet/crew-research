@@ -13,6 +13,14 @@ run = "tools/generator/generate.sh generate {{arg(name='tool', default='kiro-cli
 description = "Initialize a new project"
 run = "tools/generator/init.sh {{arg(name='args')}}"
 
+[tasks.catalog]
+description = "List available skills and tiers"
+run = "tools/generator/catalog.sh"
+
+[tasks.doctor]
+description = "Health check for a deployment"
+run = "tools/generator/doctor.sh {{arg(name='args')}}"
+
 [tasks.eval]
 description = "Run all dual-run evals (3 trials)"
 run = "tools/evals/harness/run.sh --all --trials 3"
