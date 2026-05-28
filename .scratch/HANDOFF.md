@@ -1,54 +1,51 @@
 ---
-created_at: 2026-05-27T17:06:00-07:00
-base_commit: 2ef6028
-handoff_key: experiments-complete
+created_at: 2026-05-27T17:30:00-07:00
+base_commit: 2637937
+handoff_key: project-complete
 ---
 
 # Handoff
 
 ## Objective
-Run E8 (multi-agent workflow) and E9 (crew E2E). These are the last two experiments requiring full crew deployment.
+Project is experimentally validated with zero open issues. Next work is real-world usage or new feature development.
 
 ## Task Graph Position
-- **Complete:** E7, E10, E11, E12, E13, E14, E15, E16. Workspace cleanup. New skills (prototype-protocol, architecture-deepening, poc-workflow).
-- **Open issues:** #7 (E8), #8 (E9), #2 (deferred design)
-- **Next:** E8 → E9 (require full crew deployment with multiple agents)
+- **Complete:** All phases 1-10. All experiments (E7-E16). All issues closed.
+- **Open issues:** None.
+- **Future:** Deploy to real projects, build multi-turn harness, eager-load 2 skills as steering.
 
 ## Mental Model
-- **Activation solved**: diagrams fixed via description rewriting. ai-gen-hygiene + verification-protocol → eager-load (can't fix via description or linking).
-- **Cross-skill linking disproven**: kiro-cli doesn't follow markdown links between skills in single-turn mode.
-- **Skill focusing effect confirmed**: steering reduces tokens on complex tasks (18-57%).
-- **Harness limitation**: single-turn `--no-interactive` can't test multi-step behaviors (verification, iterative refinement).
-- **Scope boundaries work**: steering with explicit scope + "suggest handoff" is effective.
-- **Research-output works**: skill shapes structured output correctly.
-- **Handoff round-trip works**: @handoff → @read-handoff produces correct orientation.
+- **Activation**: 81% recall across 33 skills. Distinctive vocabulary = reliable. Broad-applicability = eager-load.
+- **Cross-skill linking**: Disproven. Skills must be self-contained.
+- **Focusing effect**: Confirmed. More skills/steering = fewer tokens.
+- **Harness limitation**: Single-turn can't test verification. Need multi-turn for future work.
+- **Scope boundaries**: Work via steering. Agents refuse out-of-scope tasks.
 
 ## Constraints
-- E8/E9 require deploying full crew system (multiple agents with routing, subagent tool)
-- This means generating agent JSON from compositions and deploying to a test workspace
-- The generator's `generate` command for external projects has a gap (E13 finding)
-- May need to deploy from `~/code/crew-test` (already has 7 agents deployed)
+- `yq` v4.44.1, `kiro-cli` 2.3.0, `mise` 2026.5.7
+- Skills <100 lines SKILL.md
+- Generator deployment gap for external projects (workspace init works, agent deployment doesn't)
 
 ## What Was Tried
-- E15: 4 treatments (baseline, link, mention, companion, directive) — all failed
-- E16: description rewriting fixed diagrams, worsened verification-protocol
-- E10: behavioral delta inconclusive in single-turn mode
+- Cross-skill linking (4 treatments) — doesn't work
+- Description rewriting — fixes vocabulary problems, can't fix meta-concerns
+- Behavioral delta testing — inconclusive in single-turn mode
 
 ## Current State
-- 38 skills, 4 prompts
-- Experiments: 8 complete (E7, E10-E16), 2 remaining (E8, E9)
-- Key findings captured in docs/practices/: e7, e10, e15, e16 results
-- Prompts written to ~/code/project-kickoff.md and ~/code/project-cleanup.md
+- 38 skills, 4 prompts, 9 mise tasks
+- ~/code/crew-test deployed with 7 agents, 31 skills
+- All findings in docs/practices/experiment-results-summary.md
+- Prompts at ~/code/project-kickoff.md and ~/code/project-cleanup.md
 
-## Next Steps
-1. Deploy crew-test workspace (or use existing ~/code/crew-test)
-2. Run E8: invoke general-lead with multi-worker task, verify delegation loop
-3. Run E9: invoke each crew lead with representative task
+## Next Steps (when returning)
+1. Deploy to a real project and use for sustained work
+2. Eager-load ai-generation-hygiene + verification-protocol as steering
+3. Build multi-turn eval harness (if verification testing needed)
 
 ## Evidence
+- docs/practices/experiment-results-summary.md (comprehensive)
 - docs/practices/e7-activation-sweep-results.md
 - docs/practices/e10-eager-context-results.md
 - docs/practices/e15-cross-skill-linking-results.md
 - docs/practices/e16-description-rewriting-results.md
-- tools/evals/experiments/e15-cross-skill-linking.sh
-- tools/evals/experiments/eager-context-behavioral-delta.yaml
+- docs/practices/cross-skill-linking-research.md
