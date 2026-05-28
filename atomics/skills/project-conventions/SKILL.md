@@ -1,50 +1,25 @@
 ---
 name: project-conventions
-description: "Workspace conventions and skill customization guidance. Always loaded."
+description: "Workspace behavioral rules enforced every turn."
 metadata:
   type: reference
   invocation: agent-only
 ---
 
-# Project Conventions
+# Project Conventions (Always Enforce)
 
-## Skill Customization
-
-Skills have a `params:` section in frontmatter with project-specific values. When you encounter a skill referencing a command or path that doesn't match this project, check `.crew-config.yaml` for the correct values.
-
-### Adjusting verification commands
-Edit `.crew-config.yaml`:
-```yaml
-params:
-  verification-protocol:
-    build_command: "your build command"
-    test_command: "your test command"
-    lint_command: "your lint command"
-```
-
-### Adding project-specific context to a skill
-Create a file in the skill's `references/` directory:
-```
-.kiro/skills/testing-guide/references/project-patterns.md
-```
-The agent reads references on-demand when it needs more detail.
-
-### Removing unwanted behavior
-- Delete `.kiro/steering/{name}.md` to remove always-on rules
-- Delete `.kiro/skills/{name}/` to remove an on-demand skill
-- Skills don't affect each other — removing one won't break others
+## Glossary Maintenance
+- Update `.memory/CONTEXT.md` immediately when a term is resolved or clarified
+- Format: `**Term**: Definition. _Avoid_: synonym.`
+- If CONTEXT.md doesn't exist, create it on first term resolution
 
 ## Document Placement
+- Default new documents to `.scratch/` (ephemeral)
+- Only place in `.memory/` if a future session will need it
+- Only place in `docs/` when explicitly requested for user-facing publication
+- Never accumulate scratch — promote or delete
 
-| What | Where |
-|------|-------|
-| Working notes, research | `.scratch/` |
-| Lasting decisions, glossary | `.memory/` |
-| User-facing docs | `docs/` (only when requested) |
-
-## Session Workflow
-
-1. Start: `@read-handoff` (if continuing prior work)
-2. Work: skills activate automatically based on what you're doing
-3. End: `@handoff` (captures state for next session)
-4. Periodic: `@workspace-cleanup` (consolidate artifacts)
+## Session Discipline
+- Read before writing — check existing code/docs before creating new ones
+- Commit after each logical unit of work
+- Don't ask questions the codebase can answer — explore first

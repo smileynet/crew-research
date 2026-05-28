@@ -89,12 +89,13 @@ if [[ ! -f "$PROJECT/AGENTS.md" ]]; then
 $PROJECT_NAME
 
 ## Workspace
-- \`.scratch/\` — Ephemeral (gitignored)
-- \`.memory/\` — Durable (glossary, ADRs)
-- \`docs/\` — User-facing (only when deliberately requested)
-- \`.kiro/steering/\` — Always-on rules (loaded every turn)
-- \`.kiro/skills/\` — On-demand knowledge (activates when relevant)
+- \`.scratch/\` — Ephemeral working notes (gitignored). Default location for new documents.
+- \`.memory/\` — Durable artifacts. Glossary (\`CONTEXT.md\`), ADRs (\`adr/\`).
+- \`docs/\` — User-facing documents (only when deliberately requested for publication)
+- \`.kiro/steering/\` — Always-on behavioral rules (loaded every turn)
+- \`.kiro/skills/\` — On-demand knowledge (activates when task matches description)
 - \`.kiro/prompts/\` — User-invoked workflows (\`@name\`)
+- \`.crew-config.yaml\` — Project-specific params (build/test/lint commands)
 
 ## Commands
 \`\`\`bash
@@ -107,18 +108,26 @@ ${BUILD_CMD:+$BUILD_CMD  # build
 - \`@grill-with-docs\` — Stress-test a plan before building
 - \`@handoff\` / \`@read-handoff\` — Session continuity
 - \`@workspace-cleanup\` — Periodic housekeeping
-- \`@init-project\` — Bootstrap workspace conventions
+
+## File Formats
+
+**CONTEXT.md** (glossary):
+\`\`\`
+**Term**: One-sentence definition.
+_Avoid_: what not to call it
+\`\`\`
+
+**ADRs** (\`.memory/adr/NNNN-slug.md\`): Only when hard to reverse, surprising without context, AND has real trade-offs. Short: context, decision, why.
 
 ## Customizing Skills
 
-Skills are in \`.kiro/skills/{name}/SKILL.md\`. To customize:
-
-- **Adjust params**: Edit the frontmatter \`params:\` section (build/test/lint commands, paths)
+- **Adjust params**: Edit \`.crew-config.yaml\` (build/test/lint commands flow into skills)
 - **Remove a skill**: Delete its directory from \`.kiro/skills/\`
 - **Disable steering**: Delete the file from \`.kiro/steering/\`
 - **Add a skill**: Copy a SKILL.md directory into \`.kiro/skills/\`
+- **Add project context to a skill**: Create \`.kiro/skills/{name}/references/project-notes.md\`
 
-Steering files (\`.kiro/steering/\`) are always loaded. Skills activate on-demand based on description match. If a skill isn't activating, check its \`description:\` field for trigger words.
+If a skill isn't activating, check its \`description:\` field — distinctive trigger words help.
 EOF
   echo "  ✅ AGENTS.md created"
 fi
