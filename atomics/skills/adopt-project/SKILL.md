@@ -19,6 +19,7 @@ Check for existing configuration:
 - `CONVENTIONS.md`, `CONTRIBUTING.md`, `DEVELOPMENT.md`
 - Existing session docs (`.scratch/`, `.memory/`)
 - Any `@prompt` files or custom workflows
+- `resources/` or similar reference repo directories (note clone URLs if available)
 
 Report what exists and what would be replaced or merged.
 
@@ -53,6 +54,7 @@ Present recommendation and wait for approval before proceeding.
    - `.crew-config.yaml` (param overrides)
 4. Restore any unique prompts to `.kiro/prompts/`
 5. Migrate existing CONTEXT.md / glossary content if present
+6. Document any reference repos in AGENTS.md "References" section with clone commands
 
 ## Phase 5: Verify
 

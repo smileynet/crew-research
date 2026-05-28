@@ -62,13 +62,14 @@ fi
 
 # --- Create workspace structure ---
 echo "Creating workspace structure..."
-mkdir -p "$PROJECT/.scratch" "$PROJECT/.memory/adr" "$PROJECT/docs"
+mkdir -p "$PROJECT/.scratch" "$PROJECT/.memory/adr" "$PROJECT/docs" "$PROJECT/resources"
 
 # .gitignore
 if [[ -f "$PROJECT/.gitignore" ]]; then
   grep -qx '.scratch/' "$PROJECT/.gitignore" 2>/dev/null || echo '.scratch/' >> "$PROJECT/.gitignore"
+  grep -qx 'resources/' "$PROJECT/.gitignore" 2>/dev/null || echo 'resources/' >> "$PROJECT/.gitignore"
 else
-  echo '.scratch/' > "$PROJECT/.gitignore"
+  printf '.scratch/\nresources/\n' > "$PROJECT/.gitignore"
 fi
 echo "  ✅ .gitignore updated"
 
@@ -91,6 +92,7 @@ $PROJECT_NAME
 - \`.scratch/\` — Ephemeral working notes (gitignored). Default location for new documents.
 - \`.memory/\` — Durable artifacts. Glossary (\`CONTEXT.md\`), ADRs (\`adr/\`).
 - \`docs/\` — User-facing documents (only when deliberately requested for publication)
+- \`resources/\` — Third-party repos for reference (gitignored). See References below.
 - \`.kiro/steering/\` — Always-on behavioral rules (loaded every turn)
 - \`.kiro/skills/\` — On-demand knowledge (activates when task matches description)
 - \`.kiro/prompts/\` — User-invoked workflows (\`@name\`)
@@ -107,6 +109,24 @@ ${BUILD_CMD:+$BUILD_CMD  # build
 - \`@grill-with-docs\` — Stress-test a plan before building
 - \`@handoff\` / \`@read-handoff\` — Session continuity
 - \`@workspace-cleanup\` — Periodic housekeeping
+- \`@project-audit\` — Check if deployment still matches reality
+- \`@adopt-project\` — Migrate existing project to these conventions
+
+## Setup & Sync
+
+This project uses crew-research skills. To update or re-sync:
+\`\`\`bash
+mise run init -- --project \$(pwd) --tier $TIER --tool kiro-cli
+\`\`\`
+Safe to re-run: updates skills, preserves customizations in references/ and prompts.
+For brownfield projects with existing conventions: use \`@adopt-project\` first.
+
+## References
+
+Third-party repos for analysis. Gitignored — clone to restore:
+\`\`\`bash
+# git clone <url> resources/<name>   # what it's used for
+\`\`\`
 
 ## File Formats
 
@@ -183,7 +203,7 @@ EOF
     echo "  ✅ Steering: ${#STEERING[@]} files"
   fi
 
-  # Deploy skills
+  # Deploy skills (update SKILL.md, preserve project-specific references/)
   if [[ ${#SKILLS[@]} -gt 0 ]]; then
     mkdir -p "$PROJECT/.kiro/skills"
     for skill in "${SKILLS[@]}"; do
@@ -192,24 +212,27 @@ EOF
         dest="$PROJECT/.kiro/skills/$skill"
         mkdir -p "$dest"
         cp "$src_dir/SKILL.md" "$dest/"
-        # Copy references if they exist
-        [[ -d "$src_dir/references" ]] && cp -r "$src_dir/references" "$dest/"
+        # Copy source references only if project doesn't have custom ones yet
+        if [[ -d "$src_dir/references" && ! -d "$dest/references" ]]; then
+          cp -r "$src_dir/references" "$dest/"
+        fi
       fi
     done
     echo "  ✅ Skills: ${#SKILLS[@]} deployed"
   fi
 
-  # Deploy prompts
+  # Deploy prompts (skip existing — user may have customized)
   if [[ ${#PROMPTS[@]} -gt 0 ]]; then
     mkdir -p "$PROJECT/.kiro/prompts"
     for prompt in "${PROMPTS[@]}"; do
-      # Check skill dir first, then .kiro/prompts/ source
+      dest="$PROJECT/.kiro/prompts/$prompt.md"
+      [[ -f "$dest" ]] && continue
       src="$SKILLS_DIR/$prompt/SKILL.md"
       alt_src="$ROOT_DIR/.kiro/prompts/$prompt.md"
       if [[ -f "$src" ]]; then
-        cp "$src" "$PROJECT/.kiro/prompts/$prompt.md"
+        cp "$src" "$dest"
       elif [[ -f "$alt_src" ]]; then
-        cp "$alt_src" "$PROJECT/.kiro/prompts/$prompt.md"
+        cp "$alt_src" "$dest"
       fi
     done
     echo "  ✅ Prompts: ${#PROMPTS[@]} deployed"
