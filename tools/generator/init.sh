@@ -93,6 +93,17 @@ if [[ "$GLOBAL" == true ]]; then
   done
   echo "  ✅ Prompts: ${#PROMPTS[@]} → ~/.kiro/prompts/"
 
+  # Resolve all {{params.X}} to defaults (no runtime resolution needed)
+  for f in "$DEST"/prompts/*.md "$DEST"/skills/*/SKILL.md; do
+    [[ -f "$f" ]] || continue
+    sed -i 's|{{params.ephemeral_path}}|.scratch|g' "$f"
+    sed -i 's|{{params.handoff_file}}|HANDOFF.md|g' "$f"
+    sed -i 's|{{params.glossary_path}}|.memory/CONTEXT.md|g' "$f"
+    sed -i 's|{{params.durable_path}}|.memory|g' "$f"
+    sed -i 's|{{params.scripts_path}}|tools|g' "$f"
+    sed -i 's|{{params.mise_file}}|mise.toml|g' "$f"
+  done
+
   echo ""
   echo "Done. Skills/prompts available in all projects."
   echo "Run: ./init.sh --project <path> to scaffold a specific project."

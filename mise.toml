@@ -44,3 +44,7 @@ run = "tools/lint/check-crosslinks.sh"
 [tasks.proof]
 description = "Run all proofs against kiro-cli"
 run = "tools/proofs/harness/run.sh --adapter kiro-cli --all"
+
+[tasks.validate-deployment]
+description = "End-to-end deployment validation"
+run = "tools/evals/harness/validate-deployment.sh"
