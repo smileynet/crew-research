@@ -1,53 +1,46 @@
 ---
 name: init-project
-description: "Initialize a new project with crew-research workspace conventions. Sets up .scratch, .memory, CONTEXT.md, steering, skills, and prompts."
+description: "Scaffold workspace conventions for this project. Creates .memory, .scratch, AGENTS.md, .crew-config.yaml. Use when starting a new project or when workspace structure is missing."
 metadata:
   type: process
   invocation: user-only
   practice: null
 ---
 
-# Initialize Project
+# Initialize Project Workspace
 
-Set up this project with crew-research conventions.
+Scaffold workspace conventions for this project. Skills and prompts come from ~/.kiro/ (global). This creates the project-specific structure.
 
-## If already initialized (`.kiro/` exists)
+## Check First
 
-This project already has crew-research deployed. To update/sync:
-```bash
-# From the crew-research repo:
-mise run init -- --project $(pwd) --tier <basic|full> --tool kiro-cli
-```
-This updates skills (preserves your customizations in references/ and prompts).
+If `.memory/` and `AGENTS.md` already exist, this project is already scaffolded. Ask if the user wants to update/verify instead (suggest `@project-audit`).
 
-## If not initialized
+## Scaffold
 
-Guide the user through setup:
+Create these if they don't exist:
 
-### 1. Choose tier
+1. **`.scratch/`** — ephemeral working notes
+2. **`.memory/CONTEXT.md`** — project glossary (empty template)
+3. **`.memory/adr/`** — architecture decision records
+4. **`AGENTS.md`** — project reference (workspace layout, commands, prompts)
+5. **`.crew-config.yaml`** — detected build/test/lint commands
+6. **`.gitignore`** entries — `.scratch/` and `resources/`
+7. **`resources/`** — directory for reference repos
 
-- **basic** — Core project lifecycle (11 skills + 4 steering + 8 prompts). Covers: setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
-- **full** — Everything in basic + specialized skills (architecture, research, creative), multi-agent crews (7 agents), and additional prompts.
+## Auto-detect
 
-Recommend **basic** unless the user needs multi-agent delegation or specialized activities.
+- Check for `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`
+- Extract build/test/lint commands
+- Set language in `.crew-config.yaml`
 
-### 2. Run init
+## AGENTS.md Content
 
-```bash
-# From the crew-research repo:
-mise run init -- --project <this-project-path> --tier <chosen-tier> --tool kiro-cli
-```
+Include: workspace layout, detected commands, available prompts list, references section, customization notes.
 
-### 3. After init
+## After Scaffolding
 
-- Review `.crew-config.yaml` — verify build/test/lint commands are correct
+Tell the user:
+- Skills/prompts are available globally from `~/.kiro/`
+- Add project-specific steering to `.kiro/steering/` if needed
 - Add project terms to `.memory/CONTEXT.md` as they emerge
-- Start working — skills activate automatically
-
-### 4. Key prompts available after setup
-
-- `@grill-with-docs` — stress-test a plan
-- `@handoff` / `@read-handoff` — session continuity
-- `@plan-prereqs` — identify pre-work before building
-- `@workspace-cleanup` — periodic consolidation
-- `@project-audit` — check if deployment matches reality
+- Use `@grill-with-docs` to stress-test plans before building

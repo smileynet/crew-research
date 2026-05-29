@@ -19,6 +19,7 @@ skills:
   - writing-style
 
 prompts:
+  - init-project
   - grill-with-docs
   - handoff
   - read-handoff
