@@ -39,3 +39,32 @@ If CONTEXT.md doesn't exist, create it on first term resolution.
 - Read before writing — check existing code/docs before creating new ones
 - Commit after each logical unit of work
 - Don't ask questions the codebase can answer — explore first
+
+## Long-Running Commands
+
+When a command may take >15 seconds (builds, tests, installs, data processing):
+
+```bash
+# Launch in background, capture output
+nohup <command> > /tmp/task-output.log 2>&1 &
+
+# Poll until done
+while kill -0 $! 2>/dev/null; do sleep 5; done
+
+# Read results
+tail -50 /tmp/task-output.log
+```
+
+**When to use this pattern:**
+- Package installs (`npm install`, `pip install`, `cargo build`)
+- Test suites that take >15s
+- Data processing scripts
+- Any command where timeout is a risk
+
+**How to observe:**
+- `tail -20 /tmp/task-output.log` — check progress
+- `wc -l /tmp/task-output.log` — is output growing?
+- `kill -0 $! 2>/dev/null && echo running || echo done` — check if still alive
+
+**Report when done:** read the log, summarize outcome (pass/fail/output), clean up the log file.
+
