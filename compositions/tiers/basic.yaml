@@ -5,7 +5,6 @@ steering:
   - ai-generation-hygiene
   - verification-protocol
   - project-conventions
-  - research-dispatch
 
 skills:
   - planning-cycles
@@ -17,6 +16,7 @@ skills:
   - testing-guide
   - git-protocol
   - writing-style
+  - research-dispatch
 
 prompts:
   - init-project

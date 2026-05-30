@@ -5,7 +5,6 @@ steering:
   - ai-generation-hygiene
   - verification-protocol
   - project-conventions
-  - research-dispatch
 
 skills:
   - planning-cycles
@@ -34,6 +33,7 @@ skills:
   - docs-audit
   - research-methodology
   - research-output
+  - research-dispatch
   - reference-exploration
   - adr-authoring
   - enforcement-hierarchy
