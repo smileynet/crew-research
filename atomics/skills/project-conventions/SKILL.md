@@ -49,27 +49,39 @@ If CONTEXT.md doesn't exist, create it on first term resolution.
 
 When a command may take >15 seconds (builds, tests, installs, data processing):
 
-```bash
+### Windows (PowerShell)
+
+```powershell
 # Launch in background, capture output
-nohup <command> > /tmp/task-output.log 2>&1 &
+$proc = Start-Process -PassThru -NoNewWindow -FilePath "pwsh" -ArgumentList "-c", "<command>" -RedirectStandardOutput "$env:TEMP\task-output.log" -RedirectStandardError "$env:TEMP\task-error.log"
 
 # Poll until done
-while kill -0 $! 2>/dev/null; do sleep 5; done
+while (!$proc.HasExited) { Start-Sleep 5 }
 
 # Read results
+Get-Content "$env:TEMP\task-output.log" -Tail 50
+$proc.ExitCode
+```
+
+**How to observe:**
+- `Get-Content "$env:TEMP\task-output.log" -Tail 20` — check progress
+- `(Get-Item "$env:TEMP\task-output.log").Length` — is output growing?
+- `$proc.HasExited` — check if still alive
+
+### Linux/macOS (bash)
+
+```bash
+nohup <command> > /tmp/task-output.log 2>&1 &
+while kill -0 $! 2>/dev/null; do sleep 5; done
 tail -50 /tmp/task-output.log
 ```
 
-**When to use this pattern:**
+### When to use
+
 - Package installs (`npm install`, `pip install`, `cargo build`)
 - Test suites that take >15s
 - Data processing scripts
 - Any command where timeout is a risk
-
-**How to observe:**
-- `tail -20 /tmp/task-output.log` — check progress
-- `wc -l /tmp/task-output.log` — is output growing?
-- `kill -0 $! 2>/dev/null && echo running || echo done` — check if still alive
 
 **Report when done:** read the log, summarize outcome (pass/fail/output), clean up the log file.
 
