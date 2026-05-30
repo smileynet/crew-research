@@ -1,50 +1,55 @@
 [tasks.validate]
 description = "Validate all compositions and cross-links"
 run = """
-tools/generator/generate.sh validate
-tools/lint/check-crosslinks.sh
+bash tools/generator/generate.sh validate
+bash tools/lint/check-crosslinks.sh
 """
 
 [tasks.generate]
-description = "Generate deployment for a tool (default: kiro-cli)"
-run = "tools/generator/generate.sh generate {{arg(name='tool', default='kiro-cli')}}"
+description = "Generate deployment for a tool"
+usage = 'arg "[tool]" help="Target tool" default="kiro-cli"'
+run = "bash tools/generator/generate.sh generate ${usage_tool?}"
 
 [tasks.init]
-description = "Initialize a new project"
-run = "tools/generator/init.sh {{arg(name='args')}}"
+description = "Initialize a project or deploy globally"
+raw = true
+run = "bash tools/generator/init.sh"
 
 [tasks.catalog]
 description = "List available skills and tiers"
-run = "tools/generator/catalog.sh"
+run = "bash tools/generator/catalog.sh"
 
 [tasks.doctor]
 description = "Health check for a deployment"
-run = "tools/generator/doctor.sh {{arg(name='args')}}"
+raw = true
+run = "bash tools/generator/doctor.sh"
 
 [tasks.eval]
 description = "Run all dual-run evals (3 trials)"
-run = "tools/evals/harness/run.sh --all --trials 3"
+run = "bash tools/evals/harness/run.sh --all --trials 3"
 
 [tasks."eval:one"]
 description = "Run a single eval definition"
-run = "tools/evals/harness/run.sh --definition {{arg(name='def')}} --trials 3"
+usage = 'arg "<def>" help="Eval definition file"'
+run = "bash tools/evals/harness/run.sh --definition ${usage_def?} --trials 3"
 
 [tasks."eval:activation"]
 description = "Run activation tests for all skills"
-run = "tools/evals/harness/run-activation.sh --all"
+run = "bash tools/evals/harness/run-activation.sh --all"
 
 [tasks."eval:experiment"]
 description = "Run a multi-condition experiment"
-run = "tools/evals/harness/run-experiment.sh --experiment {{arg(name='name')}} --trials 3 --fixture defu"
+usage = 'arg "<name>" help="Experiment name"'
+run = "bash tools/evals/harness/run-experiment.sh --experiment ${usage_name?} --trials 3 --fixture defu"
 
 [tasks.lint]
 description = "Check cross-links between practices and skills"
-run = "tools/lint/check-crosslinks.sh"
+run = "bash tools/lint/check-crosslinks.sh"
 
 [tasks.proof]
 description = "Run all proofs against kiro-cli"
-run = "tools/proofs/harness/run.sh --adapter kiro-cli --all"
+run = "bash tools/proofs/harness/run.sh --adapter kiro-cli --all"
 
 [tasks.validate-deployment]
 description = "End-to-end deployment validation"
-run = "tools/evals/harness/validate-deployment.sh"
+run = "bash tools/evals/harness/validate-deployment.sh"
