@@ -1,5 +1,5 @@
 ---
-name: workspace-cleanup
+name: project-cleanup
 description: "Consolidate workspace artifacts — promote scratch to memory, deduplicate memory, organize scripts, update steering/skills accuracy. Use periodically or when the workspace feels cluttered."
 metadata:
   type: process
