@@ -55,6 +55,7 @@ prompts:
   - plan-prereqs
   - cheatsheet
   - study-reference
+  - study-all-references
 
 agents:
   - lead
