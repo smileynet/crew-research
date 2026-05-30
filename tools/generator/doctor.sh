@@ -87,6 +87,13 @@ if [[ -d "$PROJECT/.kiro/steering" ]]; then
   echo "  ✅ $local_steering project-specific steering override(s)"
 fi
 
+# Warn if local prompts/ shadows global skills
+if [[ -d "$PROJECT/.kiro/prompts" ]] && ls "$PROJECT/.kiro/prompts/"*.md &>/dev/null 2>&1; then
+  local_prompts=$(ls "$PROJECT/.kiro/prompts/"*.md 2>/dev/null | wc -l)
+  echo "  ⚠️  $local_prompts local prompt file(s) in .kiro/prompts/ — these shadow global skills (no descriptions in picker)"
+  warnings=$((warnings + 1))
+fi
+
 echo ""
 echo "---"
 echo "Errors: $errors | Warnings: $warnings"
