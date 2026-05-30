@@ -226,12 +226,12 @@ ${BUILD_CMD:+$BUILD_CMD  # build
 }${LINT_CMD:+$LINT_CMD  # lint
 }\`\`\`
 
-## Prompts
-- \`@grill-with-docs\` — Stress-test a plan before building
-- \`@handoff\` / \`@read-handoff\` — Session continuity
-- \`@plan-prereqs\` — Identify pre-work before building
-- \`@workspace-cleanup\` — Periodic housekeeping
-- \`@cheatsheet\` — Quick reference
+## Skills (user-invocable)
+- \`/grill-with-docs\` — Stress-test a plan before building
+- \`/handoff\` / \`/read-handoff\` — Session continuity
+- \`/plan-prereqs\` — Identify pre-work before building
+- \`/workspace-cleanup\` — Periodic housekeeping
+- \`/cheatsheet\` — Quick reference
 
 ## References
 

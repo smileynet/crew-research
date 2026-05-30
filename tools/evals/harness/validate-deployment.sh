@@ -30,10 +30,10 @@ rm -rf ~/.kiro/steering ~/.kiro/skills ~/.kiro/prompts
 
 [[ -d ~/.kiro/steering ]] && pass "steering/ created" || fail "steering/ missing"
 [[ -d ~/.kiro/skills ]] && pass "skills/ created" || fail "skills/ missing"
-[[ -d ~/.kiro/prompts ]] && pass "prompts/ created" || fail "prompts/ missing"
+[[ ! -d ~/.kiro/prompts ]] && pass "prompts/ not created (skills-only)" || fail "prompts/ exists (should not)"
 
 # Check no {{params}} remain
-if grep -r '{{params' ~/.kiro/prompts/ ~/.kiro/skills/ 2>/dev/null | grep -q .; then
+if grep -r '{{params' ~/.kiro/skills/ 2>/dev/null | grep -q .; then
   fail "unresolved {{params}} in deployed files"
 else
   pass "all params resolved"
