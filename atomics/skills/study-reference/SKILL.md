@@ -13,7 +13,17 @@ Analyze a tool or third-party repo and extract actionable knowledge from it.
 
 ## Phase 1: Document
 
+Check if `.memory/{name}-reference.md` already exists with a `studied_at` frontmatter field. If it does, skip — already studied. If the file exists but has no frontmatter (legacy/partial), re-study.
+
 Dispatch a subagent to explore the repo/tool and write a reference doc to `.memory/`:
+
+**Output format: `.memory/{name}-reference.md`**
+```markdown
+---
+studied_at: {ISO 8601 timestamp}
+source: references/{name}
+---
+```
 
 **Output: `.memory/{name}-reference.md`**
 - **Purpose** — what it does, what problem it solves

@@ -17,7 +17,16 @@ List all directories in `references/`. For each, note what it appears to be (lan
 
 ## Step 2: Document (parallel)
 
-Dispatch one subagent per reference repo. Each writes to `.memory/{name}-reference.md`:
+For each reference, check if `.memory/{name}-reference.md` already exists with `studied_at` frontmatter. Skip those — already studied. Only dispatch subagents for unstudied references.
+
+Dispatch one subagent per unstudied reference. Each writes to `.memory/{name}-reference.md` with frontmatter:
+
+```markdown
+---
+studied_at: {ISO 8601 timestamp}
+source: references/{name}
+---
+```
 
 - **Purpose** — what it does, what problem it solves
 - **Usage** — how to invoke/use it (commands, API, key patterns)
