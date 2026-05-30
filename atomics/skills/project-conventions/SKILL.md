@@ -37,8 +37,13 @@ If CONTEXT.md doesn't exist, create it on first term resolution.
 
 ## Session Discipline
 - Read before writing — check existing code/docs before creating new ones
-- Commit after each logical unit of work
 - Don't ask questions the codebase can answer — explore first
+
+## Git Discipline
+- If no git repo exists, run `git init` and make an initial commit before starting work
+- Commit after each logical unit of work — don't accumulate uncommitted changes
+- Push after committing (if remote exists)
+- Use descriptive commit messages: `type(scope): what changed`
 
 ## Long-Running Commands
 
