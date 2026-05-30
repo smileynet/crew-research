@@ -45,6 +45,13 @@ If CONTEXT.md doesn't exist, create it on first term resolution.
 - Push after committing (if remote exists)
 - Use descriptive commit messages: `type(scope): what changed`
 
+### When push is rejected (upstream changes)
+
+1. Run `git fetch` then `git log --oneline HEAD..origin/main` to see what's new
+2. **If fast-forwardable** (our commits are ahead, theirs don't conflict): tell the user "upstream has N new commits, can fast-forward merge — safe to pull and push"
+3. **If diverged** (both sides have commits): tell the user what the upstream commits are, whether conflicts are likely (check `git merge --no-commit --no-ff origin/main` then `git merge --abort`), and ask how they want to proceed (merge vs rebase)
+4. Never force-push or auto-rebase without telling the user what happened upstream
+
 ## Long-Running Commands
 
 When a command may take >15 seconds (builds, tests, installs, data processing):
