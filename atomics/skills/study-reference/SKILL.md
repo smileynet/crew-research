@@ -1,6 +1,6 @@
 ---
 name: study-reference
-description: "Deep-dive a tool or repo in resources/. Documents purpose, usage, novel patterns, and distills learnings into steering/skills. Use when onboarding a new reference repo or tool."
+description: "Deep-dive a tool or repo in references/. Documents purpose, usage, novel patterns, and distills learnings into steering/skills. Use when onboarding a new reference repo or tool."
 metadata:
   type: process
   invocation: user-only

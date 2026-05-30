@@ -1,6 +1,6 @@
 ---
 name: study-all-references
-description: "Batch study all repos/tools in resources/. Dispatches parallel subagents to document each, then distills learnings into steering/skills. Use when onboarding to a project with multiple reference repos."
+description: "Batch study all repos/tools in references/. Dispatches parallel subagents to document each, then distills learnings into steering/skills. Use when onboarding to a project with multiple reference repos."
 metadata:
   type: process
   invocation: user-only
@@ -9,11 +9,11 @@ metadata:
 
 # Study All References
 
-Analyze every repo/tool in `resources/` and extract actionable knowledge.
+Analyze every repo/tool in `references/` and extract actionable knowledge.
 
 ## Step 1: Inventory
 
-List all directories in `resources/`. For each, note what it appears to be (language, purpose, size).
+List all directories in `references/`. For each, note what it appears to be (language, purpose, size).
 
 ## Step 2: Document (parallel)
 
@@ -28,7 +28,7 @@ Dispatch one subagent per reference repo. Each writes to `.memory/{name}-referen
 
 Subagent prompt template:
 ```
-Explore resources/{name}/ thoroughly. Read key files (README, main entry points, config).
+Explore references/{name}/ thoroughly. Read key files (README, main entry points, config).
 Write a reference doc to .memory/{name}-reference.md with sections:
 Purpose, Usage, Architecture, Novel Patterns, Anti-patterns, Integration Points.
 Focus on what's relevant to THIS project (read AGENTS.md for context).
