@@ -1,5 +1,5 @@
 #!/bin/bash
-# tools/generator/doctor.sh — Health check for a crew-research deployment
+# tools/generator/doctor.sh — Health check for crew-research deployment
 # Usage: ./doctor.sh [--project <path>]
 set -euo pipefail
 
@@ -16,7 +16,7 @@ warnings=0
 
 # Check tools
 check_tool() {
-  local name="$1" min_version="${2:-}"
+  local name="$1"
   if command -v "$name" &>/dev/null; then
     ver=$($name --version 2>/dev/null | head -1)
     echo "  ✅ $name ($ver)"
@@ -31,30 +31,45 @@ check_tool kiro-cli
 check_tool yq
 check_tool jq
 
-# Check workspace structure
+# Check global deployment
 echo ""
-echo "Workspace:"
+echo "Global (~/.kiro/):"
+steering_count=$(find ~/.kiro/steering -name "*.md" 2>/dev/null | wc -l || true)
+skill_count=$(find ~/.kiro/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
+prompt_count=$(find ~/.kiro/prompts -name "*.md" 2>/dev/null | wc -l || true)
+
+if [[ $skill_count -gt 0 ]]; then
+  echo "  ✅ $steering_count steering, $skill_count skills, $prompt_count prompts"
+else
+  echo "  ❌ No global deployment (run: mise run init -- --global --tier basic)"
+  errors=$((errors + 1))
+fi
+
+# Check for unresolved params in global
+if grep -r '{{params' ~/.kiro/prompts/ ~/.kiro/skills/ 2>/dev/null | grep -q .; then
+  echo "  ⚠️  Unresolved {{params}} in global files (re-run global deploy)"
+  warnings=$((warnings + 1))
+fi
+
+# Check project workspace
+echo ""
+echo "Project:"
 for path in .memory/CONTEXT.md .scratch AGENTS.md; do
   if [[ -e "$PROJECT/$path" ]]; then
     echo "  ✅ $path"
   else
-    echo "  ⚠️  $path missing"
+    echo "  ⚠️  $path missing (run: mise run init -- --project $PROJECT)"
     warnings=$((warnings + 1))
   fi
 done
 
-# Check .kiro deployment
-echo ""
-echo "Deployment:"
-if [[ -d "$PROJECT/.kiro" ]]; then
-  skill_count=$(find "$PROJECT/.kiro/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
-  steering_count=$(find "$PROJECT/.kiro/steering" -name "*.md" 2>/dev/null | wc -l || true)
-  prompt_count=$(find "$PROJECT/.kiro/prompts" -name "*.md" 2>/dev/null | wc -l || true)
-  agent_count=$(find "$PROJECT/.kiro/agents" -name "*.json" 2>/dev/null | wc -l || true)
-  echo "  ✅ $skill_count skills, $steering_count steering, $prompt_count prompts, $agent_count agents"
-else
-  echo "  ⚠️  No .kiro/ directory (run init first)"
-  warnings=$((warnings + 1))
+# Check CONTEXT.md has content
+if [[ -f "$PROJECT/.memory/CONTEXT.md" ]]; then
+  lines=$(wc -l < "$PROJECT/.memory/CONTEXT.md")
+  if [[ $lines -le 3 ]]; then
+    echo "  ⚠️  .memory/CONTEXT.md is empty (add project terms)"
+    warnings=$((warnings + 1))
+  fi
 fi
 
 # Check .gitignore
@@ -67,15 +82,10 @@ else
   warnings=$((warnings + 1))
 fi
 
-# Check CONTEXT.md has content
-if [[ -f "$PROJECT/.memory/CONTEXT.md" ]]; then
-  lines=$(wc -l < "$PROJECT/.memory/CONTEXT.md")
-  if [[ $lines -le 3 ]]; then
-    echo "  ⚠️  .memory/CONTEXT.md is empty (add project terms)"
-    warnings=$((warnings + 1))
-  else
-    echo "  ✅ .memory/CONTEXT.md has content ($lines lines)"
-  fi
+# Check for project-level overrides
+if [[ -d "$PROJECT/.kiro/steering" ]]; then
+  local_steering=$(ls "$PROJECT/.kiro/steering/"*.md 2>/dev/null | wc -l || true)
+  echo "  ✅ $local_steering project-specific steering override(s)"
 fi
 
 echo ""

@@ -102,6 +102,7 @@ if [[ "$GLOBAL" == true ]]; then
     sed -i 's|{{params.durable_path}}|.memory|g' "$f"
     sed -i 's|{{params.scripts_path}}|tools|g' "$f"
     sed -i 's|{{params.mise_file}}|mise.toml|g' "$f"
+    sed -i 's|{{params.output_path}}|.scratch/research|g' "$f"
   done
 
   echo ""
