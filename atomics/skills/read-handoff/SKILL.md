@@ -38,6 +38,22 @@ Orient yourself to continue work from where the last session left off.
 - Are there unresolved design questions?
 - Do you need to read any evidence files?
 
+## Staleness Check
+
+Before proceeding, assess:
+- Same blocker as last session? → approach is wrong, not effort
+- "Next steps" unchanged for 2+ sessions? → rewrite plan from current state
+- Estimates proven wrong by 3x+? → assumptions were wrong
+
+If 2+ are true → trigger `vertical-slice-planning` before proceeding.
+
+## Validation Run
+
+If the project has a test suite or validation script:
+1. Run it. Report current pass/fail count.
+2. Note any regressions since last session.
+3. State today's target: which specific test/assertion to make green.
+
 ## Rules
 
 - Treat the handoff as point-in-time state, not durable truth

@@ -39,6 +39,13 @@ If CONTEXT.md doesn't exist, create it on first term resolution.
 - Read before writing — check existing code/docs before creating new ones
 - Don't ask questions the codebase can answer — explore first
 
+## Validation Contract
+
+Scripts and tools that produce output SHOULD return structured results:
+- JSON: `{"status": "pass|fail|error", "metrics": {...}, "errors": [...]}`
+- Exit code: 0=pass, 1=fail, 2=crash
+- Self-validate output (count checks, schema validation, range checks)
+
 ## Git Discipline
 - If no git repo exists, run `git init` and make an initial commit before starting work
 - Commit after each logical unit of work — don't accumulate uncommitted changes

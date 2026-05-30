@@ -8,6 +8,7 @@ steering:
 
 skills:
   - planning-cycles
+  - vertical-slice-planning
   - five-whys
   - assumption-tracking
   - script-authoring
