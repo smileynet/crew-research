@@ -1,11 +1,6 @@
 ---
 name: architecture-deepening
-description: >
-  Find deepening opportunities in a codebase — refactors that turn shallow
-  modules into deep ones. Use when user wants to improve architecture, find
-  refactoring opportunities, consolidate tightly-coupled modules, make code
-  more testable, or reduce complexity. Trigger: "shallow modules", "deepen",
-  "architectural friction", "consolidate", "simplify interfaces".
+description: "Find deepening opportunities in a codebase — refactors that turn shallow modules into deep ones. Use when user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, make code more testable, or reduce complexity. Trigger: \"shallow modules\", \"deepen\", \"architectural friction\", \"consolidate\", \"simplify interfaces\"."
 metadata:
   type: protocol
   invocation: both

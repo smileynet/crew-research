@@ -1,8 +1,6 @@
 ---
 name: commit-pr-discipline
-description: >
-  Commit message and pull request discipline. Use when writing commit
-  messages, creating PRs, staging changes, or deciding how to group work.
+description: "Commit message and pull request discipline. Use when writing commit messages, creating PRs, staging changes, or deciding how to group work."
 metadata:
   type: protocol
   invocation: both

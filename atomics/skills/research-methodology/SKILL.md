@@ -1,9 +1,6 @@
 ---
 name: research-methodology
-description: >
-  Structured research process for investigating topics and producing
-  findings. Use when exploring unfamiliar domains, evaluating options,
-  or gathering evidence to inform decisions.
+description: "Structured research process for investigating topics and producing findings. Use when exploring unfamiliar domains, evaluating options, or gathering evidence to inform decisions."
 metadata:
   type: protocol
   invocation: both

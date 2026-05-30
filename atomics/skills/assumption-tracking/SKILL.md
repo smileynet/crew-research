@@ -1,9 +1,6 @@
 ---
 name: assumption-tracking
-description: >
-  Surface and challenge assumptions before they become load-bearing. Use
-  when planning, scoping, designing, or making decisions where unvalidated
-  assumptions could cause rework.
+description: "Surface and challenge assumptions before they become load-bearing. Use when planning, scoping, designing, or making decisions where unvalidated assumptions could cause rework."
 metadata:
   type: protocol
   invocation: both

@@ -1,11 +1,6 @@
 ---
 name: five-whys
-description: >
-  Iterative root cause analysis for non-obvious or recurring technical
-  problems. Use when a failure keeps recurring, when the immediate cause
-  isn't the real cause, when a fix didn't stick, or when someone asks
-  "why does this keep happening." Not needed for problems where reading
-  the code or error message directly reveals the answer.
+description: "Iterative root cause analysis for non-obvious or recurring technical problems. Use when a failure keeps recurring, when the immediate cause isn't the real cause, when a fix didn't stick, or when someone asks \"why does this keep happening.\" Not needed for problems where reading the code or error message directly reveals the answer."
 metadata:
   type: reasoning-mode
   invocation: both

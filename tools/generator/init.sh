@@ -36,7 +36,7 @@ TIER_FILE="$TIERS_DIR/$TIER.yaml"
 
 if [[ "$GLOBAL" == true ]]; then
   # ═══════════════════════════════════════════════════════════════
-  # GLOBAL DEPLOY — steering, skills, prompts to ~/.kiro/
+  # GLOBAL DEPLOY — steering + skills to ~/.kiro/
   # Diff-based: only updates changed files, prunes removed ones.
   # ═══════════════════════════════════════════════════════════════
   DEST="$HOME/.kiro"
@@ -46,7 +46,6 @@ if [[ "$GLOBAL" == true ]]; then
   # Read tier
   STEERING=($(yq -r '.steering[]' "$TIER_FILE"))
   SKILLS=($(yq -r '.skills[]' "$TIER_FILE"))
-  PROMPTS=($(yq -r '.prompts[]' "$TIER_FILE"))
 
   # Counters
   updated=0; removed=0; unchanged=0
@@ -127,25 +126,6 @@ if [[ "$GLOBAL" == true ]]; then
     fi
   done
 
-  # --- Deploy prompts ---
-  mkdir -p "$DEST/prompts"
-  for prompt in "${PROMPTS[@]}"; do
-    dest="$DEST/prompts/$prompt.md"
-    src="$SKILLS_DIR/$prompt/SKILL.md"
-    alt_src="$ROOT_DIR/.kiro/prompts/$prompt.md"
-    if [[ -f "$src" ]]; then
-      frontmatter=$(awk '/^---$/{c++;next} c==1{print}' "$src")
-      name_val=$(echo "$frontmatter" | yq -r '.name')
-      desc_val=$(echo "$frontmatter" | yq -r '.description' | tr '\n' ' ' | sed 's/  */ /g;s/ *$//')
-      body=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
-      content=$(printf '%s\n%s\n%s\n%s\n%s' "---" "name: $name_val" "description: \"$desc_val\"" "---" "$body")
-      deploy_content "$content" "$dest"
-    elif [[ -f "$alt_src" ]]; then
-      deploy_file "$alt_src" "$dest"
-    fi
-    DESIRED_FILES["$dest"]=1
-  done
-
   # --- Prune stale files ---
   # Steering: remove .md files not in tier
   for f in "$DEST/steering/"*.md; do
@@ -168,19 +148,15 @@ if [[ "$GLOBAL" == true ]]; then
     fi
   done
 
-  # Prompts: remove .md files not in tier
-  for f in "$DEST/prompts/"*.md; do
-    [[ -f "$f" ]] || continue
-    if [[ -z "${DESIRED_FILES[$f]:-}" ]]; then
-      rm "$f"
-      removed=$((removed + 1))
-      echo "  pruned: $(basename "$f")"
-    fi
-  done
+  # Prompts: remove entire directory (skills-only model)
+  if [[ -d "$DEST/prompts" ]]; then
+    rm -rf "$DEST/prompts"
+    echo "  pruned: prompts/ (migrated to skills)"
+  fi
 
   # --- Summary ---
   echo ""
-  echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]} | Prompts: ${#PROMPTS[@]}"
+  echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]}"
   echo "  $updated updated, $removed pruned, $unchanged unchanged"
   echo ""
   echo "Done. Skills/prompts available in all projects."

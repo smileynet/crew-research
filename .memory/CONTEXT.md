@@ -97,8 +97,8 @@ Depth-on-demand within an already-loaded skill. SKILL.md is the entry point (<10
 _Avoid_: monolithic skills, loading all companion files upfront
 
 **Prompt (atomic module)**:
-Deprecated as a separate concept. Prompts are skills with `invocation: user-only` frontmatter. The generator handles per-tool delivery: Claude Code emits as a skill with `disable-model-invocation: true`; kiro-cli emits to `.kiro/prompts/` (since kiro-cli maintains a separate prompts directory); Pi emits as a prompt template.
-_Avoid_: treating prompts as a fundamentally different artifact type, maintaining a separate `atomics/prompts/` directory
+Deprecated as a separate deployment target. All user-invocable workflows deploy as skills with `invocation: user-only` metadata. kiro-cli treats skills and prompts identically in the picker (both invocable via `/name` and `@name`), but only skills display their description. The `~/.kiro/prompts/` directory is no longer used by crew-research deployments.
+_Avoid_: deploying to prompts/ directory, maintaining separate prompt files
 
 **Invocation control (frontmatter)**:
 A field inside `metadata` (`metadata.invocation`) that determines who can trigger a skill. Values: `user-only` (user invokes explicitly, agent cannot auto-load), `agent-only` (agent loads when relevant, hidden from user menu), `both` (default — dual-mode). The generator reads this and emits tool-native fields during deployment. Only standard-compliant fields (`name`, `description`, `metadata`) appear at top level in source.

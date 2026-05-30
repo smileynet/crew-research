@@ -17,8 +17,6 @@ skills:
   - git-protocol
   - writing-style
   - research-dispatch
-
-prompts:
   - init-project
   - grill-with-docs
   - handoff

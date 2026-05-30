@@ -4,13 +4,7 @@ metadata:
   invocation: both
   practice: null
 name: diagrams
-description: >
-  Create architecture diagrams, flowcharts, sequence diagrams, and system
-  visualizations. Covers ASCII, Mermaid, C4, D2, and HTML visual reports.
-  Use when asked to diagram, visualize, draw, illustrate, map out, or show
-  how components connect. Trigger: diagram, flowchart, architecture diagram,
-  sequence diagram, C4, mermaid, ascii art, visualize, draw, system map,
-  data flow, show the architecture, explain visually.
+description: "Create architecture diagrams, flowcharts, sequence diagrams, and system visualizations. Covers ASCII, Mermaid, C4, D2, and HTML visual reports. Use when asked to diagram, visualize, draw, illustrate, map out, or show how components connect. Trigger: diagram, flowchart, architecture diagram, sequence diagram, C4, mermaid, ascii art, visualize, draw, system map, data flow, show the architecture, explain visually."
 ---
 
 # Diagrams Skill

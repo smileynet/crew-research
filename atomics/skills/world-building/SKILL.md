@@ -1,9 +1,6 @@
 ---
 name: world-building
-description: >
-  Specification checklist for fictional worlds, game systems, or speculative
-  conceits. Use when defining a world, magic system, technology, or any
-  fictional construct that needs consistent rules across multiple stories or scenes.
+description: "Specification checklist for fictional worlds, game systems, or speculative conceits. Use when defining a world, magic system, technology, or any fictional construct that needs consistent rules across multiple stories or scenes."
 metadata:
   type: protocol
   invocation: both

@@ -1,9 +1,6 @@
 ---
 name: script-authoring
-description: >
-  Best practices for writing tool and helper scripts. Use when creating
-  bash scripts, automation tools, CLI utilities, or any executable that
-  will be run repeatedly by humans or agents.
+description: "Best practices for writing tool and helper scripts. Use when creating bash scripts, automation tools, CLI utilities, or any executable that will be run repeatedly by humans or agents."
 metadata:
   type: reference
   invocation: both

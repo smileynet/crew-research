@@ -1,8 +1,6 @@
 ---
 name: git-protocol
-description: >
-  Git commit and push workflow. Use when committing changes, creating
-  branches, pushing to remote, or deciding when to checkpoint work.
+description: "Git commit and push workflow. Use when committing changes, creating branches, pushing to remote, or deciding when to checkpoint work."
 metadata:
   type: protocol
   invocation: both

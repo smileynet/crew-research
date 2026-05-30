@@ -1,8 +1,6 @@
 ---
 name: testing-guide
-description: >
-  Testing patterns and practices for writing effective tests. Use when
-  writing tests, reviewing test quality, or deciding what to test.
+description: "Testing patterns and practices for writing effective tests. Use when writing tests, reviewing test quality, or deciding what to test."
 metadata:
   type: reference
   invocation: both

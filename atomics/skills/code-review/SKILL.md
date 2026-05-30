@@ -1,8 +1,6 @@
 ---
 name: code-review
-description: >
-  Code review standards and checklist. Use when reviewing code, PRs,
-  or implementations for correctness, security, and quality.
+description: "Code review standards and checklist. Use when reviewing code, PRs, or implementations for correctness, security, and quality."
 metadata:
   type: reference
   invocation: both

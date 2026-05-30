@@ -1,9 +1,6 @@
 ---
 name: deployment-safety
-description: >
-  Safe deployment practices including rollback planning, canary patterns,
-  and pre/post verification. Use when deploying, provisioning infrastructure,
-  or executing any operation that changes production state.
+description: "Safe deployment practices including rollback planning, canary patterns, and pre/post verification. Use when deploying, provisioning infrastructure, or executing any operation that changes production state."
 metadata:
   type: protocol
   invocation: both

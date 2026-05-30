@@ -1,9 +1,6 @@
 ---
 name: eval-criteria
-description: >
-  Style guide for writing behavioral eval criteria that produce consistent
-  LLM-judged scores. Use when creating, reviewing, or modifying eval
-  definitions.
+description: "Style guide for writing behavioral eval criteria that produce consistent LLM-judged scores. Use when creating, reviewing, or modifying eval definitions."
 metadata:
   type: reference
   invocation: both

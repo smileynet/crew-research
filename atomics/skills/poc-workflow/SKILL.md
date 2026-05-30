@@ -1,11 +1,6 @@
 ---
 name: poc-workflow
-description: >
-  End-to-end PoC development workflow. Takes a problem from research through
-  design, planning, implementation, and validation. Use when building a proof
-  of concept, validating a new system design, or proving a pattern works
-  before committing to production. Trigger: "build a PoC", "prove this works",
-  "validate this approach end-to-end".
+description: "End-to-end PoC development workflow. Takes a problem from research through design, planning, implementation, and validation. Use when building a proof of concept, validating a new system design, or proving a pattern works before committing to production. Trigger: \"build a PoC\", \"prove this works\", \"validate this approach end-to-end\"."
 metadata:
   type: process
   invocation: user-only

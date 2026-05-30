@@ -1,10 +1,6 @@
 ---
 name: ux-walkthrough
-description: >
-  Step-by-step UX walkthrough for design evaluation. Use when designing
-  interfaces, evaluating user flows, reviewing UI proposals, planning
-  features, or any time you need to think through what a user will
-  experience at each step.
+description: "Step-by-step UX walkthrough for design evaluation. Use when designing interfaces, evaluating user flows, reviewing UI proposals, planning features, or any time you need to think through what a user will experience at each step."
 metadata:
   type: protocol
   invocation: user-only

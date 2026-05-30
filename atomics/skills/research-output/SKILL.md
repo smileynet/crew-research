@@ -1,10 +1,6 @@
 ---
 name: research-output
-description: >
-  Structured output format for research findings. Use when producing
-  research results, investigation reports, or any findings that should
-  be reusable across sessions. Ensures sources, related topics, and
-  tools are always captured alongside the findings.
+description: "Structured output format for research findings. Use when producing research results, investigation reports, or any findings that should be reusable across sessions. Ensures sources, related topics, and tools are always captured alongside the findings."
 metadata:
   type: reference
   invocation: both

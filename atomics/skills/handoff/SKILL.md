@@ -1,8 +1,6 @@
 ---
 name: handoff
-description: >
-  End-of-session handoff that captures current state for the next session.
-  Use when ending a work session, switching context, or before a long break.
+description: "End-of-session handoff that captures current state for the next session. Use when ending a work session, switching context, or before a long break."
 metadata:
   type: process
   invocation: user-only

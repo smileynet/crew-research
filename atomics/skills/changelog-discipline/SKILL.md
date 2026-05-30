@@ -1,8 +1,6 @@
 ---
 name: changelog-discipline
-description: >
-  Quality rules for changelog entries. Use when writing, validating, or
-  reviewing changelog content to ensure entries communicate user-facing value.
+description: "Quality rules for changelog entries. Use when writing, validating, or reviewing changelog content to ensure entries communicate user-facing value."
 metadata:
   type: reference
   invocation: both

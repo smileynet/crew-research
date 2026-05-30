@@ -36,17 +36,16 @@ echo ""
 echo "Global (~/.kiro/):"
 steering_count=$(find ~/.kiro/steering -name "*.md" 2>/dev/null | wc -l || true)
 skill_count=$(find ~/.kiro/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
-prompt_count=$(find ~/.kiro/prompts -name "*.md" 2>/dev/null | wc -l || true)
 
 if [[ $skill_count -gt 0 ]]; then
-  echo "  ✅ $steering_count steering, $skill_count skills, $prompt_count prompts"
+  echo "  ✅ $steering_count steering, $skill_count skills"
 else
   echo "  ❌ No global deployment (run: mise run init -- --global --tier basic)"
   errors=$((errors + 1))
 fi
 
 # Check for unresolved params in global
-if grep -r '{{params' ~/.kiro/prompts/ ~/.kiro/skills/ 2>/dev/null | grep -q .; then
+if grep -r '{{params' ~/.kiro/skills/ 2>/dev/null | grep -q .; then
   echo "  ⚠️  Unresolved {{params}} in global files (re-run global deploy)"
   warnings=$((warnings + 1))
 fi

@@ -4,12 +4,7 @@ metadata:
   invocation: both
   practice: null
 name: ai-generation-hygiene
-description: >
-  Code quality rules that catch common AI-generation artifacts. Apply when
-  writing code, generating functions, implementing features, creating scripts,
-  or producing any code output. Catches: redundant defensive checks, gratuitous
-  logging, restating comments, unnecessary casts, over-abstraction, verbose
-  implementations. Always relevant during code generation tasks.
+description: "Code quality rules that catch common AI-generation artifacts. Apply when writing code, generating functions, implementing features, creating scripts, or producing any code output. Catches: redundant defensive checks, gratuitous logging, restating comments, unnecessary casts, over-abstraction, verbose implementations. Always relevant during code generation tasks."
 ---
 
 # AI Generation Hygiene

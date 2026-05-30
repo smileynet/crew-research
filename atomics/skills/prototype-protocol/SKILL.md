@@ -1,10 +1,6 @@
 ---
 name: prototype-protocol
-description: >
-  Build throwaway prototypes that answer a specific design question. Use when
-  user wants to prototype, sanity-check a data model, explore UI options, test
-  a state machine, or says "let me play with it." Routes between logic (TUI)
-  and UI (multi-variant page) branches.
+description: "Build throwaway prototypes that answer a specific design question. Use when user wants to prototype, sanity-check a data model, explore UI options, test a state machine, or says \"let me play with it.\" Routes between logic (TUI) and UI (multi-variant page) branches."
 metadata:
   type: protocol
   invocation: both

@@ -1,9 +1,6 @@
 ---
 name: writing-style
-description: >
-  Writing style for technical communication. Use when writing or reviewing
-  documentation, commit messages, PR descriptions, error messages, or any
-  user-facing text.
+description: "Writing style for technical communication. Use when writing or reviewing documentation, commit messages, PR descriptions, error messages, or any user-facing text."
 metadata:
   type: reference
   invocation: both

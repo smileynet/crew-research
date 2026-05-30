@@ -1,9 +1,6 @@
 ---
 name: troubleshooting-protocol
-description: >
-  Systematic debugging methodology. Use when encountering errors,
-  investigating failures, or diagnosing issues that aren't immediately
-  obvious from the error message alone.
+description: "Systematic debugging methodology. Use when encountering errors, investigating failures, or diagnosing issues that aren't immediately obvious from the error message alone."
 metadata:
   type: protocol
   invocation: both

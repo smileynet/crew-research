@@ -1,9 +1,6 @@
 ---
 name: fiction-craft
-description: >
-  Craft rules for fiction, narrative, and creative prose. Use when writing
-  stories, game narrative, creative content, or any text where voice,
-  rhythm, and anti-slop discipline matter.
+description: "Craft rules for fiction, narrative, and creative prose. Use when writing stories, game narrative, creative content, or any text where voice, rhythm, and anti-slop discipline matter."
 metadata:
   type: reference
   invocation: both

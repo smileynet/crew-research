@@ -1,6 +1,9 @@
 ---
 name: grill-with-docs
-description: "Design interrogation with evidence-backed recommendations. Researches each question via web search before presenting options. Updates CONTEXT.md and offers ADRs inline."
+description: "Design interrogation with evidence-backed recommendations. Researches each question via web search before presenting options. Updates CONTEXT.md and offers ADRs inline. Dispatches spikes for empirical validation."
+metadata:
+  type: process
+  invocation: user-only
 ---
 
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
@@ -45,6 +48,51 @@ State confidence: High (documented) / Medium (works but undocumented) / Low (inf
 - The answer is in existing project docs or decision records
 - The question is answerable from docs you already fetched
 
+## Spike Dispatch
+
+When a question requires empirical validation (not answerable by docs/research alone):
+
+1. Propose the spike: state the hypothesis, method, and time-box
+2. Ask: "This needs a spike. Run now (parallel session) or queue for after?"
+3. Write dispatch doc to `.scratch/spikes/{slug}.md`:
+
+```markdown
+---
+type: spike
+status: pending
+parent: grill-with-docs
+question: "Does X actually work when Y?"
+return_to: .scratch/spikes/{slug}-results.md
+---
+
+# Spike: {title}
+
+## Question
+{The specific question this spike answers}
+
+## Hypothesis
+{What we expect to find}
+
+## Method
+{Steps to execute — specific, actionable}
+
+## Constraints
+- Time-box: {duration}
+- Scope: {what's in/out}
+
+## Return Format
+Write results to `.scratch/spikes/{slug}-results.md`:
+- **Verdict**: confirmed / refuted / inconclusive
+- **Evidence**: what you observed
+- **Implications**: how this affects the design decision
+
+## Context
+{Relevant files, prior decisions, constraints}
+```
+
+4. If `.scratch/spikes/{slug}-results.md` exists, read and incorporate into the decision
+5. Track in decision table with confidence "Pending spike" until results arrive
+
 ## Domain Awareness
 
 Look for existing documentation:
@@ -59,21 +107,12 @@ Look for existing documentation:
 
 - If `.memory/CONTEXT.md` doesn't exist, create it on first term resolution
 - When a term is resolved or clarified, update CONTEXT.md immediately — don't batch
-- Any term with a project-specific meaning distinct from everyday English belongs in the glossary
 - Format: `**Term**: Definition. _Avoid_: synonym.`
 - CONTEXT.md is a glossary ONLY — no implementation details, no specs, no scratch notes
 
-### What qualifies as a term
-
-- Domain concepts (what the project calls things)
-- Internal naming decisions (why we say X not Y)
-- Infrastructure conventions (what "deploy" means here)
-- Abbreviations and acronyms in the codebase
-- Anything where two reasonable people might use different words for the same thing
-
 ### Challenge against the glossary
 
-When the user uses a term that conflicts with CONTEXT.md, call it out: "Your glossary defines 'X' as Y, but you seem to mean Z — which is it?"
+When the user uses a term that conflicts with CONTEXT.md, call it out.
 
 ### Challenge against existing decisions
 
@@ -81,11 +120,7 @@ Cross-reference against `.memory/adr/` — does this contradict an existing deci
 
 ### Sharpen fuzzy language
 
-When the user uses vague or overloaded terms, propose a precise canonical term.
-
-### Discuss concrete scenarios
-
-Stress-test domain relationships with specific scenarios that probe edge cases and force precision about boundaries.
+Propose precise canonical terms for vague or overloaded language.
 
 ### Cross-reference with code
 
@@ -97,7 +132,7 @@ When the user states how something works, check whether the code/docs agree. Sur
 - **Research before recommending.** Cite sources.
 - **Present 2-3 viable alternatives** with pro/con/source, then recommend one.
 - If the codebase can answer it, explore instead of asking.
-- **Do not ask questions with obvious answers.** If the answer follows from stated goals or prior decisions — resolve it yourself and move on.
+- **Do not ask questions with obvious answers.**
 - Track all decisions in a running table.
 
 ## Decision Tracking
