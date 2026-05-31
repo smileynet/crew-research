@@ -17,7 +17,7 @@ metadata:
 | `@handoff` | **End of session.** Writes a handoff so the next session can continue without re-discovery. |
 | `@grill-with-docs` | **Designing something.** Interrogates your plan one question at a time, updates CONTEXT.md inline. |
 | `@plan-prereqs` | **Before building.** Identifies research, spikes, and tooling needed before implementation. |
-| `@workspace-cleanup` | **Periodic housekeeping.** Promotes scratch→memory, deduplicates, verifies accuracy. |
+| `@project-cleanup` | **Periodic housekeeping.** Promotes scratch→memory, deduplicates, processes decisions→ADR, verifies accuracy. |
 | `@project-audit` | **Drift check.** Verifies commands work, AGENTS.md is accurate, skills are relevant. |
 | `@adopt-project` | **Brownfield migration.** Inventories existing setup, captures special instructions, deploys. |
 | `@research-prior-art` | **Need evidence.** Researches reference repos to inform a design decision. |
@@ -31,7 +31,7 @@ Stress-test → @grill-with-docs
 Pre-work → @plan-prereqs
 Build → just work (steering enforces hygiene + verification)
 End session → @handoff
-Weekly → @workspace-cleanup
+Weekly → @project-cleanup
 ```
 
 ## Key Skills (activate automatically)

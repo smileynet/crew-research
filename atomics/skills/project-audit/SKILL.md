@@ -23,7 +23,7 @@ Check whether the crew-research deployment still matches project reality.
 - Do listed commands still work?
 - Do referenced paths (`.memory/`, `.scratch/`, `.kiro/`) exist?
 - Are listed prompts still deployed?
-- Is the workspace layout description current?
+- Is the project layout description current?
 
 ### 3. Steering Freshness
 - Do `.kiro/steering/` files reference paths/tools that exist?
@@ -42,6 +42,17 @@ Check whether the crew-research deployment still matches project reality.
 - Does it reflect current build/test/lint commands?
 - Is the language field correct?
 
+### 7. References Directory
+- Is `references/` used consistently (not `resources/`)?
+- If `resources/` exists and is gitignored → flag for rename to `references/`
+- Is `references/` in `.gitignore`?
+- Are reference repos documented in AGENTS.md?
+
+### 8. Unprocessed Decisions
+- Check for `decisions.md`, `DECISIONS.md`, `docs/decisions.md`
+- If found: flag for processing into `.memory/adr/` (ADR-worthy) or `.memory/CONTEXT.md` (terms)
+- Check `.memory/decisions.md` — should entries be promoted to ADRs?
+
 ## Output
 
 ```
@@ -52,6 +63,8 @@ Check whether the crew-research deployment still matches project reality.
 - Skills: N deployed, N relevant, N gaps
 - CONTEXT.md: N terms, N stale, N missing
 - Config: ✅/❌ (matches reality?)
+- References: ✅/❌ (consistent naming, gitignored?)
+- Decisions: ✅/❌ (all processed?)
 
 ## Actions Taken
 - [fixes applied]

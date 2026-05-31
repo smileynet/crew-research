@@ -99,7 +99,7 @@ Look for existing documentation:
 - `.memory/CONTEXT.md` — domain glossary
 - `.memory/adr/` — architectural decision records
 - `docs/` — project documentation
-- `resources/` — reference repos
+- `references/` — reference repos
 
 ## During the Session
 

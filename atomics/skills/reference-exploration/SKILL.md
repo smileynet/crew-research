@@ -1,6 +1,6 @@
 ---
 name: reference-exploration
-description: "Structured exploration of a repo or tool in resources/. Use when dispatched to analyze a third-party codebase, library, or tool to surface its purpose, patterns, interfaces, and follow-up recommendations."
+description: "Structured exploration of a repo or tool in references/. Use when dispatched to analyze a third-party codebase, library, or tool to surface its purpose, patterns, interfaces, and follow-up recommendations."
 metadata:
   type: reference
   invocation: both

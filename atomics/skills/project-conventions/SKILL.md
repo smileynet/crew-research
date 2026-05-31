@@ -1,6 +1,6 @@
 ---
 name: project-conventions
-description: "Workspace behavioral rules enforced every turn."
+description: "Project behavioral rules enforced every turn."
 metadata:
   type: reference
   invocation: agent-only
