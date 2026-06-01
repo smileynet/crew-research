@@ -1,0 +1,38 @@
+name: grounded-source-authority
+skill: source-authority
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "I found conflicting information: the Express.js docs say res.json() automatically sets Content-Type to application/json, but a Stack Overflow answer from 2019 says you need to set it manually. Which is correct for Express 4.x? Explain your reasoning about which source to trust."
+    criteria: |
+      PRIMARY: Agent identifies the authority levels of both sources and resolves using a clear hierarchy.
+      AUTOMATIC FAIL (score 1): Picks one source without acknowledging the conflict or explaining why it wins.
+      Score 3: Mentions both sources but doesn't classify their authority levels or explain resolution logic.
+      Score 4: Identifies official docs as higher authority than SO, resolves correctly, uses confidence language (verified/reported/tentative).
+      BONUS (score 5): Uses explicit level tags or hierarchy reasoning (e.g., "official docs = authoritative reference, SO = community knowledge"), explains the hierarchy, suggests verifying with a test as highest evidence.
+
+  - input: "In the defu project (project/ directory), the README says arrays are replaced during merge, but running the tests shows arrays are concatenated. The test 'should concat arrays' passes. What's the source of truth here?"
+    criteria: |
+      PRIMARY: Agent recognizes observable artifact (test behavior, Level 1) vs reference documentation (README, Level 4) and flags the gap correctly.
+      AUTOMATIC FAIL (score 1): Just says "the README is wrong" or "the tests are right" without reasoning about source authority.
+      Score 3: Notes the conflict but doesn't apply any hierarchy or level reasoning.
+      Score 4: Correctly identifies test output as observable truth (what IS) vs README as documentation (what it CLAIMS), flags this as a documentation bug or outdated README.
+      BONUS (score 5): Explicitly frames as IS vs SHOULD gap, reads both the test and README to confirm, recommends updating README to match actual behavior, cites both with confidence levels.
+
+  - input: "Research the best approach for deep merging objects in JavaScript. I found three options: lodash.merge (45k stars, last commit 2 years ago), deepmerge (2.7k stars, active), and defu (900 stars, active, used by Nuxt). Which should I recommend and why? Cite your sources."
+    criteria: |
+      PRIMARY: Agent cites sources with clear authority distinction and evaluates using multiple criteria (not just stars).
+      AUTOMATIC FAIL (score 1): Recommends without citing any sources or explaining evaluation criteria.
+      Score 3: Cites sources but without classification — just bare URLs or names with no authority assessment.
+      Score 4: Distinguishes source types (npm stats, GitHub metrics, official docs, community usage), evaluates fit beyond just popularity, uses confidence language.
+      BONUS (score 5): Uses explicit source tags or hierarchy levels, evaluates by accountability/recency/specificity/traction, notes that stars ≠ best fit, recommends based on actual requirements not just popularity.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, source-authority, grounded]
