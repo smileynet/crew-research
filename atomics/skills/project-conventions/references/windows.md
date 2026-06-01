@@ -1,12 +1,3 @@
----
-name: windows-shell-safety
-description: "Windows PowerShell safety rules for background processes and long-running commands. Always active on Windows."
-metadata:
-  type: steering
-  invocation: passive
-  practice: null
----
-
 # Windows Shell Safety
 
 ## Start-Process Rules (ABSOLUTE)

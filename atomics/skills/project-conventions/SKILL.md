@@ -61,8 +61,7 @@ Scripts and tools that produce output SHOULD return structured results:
 
 ## Long-Running Commands
 
-See `windows-shell-safety` steering for Windows process rules.
-Linux/macOS: `nohup <command> > /tmp/output.log 2>&1 &`
+See [references/windows.md](references/windows.md) or [references/unix.md](references/unix.md) based on your OS.
 
 ## Tool Over Shell (strict)
 
