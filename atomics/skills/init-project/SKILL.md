@@ -22,10 +22,11 @@ Create these if they don't exist:
 1. **`.scratch/`** — ephemeral working notes
 2. **`.memory/CONTEXT.md`** — project glossary (empty template)
 3. **`.memory/adr/`** — architecture decision records
-4. **`AGENTS.md`** — project reference (project layout, commands, prompts)
-5. **`.crew-config.yaml`** — detected build/test/lint commands
-6. **`.gitignore`** entries — `.scratch/` and `references/`
-7. **`references/`** — directory for reference repos
+4. **`tools/`** — project scripts and automation (validation, extraction, deployment)
+5. **`AGENTS.md`** — project reference (project layout, commands, prompts)
+6. **`.crew-config.yaml`** — detected build/test/lint commands
+7. **`.gitignore`** entries — `.scratch/` and `references/`
+8. **`references/`** — directory for reference repos
 
 ## Auto-detect
 

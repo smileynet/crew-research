@@ -159,3 +159,15 @@ _Avoid_: post-mortem (that's after the fact), review (too vague)
 **Cross-skill linking**:
 Referencing one skill from another's workflow steps to trigger progressive loading of the referenced skill. Proposed mechanism for activating broad-applicability skills (ai-generation-hygiene, verification-protocol, diagrams) that fail direct description-based activation. Unvalidated — pending E15 experiment.
 _Avoid_: eager loading (always-on, different mechanism), skill composition (too vague)
+
+**Documentation**:
+User-facing content intended for humans to read (README.md, docs/, wikis, tutorials, changelogs).
+_Avoid_: using "docs" to mean agent guidance files
+
+**Guidance**:
+Agent-facing content that shapes AI behavior (AGENTS.md, steering, skills, .memory/, .scratch/).
+_Avoid_: using "documentation" for agent-loadable files
+
+**Tools directory** (`tools/`):
+Project scripts and CLI utilities that automate mechanical tasks — validation, extraction, formatting, deployment, data processing. Agents invoke these rather than reimplementing logic. Should follow the validation contract (JSON output, exit codes). Consider creating a tool when you find yourself repeatedly executing complex commands or writing one-off scripts.
+_Avoid_: "utilities", "scripts" (use `tools/` as the standard directory name across projects)
