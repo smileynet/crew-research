@@ -29,8 +29,8 @@ confidence: high | medium | low
 {2-3 sentence answer to the research question}
 
 ## Sources
-- [{title or description}]({url or file path}) — {one-line relevance note}
-- [{title or description}]({url or file path}) — {one-line relevance note}
+- [L{n}:{confidence}] [{title or description}]({url or file path}) — {relevance + evaluation note}
+- [L{n}:{confidence}] [{title or description}]({url or file path}) — {relevance + evaluation note}
 
 ## Related Topics
 - {topic} — {why it's related, what to explore next}
@@ -52,7 +52,7 @@ This is where the actual research lives.}
 
 ## Rules
 
-- **Sources are mandatory.** Every finding must trace to a source. No source = mark as unverified.
+- **Sources are mandatory and tagged.** Every finding must trace to a source with authority level and confidence (see source-authority steering). No source = mark as unverified.
 - **Related Topics capture the frontier.** What would you research NEXT? What adjacent areas did you notice?
 - **Related Tools are actionable.** Not "there are tools" — name them, say what they do.
 - **Summary answers the question first.** Reader gets value from the first 3 sentences.
@@ -76,7 +76,7 @@ Summary: Redis is preferred for our use case — it supports persistence,
 pub/sub, and complex data structures. Memcached is faster for simple
 key-value caching but lacks durability.
 
-Sources: 3 primary (Redis docs, AWS comparison, benchmark paper)
+Sources: [L4:verified] Redis docs, [L4:verified] AWS comparison, [L5:established] benchmark paper
 Open questions: 1 (cluster mode performance at our scale)
 ```
 

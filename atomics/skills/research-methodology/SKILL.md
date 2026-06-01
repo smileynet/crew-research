@@ -17,23 +17,25 @@ metadata:
 4. **Synthesize** — combine findings into a coherent answer with citations.
 5. **Gap** — explicitly state what you couldn't confirm or find.
 
-## Source Hierarchy
+## Source Evaluation
 
-| Priority | Source Type | Trust Level |
-|:--------:|------------|-------------|
-| 1 | Official docs, source code | High |
-| 2 | Peer-reviewed papers, RFCs | High |
-| 3 | Maintained wikis, reputable blogs | Medium |
-| 4 | Stack Overflow, forums | Low (verify) |
-| 5 | AI-generated summaries | Very low (always verify) |
+When assessing an unfamiliar source, apply these criteria to place it in the authority hierarchy (see source-authority steering):
+
+| Criterion | Question | Effect |
+|-----------|----------|--------|
+| **Accountability** | Named author/org with reputation at stake? | Anonymous → cap at L6 |
+| **Recency** | Updated within the domain's decay window? | Stale → downgrade confidence |
+| **Specificity** | Addresses your exact version/context? | Generic → note in relevance |
+| **Corroboration** | Do independent sources agree? | Single-source → cap at "reported" |
+| **Incentive** | Informing or selling? | Vendor marketing → note bias |
+| **Traction** | Stars, forks, dependents, citations? | Prioritize investigation order; evaluate fit independently |
 
 ## Rules
 
-- Every claim must cite a source (URL, file path, or command output)
-- If two sources conflict, report both with context
-- Never present speculation as finding — mark uncertainty explicitly
 - Check at least 3 sources before concluding
 - Prefer primary sources over summaries
+- Use traction signals to prioritize investigation order, not as quality verdicts
+- Tag all citations per source-authority steering: `[L{n}:{confidence}]`
 
 ## Output Format
 

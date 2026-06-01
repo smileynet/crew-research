@@ -5,6 +5,7 @@ steering:
   - ai-generation-hygiene
   - verification-protocol
   - project-conventions
+  - source-authority
 
 skills:
   - planning-cycles
