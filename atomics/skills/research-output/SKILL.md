@@ -52,7 +52,7 @@ This is where the actual research lives.}
 
 ## Rules
 
-- **Sources are mandatory and tagged.** Every finding must trace to a source with authority level and confidence (see source-authority steering). No source = mark as unverified.
+- **Sources are mandatory and tagged.** Every finding must trace to a source with authority level and confidence (see source-authority steering). Tag with `[L{n}:{confidence}]` when output will be consumed by other agents. Always include evaluation reasoning regardless of tag format.
 - **Related Topics capture the frontier.** What would you research NEXT? What adjacent areas did you notice?
 - **Related Tools are actionable.** Not "there are tools" — name them, say what they do.
 - **Summary answers the question first.** Reader gets value from the first 3 sentences.

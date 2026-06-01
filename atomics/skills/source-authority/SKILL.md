@@ -23,13 +23,14 @@ metadata:
 ## Conflict Resolution
 
 1. Same level → 1st-party wins
-2. Same level, same party → most recent wins
+2. Same level, same party → most recent wins (check last-updated dates; more specific page wins over general overview)
 3. Cross-level → higher level wins; note the conflict
 4. Level 1 vs Level 2 (IS vs SHOULD) → flag the gap — it's a bug, a spec update, or a documented divergence
+5. Multiple independent sources agreeing → elevates confidence, not authority level
 
-## Source Tags (use when citing)
+## Source Tags (use when citing in research outputs)
 
-Format: `[L{n}:{confidence}]`
+Format: `[L{n}:{confidence}]` — use in research findings, multi-agent handoffs, and documents other agents will consume. The hierarchy reasoning matters more than the tag syntax.
 
 ```
 - [L4:verified] [Redis Persistence](https://redis.io/docs/...) — official docs, confirmed for v7.2

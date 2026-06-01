@@ -46,6 +46,11 @@ BONUS (score 5): What excellence looks like.
 | "Should not do bad things" | "AUTOMATIC FAIL: Implements feature (scope is bugs only)" |
 | Testing routing + style in one eval | Separate eval per concern |
 | No ideal on routing eval | Ideal showing correct delegation |
+| Scoring vocabulary over reasoning | Score correct resolution regardless of terminology used |
+
+## Scoring Principle
+
+Score reasoning quality, not vocabulary. An agent that correctly resolves a source conflict using natural language ("official docs beat community answers because the maintainers control the source") should score the same as one using formal framework terms ("L4 > L6"). The framework makes reasoning visible; the reasoning is what matters.
 
 ## Naming Convention
 
