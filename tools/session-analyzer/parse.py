@@ -201,6 +201,104 @@ def normalize_command(cmd):
     # Truncate long commands
     return first[:80]
 
+def temporal_analysis(conversations, days):
+    """Split metrics by time to detect intra-session learning and cross-session improvement."""
+    if not conversations:
+        return {}
+
+    # --- Intra-session: first half vs second half of each conversation ---
+    intra_shell_first_half = Counter()
+    intra_shell_second_half = Counter()
+    intra_inline_python = {"first_half": 0, "second_half": 0}
+    intra_sleep = {"first_half": 0, "second_half": 0}
+    intra_blocking = {"first_half": 0, "second_half": 0}
+
+    for c in conversations:
+        cmds = c["shell_commands"]
+        if len(cmds) < 4:
+            continue
+        mid = len(cmds) // 2
+        first, second = cmds[:mid], cmds[mid:]
+
+        for cmd in first:
+            n = normalize_command(cmd)
+            intra_shell_first_half[n] += 1
+            if "python" in cmd.lower() and "-c" in cmd:
+                intra_inline_python["first_half"] += 1
+            if "Start-Sleep" in cmd:
+                intra_sleep["first_half"] += 1
+            if "Start-Process" in cmd and ("-NoNewWindow" in cmd or "-RedirectStandard" in cmd):
+                intra_blocking["first_half"] += 1
+
+        for cmd in second:
+            n = normalize_command(cmd)
+            intra_shell_second_half[n] += 1
+            if "python" in cmd.lower() and "-c" in cmd:
+                intra_inline_python["second_half"] += 1
+            if "Start-Sleep" in cmd:
+                intra_sleep["second_half"] += 1
+            if "Start-Process" in cmd and ("-NoNewWindow" in cmd or "-RedirectStandard" in cmd):
+                intra_blocking["second_half"] += 1
+
+    # --- Cross-session: split by day ---
+    # Sort conversations by file modification time
+    sorted_convos = sorted(conversations, key=lambda c: Path(c["file"]).stat().st_mtime)
+    mid_idx = len(sorted_convos) // 2
+    first_period = sorted_convos[:mid_idx]
+    second_period = sorted_convos[mid_idx:]
+
+    def period_metrics(convos):
+        shell_total = sum(len(c["shell_commands"]) for c in convos)
+        inline_py = sum(1 for c in convos for cmd in c["shell_commands"]
+                       if "python" in cmd.lower() and "-c" in cmd)
+        sleeps = sum(1 for c in convos for cmd in c["shell_commands"]
+                    if "Start-Sleep" in cmd)
+        blocking = sum(1 for c in convos for cmd in c["shell_commands"]
+                      if "Start-Process" in cmd and
+                      ("-NoNewWindow" in cmd or "-RedirectStandard" in cmd))
+        tool_reuse = sum(1 for c in convos for cmd in c["shell_commands"]
+                        if "tools/" in cmd or "tools\\" in cmd)
+        return {
+            "conversations": len(convos),
+            "shell_commands": shell_total,
+            "inline_python": inline_py,
+            "start_sleep": sleeps,
+            "blocking_start_process": blocking,
+            "tool_reuse": tool_reuse,
+        }
+
+    return {
+        "intra_session": {
+            "description": "First half vs second half of each conversation's shell commands",
+            "inline_python": intra_inline_python,
+            "start_sleep": intra_sleep,
+            "blocking_start_process": intra_blocking,
+            "learning_signal": {
+                "inline_python_reduction": round(
+                    1 - (intra_inline_python["second_half"] / max(intra_inline_python["first_half"], 1)), 2),
+                "sleep_reduction": round(
+                    1 - (intra_sleep["second_half"] / max(intra_sleep["first_half"], 1)), 2),
+            }
+        },
+        "cross_session": {
+            "description": f"First {mid_idx} conversations vs last {len(sorted_convos) - mid_idx} conversations",
+            "first_period": period_metrics(first_period),
+            "second_period": period_metrics(second_period),
+            "improvement_signals": {
+                "inline_python_per_convo_change": round(
+                    (period_metrics(second_period)["inline_python"] / max(len(second_period), 1)) -
+                    (period_metrics(first_period)["inline_python"] / max(len(first_period), 1)), 2),
+                "sleep_per_convo_change": round(
+                    (period_metrics(second_period)["start_sleep"] / max(len(second_period), 1)) -
+                    (period_metrics(first_period)["start_sleep"] / max(len(first_period), 1)), 2),
+                "tool_reuse_per_convo_change": round(
+                    (period_metrics(second_period)["tool_reuse"] / max(len(second_period), 1)) -
+                    (period_metrics(first_period)["tool_reuse"] / max(len(first_period), 1)), 2),
+            }
+        }
+    }
+
+
 def main():
     days, output_path = parse_args()
     print(f"Scanning sessions from last {days} days...", file=sys.stderr)
@@ -216,6 +314,7 @@ def main():
 
     summary = aggregate(conversations)
     summary["period_days"] = days
+    summary["temporal"] = temporal_analysis(conversations, days)
     summary["status"] = "pass"
 
     result = json.dumps(summary, indent=2, default=str)
