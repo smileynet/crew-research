@@ -171,3 +171,16 @@ _Avoid_: using "documentation" for agent-loadable files
 **Tools directory** (`tools/`):
 Project scripts and CLI utilities that automate mechanical tasks — validation, extraction, formatting, deployment, data processing. Agents invoke these rather than reimplementing logic. Should follow the validation contract (JSON output, exit codes). Consider creating a tool when you find yourself repeatedly executing complex commands or writing one-off scripts.
 _Avoid_: "utilities", "scripts" (use `tools/` as the standard directory name across projects)
+
+
+**Session review**:
+Periodic analysis of kiro-cli session transcripts to assess agent performance, identify steering/skill gaps, and surface tool candidates. Uses quantitative parsing + subagent fanout for comprehensive coverage.
+_Avoid_: post-mortem (that's for incidents), retrospective (that's for teams)
+
+**Research budget**:
+Cap on web searches per research question (8-10). Prevents diminishing-returns search sprawl. Stop after 3 consecutive empty results.
+_Avoid_: search limit (too generic)
+
+**Promotion** (artifact lifecycle):
+Moving an artifact from ephemeral (`.scratch/`) to durable (`.memory/`) when it has lasting value. Triggered during handoff. Opposite of "scratch stays scratch."
+_Avoid_: archiving (implies cold storage)

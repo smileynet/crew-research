@@ -37,6 +37,13 @@ When assessing an unfamiliar source, apply these criteria to place it in the aut
 - Use traction signals to prioritize investigation order, not as quality verdicts
 - Tag all citations per source-authority steering: `[L{n}:{confidence}]`
 
+## Budget
+
+- Cap at 8-10 web searches per research question
+- After 3 consecutive searches returning no new information, stop and synthesize
+- Prefer cloning repos (`--depth 1` to `.scratch/references/`) over fetching individual files via HTTP
+- State gaps explicitly rather than searching indefinitely
+
 ## Output Format
 
 ```

@@ -61,46 +61,22 @@ Scripts and tools that produce output SHOULD return structured results:
 
 ## Long-Running Commands
 
-When a command may take >15 seconds (builds, tests, installs, data processing):
+See `windows-shell-safety` steering for Windows process rules.
+Linux/macOS: `nohup <command> > /tmp/output.log 2>&1 &`
 
-### Windows (PowerShell)
+## Tool Over Shell (strict)
 
-```powershell
-# LAUNCH: fire-and-forget with log capture (returns immediately)
-Start-Process -WindowStyle Hidden -FilePath "pwsh" -ArgumentList "-c", "<command>" -RedirectStandardOutput "$env:TEMP\task-output.log" -RedirectStandardError "$env:TEMP\task-error.log"
+- NEVER write file content via shell (heredocs, echo, Out-File, Set-Content). Use the write tool.
+- NEVER check file existence via shell (Test-Path). Use read or glob.
+- The write tool creates parent directories automatically — don't mkdir first.
+- Reserve shell for: git, build commands, process management, and commands with no tool equivalent.
 
-# OBSERVE (separate command, after sleeping):
-Start-Sleep 15
-Get-Content "$env:TEMP\task-output.log" -Tail 20
-Get-Content "$env:TEMP\task-error.log" -Tail 20
-```
+## Autonomy Within Plans
 
-**Anti-patterns (NEVER do these):**
-- `Start-Process -NoNewWindow -RedirectStandardOutput` — **BLOCKS** until child exits. The child shares the parent console and pipe handles prevent return.
-- Wrapping `Start-Process` inside `pwsh -File` or `pwsh -Command` — nested shell waits for its children, blocking the agent.
+Once a plan is agreed, execute sequential steps without pausing unless:
+- A step failed and needs user input
+- A decision point not covered by the plan arises
+- The action is high-risk per safety guardrails
 
-**Why `-WindowStyle Hidden` works:** Creates a separate hidden console window. The child process is fully detached from the parent's console handles, so the parent returns immediately.
-
-**How to observe:**
-- `Get-Content "$env:TEMP\task-output.log" -Tail 20` — check progress
-- `(Get-Item "$env:TEMP\task-output.log").Length` — is output growing?
-- `netstat -ano | findstr ":PORT.*LISTENING"` — check if server is up
-
-### Linux/macOS (bash)
-
-```bash
-nohup <command> > /tmp/task-output.log 2>&1 &
-while kill -0 $! 2>/dev/null; do sleep 5; done
-tail -50 /tmp/task-output.log
-```
-
-### When to use
-
-- Package installs (`npm install`, `pip install`, `cargo build`)
-- Test suites that take >15s
-- Data processing scripts
-- Starting services (ComfyUI, dev servers, etc.)
-- Any command where timeout is a risk
-
-**Report when done:** read the log, summarize outcome (pass/fail/output), clean up the log file.
+Do not ask "shall I proceed?" between planned steps.
 

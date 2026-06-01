@@ -6,6 +6,7 @@ steering:
   - verification-protocol
   - project-conventions
   - source-authority
+  - windows-shell-safety
 
 skills:
   - planning-cycles

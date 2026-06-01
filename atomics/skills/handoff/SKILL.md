@@ -55,3 +55,14 @@ Before writing, verify:
 - Could someone with NO context continue from this handoff?
 - Are next steps actionable (not "finish the work")?
 - Are file paths accurate (not guessed)?
+
+## Promotion Check
+
+Before finalizing, review the session for promotable artifacts:
+
+1. **CONTEXT.md** — were any terms resolved or clarified? Add them now.
+2. **ADRs** — were any hard-to-reverse decisions made? (tool choices, architecture, process changes) → write `.memory/adr/NNNN-slug.md`
+3. **`.memory/` promotion** — are there `.scratch/` artifacts that future sessions will need? (methodologies, baselines, specs) → move to `.memory/specs/`
+4. **Dead scratch** — any `.scratch/` files that are now obsolete? Note for cleanup.
+
+Don't batch these — capture before writing the handoff.

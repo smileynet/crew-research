@@ -51,4 +51,13 @@ Unrelated changes = scope violation. Revert or split.
 Evidence: [command] → [output summary proving correctness]
 ```
 
+## strReplace Recovery
+
+After strReplace failure ("oldStr not found"):
+1. Re-read the target file immediately
+2. Find the actual content that needs changing
+3. Only then retry with corrected oldStr
+
+Never retry strReplace without re-reading first. After 2 failures on the same file, read it fully and diagnose.
+
 For detailed check commands per project, see [references/project-checks.md](references/project-checks.md).
