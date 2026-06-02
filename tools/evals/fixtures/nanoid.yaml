@@ -1,0 +1,14 @@
+repo: https://github.com/ai/nanoid.git
+commit: main
+install: npm install
+test: npx vitest run
+build: npm run build
+language: typescript
+framework: vitest
+loc: ~500
+test_count: ~30
+description: >
+  Tiny, secure, URL-friendly unique string ID generator.
+  Deliberately minimal — interesting for DECISIONS (why so small,
+  crypto vs Math.random, alphabet choices) and CONVENTIONS (ESM-first,
+  no dependencies). Good contrast to complex repos.

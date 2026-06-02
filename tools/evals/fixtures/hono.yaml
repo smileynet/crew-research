@@ -1,0 +1,14 @@
+repo: https://github.com/honojs/hono.git
+commit: main
+install: npm install
+test: npx vitest run
+build: npx tsup
+language: typescript
+framework: vitest
+loc: ~15000
+test_count: ~500
+description: >
+  Ultrafast web framework for Cloudflare Workers, Deno, Bun, and Node.js.
+  Multi-runtime, middleware architecture, routing patterns, context object.
+  Good for testing architectural analysis — real tradeoffs between runtimes,
+  middleware design, routing strategies. Rich conventions and prior art.

@@ -1,0 +1,14 @@
+repo: https://github.com/colinhacks/zod.git
+commit: main
+install: npm install
+test: npx vitest run
+build: npx tsup
+language: typescript
+framework: vitest
+loc: ~8000
+test_count: ~1000
+description: >
+  TypeScript-first schema validation with static type inference.
+  Single-file core with complex type gymnastics. Rich design decisions
+  (builder pattern, lazy evaluation, branded types). Good for testing
+  "non-obvious" and "decisions and tradeoffs" keyword effectiveness.

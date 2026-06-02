@@ -1,0 +1,82 @@
+question: "Do specific keywords in prompts produce measurably different codebase analysis than generic synonyms?"
+experiment: keyword-vs-synonym-analysis
+category: prompt-engineering
+fixture: zod
+
+conditions:
+  - name: keywords
+    skills: []
+    prompt_prefix: ""
+  - name: synonyms
+    skills: []
+    prompt_prefix: ""
+
+tasks:
+  - name: keyword-analysis
+    input: |
+      Analyze the project/ directory codebase. For each of the following dimensions, produce findings:
+      1. JTBD — what user problems does this solve?
+      2. Decisions and tradeoffs — what architectural choices were made and why?
+      3. Non-obvious — what hidden complexity or gotchas exist?
+      4. Prior art — what known patterns or techniques does this use?
+      5. Audience — who is the expected user and what do they need to know?
+      6. Conventions — what local rules or deviations from standard exist?
+
+  - name: synonym-analysis
+    input: |
+      Analyze the project/ directory codebase. For each of the following dimensions, produce findings:
+      1. Purpose — what does this project do?
+      2. Architecture — how is the code structured?
+      3. Complexity — what are the complicated parts?
+      4. Patterns — what design patterns are used?
+      5. Users — who uses this?
+      6. Style — what coding style is followed?
+
+  - name: keyword-open-ended
+    input: |
+      You're exploring the project/ directory for the first time. Produce a comprehensive analysis covering: JTBD, decisions and tradeoffs, non-obvious gotchas, prior art, audience, and conventions.
+
+  - name: synonym-open-ended
+    input: |
+      You're exploring the project/ directory for the first time. Produce a comprehensive overview covering: purpose, architecture, complexity, patterns, users, and coding style.
+
+metrics:
+  - depth_score
+  - actionability_score
+  - insight_novelty
+  - total_tokens
+  - tool_use_count
+  - files_read
+
+judge_criteria:
+  depth: |
+    Rate 1-5: How deep does the analysis go beyond surface-level observations?
+    1: Only restates what's obvious from file names and README.
+    3: Reads source code and identifies structural patterns.
+    5: Surfaces non-obvious interactions, edge cases, design tensions, or historical constraints.
+
+  actionability: |
+    Rate 1-5: Could a new contributor ACT on these findings?
+    1: Abstract descriptions ("it's well-structured") with no specific guidance.
+    3: Names specific files and patterns but doesn't explain implications.
+    5: Identifies specific gotchas, explains WHY decisions were made, names what to watch out for when modifying.
+
+  insight_novelty: |
+    Rate 1-5: Does the analysis surface things you wouldn't get from just reading the README?
+    1: Essentially paraphrases the README.
+    3: Goes beyond README but stays at code-structure level.
+    5: Reveals design philosophy, hidden constraints, non-obvious coupling, or tradeoffs not documented anywhere.
+
+  why_reasoning: |
+    Rate 1-5: Does the analysis explain WHY, not just WHAT?
+    1: Only describes what exists ("uses TypeScript", "has tests").
+    3: Occasionally explains rationale for choices.
+    5: Consistently explains the reasoning behind decisions, names what was traded off, identifies what alternatives were likely considered.
+
+acceptance_criteria: |
+  - Keyword prompts produce higher depth scores than synonym prompts
+  - Keyword prompts produce higher actionability scores
+  - "Non-obvious" keyword specifically increases insight_novelty
+  - "Decisions and tradeoffs" keyword specifically increases why_reasoning
+  - Token usage is comparable (keywords don't just produce more verbose output)
+  - Delta is meaningful (≥0.5 average across dimensions)

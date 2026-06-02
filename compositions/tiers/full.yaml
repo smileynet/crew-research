@@ -6,6 +6,7 @@ steering:
   - verification-protocol
   - project-conventions
   - source-authority
+  - context-budget-awareness
 
 skills:
   - project-conventions

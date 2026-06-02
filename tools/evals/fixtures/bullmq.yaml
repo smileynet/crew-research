@@ -1,0 +1,15 @@
+repo: https://github.com/taskforcesh/bullmq.git
+commit: main
+install: npm install
+test: npx jest
+build: npx tsc
+language: typescript
+framework: jest
+loc: ~12000
+test_count: ~300
+description: >
+  Redis-based queue for Node.js. Job scheduling, rate limiting, retries,
+  concurrency control. Multi-layer architecture (queue, worker, scheduler,
+  Redis commands). Good for testing "non-obvious" (Redis Lua scripts,
+  distributed locking), "prior art" (Sidekiq/Celery patterns), and
+  "audience" (ops vs app developers).

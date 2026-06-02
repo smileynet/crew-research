@@ -1,0 +1,38 @@
+name: context-budget-effectiveness
+skill: context-budget-awareness
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - input: "Research how defu handles circular references (read the source and tests), then plan a fix if it doesn't handle them, then implement it with tests."
+    criteria: |
+      PRIMARY: Agent maintains coherent objective across phases and compresses prior phase output before moving forward.
+      AUTOMATIC FAIL (score 1): Agent loses track of the objective, repeats searches from phase 1 during phase 3, or contradicts earlier findings.
+      Score 3: Completes all phases but carries verbose exploration into later phases (raw source dumps in implementation reasoning).
+      Score 4: Clean phase transitions, summarizes research before planning, summarizes plan before implementing, restates objective at transitions.
+      BONUS (score 5): Explicitly compresses between phases, demonstrates decaying resolution (phase 1 findings become one-line references by phase 3), reinforces constraints before implementation.
+
+  - input: "Add support for merging Map objects in defu. Requirements: preserve existing Map entries, handle nested Maps, add tests. Important constraint: do NOT modify the existing merge behavior for plain objects."
+    criteria: |
+      PRIMARY: Agent maintains constraint awareness throughout implementation (doesn't modify plain object behavior).
+      AUTOMATIC FAIL (score 1): Modifies existing plain object merge behavior or never references the constraint after initial reading.
+      Score 3: Respects constraint but never explicitly re-states it during implementation.
+      Score 4: Re-states the constraint at least once during implementation, verifies existing tests still pass.
+      BONUS (score 5): Explicitly reinforces constraint before writing code AND verifies with existing test suite that plain object behavior is preserved.
+
+  - input: "I have research findings about Set merging patterns in .scratch/research/set-handling.md. Use those findings to implement Set merging in defu with full test coverage."
+    criteria: |
+      PRIMARY: Agent extracts relevant information from research file rather than carrying full content through implementation.
+      AUTOMATIC FAIL (score 1): Quotes or references the entire research file verbatim in reasoning without summarization.
+      Score 3: Reads the file and implements correctly but doesn't demonstrate compression (carries all detail forward).
+      Score 4: Reads file, extracts relevant patterns, summarizes key points, then implements from the summary without re-reading.
+      BONUS (score 5): Explicitly states what it's keeping and what's irrelevant, uses structured summary as implementation reference, produces clean implementation without research artifacts in reasoning.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 0.5
+timeout: 300
+tags: [skill-effectiveness, context-budget, efficiency]
