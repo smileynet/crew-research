@@ -52,46 +52,9 @@ State confidence: High (documented) / Medium (works but undocumented) / Low (inf
 
 When a question requires empirical validation (not answerable by docs/research alone):
 
-1. Propose the spike: state the hypothesis, method, and time-box
-2. Ask: "This needs a spike. Run now (parallel session) or queue for after?"
-3. Write dispatch doc to `.scratch/spikes/{slug}.md`:
+**Subagent spike** (answerable in minutes): dispatch a subagent with the question, method, and expected return format. Incorporate results immediately.
 
-```markdown
----
-type: spike
-status: pending
-parent: grill-with-docs
-question: "Does X actually work when Y?"
-return_to: .scratch/spikes/{slug}-results.md
----
-
-# Spike: {title}
-
-## Question
-{The specific question this spike answers}
-
-## Hypothesis
-{What we expect to find}
-
-## Method
-{Steps to execute — specific, actionable}
-
-## Constraints
-- Time-box: {duration}
-- Scope: {what's in/out}
-
-## Return Format
-Write results to `.scratch/spikes/{slug}-results.md`:
-- **Verdict**: confirmed / refuted / inconclusive
-- **Evidence**: what you observed
-- **Implications**: how this affects the design decision
-
-## Context
-{Relevant files, prior decisions, constraints}
-```
-
-4. If `.scratch/spikes/{slug}-results.md` exists, read and incorporate into the decision
-5. Track in decision table with confidence "Pending spike" until results arrive
+**Prototype dispatch** (needs its own session/context budget): see [references/prototype-dispatch.md](references/prototype-dispatch.md) for the full handoff template.
 
 ## Domain Awareness
 
