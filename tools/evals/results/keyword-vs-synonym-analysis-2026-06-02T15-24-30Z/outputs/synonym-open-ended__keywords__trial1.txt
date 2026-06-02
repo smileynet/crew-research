@@ -1,0 +1,177 @@
+I'll share my reasoning process (using tool: thinking): The user wants a comprehensive overview of the project in /tmp/qualexp-EZdR/project/. I already have some context from AGENTS.md and README.md - this is the Zod project (TypeScript-first schema validation). Let me explore the directory structure to get a full picture.
+ - Completed in 0.0s
+
+Reading directory: /tmp/qualexp-EZdR/project (using tool: read, max depth: 2, max entries: 200, excluding: defaults)Reading file: /tmp/qualexp-EZdR/project/package.json, all lines (using tool: read)
+ ✓ Successfully read directory /tmp/qualexp-EZdR/project (showing 200 of 207 entries, offset: 0)
+ - Completed in 0.9s
+
+
+ ✓ Successfully read 2774 bytes from /tmp/qualexp-EZdR/project/package.json
+ - Completed in 0.0s
+
+Reading directory: /tmp/qualexp-EZdR/project/packages/zod/src (using tool: read, max depth: 2, max entries: 150, excluding: defaults)Reading file: /tmp/qualexp-EZdR/project/packages/zod/package.json, all lines (using tool: read)Reading file: /tmp/qualexp-EZdR/project/pnpm-workspace.yaml, all lines (using tool: read)
+ ✓ Successfully read directory /tmp/qualexp-EZdR/project/packages/zod/src (showing 150 of 193 entries, offset: 0)
+ - Completed in 0.5s
+
+
+ ✓ Successfully read 3795 bytes from /tmp/qualexp-EZdR/project/packages/zod/package.json
+ - Completed in 0.0s
+
+
+ ✓ Successfully read 111 bytes from /tmp/qualexp-EZdR/project/pnpm-workspace.yaml
+ - Completed in 0.0s
+
+Reading file: /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/schemas.ts, from line 1 to 80 (using tool: read)Reading file: /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/util.ts, from line 1 to 60 (using tool: read)Reading file: /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/parse.ts, from line 1 to 60 (using tool: read)
+ ✓ Successfully read 2474 bytes from /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/schemas.ts
+ - Completed in 0.1s
+
+
+ ✓ Successfully read 1613 bytes from /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/util.ts
+ - Completed in 0.0s
+
+
+ ✓ Successfully read 2464 bytes from /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/parse.ts
+ - Completed in 0.0s
+
+Reading file: /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/core.ts, from line 1 to 100 (using tool: read)Reading file: /tmp/qualexp-EZdR/project/vitest.config.ts, all lines (using tool: read)Reading file: /tmp/qualexp-EZdR/project/biome.jsonc, all lines (using tool: read)
+ ✓ Successfully read 3065 bytes from /tmp/qualexp-EZdR/project/packages/zod/src/v4/core/core.ts
+ - Completed in 0.0s
+
+
+ ✓ Successfully read 853 bytes from /tmp/qualexp-EZdR/project/vitest.config.ts
+ - Completed in 0.0s
+
+
+ ✓ Successfully read 1829 bytes from /tmp/qualexp-EZdR/project/biome.jsonc
+ - Completed in 0.0s
+
+I'll share my reasoning process (using tool: thinking): I now have a solid picture of the project. Let me compile the overview.
+ - Completed in 0.0s
+
+> ## Project Overview: Zod
+
+Repository: github.com/colinhacks/zod  
+Version: 4.4.3 (current)  
+Author: Colin McDonnell  
+License: MIT
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Purpose
+
+Zod is a TypeScript-first schema validation library. You define declarative schemas, parse untrusted data against them, and get back strongly-typed, validated results with static type inference via z.infer<>. Zero runtime dependencies, works in Node.js + all modern browsers. The 2kb gzipped core makes it viable in bundle-sensitive contexts.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Architecture
+
+### Monorepo structure (pnpm workspaces)
+
+| Package | Role |
+|---------|------|
+| packages/zod | The library itself — all source, tests, and build config |
+| packages/docs | Next.js documentation site (zod.dev) |
+| packages/docs-v3 | Legacy v3 documentation (single-page README style) |
+| packages/bench | Performance benchmarks (mitata, tinybench) vs arktype and itself |
+| packages/tsc | TypeScript compiler performance testing (type-check speed) |
+| packages/resolution | Module resolution correctness tests (CJS/ESM/types) |
+| packages/integration | Integration test fixtures |
+| packages/treeshake | Tree-shaking analysis vs valibot/zod3 |
+
+### Core package layout (packages/zod/src/)
+
+src/
+├── index.ts          → default export (re-exports v4/classic)
+├── mini/             → "zod/mini" thin entry point
+├── locales/          → locale re-exports
+├── v3/               → full Zod v3 codebase (maintained for compat)
+│   ├── types.ts      → 160KB monolithic schema file
+│   └── tests/
+├── v4/               → current engine
+│   ├── core/         → shared validation kernel
+│   │   ├── schemas.ts    (148KB — all schema type definitions & `_zod.run` logic)
+│   │   ├── api.ts        (55KB — builder/helper types)
+│   │   ├── checks.ts     (38KB — string/number/date format validators)
+│   │   ├── util.ts       (30KB — utilities, type helpers)
+│   │   ├── errors.ts     (14KB — issue types and formatting)
+│   │   ├── parse.ts      (8KB — parse/safeParse/parseAsync)
+│   │   ├── to-json-schema.ts, json-schema-*.ts — JSON Schema output
+│   │   ├── regexes.ts    — compiled regex patterns
+│   │   └── core.ts       — $constructor, config, brands
+│   ├── classic/      → full-featured API surface (chainable methods)
+│   │   ├── schemas.ts    (97KB — wraps core schemas with method API)
+│   │   ├── from-json-schema.ts — JSON Schema → Zod conversion
+│   │   └── tests/
+│   ├── mini/         → tree-shake-optimized functional API
+│   │   ├── schemas.ts    (61KB)
+│   │   └── tests/
+│   └── locales/      → 40+ locale translations (en, fr, ja, zh-CN, etc.)
+└── v4-mini/          → "zod/v4-mini" entry point
+
+
+### Layered design
+
+1. Core (v4/core) — schema definitions, runtime validation logic (_zod.run), error types, JSON Schema interop. Framework-agnostic internals.
+2. Classic (v4/classic) — chainable OOP API that most users see (z.string().min(5).email()). Wraps core with method chaining, coercion helpers, and parse utilities.
+3. Mini (v4/mini) — same core engine, but exposed as standalone functions (z.string(), z.pipe(...)) for better tree-shaking. No prototype methods.
+
+### Key design patterns
+
+- **Trait-based inheritance** — $constructor() creates schema "classes" using a trait system (_zod.traits Set) rather than classical inheritance. Symbol.hasInstance overrides enable instanceof checks against traits.
+- **Single-pass parsing** — schemas implement _zod.run(payload, ctx) which mutates a ParsePayload (value + issues array). Synchronous by default; returns a Promise only when async refinements are involved.
+- **Immutable public API** — every method returns a new schema instance (e.g., .optional() wraps in $ZodOptional).
+- **Conditional exports** — the @zod/source condition lets development tooling (tsx, vitest) resolve directly to .ts source without building.
+- **util.defineLazy()** — deferred property initialization to break circular dependencies between schema types.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Complexity
+
+- **Large** — the core schemas.ts alone is ~148KB / ~4000 lines. The classic wrapper adds another 97KB. The v3 compat layer (types.ts) is 160KB.
+- **Deep type-level programming** — heavy use of conditional types, mapped types, infer, template literal types. The TypeScript complexity is at least as significant as the runtime complexity.
+- **40+ locales** — each with ~4–11KB of error message templates.
+- **Dual API surface** — classic (OOP) and mini (functional) must stay in sync feature-wise.
+- **v3 compat maintained** — the entire Zod 3 codebase lives alongside v4, exported as zod/v3.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Patterns
+
+| Pattern | How it's used |
+|---------|--------------|
+| Monomorphic hot paths | Parameter reassignment explicitly allowed (biome noParameterAssign: off); performance-critical parse loops avoid allocations |
+| /*@__PURE__*/ / /*@__NO_SIDE_EFFECTS__*/ | Extensive tree-shaking annotations |
+| Discriminated unions | Schema types use def.type string literal discriminant |
+| Standard Schema v1 | Implements the emerging StandardSchemaV1 interface for interop |
+| JSON Schema bidirectional | Both toJsonSchema() and fromJsonSchema() |
+| Registry pattern | Named schema registries for metadata/doc attachment |
+| JIT union matching | Discriminated unions get a fast-path compiled matcher |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Users / Audience
+
+- **Primary:** TypeScript developers who want runtime validation with zero-cost type inference. Full-stack, API boundaries, form validation, config parsing.
+- **Ecosystem:** Huge — adapters for React Hook Form, tRPC, Drizzle, Hono, Next.js, etc.
+- **Library authors:** zod/mini targets library authors who need minimal bundle impact.
+- **npm:** Millions of weekly downloads. Top-tier open source project.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+## Coding Style
+
+- **TypeScript throughout** — no JavaScript source files
+- **ES modules** — "type": "module" everywhere; CJS output generated by build only
+- **Biome** for linting/formatting — 2-space indent, 120 char line width, ES5 trailing commas
+- **Vitest** for tests with full typecheck enabled (checker: "tsc")
+- **Naming:** $-prefixed types/classes for internal/low-level constructs ($ZodString, $ZodType). Public API uses unprefixed names (z.string(), ZodError).
+- **No JSDoc clutter** — minimal comments; types speak for themselves
+- **Performance-first tradeoffs** — mutable payload objects during parse, parameter reassignment, manual loop unrolling in hot paths
+- **Husky hooks** — pre-commit runs biome (format + lint), pre-push runs full vitest suite
+- **play.ts** at workspace root for quick experimentation via pnpm dev:play
