@@ -31,6 +31,8 @@ For each existing file that crew-research would replace:
 3. Note existing prompts that overlap with crew-research (@handoff, @grill-with-docs, etc.)
 4. Identify unique prompts worth preserving
 5. Check for any "always do X" or "never do Y" instructions
+6. Surface non-obvious gotchas — runtime surprises, deployment quirks, things not documented
+7. Identify conventions — local rules that deviate from standard practice (naming, file placement, workflow)
 
 Write captured instructions to `.memory/project-specific-rules.md`.
 

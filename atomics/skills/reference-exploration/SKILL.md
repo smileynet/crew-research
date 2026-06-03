@@ -25,16 +25,24 @@ type: reference-exploration
 
 # {Repo/Tool Name}
 
-## Purpose
-{What this does in 2-3 sentences. What problem it solves.}
+## JTBD
+{What user problems this solves — situations, not features.}
 
-## Key Dependencies
-- {dependency} — {what role it plays}
-- {dependency} — {why it's needed}
+## Decisions and Tradeoffs
+{Key architectural choices. What was chosen, what was sacrificed, why.}
 
-## Architecture / Patterns
-- {Pattern observed} — {where and why}
-- {Convention used} — {how it's applied}
+## Non-obvious
+{Gotchas, edge cases, hidden complexity, failure modes, subtle interactions.
+This is the highest-value section — be specific and cite file paths.}
+
+## Prior Art
+{Known patterns implemented. Deviations from standard approaches. Influences.}
+
+## Audience
+{Who uses this. Knowledge level assumed. Different audiences for different layers.}
+
+## Conventions
+{Local rules. Naming patterns. Style deviations. Internal protocols.}
 
 ## Interface Surfaces
 - **CLI**: {commands, flags, entry points}
@@ -42,20 +50,13 @@ type: reference-exploration
 - **Config**: {config files, env vars, settings}
 - **Extension points**: {plugins, hooks, adapters}
 
-## Notable Implementation Details
-{Anything surprising, clever, or important to understand.
-Not a full code review — just what someone would need to know
-to use, extend, or integrate with this.}
-
 ## Recommendations
 
 ### Research Topics
 - {Topic to investigate further} — {why it matters}
-- {Adjacent area} — {connection to our work}
 
 ### Testing Spikes
 - {What to test} — {hypothesis to validate}
-- {Integration to try} — {what it would prove}
 
 ### Adoption Considerations
 - {Pros of adopting/using this}
@@ -69,24 +70,16 @@ When dispatched by a lead to explore a reference:
 
 1. **Write output to file** at `{{params.output_path}}/{repo-slug}.md`
 2. **Return a brief summary** to the orchestrator:
-   - Purpose (1 sentence)
-   - Key finding (1 sentence)
+   - JTBD (1 sentence)
+   - Key non-obvious finding (1 sentence)
    - Top recommendation (1 sentence)
    - File path for full details
 3. **Do NOT return the full analysis inline** — file is the deliverable
-
-Example response to orchestrator:
-```
-Exploration complete. Written to .scratch/research/fastify-cli.md
-
-Purpose: CLI scaffolding tool for Fastify projects.
-Key finding: Uses a plugin architecture with decorators — similar to our adapter pattern.
-Recommendation: Spike whether their plugin loader could replace our manual adapter registration.
-```
 
 ## Rules
 
 - Explore breadth-first (README, structure, entry points), then depth on interesting areas
 - Cite file paths for every claim (e.g., "src/router.ts:42")
 - Don't read every file — focus on public interfaces and architecture
+- Non-obvious section gets the most attention — surface what a README won't tell you
 - Flag anything that contradicts our assumptions

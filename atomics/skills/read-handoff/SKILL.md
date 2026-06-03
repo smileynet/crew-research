@@ -30,6 +30,7 @@ Orient yourself to continue work from where the last session left off.
 4. **Constraints** — especially tool prerequisites
 5. **What was tried** — acknowledge dead ends
 6. **First 1-2 next steps** you would take
+7. **Non-obvious** — any gotchas, environmental quirks, or constraints not captured in the handoff itself
 
 ## Verify Before Acting
 

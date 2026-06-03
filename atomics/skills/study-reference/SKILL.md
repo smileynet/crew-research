@@ -17,7 +17,7 @@ Check if `.memory/{name}-reference.md` already exists with a `studied_at` frontm
 
 Dispatch a subagent to explore the repo/tool and write a reference doc to `.memory/`:
 
-**Output format: `.memory/{name}-reference.md`**
+**Output: `.memory/{name}-reference.md`**
 ```markdown
 ---
 studied_at: {ISO 8601 timestamp}
@@ -25,22 +25,22 @@ source: references/{name}
 ---
 ```
 
-**Output: `.memory/{name}-reference.md`**
-- **Purpose** — what it does, what problem it solves
-- **Usage** — how to invoke/use it (commands, API, key patterns)
-- **Architecture** — how it's structured (key files, entry points, data flow)
-- **Novel Patterns** — techniques worth adopting (things we haven't seen before)
-- **Anti-patterns** — things it does that we should avoid or do differently
-- **Integration Points** — how it connects to our project
+Analyze along these dimensions:
+
+1. **JTBD** — what user problems does this solve? (situations, not features)
+2. **Decisions and tradeoffs** — what was chosen, what was traded off, why?
+3. **Non-obvious** — gotchas, edge cases, hidden complexity, failure modes, subtle interactions
+4. **Prior art** — what known patterns does this implement or deviate from?
+5. **Audience** — who uses this, what do they need to know, at what abstraction level?
+6. **Conventions** — local rules, naming, deviations from standard practice
+7. **Integration points** — how it connects to our project
 
 ## Phase 2: Distill
 
 Review the reference doc and identify what should become project guidance:
 
 - **Steering candidates** — behavioral rules that apply every turn
-  (e.g., "always use X pattern when doing Y" → `.kiro/steering/`)
 - **Skill candidates** — on-demand knowledge for specific tasks
-  (e.g., "when working with this tool, follow these steps" → `.kiro/skills/`)
 - **CONTEXT.md terms** — vocabulary introduced by this tool/repo
 - **AGENTS.md updates** — new commands, tool references
 
@@ -57,7 +57,7 @@ For each approved candidate:
 ## Rules
 
 - One reference doc per tool/repo (don't split across files)
-- Novel patterns section is the highest-value output — be specific about WHAT is novel and WHY
+- Non-obvious section is the highest-value output — be specific about failure modes and gotchas
 - Only create steering for patterns that apply every turn
 - Only create skills for knowledge needed during specific tasks
 - If the repo is large, focus on the parts relevant to our project
