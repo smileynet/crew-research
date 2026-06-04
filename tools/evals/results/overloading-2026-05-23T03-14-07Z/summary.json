@@ -1,8 +1,0 @@
-{
-  "timestamp": "2026-05-23T03-14-07Z",
-  "total_tasks": 10,
-  "single_skill": {"activation_rate": .70, "activated": 7},
-  "all_skills": {"activation_rate": .50, "activated": 5},
-  "degradation": .20,
-  "cross_activations": 0
-}

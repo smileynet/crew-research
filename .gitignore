@@ -19,7 +19,7 @@ secrets.*
 node_modules/
 
 # Local reference repos (symlinked/cloned, not part of this project)
-references/
+/references/
 
 # OS
 .DS_Store
@@ -27,3 +27,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Eval results (local runs, not publishable)
+tools/evals/results/
+!tools/evals/results/.gitkeep

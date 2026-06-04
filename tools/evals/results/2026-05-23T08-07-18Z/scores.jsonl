@@ -1,1 +1,0 @@
-{"name":"grounded-handoff","status":"FAIL","score":5.00,"reason":"delta .34 < delta_threshold 1.0","activated":3,"activation_total":3,"activation_rate":1.00,"with_score":5.00,"without_score":4.66,"delta":.34}
