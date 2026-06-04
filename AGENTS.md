@@ -65,6 +65,24 @@ mise run session:parse               # parse session transcripts
 - **Tiers**: `compositions/tiers/{name}.yaml` — structured skill references
 - **Results**: `tools/evals/results/` — gitignored, kept locally
 
+## Issue Triage
+
+When processing GitHub issues:
+
+**Bug reports:**
+1. Reproduce with `mise run doctor` output if provided
+2. Check if the skill/steering file exists and is correctly deployed
+3. Fix in `atomics/skills/` or `tools/generator/`, run `mise run validate`
+4. Reference the issue in commit: `fix(scope): description (fixes #N)`
+
+**Feature requests:**
+1. Check if an existing skill already covers the request (run `mise run catalog`)
+2. If new skill needed: draft in `atomics/skills/{slug}/SKILL.md`, add to appropriate tier
+3. If enhancement: modify existing skill, keep <100 lines
+4. Add eval definition if behavior is measurable
+
+**Labels:** `bug`, `enhancement`, `skill-request`, `steering`, `tooling`
+
 ## Constraints
 
 - Do NOT modify files in `references/` (read-only)

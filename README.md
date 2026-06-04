@@ -83,6 +83,11 @@ mise run doctor -- --project ~/your-project    # diagnose issues
 | A rule feels too strict | Remove the specific file from `.kiro/steering/` |
 | Starting fresh | Delete `.kiro/` and re-run init |
 
+## Feedback
+
+- [Report a bug](https://github.com/smileynet/crew-research/issues/new?template=bug_report.md)
+- [Request a feature](https://github.com/smileynet/crew-research/issues/new?template=feature_request.md)
+
 ## License
 
 [MIT](LICENSE)
