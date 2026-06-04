@@ -38,11 +38,15 @@ Write captured instructions to `.memory/project-specific-rules.md`.
 
 ## Phase 3: Recommend
 
+**Important framing:** If skills are already deployed globally (`~/.kiro/`), the agent has full access to all skills in every project regardless of what's scaffolded locally. This recommendation is about what *workspace structure* to set up in this specific project — not about limiting capability.
+
 Based on inventory:
-- Recommend tier (basic vs full)
+- Recommend what to scaffold locally (`.memory/`, `.scratch/`, AGENTS.md, `.crew-config.yaml`)
+- Identify any project-specific steering rules to add locally
 - List which existing prompts to keep vs replace with crew-research equivalents
-- Identify any custom steering rules to preserve
 - Flag conflicts between existing conventions and crew-research defaults
+
+State explicitly: "Your global skills remain active. This sets up project-specific workspace conventions."
 
 Present recommendation and wait for approval before proceeding.
 
