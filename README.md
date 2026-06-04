@@ -28,6 +28,22 @@ Then ask:
 
 That's it. Skills are now active.
 
+## Tiers
+
+| Tier | What you get | Best for |
+|------|-------------|----------|
+| **basic** | 22 skills + 3 always-on rules | Solo developers, most projects |
+| **full** | 47 skills + 3 always-on rules | Multi-agent workflows, research, creative writing |
+
+Start with **basic**. Upgrade to full later if you need specialized workflows.
+
+## Where to deploy
+
+- **To a project** (`~/my-project`) — skills and workspace conventions are scoped to that project
+- **Globally** (`--global`) — skills install to `~/.kiro/` and are available in every project
+
+Most people deploy globally once, then scaffold per-project workspace conventions as needed.
+
 ## What You Can Do
 
 After setup, these workflows are available in any kiro-cli session:
@@ -43,19 +59,6 @@ After setup, these workflows are available in any kiro-cli session:
 | `/cheatsheet` | Quick reference for everything available |
 
 You don't need to memorize these — `/cheatsheet` lists them all.
-
-## Tiers
-
-| Tier | What you get | Best for |
-|------|-------------|----------|
-| **basic** | 22 skills + 3 always-on rules | Solo developers, most projects |
-| **full** | 47 skills + 3 always-on rules | Multi-agent workflows, research, creative writing |
-
-Start with **basic**. Upgrade to full later if you need specialized workflows.
-
-```bash
-mise run catalog    # browse all available skills
-```
 
 ## How It Improves Your Workflow
 
