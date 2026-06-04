@@ -1,0 +1,48 @@
+name: skill-authoring-effectiveness
+description: "Does the skill-authoring skill produce better-structured skills with stronger activation triggers?"
+skill: skill-authoring
+fixture: defu
+
+conditions:
+  baseline:
+    skills: []
+  with-skill:
+    skills: [skill-authoring]
+
+tasks:
+  - name: write-new-skill
+    input: "Write a skill called 'error-message-writing' that helps agents write clear, actionable error messages. Include the SKILL.md with frontmatter."
+    criteria: |
+      PRIMARY: Produced skill follows format (frontmatter with name/description/metadata, <100 lines, trigger-rich description, single concern).
+      AUTOMATIC FAIL (score 1): No frontmatter, or description is generic ("helps with errors").
+      Score 3: Has frontmatter and description but description lacks specific triggers or "Use when" clause.
+      Score 4: Correct frontmatter, trigger-rich description with "Use when" + keywords, body is process not knowledge dump, under 100 lines.
+      BONUS (score 5): Includes references/ suggestion for examples, anti-patterns section, scope boundary ("does NOT cover").
+
+  - name: critique-existing-skill
+    input: |
+      Review this skill and suggest improvements:
+      ---
+      name: helper
+      description: 'Helps with coding tasks'
+      ---
+      # Helper
+      This skill helps you write better code. It covers formatting, testing, documentation, error handling, performance optimization, security, accessibility, and deployment.
+    criteria: |
+      PRIMARY: Identifies multiple specific anti-patterns (vague trigger, too broad scope, knowledge dump style).
+      AUTOMATIC FAIL (score 1): Says the skill is fine or only suggests minor wording changes.
+      Score 3: Notes it's too broad but doesn't cite specific problems or structural rules.
+      Score 4: Identifies vague description, multiple concerns, suggests splitting, recommends specific trigger keywords.
+      BONUS (score 5): References the one-concern rule, 100-line limit, process-not-knowledge distinction, and suggests a concrete rewrite of the description.
+
+trials: 3
+
+metrics:
+  - quality_score
+  - has_frontmatter
+  - has_use_when_clause
+  - line_count
+
+acceptance:
+  min_delta: 1.0
+  note: "The meta-skill should produce noticeably better-structured output"
