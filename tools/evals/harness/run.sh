@@ -179,14 +179,43 @@ run_eval() {
   local name=$(yq '.name' "$def_file")
   local skill=$(yq '.skill // ""' "$def_file")
   local threshold=$(yq '.threshold // 4' "$def_file")
-  local delta_threshold=$(yq '.delta_threshold // 0' "$def_file")
+  local delta_threshold=$(yq '.delta_threshold // .acceptance.min_delta // 0' "$def_file")
   local timeout=$(yq '.timeout // 120' "$def_file")
-  local is_dual_run=$(yq '.runs.without_skill // false' "$def_file")
   local fixture=$(yq '.fixture // ""' "$def_file")
+  local def_trials=$(yq '.trials // 0' "$def_file")
+  local run_trials=${def_trials:-$TRIALS}
+  [[ "$run_trials" == "0" || "$run_trials" == "null" ]] && run_trials=$TRIALS
 
   TOTAL=$((TOTAL + 1))
 
-  # Collect tasks (single input or tasks array)
+  # Resolve conditions: new format (conditions:) or legacy (runs:)
+  local -A condition_skills=()
+  local condition_names=()
+  local has_conditions=$(yq '.conditions // null' "$def_file")
+
+  if [[ "$has_conditions" != "null" ]]; then
+    # New format: conditions map
+    mapfile -t condition_names < <(yq '.conditions | keys | .[]' "$def_file")
+    for cond in "${condition_names[@]}"; do
+      local skills_list=$(yq ".conditions.${cond}.skills | join(\",\")" "$def_file")
+      condition_skills["$cond"]="$skills_list"
+    done
+  else
+    # Legacy format: runs.with_skill / runs.without_skill
+    local is_dual_run=$(yq '.runs.without_skill // false' "$def_file")
+    if [[ "$is_dual_run" == "true" ]]; then
+      condition_names=("with-skill" "baseline")
+      condition_skills["with-skill"]="$skill"
+      condition_skills["baseline"]=""
+    else
+      condition_names=("with-skill")
+      condition_skills["with-skill"]="$skill"
+    fi
+  fi
+
+  local is_comparison=$(( ${#condition_names[@]} > 1 ))
+
+  # Collect tasks
   local task_count=$(yq '.tasks | length // 0' "$def_file")
   local inputs=() criterias=() ideals=()
 
@@ -202,118 +231,101 @@ run_eval() {
     ideals+=("$(yq '.ideal // ""' "$def_file")")
   fi
 
-  local all_scores=() all_with_scores=() all_without_scores=()
+  # Run each condition
+  declare -A cond_scores=()
   local activation_count=0 activation_total=0
 
-  for task_idx in "${!inputs[@]}"; do
-    local input="${inputs[$task_idx]}"
-    local criteria="${criterias[$task_idx]}"
-    local ideal="${ideals[$task_idx]}"
+  for cond in "${condition_names[@]}"; do
+    local cond_all_scores=()
+    IFS=',' read -ra skills_arr <<< "${condition_skills[$cond]}"
 
-    local trial_scores=() trial_with=() trial_without=()
+    for task_idx in "${!inputs[@]}"; do
+      local input="${inputs[$task_idx]}"
+      local criteria="${criterias[$task_idx]}"
+      local ideal="${ideals[$task_idx]}"
 
-    for trial in $(seq 1 "$TRIALS"); do
-      local workdir=$(mktemp -d -t "eval-${name}-XXXX")
-      [[ -n "$fixture" ]] && setup_fixture "$workdir" "$fixture"
-
-      if [[ "$is_dual_run" == "true" ]]; then
-        # Run WITH skill
-        local with_output
-        with_output=$(invoke_agent "$workdir" "$input" "$skill" "$timeout")
-        local with_judge
-        with_judge=$(judge_output "$with_output" "$criteria" "$ideal")
-        local with_score
-        with_score=$(parse_score "$with_judge")
-        trial_with+=("$with_score")
-
-        # Check activation
-        if [[ "$DRY_RUN" != true && -n "$skill" ]]; then
-          activation_total=$((activation_total + 1))
-          if "$SCRIPT_DIR/check-activation.sh" "$workdir" "$skill" &>/dev/null; then
-            activation_count=$((activation_count + 1))
-          fi
-        fi
-
-        # Run WITHOUT skill (fresh workspace)
-        rm -rf "$workdir"
-        workdir=$(mktemp -d -t "eval-${name}-base-XXXX")
+      for trial in $(seq 1 "$run_trials"); do
+        local workdir=$(mktemp -d -t "eval-${name}-${cond}-XXXX")
         [[ -n "$fixture" ]] && setup_fixture "$workdir" "$fixture"
-        local without_output
-        without_output=$(invoke_agent "$workdir" "$input" "" "$timeout")
-        local without_judge
-        without_judge=$(judge_output "$without_output" "$criteria" "$ideal")
-        local without_score
-        without_score=$(parse_score "$without_judge")
-        trial_without+=("$without_score")
-      else
-        # Standard eval
+
+        # Deploy all skills for this condition
+        for s in "${skills_arr[@]}"; do
+          [[ -z "$s" ]] && continue
+          local skill_src="$EVALS_DIR/../../atomics/skills/$s/SKILL.md"
+          if [[ -f "$skill_src" ]]; then
+            local skill_dest="$workdir/$(echo "$SKILL_LOCATION" | sed "s/{name}/$s/")"
+            mkdir -p "$(dirname "$skill_dest")"
+            cp "$skill_src" "$skill_dest"
+          fi
+        done
+
         local output
-        output=$(invoke_agent "$workdir" "$input" "$skill" "$timeout")
+        output=$(invoke_agent "$workdir" "$input" "" "$timeout")
         local judge_result
         judge_result=$(judge_output "$output" "$criteria" "$ideal")
         local score
         score=$(parse_score "$judge_result")
-        trial_scores+=("$score")
+        cond_all_scores+=("$score")
 
-        # Check activation
-        if [[ "$DRY_RUN" != true && -n "$skill" ]]; then
+        # Check activation for first skill in list
+        if [[ "$DRY_RUN" != true && ${#skills_arr[@]} -gt 0 && -n "${skills_arr[0]}" ]]; then
           activation_total=$((activation_total + 1))
-          if "$SCRIPT_DIR/check-activation.sh" "$workdir" "$skill" &>/dev/null; then
+          if "$SCRIPT_DIR/check-activation.sh" "$workdir" "${skills_arr[0]}" &>/dev/null; then
             activation_count=$((activation_count + 1))
           fi
         fi
-      fi
 
-      rm -rf "$workdir"
+        rm -rf "$workdir"
+      done
     done
 
-    if [[ "$is_dual_run" == "true" ]]; then
-      all_with_scores+=("${trial_with[@]}")
-      all_without_scores+=("${trial_without[@]}")
-    else
-      all_scores+=("${trial_scores[@]}")
-    fi
+    # Compute average for this condition
+    local sum=0 count=${#cond_all_scores[@]}
+    for s in "${cond_all_scores[@]}"; do sum=$((sum + s)); done
+    local avg=$(echo "scale=2; $sum / $count" | bc)
+    cond_scores["$cond"]="$avg"
   done
 
   # Compute results
-  local status="PASS" reason="" avg_score=0 avg_with=0 avg_without=0 delta=0
+  local status="PASS" reason="" avg_score=0 delta=0
 
-  if [[ "$is_dual_run" == "true" ]]; then
-    # Average with/without scores
-    local sum_w=0 sum_wo=0 count=${#all_with_scores[@]}
-    for s in "${all_with_scores[@]}"; do sum_w=$((sum_w + s)); done
-    for s in "${all_without_scores[@]}"; do sum_wo=$((sum_wo + s)); done
-    avg_with=$(echo "scale=2; $sum_w / $count" | bc)
-    avg_without=$(echo "scale=2; $sum_wo / $count" | bc)
-    delta=$(echo "scale=2; $avg_with - $avg_without" | bc)
-    avg_score=$avg_with
+  if [[ $is_comparison -eq 1 ]]; then
+    # Find the primary condition (first non-baseline) and baseline
+    local primary_cond="" baseline_cond=""
+    for cond in "${condition_names[@]}"; do
+      if [[ "$cond" == "baseline" ]]; then
+        baseline_cond="$cond"
+      elif [[ -z "$primary_cond" ]]; then
+        primary_cond="$cond"
+      fi
+    done
+    [[ -z "$baseline_cond" ]] && baseline_cond="${condition_names[-1]}"
+    [[ -z "$primary_cond" ]] && primary_cond="${condition_names[0]}"
 
-    # Pass criteria: with >= threshold AND delta >= delta_threshold
-    if (( $(echo "$avg_with < $threshold" | bc -l) )); then
-      status="FAIL"; reason="with_skill avg $avg_with < threshold $threshold"
+    local avg_primary=${cond_scores[$primary_cond]}
+    local avg_baseline=${cond_scores[$baseline_cond]}
+    delta=$(echo "scale=2; $avg_primary - $avg_baseline" | bc)
+    avg_score=$avg_primary
+
+    if (( $(echo "$avg_primary < $threshold" | bc -l) )); then
+      status="FAIL"; reason="$primary_cond avg $avg_primary < threshold $threshold"
     elif (( $(echo "$delta < $delta_threshold" | bc -l) )); then
       status="FAIL"; reason="delta $delta < delta_threshold $delta_threshold"
     else
-      reason="with=$avg_with without=$avg_without delta=$delta"
+      reason="$primary_cond=$avg_primary $baseline_cond=$avg_baseline delta=$delta"
     fi
   else
-    # Majority pass: count scores >= threshold
-    local pass_count=0 sum=0 count=${#all_scores[@]}
-    for s in "${all_scores[@]}"; do
-      sum=$((sum + s))
-      [[ $s -ge $threshold ]] && pass_count=$((pass_count + 1))
-    done
-    avg_score=$(echo "scale=2; $sum / $count" | bc)
-    local majority=$(( (count / 2) + 1 ))
-
-    if [[ $pass_count -lt $majority ]]; then
-      status="FAIL"; reason="$pass_count/$count trials passed (need $majority)"
+    # Single condition: majority pass
+    local cond="${condition_names[0]}"
+    avg_score=${cond_scores[$cond]}
+    if (( $(echo "$avg_score < $threshold" | bc -l) )); then
+      status="FAIL"; reason="avg $avg_score < threshold $threshold"
     else
-      reason="$pass_count/$count trials passed, avg=$avg_score"
+      reason="avg=$avg_score (threshold=$threshold)"
     fi
   fi
 
-  # Record
+  # Report
   if [[ "$status" == "PASS" ]]; then
     PASSED=$((PASSED + 1))
     echo "  ✅ $name ($reason)"
@@ -328,8 +340,15 @@ run_eval() {
     activation_rate=$(echo "scale=2; $activation_count / $activation_total" | bc)
   fi
   local score_line="{\"name\":\"$name\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
-  if [[ "$is_dual_run" == "true" ]]; then
-    score_line="$score_line,\"with_score\":$avg_with,\"without_score\":$avg_without,\"delta\":$delta"
+  if [[ $is_comparison -eq 1 ]]; then
+    local primary_cond="" baseline_cond=""
+    for cond in "${condition_names[@]}"; do
+      if [[ "$cond" == "baseline" ]]; then baseline_cond="$cond"
+      elif [[ -z "$primary_cond" ]]; then primary_cond="$cond"; fi
+    done
+    [[ -z "$baseline_cond" ]] && baseline_cond="${condition_names[-1]}"
+    [[ -z "$primary_cond" ]] && primary_cond="${condition_names[0]}"
+    score_line="$score_line,\"with_score\":${cond_scores[$primary_cond]},\"without_score\":${cond_scores[$baseline_cond]},\"delta\":$delta"
   fi
   score_line="$score_line}"
   echo "$score_line" >> "$SCORES_FILE"

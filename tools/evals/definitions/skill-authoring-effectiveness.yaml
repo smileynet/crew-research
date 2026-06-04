@@ -4,14 +4,13 @@ skill: skill-authoring
 fixture: defu
 
 conditions:
-  baseline:
-    skills: []
   with-skill:
     skills: [skill-authoring]
+  baseline:
+    skills: []
 
 tasks:
-  - name: write-new-skill
-    input: "Write a skill called 'error-message-writing' that helps agents write clear, actionable error messages. Include the SKILL.md with frontmatter."
+  - input: "Write a skill called 'error-message-writing' that helps agents write clear, actionable error messages. Include the SKILL.md with frontmatter."
     criteria: |
       PRIMARY: Produced skill follows format (frontmatter with name/description/metadata, <100 lines, trigger-rich description, single concern).
       AUTOMATIC FAIL (score 1): No frontmatter, or description is generic ("helps with errors").
@@ -19,8 +18,7 @@ tasks:
       Score 4: Correct frontmatter, trigger-rich description with "Use when" + keywords, body is process not knowledge dump, under 100 lines.
       BONUS (score 5): Includes references/ suggestion for examples, anti-patterns section, scope boundary ("does NOT cover").
 
-  - name: critique-existing-skill
-    input: |
+  - input: |
       Review this skill and suggest improvements:
       ---
       name: helper
@@ -36,13 +34,7 @@ tasks:
       BONUS (score 5): References the one-concern rule, 100-line limit, process-not-knowledge distinction, and suggests a concrete rewrite of the description.
 
 trials: 3
-
-metrics:
-  - quality_score
-  - has_frontmatter
-  - has_use_when_clause
-  - line_count
-
-acceptance:
-  min_delta: 1.0
-  note: "The meta-skill should produce noticeably better-structured output"
+threshold: 4
+delta_threshold: 1.0
+timeout: 120
+tags: [skill-effectiveness, meta-skill]
