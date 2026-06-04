@@ -16,18 +16,15 @@ Skills activate automatically based on what you're doing. No configuration neede
 
 ## Quick Start
 
-**Prerequisites:** [kiro-cli](https://github.com/smileynet/kiro-cli) 2.3.0+, [yq](https://github.com/mikefarah/yq), [mise](https://mise.jdx.dev/) (optional but recommended)
-
 ```bash
-# Install skills globally (one-time)
-mise run init -- --global --tier basic
-
-# Set up a project
-mise run init -- --project ~/your-project
-
-# Start working
-cd ~/your-project && kiro-cli chat
+kiro-cli chat
 ```
+
+Then ask:
+
+> Install crew-research prerequisites (kiro-cli, yq, mise)
+
+> Deploy crew-research basic tier to this project
 
 That's it. Skills are now active.
 
