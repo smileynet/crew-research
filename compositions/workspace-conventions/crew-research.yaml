@@ -36,15 +36,15 @@ structure:
   .memory: Durable artifacts (glossary, ADRs, resource rehydration)
   .memory/adr: Architecture Decision Records
   .memory/references.md: Rehydration instructions for references/
-  docs: User-facing documents (placed here ONLY when deliberately requested)
+  docs: Development history (eval results, experiments, research)
   references: Third-party repos/tools for reference/analysis. Gitignored.
   AGENTS.md: Agent-facing entry point (workspace map, commands, conventions)
   README.md: User-facing entry point (what it is, how to use it)
 
 document-placement: |
   Default: .scratch/ (ephemeral) or .memory/ (durable)
-  Only docs/: when explicitly requested for user-facing publication
-  Never docs/: internal findings, scratch work, agent-facing content
+  Only docs/: development research, eval results, experiment records
+  Never docs/: user-facing content (that goes in README), scratch work
   references/: third-party code for analysis (gitignored, rehydrate from .memory/references.md)
 
 eager-context:

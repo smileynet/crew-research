@@ -61,7 +61,7 @@ Practices are the source research layer; skills are the distilled deployment art
 _Avoid_: conflating the two, forcing all practices into skill format
 
 **Practice location**:
-`docs/practices/{slug}.md` — human-readable research docs live in project documentation, not in the deployable module tree.
+`docs/development/{slug}.md` — human-readable research docs live in project documentation, not in the deployable module tree.
 _Avoid_: co-locating practices inside skill directories, mixing human and agent audiences
 
 **Skill location**:

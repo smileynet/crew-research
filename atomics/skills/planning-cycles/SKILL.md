@@ -85,7 +85,7 @@ Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (co
 
 ## References
 
-- Source practice: [`docs/practices/planning-cycles.md`](../../../docs/practices/planning-cycles.md)
+- Source practice: `docs/practices/planning-cycles.md` (in best_practices repo)
 - Origin: line-cook/docs/cycles/mise-cycle.md
 - Related: [prototype-protocol](../prototype-protocol/SKILL.md) for Phase 2b
 - Related: [architecture-deepening](../architecture-deepening/SKILL.md) for refactoring plans
