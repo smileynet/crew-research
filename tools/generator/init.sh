@@ -192,9 +192,9 @@ elif [[ -n "$PROJECT" ]]; then
   # .gitignore
   if [[ -f "$PROJECT/.gitignore" ]]; then
     grep -qx '.scratch/' "$PROJECT/.gitignore" 2>/dev/null || echo '.scratch/' >> "$PROJECT/.gitignore"
-    grep -qx 'resources/' "$PROJECT/.gitignore" 2>/dev/null || echo 'resources/' >> "$PROJECT/.gitignore"
+    grep -qx 'references/' "$PROJECT/.gitignore" 2>/dev/null || echo 'references/' >> "$PROJECT/.gitignore"
   else
-    printf '.scratch/\nresources/\n' > "$PROJECT/.gitignore"
+    printf '.scratch/\nreferences/\n' > "$PROJECT/.gitignore"
   fi
   echo "  ✅ .gitignore"
 
@@ -217,7 +217,7 @@ $PROJECT_NAME
 - \`.scratch/\` — Ephemeral working notes (gitignored)
 - \`.memory/\` — Durable artifacts (glossary, ADRs)
 - \`docs/\` — User-facing documents
-- \`resources/\` — Third-party repos for reference (gitignored)
+- \`references/\` — Third-party repos for reference (gitignored)
 
 ## Commands
 \`\`\`bash
@@ -237,7 +237,7 @@ ${BUILD_CMD:+$BUILD_CMD  # build
 
 Third-party repos for analysis. Gitignored — clone to restore:
 \`\`\`bash
-# git clone <url> resources/<name>   # what it's used for
+# git clone <url> references/<name>   # what it's used for
 \`\`\`
 EOF
     echo "  ✅ AGENTS.md"

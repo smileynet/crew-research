@@ -49,7 +49,7 @@ After init, the user just runs `kiro-cli chat` in their project. Skills activate
 - `atomics/` — Atomic modules (skills, eager-context, eval-definitions)
 - `compositions/` — Compositions (agent-archetypes, crew-patterns, tiers, workspace-conventions)
 - `tools/` — Generator, eval harness, proof harness, lint
-- `resources/` — Symlinked reference repos (read-only)
+- `references/` — Symlinked reference repos (read-only)
 
 ## Commands
 
@@ -84,7 +84,7 @@ mise run lint                                   # check cross-links
 
 ## Do Not
 
-- Modify files in `resources/` (symlinked read-only reference repos)
+- Modify files in `references/` (symlinked read-only reference repos)
 - Put implementation details in `.memory/CONTEXT.md` (glossary only)
 - Create skills over 100 lines without justification
 - Mix human docs and agent-loadable content in the same directory

@@ -35,9 +35,9 @@ structure:
   .scratch: Ephemeral artifacts (handoffs, scratch notes). Gitignored.
   .memory: Durable artifacts (glossary, ADRs, resource rehydration)
   .memory/adr: Architecture Decision Records
-  .memory/resources.md: Rehydration instructions for resources/
+  .memory/references.md: Rehydration instructions for references/
   docs: User-facing documents (placed here ONLY when deliberately requested)
-  resources: Third-party repos/tools for reference/analysis. Gitignored.
+  references: Third-party repos/tools for reference/analysis. Gitignored.
   AGENTS.md: Agent-facing entry point (workspace map, commands, conventions)
   README.md: User-facing entry point (what it is, how to use it)
 
@@ -45,7 +45,7 @@ document-placement: |
   Default: .scratch/ (ephemeral) or .memory/ (durable)
   Only docs/: when explicitly requested for user-facing publication
   Never docs/: internal findings, scratch work, agent-facing content
-  resources/: third-party code for analysis (gitignored, rehydrate from .memory/resources.md)
+  references/: third-party code for analysis (gitignored, rehydrate from .memory/references.md)
 
 eager-context:
   - workspace

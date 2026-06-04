@@ -1,0 +1,29 @@
+# Environment
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Ephemeral workspace
+.scratch/
+
+# Credentials
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*
+secrets.*
+
+# Dependencies
+node_modules/
+
+# Local reference repos (symlinked/cloned, not part of this project)
+references/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

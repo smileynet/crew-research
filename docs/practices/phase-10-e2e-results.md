@@ -64,7 +64,7 @@ Tested on `~/code/crew-test` — a TypeScript project initialized with developme
 - AGENTS.md with detected npm commands
 - .crew-config.yaml with correct crews
 - .memory/CONTEXT.md and resources.md templates
-- .gitignore with .scratch/ and resources/
+- .gitignore with .scratch/ and references/
 
 ## Summary
 

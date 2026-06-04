@@ -19,7 +19,7 @@ Check for existing configuration:
 - `CONVENTIONS.md`, `CONTRIBUTING.md`, `DEVELOPMENT.md`
 - Existing session docs (`.scratch/`, `.memory/`)
 - Any `@prompt` files or custom workflows
-- `references/` or `resources/` (reference repo directories — note clone URLs if available)
+- `references/` (reference repo directories — note clone URLs if available)
 
 Report what exists and what would be replaced or merged.
 

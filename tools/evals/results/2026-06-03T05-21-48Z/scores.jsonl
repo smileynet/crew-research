@@ -1,0 +1,1 @@
+{"name":"feedback-loop-effectiveness","status":"FAIL","score":2.44,"reason":"with_skill avg 2.44 < threshold 4","activated":0,"activation_total":9,"activation_rate":0,"with_score":2.44,"without_score":1.88,"delta":.56}

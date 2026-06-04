@@ -9,7 +9,7 @@ description: Select the right enforcement mechanism for agent behavior rules. Us
 
 # Enforcement Hierarchy
 
-Source of truth: `/home/sam/code/best_practices/docs/practices/enforcement-hierarchy.md`
+Source practice: `docs/practices/enforcement-hierarchy.md` (in best_practices repo)
 
 Never rely on a weaker mechanism when a stronger one is available.
 

@@ -9,7 +9,7 @@ description: "Code quality rules that catch common AI-generation artifacts. Appl
 
 # AI Generation Hygiene
 
-Source of truth: `/home/sam/code/best_practices/docs/practices/ai-generation-hygiene.md`
+Source practice: `docs/practices/ai-generation-hygiene.md` (in best_practices repo)
 
 Every line of generated code must earn its place. Cut until cutting would lose meaning.
 
