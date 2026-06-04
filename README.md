@@ -24,7 +24,7 @@ Then ask:
 
 > Install crew-research prerequisites (kiro-cli, yq, mise)
 
-> Deploy crew-research basic tier to this project
+> Deploy crew-research basic tier to ~/my-project
 
 That's it. Skills are now active.
 
