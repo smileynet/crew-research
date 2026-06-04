@@ -89,5 +89,5 @@ The test: "Who would violate this contract and how?" If the answer is "no one, t
 
 ## References
 
-- Source practice: [`docs/practices/ai-generation-hygiene.md`](../../../docs/practices/ai-generation-hygiene.md)
+- Source practice: `docs/practices/ai-generation-hygiene.md` (in best_practices repo)
 - Origin: `agent-crews/shared/steering/ai-generation-hygiene.md`

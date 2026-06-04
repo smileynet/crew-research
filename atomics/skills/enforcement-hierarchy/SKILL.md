@@ -76,5 +76,5 @@ Level 4: Steering Guidance      → shapes behavior, can be overridden
 
 ## References
 
-- Source practice: [`docs/practices/enforcement-hierarchy.md`](../../../docs/practices/enforcement-hierarchy.md)
+- Source practice: `docs/practices/enforcement-hierarchy.md` (in best_practices repo)
 - Origin: `agent-crews/shared/steering/reliability.md`

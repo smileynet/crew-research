@@ -53,3 +53,13 @@ run = "bash tools/proofs/harness/run.sh --adapter kiro-cli --all"
 [tasks.validate-deployment]
 description = "End-to-end deployment validation"
 run = "bash tools/evals/harness/validate-deployment.sh"
+
+[tasks."eval:qualitative"]
+description = "Run a qualitative (keyword-based) experiment"
+usage = 'arg "<name>" help="Experiment name"'
+run = "bash tools/evals/harness/run-qualitative-experiment.sh --experiment ${usage_name?} --trials 3"
+
+[tasks."session:parse"]
+description = "Parse session transcripts for metrics"
+usage = 'arg "[days]" help="Days to analyze" default="7"'
+run = "python tools/session-analyzer/parse.py --days ${usage_days?}"

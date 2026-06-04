@@ -10,19 +10,18 @@ When a user wants to use crew-research in their project, guide them through:
 
 ### 1. Choose a tier
 
-- **basic** — Core project lifecycle (11 skills + 2 steering + 5 prompts). Covers: setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
-- **full** — Everything in basic + specialized skills, multi-agent crews, research tools, creative writing.
+- **basic** — Core project lifecycle (22 skills + 3 steering). Covers: setup → design → plan → build → verify → commit → deliver → hand off → cleanup.
+- **full** — Everything in basic + specialized skills, multi-agent crews, research tools, creative writing (47 skills + 3 steering).
 
 If unsure, recommend **basic**. It covers the full workflow without overwhelming.
 
 ### 2. Initialize
 
 ```bash
-# From the crew-research repo:
 mise run init -- --project ~/their-project --tier basic --tool kiro-cli
 ```
 
-This deploys skills, steering, and prompts to their project's `.kiro/` directory.
+This deploys skills and steering to their project's `.kiro/` directory.
 
 ### 3. Verify
 
@@ -32,24 +31,24 @@ mise run doctor -- --project ~/their-project
 
 ### 4. Start using
 
-After init, the user just runs `kiro-cli chat` in their project. Skills activate automatically based on what they're doing. Prompts are invoked with `@name`.
+After init, the user just runs `kiro-cli chat` in their project. Skills activate automatically based on what they're doing. User-invocable workflows are triggered with `/name`.
 
-### Key prompts to teach users:
-- `@grill-with-docs` — stress-test a plan before building
-- `@handoff` / `@read-handoff` — session continuity
-- `@workspace-cleanup` — periodic housekeeping
-- `@plan-prereqs` — identify pre-work before building
-- `@cheatsheet` — quick reference for what's available
+### Key workflows:
+- `/grill-with-docs` — stress-test a plan before building
+- `/handoff` / `/read-handoff` — session continuity
+- `/workspace-cleanup` — periodic housekeeping
+- `/plan-prereqs` — identify pre-work before building
+- `/cheatsheet` — quick reference for what's available
 
 ## Workspace (crew-research internal)
 
 - `.memory/` — Durable artifacts (CONTEXT.md glossary, ADRs, specs/)
-- `.scratch/` — Ephemeral artifacts (handoffs only)
-- `docs/` — Plan, practices, specs (human-readable research)
+- `.scratch/` — Ephemeral artifacts (handoffs, active plans)
+- `docs/` — Practices, eval results (human-readable research)
 - `atomics/` — Atomic modules (skills, eager-context, eval-definitions)
 - `compositions/` — Compositions (agent-archetypes, crew-patterns, tiers, workspace-conventions)
-- `tools/` — Generator, eval harness, proof harness, lint
-- `references/` — Symlinked reference repos (read-only)
+- `tools/` — Generator, eval harness, proof harness, lint, session analyzer
+- `references/` — Symlinked reference repos (read-only, gitignored)
 
 ## Commands
 
@@ -64,7 +63,9 @@ mise run validate                               # validate compositions + cross-
 mise run generate -- --tool kiro-cli --output ./deploy
 mise run eval                                   # run all evals
 mise run eval:activation                        # test skill activation
+mise run eval:qualitative -- <name>             # keyword-based experiment
 mise run lint                                   # check cross-links
+mise run session:parse                          # parse session transcripts
 ```
 
 ## Key Conventions
@@ -74,13 +75,6 @@ mise run lint                                   # check cross-links
 - **Skills**: `atomics/skills/{slug}/SKILL.md` — agent-loadable modules (<100 lines)
 - **Tiers**: `compositions/tiers/{name}.yaml` — define what ships in each tier
 - **Cross-links**: practices declare `skills:` in frontmatter; skills declare `practice:`
-
-## Prompts
-
-- `@grill-with-docs` — Design interrogation session
-- `@research-prior-art` — Research reference repos to inform a decision
-- `@handoff` — End-of-session handoff
-- `@read-handoff` — Start-of-session orientation
 
 ## Do Not
 
