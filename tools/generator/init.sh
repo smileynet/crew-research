@@ -216,6 +216,7 @@ $PROJECT_NAME
 ## Workspace
 - \`.scratch/\` — Ephemeral working notes (gitignored)
 - \`.memory/\` — Durable artifacts (glossary, ADRs)
+- \`.memory/CONTEXT.md\` — Project glossary (update when terms are resolved)
 - \`docs/\` — User-facing documents
 - \`references/\` — Third-party repos for reference (gitignored)
 
@@ -226,12 +227,32 @@ ${BUILD_CMD:+$BUILD_CMD  # build
 }${LINT_CMD:+$LINT_CMD  # lint
 }\`\`\`
 
-## Skills (user-invocable)
+## Skills & Steering
+
+Skills and steering are deployed to \`~/.kiro/\` (global) and active in every project.
+
+**Steering** (\`~/.kiro/steering/\`) — always-on rules. Read every turn:
+- \`ai-generation-hygiene.md\` — code quality, anti-verbosity
+- \`verification-protocol.md\` — verify before claiming done
+- \`project-conventions.md\` — glossary, git, document placement
+- \`source-authority.md\` — cite sources, rank by authority
+- \`context-budget-awareness.md\` — manage context window usage
+
+**Skills** (\`~/.kiro/skills/\`) — activate on-demand when relevant to the task.
+User-invocable workflows via \`/name\`:
 - \`/grill-with-docs\` — Stress-test a plan before building
 - \`/handoff\` / \`/read-handoff\` — Session continuity
 - \`/plan-prereqs\` — Identify pre-work before building
 - \`/workspace-cleanup\` — Periodic housekeeping
-- \`/cheatsheet\` — Quick reference
+- \`/cheatsheet\` — Quick reference for all skills
+
+## Maintaining This Setup
+
+- **Add project-specific rules**: create \`.kiro/steering/project-rules.md\` (local override)
+- **Add project-specific skills**: create \`.kiro/skills/{name}/SKILL.md\` locally
+- **Update glossary**: add terms to \`.memory/CONTEXT.md\` as they emerge
+- **Customize verification**: edit \`.crew-config.yaml\` with build/test/lint commands
+- **Remove unwanted rules**: delete specific files from \`.kiro/steering/\`
 
 ## References
 

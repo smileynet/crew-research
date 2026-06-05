@@ -28,7 +28,6 @@ Ask: "Are you working solo on a project, or do you need multi-agent delegation?"
 3. **Verify**: `mise run doctor -- --project ~/their-project`
 4. **Explain what was deployed**:
    - `.kiro/steering/` — always-on rules (code hygiene, verification)
-   - `.kiro/skills/` — on-demand knowledge (activates when relevant)
    - `.kiro/skills/` — on-demand knowledge (activates when relevant, invocable via `/name`)
    - `.memory/CONTEXT.md` — project glossary (they should add terms as they work)
    - `AGENTS.md` — agent-facing project reference
@@ -36,11 +35,11 @@ Ask: "Are you working solo on a project, or do you need multi-agent delegation?"
 ## After Setup
 
 Teach the user these workflows:
-- **Starting a session**: `@read-handoff` (if continuing prior work)
+- **Starting a session**: `/read-handoff` (if continuing prior work)
 - **Planning work**: just describe what they want — `planning-cycles` activates automatically
-- **Stress-testing a design**: `@grill-with-docs`
-- **Ending a session**: `@handoff`
-- **Periodic cleanup**: `@workspace-cleanup`
+- **Stress-testing a design**: `/grill-with-docs`
+- **Ending a session**: `/handoff`
+- **Periodic cleanup**: `/workspace-cleanup`
 
 ## Troubleshooting
 
