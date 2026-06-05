@@ -9,7 +9,7 @@ metadata:
 
 # Initialize Project
 
-Scaffold project conventions. Skills and prompts come from ~/.kiro/ (global). This creates the project-specific structure.
+Scaffold project conventions. Skills come from ~/.kiro/ (global). This creates the project-specific structure.
 
 ## Check First
 
@@ -23,7 +23,7 @@ Create these if they don't exist:
 2. **`.memory/CONTEXT.md`** — project glossary (empty template)
 3. **`.memory/adr/`** — architecture decision records
 4. **`tools/`** — project scripts and automation (validation, extraction, deployment)
-5. **`AGENTS.md`** — project reference (project layout, commands, prompts)
+5. **`AGENTS.md`** — project reference (project layout, commands, workflows)
 6. **`.crew-config.yaml`** — detected build/test/lint commands
 7. **`.gitignore`** entries — `.scratch/` and `references/`
 8. **`references/`** — directory for reference repos
@@ -53,12 +53,12 @@ Check for both `references/` and `resources/` directories:
 
 ## AGENTS.md Content
 
-Include: project layout, detected commands, available prompts list, references section, customization notes.
+Include: project layout, detected commands, available workflows, references section, customization notes.
 
 ## After Scaffolding
 
 Tell the user:
-- Skills/prompts are available globally from `~/.kiro/`
+- Skills are available globally from `~/.kiro/`
 - Add project-specific steering to `.kiro/steering/` if needed
 - Add project terms to `.memory/CONTEXT.md` as they emerge
-- Use `@grill-with-docs` to stress-test plans before building
+- Use `/grill-with-docs` to stress-test plans before building

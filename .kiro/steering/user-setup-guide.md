@@ -29,7 +29,7 @@ Ask: "Are you working solo on a project, or do you need multi-agent delegation?"
 4. **Explain what was deployed**:
    - `.kiro/steering/` — always-on rules (code hygiene, verification)
    - `.kiro/skills/` — on-demand knowledge (activates when relevant)
-   - `.kiro/prompts/` — user-invoked workflows (`@handoff`, `@grill-with-docs`, etc.)
+   - `.kiro/skills/` — on-demand knowledge (activates when relevant, invocable via `/name`)
    - `.memory/CONTEXT.md` — project glossary (they should add terms as they work)
    - `AGENTS.md` — agent-facing project reference
 

@@ -22,7 +22,7 @@ Check whether the crew-research deployment still matches project reality.
 ### 2. AGENTS.md Accuracy
 - Do listed commands still work?
 - Do referenced paths (`.memory/`, `.scratch/`, `.kiro/`) exist?
-- Are listed prompts still deployed?
+- Are listed workflows still available as skills?
 - Is the project layout description current?
 
 ### 3. Steering Freshness

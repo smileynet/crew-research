@@ -159,7 +159,7 @@ if [[ "$GLOBAL" == true ]]; then
   echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]}"
   echo "  $updated updated, $removed pruned, $unchanged unchanged"
   echo ""
-  echo "Done. Skills/prompts available in all projects."
+  echo "Done. Skills available in all projects."
   echo "Run: ./init.sh --project <path> to scaffold a specific project."
 
 elif [[ -n "$PROJECT" ]]; then
@@ -260,8 +260,8 @@ EOF
 
   echo ""
   echo "Done. Project workspace scaffolded."
-  echo "Skills/prompts come from ~/.kiro/ (global). Add project-specific"
-  echo "steering to .kiro/steering/ or prompts to .kiro/prompts/ as needed."
+  echo "Skills come from ~/.kiro/ (global). Add project-specific"
+  echo "steering to .kiro/steering/ or skills to .kiro/skills/ as needed."
 
 else
   echo "Usage:"

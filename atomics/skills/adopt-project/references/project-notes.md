@@ -48,5 +48,5 @@ After adoption, verify:
 - [ ] Build/test/lint commands in .crew-config.yaml
 - [ ] Terminology in CONTEXT.md
 - [ ] Reference repos documented in AGENTS.md
-- [ ] Existing prompts preserved or mapped to crew equivalents
+- [ ] Existing workflows preserved or mapped to crew equivalents
 - [ ] Custom verification steps accessible to verification-protocol

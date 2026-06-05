@@ -187,7 +187,7 @@ deploy_skills() {
     yq '.skills[]? // .["shared-skills"][]?' "$f" 2>/dev/null
   done | sort -u)
 
-  # Also include all user-only skills (prompts available to all users)
+  # Also include all user-only skills (invocable via /name)
   for f in "$ATOMICS_DIR"/skills/*/SKILL.md; do
     [[ -f "$f" ]] || continue
     local inv=$(awk '/^---$/{n++; next} n==1{print} n==2{exit}' "$f" | yq '.metadata.invocation // "both"' 2>/dev/null)
@@ -232,12 +232,8 @@ deploy_skills() {
       done
     fi
 
-    # Handle invocation: user-only skills go to prompts (kiro) or get extra frontmatter (claude)
-    local invocation=$(awk '/^---$/{n++; next} n==1{print} n==2{exit}' "$src" | yq '.metadata.invocation // "both"' 2>/dev/null)
-    if [[ "$invocation" == "user-only" && "$tool" == "kiro-cli" ]]; then
-      mkdir -p "$output_dir/.kiro/prompts"
-      cp "$dest" "$output_dir/.kiro/prompts/$s.md"
-    fi
+    # invocation: user-only skills stay in skills/ (kiro-cli treats them identically)
+    # No special routing needed — /name invocation works from skills/ directory
   done
 }
 

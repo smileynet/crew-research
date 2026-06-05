@@ -1,6 +1,6 @@
 ---
 name: cheatsheet
-description: "Quick reference for all available prompts and their usage. Use when you need a reminder of what's available."
+description: "Quick reference for all available skills and workflows. Use when you need a reminder of what's available."
 metadata:
   type: reference
   invocation: user-only

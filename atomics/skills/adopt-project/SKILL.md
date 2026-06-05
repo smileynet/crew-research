@@ -1,6 +1,6 @@
 ---
 name: adopt-project
-description: "Migrate a brownfield project to crew-research conventions. Inventories existing prompts, captures special instructions, deploys skills without losing customizations."
+description: "Migrate a brownfield project to crew-research conventions. Inventories existing skills and steering, captures special instructions, deploys without losing customizations."
 metadata:
   type: process
   invocation: user-only
@@ -14,11 +14,11 @@ Migrate an existing project to crew-research conventions without losing existing
 ## Phase 1: Inventory
 
 Check for existing configuration:
-- `.kiro/` — steering, skills, prompts, agents
+- `.kiro/` — steering, skills, agents
 - `AGENTS.md`, `CLAUDE.md`, or similar guidance files
 - `CONVENTIONS.md`, `CONTRIBUTING.md`, `DEVELOPMENT.md`
 - Existing session docs (`.scratch/`, `.memory/`)
-- Any `@prompt` files or custom workflows
+- Any custom workflows (skills with `invocation: user-only`)
 - `references/` (reference repo directories — note clone URLs if available)
 
 Report what exists and what would be replaced or merged.
@@ -28,8 +28,8 @@ Report what exists and what would be replaced or merged.
 For each existing file that crew-research would replace:
 1. Extract project-specific rules not covered by standard skills
 2. Capture custom verification commands, naming conventions, architectural constraints
-3. Note existing prompts that overlap with crew-research (@handoff, @grill-with-docs, etc.)
-4. Identify unique prompts worth preserving
+3. Note existing skills that overlap with crew-research equivalents (/handoff, /grill-with-docs, etc.)
+4. Identify unique workflows worth preserving
 5. Check for any "always do X" or "never do Y" instructions
 6. Surface non-obvious gotchas — runtime surprises, deployment quirks, things not documented
 7. Identify conventions — local rules that deviate from standard practice (naming, file placement, workflow)
@@ -43,7 +43,7 @@ Write captured instructions to `.memory/project-specific-rules.md`.
 Based on inventory:
 - Recommend what to scaffold locally (`.memory/`, `.scratch/`, AGENTS.md, `.crew-config.yaml`)
 - Identify any project-specific steering rules to add locally
-- List which existing prompts to keep vs replace with crew-research equivalents
+- List which existing workflows to keep vs replace with crew-research equivalents
 - Flag conflicts between existing conventions and crew-research defaults
 
 State explicitly: "Your global skills remain active. This sets up project-specific workspace conventions."
@@ -58,7 +58,7 @@ Present recommendation and wait for approval before proceeding.
    - `.kiro/steering/project-rules.md` (always-on rules)
    - `.kiro/skills/{name}/references/project-notes.md` (skill-specific context)
    - `.crew-config.yaml` (param overrides)
-4. Restore any unique prompts to `.kiro/prompts/`
+4. Preserve any unique workflows as skills in `.kiro/skills/`
 5. Migrate existing CONTEXT.md / glossary content if present
 6. Document any reference repos in AGENTS.md "References" section with clone commands
 
@@ -73,6 +73,6 @@ Present recommendation and wait for approval before proceeding.
 
 - Never delete without backing up first
 - Preserve ALL project-specific rules (even if they seem redundant)
-- Ask before replacing any existing prompt with custom content
+- Ask before replacing any existing workflow with a crew-research equivalent
 - Capture the "why" of existing conventions, not just the "what"
 - If existing setup has instructions like "always run X before committing" — that becomes steering
