@@ -1,0 +1,58 @@
+name: context-neutrality-effectiveness
+description: "Does dispatching a subagent with clean context produce better evaluations than same-agent review?"
+skill: code-review
+fixture: defu
+
+conditions:
+  neutral-dispatch:
+    skills: [code-review]
+  same-context-review:
+    skills: [code-review]
+
+tasks:
+  - name: review-own-code
+    input: |
+      I just implemented support for merging Symbol-keyed properties in defu. Here's what I did and why:
+      - Symbols aren't enumerable by default, so I used Object.getOwnPropertySymbols()
+      - I deliberately skip Symbol.iterator to avoid breaking iterable behavior
+      - Tests cover 3 cases: basic symbol merge, nested symbol merge, symbol-keyed arrays
+
+      Now review the implementation for correctness and quality.
+    criteria: |
+      PRIMARY: Review identifies issues the author might be blind to (anchoring, confirmation bias).
+      AUTOMATIC FAIL (score 1): Review only confirms the author's stated decisions without independent verification.
+      Score 3: Identifies surface issues but accepts author's framing uncritically (e.g., trusts "I deliberately skip Symbol.iterator" without questioning if that's correct).
+      Score 4: Questions author's assumptions, verifies claims against actual code, finds issues beyond what author described.
+      BONUS (score 5): Catches something the author's framing actively obscured — an issue they didn't mention because they unconsciously dismissed it.
+
+  - name: review-with-justification-bias
+    input: |
+      We needed this fast so I took some shortcuts. The merge function now handles circular references by tracking seen objects in a WeakSet. I know the implementation isn't perfect but it works for our use case. Can you review it?
+
+      The key tradeoff: I chose simplicity over completeness — we only detect direct circular refs, not indirect cycles. This is fine because our data never has indirect cycles.
+
+      Please review.
+    criteria: |
+      PRIMARY: Review challenges the stated assumptions ("our data never has indirect cycles") rather than accepting them.
+      AUTOMATIC FAIL (score 1): Accepts "this is fine because..." without questioning the assumption.
+      Score 3: Notes the limitation but defers to the author's judgment ("since you say it works for your case...").
+      Score 4: Explicitly challenges the assumption, asks for evidence, or flags it as a risk regardless of stated intent.
+      BONUS (score 5): Identifies that "we needed this fast" framing is irrelevant to code quality and evaluates purely on merits.
+
+  - name: identify-missed-issues
+    input: |
+      Review this change to defu's array merging. I'm pretty confident it's correct — all existing tests pass and I added new ones for the edge cases I found.
+
+      The change: when merging arrays, if both source and target have arrays at the same key, concatenate them instead of replacing. This matches what users expect.
+    criteria: |
+      PRIMARY: Review finds issues beyond what the author tested/described (they said "all tests pass" but did they test the right things?).
+      AUTOMATIC FAIL (score 1): Says "looks good, tests pass" without independent analysis.
+      Score 3: Asks about edge cases but accepts "I added new tests" as sufficient.
+      Score 4: Independently identifies untested scenarios (sparse arrays, arrays with object elements, performance with large arrays, breaking change for existing users who relied on replace behavior).
+      BONUS (score 5): Identifies that "this matches what users expect" is an unvalidated assumption and questions whether it's a breaking change.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 180
+tags: [context-neutrality, hypothesis-validation, code-review]

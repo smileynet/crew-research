@@ -1,0 +1,58 @@
+name: content-neutrality-effectiveness
+description: "Does neutral evaluation catch quality issues that same-context review misses? Tests across docs, changelogs, and skill descriptions."
+skill: writing-style
+fixture: defu
+
+conditions:
+  neutral-dispatch:
+    skills: [writing-style]
+  same-context-review:
+    skills: [writing-style]
+
+tasks:
+  - name: readme-cold-read
+    input: |
+      I wrote this README for the defu project. I think it covers everything needed. Review it for clarity and completeness.
+
+      # defu
+      Deep merge utility that recursively assigns default properties. Uses a smart algorithm to handle edge cases like circular references, arrays, and class instances.
+
+      ## Install
+      npm install defu
+
+      ## Usage
+      import { defu } from 'defu'
+      const result = defu(target, ...defaults)
+
+      ## How it works
+      The algorithm traverses the object tree depth-first, checking each property against the target. Non-plain-object values use direct assignment while plain objects recurse. The merger function can be customized per-key.
+    criteria: |
+      PRIMARY: Evaluator identifies that this README fails the "one-line test" and buries the quick start.
+      AUTOMATIC FAIL (score 1): Says the README is fine or only suggests minor formatting.
+      Score 3: Notes something is missing but doesn't identify the core problem (leads with mechanism, not outcome).
+      Score 4: Identifies that "uses a smart algorithm" tells the reader nothing, "how it works" comes before showing value, and there's no example output.
+      BONUS (score 5): Rewrites the one-liner to describe what it DOES ("assign default values to nested objects") not HOW ("smart algorithm"), adds a concrete before/after example.
+
+  - name: changelog-mechanism-bias
+    input: |
+      Here's our changelog entry for the latest release. We refactored the internal merger to use a visitor pattern which made the code much cleaner:
+
+      ## 1.5.0
+      - Refactored merger internals to visitor pattern
+      - Added TypeScript 5.4 support
+      - Fixed WeakSet usage for circular reference detection
+      - Improved test coverage to 98%
+
+      Review for quality.
+    criteria: |
+      PRIMARY: Evaluator catches that entries describe mechanism/implementation rather than user-facing impact.
+      AUTOMATIC FAIL (score 1): Approves the changelog as-is.
+      Score 3: Notes style issues but doesn't identify the core problem (reader can't tell what changed FOR THEM).
+      Score 4: Identifies multiple entries that fail the "technology-replacement test" — would a user care about visitor pattern? About WeakSet? About 98% coverage?
+      BONUS (score 5): Rewrites entries in user-impact form (e.g., "Refactored merger" → "No user-facing changes" or describes what the refactor enabled).
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 120
+tags: [context-neutrality, hypothesis-validation, content-review]
