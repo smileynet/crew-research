@@ -2,58 +2,70 @@
 name: code-review
 description: "Code review standards and checklist. Use when reviewing code, PRs, or implementations for correctness, security, and quality."
 metadata:
-  type: reference
+  type: protocol
   invocation: both
   practice: null
 ---
 
-# Code Review Standards
+# Code Review
 
-## Review Priority (check in this order)
+## Process
 
-### 1. Correctness
-- Does it do what it's supposed to?
-- Edge cases handled? (null, empty, boundary)
-- Error paths explicit? (no silent swallowing)
+Dispatch a subagent for the review. Subagents have clean context — no knowledge of why the code was written — which produces more neutral, thorough reviews.
 
-### 2. Security
-- No hardcoded secrets
-- Input validation on external inputs
-- Least-privilege permissions
-- No injection vectors (SQL, XSS, command)
+### 1. Gather the diff
 
-### 3. Design
-- Single responsibility per function/class
-- Small and focused (describe without "and")
-- No implicit coupling between modules
+```bash
+git diff main          # or git diff HEAD~1, or the relevant range
+```
 
-### 4. Testing
-- New code has tests (behavior, not implementation)
-- Happy path + at least one error path
+### 2. Dispatch review subagent
+
+Provide the subagent with:
+- The diff (or file list + contents)
+- The review checklist below
+- Any project-specific rules from `.kiro/steering/` or `.crew-config.yaml`
+
+Do NOT provide: the task description, design rationale, or conversation history. The reviewer should evaluate the code on its own merits.
+
+### 3. Report findings
+
+Summarize the subagent's findings. Group by severity, cap at 5 critical/important items.
+
+## Review Checklist (for subagent)
+
+**Priority order:**
+
+1. **Correctness** — Does it work? Edge cases? Error paths explicit?
+2. **Security** — Hardcoded secrets? Input validation? Injection vectors?
+3. **Design** — Single responsibility? Focused functions? No implicit coupling?
+4. **Testing** — New code has tests? Covers happy path + at least one error path?
 
 ## Feedback Format
 
-Every comment: **Request, Reason, Result**:
 ```
 [SEVERITY] file:line — Issue summary.
   Request: What to change.
   Reason: Why it matters.
 ```
 
-## Severity
+**Severities:**
 - **CRITICAL**: Must fix. Security, data loss, broken functionality.
 - **IMPORTANT**: Should fix. Bug, missing error handling.
 - **NIT**: Nice to fix. Style, naming. Don't block on these.
 
-## Antipatterns to Flag
+## Signals to Flag
+
 | Signal | Issue |
 |--------|-------|
-| Function > 20 lines or needs "and" to describe | God method |
+| Function > 20 lines or needs "and" to describe | Too broad |
 | Empty catch blocks | Silent error swallowing |
 | Signature doesn't match behavior | Functions that lie |
 | Module reaches into another's internals | Implicit coupling |
 
 ## Rules
-- Verify claims against actual code (read the file)
+
+- Reviewer verifies claims against actual code (reads the file, not just the diff)
 - Never say "looks good" without checking
 - Cap at 5 findings; defer low-severity with a count
+- If the review is clean, say so in one line — don't manufacture feedback
