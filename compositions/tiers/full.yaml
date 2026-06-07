@@ -1,5 +1,4 @@
-tier: full
-description: "Complete toolkit: core lifecycle + specialized activities, multi-agent crews"
+description: "Everything in basic + research, creative writing, multi-agent, and meta-skills."
 
 steering:
   - ai-generation-hygiene
@@ -9,64 +8,80 @@ steering:
   - context-budget-awareness
 
 skills:
-  - project-conventions
+  # === Basic tier (included) ===
+
+  # Plan
   - planning-cycles
   - vertical-slice-planning
   - five-whys
   - assumption-tracking
-  - script-authoring
-  - troubleshooting-protocol
+  - grill-with-docs
+  - plan-prereqs
+
+  # Build
   - feedback-loop-debugging
-  - skill-authoring
+  - troubleshooting-protocol
   - code-review
   - testing-guide
-  - git-protocol
-  - writing-style
-  - prototype-protocol
+  - script-authoring
   - architecture-deepening
-  - poc-workflow
-  - situation-routing
-  - completion-protocol
-  - commit-pr-discipline
-  - deployment-safety
-  - changelog-discipline
-  - readme-writing
-  - tutorial-authoring
-  - presentation-writing
   - diagrams
-  - diataxis-classification
-  - document-formats
-  - docs-audit
+
+  # Write
+  - writing-style
+  - readme-writing
+  - changelog-discipline
+  - commit-pr-discipline
+
+  # Verify & Ship
+  - completion-protocol
+  - deployment-safety
+  - git-protocol
+
+  # Maintain
+  - init-project
+  - adopt-project
+  - project-cleanup
+  - project-audit
+  - adr-authoring
+  - situation-routing
+  - image-analysis
+
+  # Session
+  - handoff
+  - read-handoff
+  - cheatsheet
+
+  # === Full tier additions ===
+
+  # Research & Exploration
   - research-methodology
   - research-output
   - research-dispatch
+  - research-topics
   - reference-exploration
-  - adr-authoring
-  - enforcement-hierarchy
-  - eval-criteria
-  - session-review-patterns
-  - fiction-craft
-  - world-building
-  - ux-walkthrough
-  - init-project
-  - grill-with-docs
-  - handoff
-  - read-handoff
-  - project-cleanup
-  - project-audit
-  - adopt-project
-  - plan-prereqs
-  - image-analysis
-  - cheatsheet
   - study-reference
   - study-all-references
-  - research-topics
 
-agents:
-  - lead
-  - planner
-  - implementer
-  - researcher
-  - reviewer
-  - tester
-  - writer
+  # PoC & Prototyping
+  - poc-workflow
+  - prototype-protocol
+  - ux-walkthrough
+
+  # Documentation (specialized)
+  - docs-audit
+  - diataxis-classification
+  - document-formats
+  - tutorial-authoring
+  - presentation-writing
+
+  # Creative
+  - fiction-craft
+  - world-building
+
+  # Meta (agent/skill development)
+  - eval-criteria
+  - skill-authoring
+  - session-review-patterns
+  - enforcement-hierarchy
+  - project-conventions

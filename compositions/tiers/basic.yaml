@@ -1,5 +1,4 @@
-tier: basic
-description: "Core project lifecycle: setup → design → plan → build → verify → commit → deliver → hand off → cleanup"
+description: "Core development lifecycle — plan, build, verify, ship."
 
 steering:
   - ai-generation-hygiene
@@ -9,29 +8,44 @@ steering:
   - context-budget-awareness
 
 skills:
-  - project-conventions
+  # Plan
   - planning-cycles
   - vertical-slice-planning
   - five-whys
   - assumption-tracking
-  - script-authoring
-  - troubleshooting-protocol
+  - grill-with-docs
+  - plan-prereqs
+
+  # Build
   - feedback-loop-debugging
+  - troubleshooting-protocol
   - code-review
   - testing-guide
-  - git-protocol
+  - script-authoring
+  - architecture-deepening
+  - diagrams
+
+  # Write
   - writing-style
-  - research-dispatch
+  - readme-writing
+  - changelog-discipline
+  - commit-pr-discipline
+
+  # Verify & Ship
+  - completion-protocol
+  - deployment-safety
+  - git-protocol
+
+  # Maintain
   - init-project
-  - grill-with-docs
-  - handoff
-  - read-handoff
+  - adopt-project
   - project-cleanup
   - project-audit
-  - adopt-project
-  - plan-prereqs
+  - adr-authoring
+  - situation-routing
   - image-analysis
+
+  # Session
+  - handoff
+  - read-handoff
   - cheatsheet
-  - study-reference
-  - study-all-references
-  - research-topics

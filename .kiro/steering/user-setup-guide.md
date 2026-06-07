@@ -13,10 +13,10 @@ When a user asks about setting up crew-research, installing skills, or getting s
 
 ## Tier Recommendation
 
-Ask: "Are you working solo on a project, or do you need multi-agent delegation?"
+Ask: "What does your workflow look like?"
 
-- **Solo / small team / just want better output** → `basic`
-- **Need multi-agent crews, research workflows, PoC lifecycle, creative writing** → `full`
+- **Building and shipping code** (plan, build, review, test, deploy) → `basic`
+- **Also doing deep research, prototyping, creative writing, or building agent skills** → `full`
 
 ## Setup Steps
 
