@@ -1,6 +1,9 @@
 ---
 name: readme-writing
 description: "Write and improve README files that orient readers and drive adoption. Use when creating, rewriting, or auditing a project README. Trigger terms: readme, README, project description, quick start, getting started, project documentation entry point."
+metadata:
+  type: reference
+  invocation: both
 ---
 
 # README Writing

@@ -1,6 +1,9 @@
 ---
 name: presentation-writing
 description: Create effective presentations, slide decks, and workshop materials. Use when building MARP decks, PowerPoint content, demo scripts, or any audience-facing material.
+metadata:
+  type: process
+  invocation: both
 ---
 
 # Presentation Writing

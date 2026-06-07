@@ -1,6 +1,9 @@
 ---
 name: adr-authoring
 description: Write Architecture Decision Records when making significant technical choices. Use when selecting tools, patterns, frameworks, or making structural changes that future developers need to understand.
+metadata:
+  type: process
+  invocation: both
 ---
 
 # ADR Authoring

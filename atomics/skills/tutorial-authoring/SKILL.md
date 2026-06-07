@@ -1,6 +1,9 @@
 ---
 name: tutorial-authoring
 description: "Author hands-on tutorials that take readers from zero to a working result. Use when producing a new tutorial, getting-started guide, onboarding doc, or restructuring docs that drifted from tutorial into reference. Trigger terms: tutorial, getting started, onboarding, step-by-step guide, walkthrough, hands-on, learning guide."
+metadata:
+  type: process
+  invocation: both
 ---
 
 # Tutorial Authoring
