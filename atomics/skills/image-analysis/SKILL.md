@@ -9,26 +9,30 @@ Analyze an image by dispatching a kiro-cli session with the image path in the pr
 
 ## Process
 
-1. Confirm the image path exists (use glob or read to verify)
-2. Invoke kiro-cli with the image path included directly in the prompt:
+1. Determine what the user needs from the image (describe, extract text, compare, identify elements, etc.)
+2. Confirm the image path exists
+3. Invoke kiro-cli with the specific question AND the image path:
 
 ```bash
-kiro-cli chat --no-interactive "Analyze this image: /path/to/image.png"
+kiro-cli chat --no-interactive "<your question about the image> /path/to/image.png"
 ```
 
-3. Report the results back to the user
+The question should be specific — ask exactly what you need to know.
 
 ## Examples
 
 ```bash
-# Describe what's in a screenshot
-kiro-cli chat --no-interactive "Describe what you see in this image: ./screenshots/error.png"
+# Ask what's in a screenshot
+kiro-cli chat --no-interactive "What error message is shown in this screenshot? ./screenshots/error.png"
 
-# Extract text from an image
-kiro-cli chat --no-interactive "Extract all visible text from this image: ~/Downloads/receipt.jpg"
+# Extract specific text
+kiro-cli chat --no-interactive "What is the total amount on this receipt? ~/Downloads/receipt.jpg"
 
-# Analyze a diagram
-kiro-cli chat --no-interactive "Explain the architecture shown in this diagram: docs/architecture.png"
+# Understand a diagram
+kiro-cli chat --no-interactive "What components are shown and how do they connect? docs/architecture.png"
+
+# Compare elements
+kiro-cli chat --no-interactive "What changed between these two UI states? before.png after.png"
 ```
 
 ## Notes
