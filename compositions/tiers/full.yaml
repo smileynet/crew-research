@@ -12,6 +12,7 @@ skills:
 
   # Plan
   - planning-cycles
+  - spec-driven-development
   - vertical-slice-planning
   - five-whys
   - assumption-tracking
