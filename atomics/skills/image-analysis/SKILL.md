@@ -1,10 +1,6 @@
 ---
 name: image-analysis
 description: "Analyze an image file using vision capabilities. Use when asked to describe, analyze, extract text from, or interpret an image. Trigger: analyze image, describe image, what's in this image, screenshot, OCR, read this image."
-metadata:
-  type: process
-  invocation: user-only
-  practice: null
 ---
 
 # Image Analysis
