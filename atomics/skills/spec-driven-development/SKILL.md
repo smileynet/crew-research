@@ -10,22 +10,43 @@ metadata:
 
 Every project gets a PLAN.md and per-feature specs. Specs exist for every feature — even already-implemented ones — so there's a clear mental model of each feature's purpose.
 
-## Artifacts
+## Process
 
-### PLAN.md (project root)
+1. **Assess complexity** (1-5) before deciding depth
+2. **Clarify** — resolve ALL ambiguity. Block on vague language.
+3. **Write PLAN.md** — intent, phases, task graph with dependencies
+4. **Write specs** for current phase before implementing
+5. **Implement against spec** — requirements are acceptance criteria
+6. **Reconcile** — update spec to match what was actually built
+7. **Validate** using spec's validation section
+
+## Complexity Scoring
+
+| Score | Depth | Example |
+|-------|-------|---------|
+| 1 | No spec | Fix typo, config |
+| 2 | Inline in PLAN.md | Single-function change |
+| 3 | Light spec (what + validation) | New endpoint |
+| 4 | Full spec | Multi-component feature |
+| 5 | Full spec + design doc | New system |
+
+## Clarification Gate
+
+Do NOT proceed if any requirement uses vague language ("appropriate", "as needed", "various"), has implicit assumptions, or references undefined terms. Stop and ask.
+
+## PLAN.md
 
 ```markdown
 # Project Name
 
 ## Intent
-One paragraph: what we're building and why.
+One paragraph: what and why.
 
 ## Phases
-
 ### Phase 1: [Name]
-- Goal: what this phase achieves
-- Features: list (link to spec files)
-- Validates: how we know this phase works
+- Goal: what this achieves
+- Features: list (link to .specs/ files)
+- Validates: how we know it works
 
 ## Task Graph
 - Phase 1 → Phase 2 (dependency reason)
@@ -33,65 +54,29 @@ One paragraph: what we're building and why.
 - Feature C [P] (parallelizable)
 ```
 
-`[P]` marks tasks that can run in parallel with siblings.
+## Feature Specs (`.specs/{slug}.md`)
 
-### Feature Specs (`.specs/{feature-slug}.md`)
+See [references/spec-template.md](references/spec-template.md) for full template.
 
-```markdown
-# Feature: [Name]
+Required sections: Status, What, Who/Why, Non-Goals, Requirements, Validation.
+Optional: Unresolved Questions, Alternatives Considered.
 
-## Status
-Draft | In Review | Accepted | Implemented | Validated
+## Lifecycle
 
-## What
-One paragraph: what this feature does.
-
-## Who / Why
-Who uses it, what problem it solves for them.
-
-## Requirements
-- [ ] Functional requirement 1
-- [ ] Functional requirement 2
-- [ ] Non-functional (performance, security, etc.)
-
-## Validation
-How we prove it works:
-- **Blackbox**: input X → expect output Y
-- **Visual**: screenshot comparison, UI state check
-- **Real-world**: user workflow end-to-end
-- **Automated**: test commands that pass/fail
-
-## Unresolved Questions
-- Open question that needs answering before/during implementation
-
-## Alternatives Considered
-- Option B: why we didn't choose it
+```
+Draft → Accepted → Implemented → Reconciled → Validated
 ```
 
-## Process
-
-1. **Clarify** — resolve ambiguity before writing. Ask "what's unclear?"
-2. **Write PLAN.md** — intent, phases, task graph
-3. **Write specs for Phase 1** before implementing
-4. **Implement against spec** — requirements are acceptance criteria
-5. **Validate using spec's validation section** — don't mark done until validated
-6. **Advance spec status** — Draft → Accepted → Implemented → Validated
-7. **Backfill specs for existing features** — captures what's already built
-
-## Scale-Adaptive Depth
-
-| Change size | What to write |
-|-------------|---------------|
-| Bug fix / small tweak | Nothing (just fix it) |
-| Single feature | One spec file |
-| Multi-feature phase | PLAN.md + spec per feature |
-| New project | PLAN.md + phase specs + feature specs |
+- **Accepted**: no unresolved questions, approved to build
+- **Implemented**: code written, tests pass
+- **Reconciled**: spec updated if implementation diverged
+- **Validated**: validation criteria confirmed passing
 
 ## Rules
 
-- Spec comes before implementation (unless backfilling)
-- Validation section must be concrete — "it works" is not a plan
-- PLAN.md stays high-level — detail lives in specs
-- Task graph shows dependencies, not schedule
-- Unresolved questions must be answered before implementation starts
-- Keep specs updated as requirements change during implementation
+- Assess complexity before choosing depth
+- Clarification is a gate, not a suggestion
+- Non-Goals section mandatory for complexity 3+
+- Validation must be concrete — "it works" fails
+- Reconcile after implementation — lying specs are worse than no specs
+- `[P]` = parallelizable, `→` = dependency
