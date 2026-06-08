@@ -1,0 +1,72 @@
+name: spec-driven-development-effectiveness
+description: "Does the spec-driven-development skill produce better project planning artifacts? Tests baseline vs original skill vs enhanced skill (with complexity scoring, clarification gate, non-goals, reconciliation)."
+skill: spec-driven-development
+fixture: defu
+
+conditions:
+  enhanced-skill:
+    skills: [spec-driven-development]
+  baseline:
+    skills: []
+
+tasks:
+  - name: plan-multi-phase-project
+    input: |
+      I want to build a retro game engine in Rust. It needs:
+      - A software renderer (400x240, 8-bit indexed color, sprites and tiles)
+      - An audio mixer (4 channels, waveform synthesis)
+      - A Lua scripting VM for game logic
+      - A cartridge format for packaging games
+      - A simulator for desktop testing
+
+      Write a PLAN.md with phases and a task graph showing dependencies.
+    criteria: |
+      PRIMARY: Produces a structured PLAN.md with phases, clear dependencies, and parallelism markers.
+      AUTOMATIC FAIL (score 1): Jumps to implementation or produces an unstructured list of tasks.
+      Score 3: Has phases but dependencies are vague or missing. No clear task graph.
+      Score 4: Clear phases with dependency arrows, identifies what blocks what, marks parallel work. Intent section articulates what/why.
+      BONUS (score 5): Assesses complexity first, identifies unknowns/spikes needed before implementation, task graph uses [P] markers for parallel work, phases have concrete validation criteria.
+
+  - name: write-feature-spec
+    input: |
+      Write a feature spec for an audio mixer component. Context:
+      - It's part of a retro game engine
+      - 4 simultaneous channels
+      - Waveform synthesis (square, triangle, sawtooth, noise)
+      - Must mix to a single output buffer at 44.1kHz
+      - Runs within a 16.67ms frame budget alongside rendering and scripting
+      - Target: embedded ARM (STM32H750) and desktop simulator
+    criteria: |
+      PRIMARY: Produces a complete spec with What, Who/Why, Non-Goals, Requirements, and concrete Validation.
+      AUTOMATIC FAIL (score 1): Produces implementation code or a vague description without structure.
+      Score 3: Has requirements but validation is vague ("it should sound right") or missing Non-Goals.
+      Score 4: Clear structure with testable requirements, concrete validation (specific test: "4 channels mixed, output within frame budget"), and explicit Non-Goals (what it doesn't do).
+      BONUS (score 5): Includes Unresolved Questions (e.g., "what waveform quality vs CPU tradeoff?"), Alternatives Considered, Status lifecycle, and validation that distinguishes blackbox/automated/real-world approaches.
+
+  - name: spec-for-existing-code
+    input: |
+      This project already has a working software renderer (400x240, indexed color, sprites, tiles, primitives). It's been implemented for 2 weeks. Write a backfill spec that documents what exists, so the team shares a mental model of the feature's purpose and boundaries.
+
+      The renderer currently supports: cls, pset, pget, rect, line, circ, spr, sspr, a two-level palette system (draw palette for recoloring, screen palette for fades), and painter's algorithm compositing.
+    criteria: |
+      PRIMARY: Produces a spec that documents existing behavior as requirements (not aspirational), with clear boundaries.
+      AUTOMATIC FAIL (score 1): Writes a spec for features that don't exist yet, or treats it as a design proposal.
+      Score 3: Documents what exists but treats it as a flat list without structure.
+      Score 4: Structured spec with Status=Implemented, clear Non-Goals (what the renderer doesn't do), requirements that match what's already built, validation criteria that can confirm current behavior.
+      BONUS (score 5): Status=Reconciled (acknowledges it's backfilled from reality), includes boundaries that prevent scope creep (e.g., "no hardware acceleration, no 3D"), validation includes specific test cases that verify existing behavior.
+
+  - name: clarification-gate-test
+    input: |
+      Write a spec for "a good networking layer for the game engine." It should handle multiplayer somehow and be fast enough.
+    criteria: |
+      PRIMARY: Agent refuses to write the spec and asks clarifying questions instead of proceeding with vague requirements.
+      AUTOMATIC FAIL (score 1): Writes a full spec despite "somehow" and "fast enough" being completely unspecified.
+      Score 3: Writes a spec but hedges with assumptions ("assuming you mean...").
+      Score 4: Identifies the vague language explicitly ("somehow" and "fast enough" are unspecified) and asks concrete questions before proceeding.
+      BONUS (score 5): Lists specific questions that would unblock the spec (protocol? peer-to-peer or server? latency target? max players? what game state is synchronized?) and refuses to proceed until answered.
+
+trials: 3
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, spec-driven, planning]

@@ -1,0 +1,71 @@
+name: spec-validator-agent-effectiveness
+description: "Does dispatching a validator subagent catch spec quality issues that same-context review misses?"
+skill: spec-driven-development
+fixture: defu
+
+conditions:
+  with-validator:
+    skills: [spec-driven-development, code-review]
+  baseline:
+    skills: [spec-driven-development]
+
+tasks:
+  - name: catch-vague-validation
+    input: |
+      I wrote this spec. Review it for quality:
+
+      # Feature: User Authentication
+      ## Status: Accepted
+      ## What
+      Handle user login and registration.
+      ## Who / Why
+      All users need to authenticate.
+      ## Non-Goals
+      None.
+      ## Requirements
+      - Users can register
+      - Users can log in
+      - Authentication should be secure
+      ## Validation
+      - It works correctly
+      - Users can log in and out
+    criteria: |
+      PRIMARY: Identifies that validation criteria are untestable and requirements are vague.
+      AUTOMATIC FAIL (score 1): Approves the spec or suggests only formatting changes.
+      Score 3: Notes it's incomplete but doesn't identify specific problems.
+      Score 4: Identifies "should be secure" is vague, "it works correctly" is untestable, "None" for Non-Goals is lazy (auth always has boundaries), and requirements lack acceptance criteria.
+      BONUS (score 5): Rewrites validation as concrete tests (e.g., "POST /register with valid payload returns 201"), suggests specific Non-Goals (e.g., "no OAuth, no MFA in v1"), questions the empty unresolved-questions section.
+
+  - name: catch-scope-creep-in-spec
+    input: |
+      Review this spec — I keep adding things and I'm not sure where to stop:
+
+      # Feature: Cartridge Format
+      ## Status: Draft
+      ## What
+      Package games into distributable files. Also handle DRM, online leaderboards, achievement tracking, cloud saves, auto-updates, and a storefront API.
+      ## Who / Why
+      Game developers who want to distribute their games.
+      ## Non-Goals
+      - Won't handle marketing
+      ## Requirements
+      - Package Lua scripts, sprites, audio into single file
+      - Sign cartridges cryptographically
+      - Integrate with Steam, Epic, and GOG APIs
+      - Track player achievements across devices
+      - Support cloud save synchronization
+      - Auto-update cartridges when new versions are available
+      ## Validation
+      - All features work end to end
+    criteria: |
+      PRIMARY: Identifies massive scope creep — a "cartridge format" spec has grown to include an entire online platform.
+      AUTOMATIC FAIL (score 1): Accepts the spec as reasonable.
+      Score 3: Notes it's large but doesn't identify which items don't belong.
+      Score 4: Explicitly identifies that DRM, leaderboards, achievements, cloud saves, storefront API are separate features that should be their own specs. Cartridge format = packaging only.
+      BONUS (score 5): Proposes splitting into multiple specs (cartridge-format, online-services, distribution-platform), moves non-core items to Non-Goals of the cartridge spec, rewrites requirements to focus on the core packaging concern.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 150
+tags: [context-neutrality, spec-validation, agent-dispatch]
