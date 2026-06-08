@@ -14,8 +14,6 @@ Every project gets a PLAN.md and per-feature specs. Specs exist for every featur
 
 ### PLAN.md (project root)
 
-High-level intent and structure:
-
 ```markdown
 # Project Name
 
@@ -26,24 +24,24 @@ One paragraph: what we're building and why.
 
 ### Phase 1: [Name]
 - Goal: what this phase achieves
-- Features: list of features (link to specs)
+- Features: list (link to spec files)
 - Validates: how we know this phase works
 
-### Phase 2: [Name]
-...
-
 ## Task Graph
-- Phase 1 → Phase 2 (Phase 2 depends on Phase 1 infra)
-- Feature A → Feature B (B uses A's API)
-- Feature C (independent, can parallelize)
+- Phase 1 → Phase 2 (dependency reason)
+- Feature A → Feature B (B uses A's output)
+- Feature C [P] (parallelizable)
 ```
 
-### Feature Specs (`.specs/` or `docs/specs/`)
+`[P]` marks tasks that can run in parallel with siblings.
 
-One file per feature or phase. Name: `{feature-slug}.md`
+### Feature Specs (`.specs/{feature-slug}.md`)
 
 ```markdown
 # Feature: [Name]
+
+## Status
+Draft | In Review | Accepted | Implemented | Validated
 
 ## What
 One paragraph: what this feature does.
@@ -59,28 +57,41 @@ Who uses it, what problem it solves for them.
 ## Validation
 How we prove it works:
 - **Blackbox**: input X → expect output Y
-- **Visual/Image**: screenshot comparison, UI state check
-- **Real-world**: user workflow end-to-end test
+- **Visual**: screenshot comparison, UI state check
+- **Real-world**: user workflow end-to-end
 - **Automated**: test commands that pass/fail
 
-## Status
-Draft | In Progress | Implemented | Validated
+## Unresolved Questions
+- Open question that needs answering before/during implementation
+
+## Alternatives Considered
+- Option B: why we didn't choose it
 ```
 
 ## Process
 
-1. **Write PLAN.md first** — intent, phases, task graph
-2. **Write specs for Phase 1 features** before implementing
-3. **Implement against the spec** — requirements are acceptance criteria
-4. **Validate using spec's validation section** — don't mark done until validated
-5. **Write specs for next phase** as current phase stabilizes
-6. **Backfill specs for existing features** — captures what's already built so the team shares a mental model
+1. **Clarify** — resolve ambiguity before writing. Ask "what's unclear?"
+2. **Write PLAN.md** — intent, phases, task graph
+3. **Write specs for Phase 1** before implementing
+4. **Implement against spec** — requirements are acceptance criteria
+5. **Validate using spec's validation section** — don't mark done until validated
+6. **Advance spec status** — Draft → Accepted → Implemented → Validated
+7. **Backfill specs for existing features** — captures what's already built
+
+## Scale-Adaptive Depth
+
+| Change size | What to write |
+|-------------|---------------|
+| Bug fix / small tweak | Nothing (just fix it) |
+| Single feature | One spec file |
+| Multi-feature phase | PLAN.md + spec per feature |
+| New project | PLAN.md + phase specs + feature specs |
 
 ## Rules
 
-- Every feature gets a spec, even if it's already implemented
 - Spec comes before implementation (unless backfilling)
-- Validation section must be concrete — "it works" is not a validation plan
+- Validation section must be concrete — "it works" is not a plan
 - PLAN.md stays high-level — detail lives in specs
 - Task graph shows dependencies, not schedule
-- Phases are delivery increments, not calendar sprints
+- Unresolved questions must be answered before implementation starts
+- Keep specs updated as requirements change during implementation
