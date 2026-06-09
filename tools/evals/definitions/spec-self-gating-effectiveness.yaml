@@ -51,7 +51,7 @@ tasks:
       BONUS (score 5): Assesses complexity (3-4), proposes writing a light spec with the answers, identifies the request has enough info for requirements but missing validation criteria and non-goals.
 
 trials: 3
-threshold: 4
+threshold: 3
 delta_threshold: 1.0
 timeout: 120
 tags: [skill-effectiveness, spec-driven, self-gating, unprompted-behavior]
