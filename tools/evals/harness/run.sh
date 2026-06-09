@@ -121,10 +121,12 @@ invoke_agent() {
     return
   fi
 
-  local cmd
-  cmd=$(echo "$INVOKE_NO_AGENT_CMD" | sed "s|{query}|$input|")
+  # Write input to temp file, pass via xargs to avoid shell escaping issues
+  local input_file=$(mktemp "$workdir/.eval-input-XXXX")
+  printf '%s' "$input" > "$input_file"
   cd "$workdir"
-  timeout "$timeout" bash -c "$cmd" 2>&1 | strip_ansi || true
+  timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never "$(cat "$1")"' _ "$input_file" 2>&1 | strip_ansi || true
+  rm -f "$input_file"
 }
 
 # Send output to judge, get SCORE and REASON
