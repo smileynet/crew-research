@@ -1,0 +1,57 @@
+name: spec-self-gating-effectiveness
+description: "Does the spec-driven-development skill cause the agent to self-gate (refuse vague input, self-review before presenting) when NOT explicitly asked to review?"
+skill: spec-driven-development
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [spec-driven-development]
+  baseline:
+    skills: []
+
+tasks:
+  - name: write-spec-from-vague-input
+    input: "Write a spec for a caching layer. It should be fast and handle various edge cases appropriately."
+    criteria: |
+      PRIMARY: Agent refuses to write the spec and asks clarifying questions INSTEAD of producing a spec.
+      AUTOMATIC FAIL (score 1): Produces a complete spec document filling in its own assumptions for what "fast" and "various edge cases" mean.
+      Score 2: Produces a spec but hedges with "assuming you mean..." or "I've made these assumptions:".
+      Score 3: Asks 1-2 questions but also provides a draft spec simultaneously.
+      Score 4: Identifies "fast", "various", and "appropriately" as blockers. Lists specific questions (cache eviction policy? TTL? max size? consistency model? what data?) and waits for answers.
+      BONUS (score 5): Explicitly names the clarification gate, refuses to draft until answers are provided, proposes concrete options for each vague term (e.g., "fast: do you mean <10ms p99 or <100ms p99?").
+
+  - name: write-spec-bloated-request
+    input: "Write a spec for user management. It needs signup, login, SSO, roles, permissions, teams, invitations, audit trail, and account deletion with data export."
+    criteria: |
+      PRIMARY: Agent identifies this as multiple features and proposes decomposition BEFORE writing a single monolithic spec.
+      AUTOMATIC FAIL (score 1): Writes one large spec containing all 9 capabilities.
+      Score 2: Writes the monolithic spec but notes "this could be split later."
+      Score 3: Asks if the user wants it split, but offers to write it as-is.
+      Score 4: Proposes a decomposition (e.g., auth, authorization, team-management, audit) with dependency order and asks which to spec first.
+      BONUS (score 5): Assesses complexity as 5, proposes PLAN.md with phases, identifies which specs depend on others (roles→permissions→teams), and offers to write the first focused spec.
+
+  - name: produce-spec-with-testable-validation
+    input: "Write a spec for a rate limiter. 100 requests per minute per API key, sliding window, returns 429 when exceeded."
+    criteria: |
+      PRIMARY: The produced spec has concrete, executable validation criteria — not just "rate limiting works."
+      AUTOMATIC FAIL (score 1): Validation section says "rate limiting works correctly" or "requests are limited."
+      Score 2: Validation mentions testing but no specific test cases.
+      Score 3: Has some test ideas but they're described in prose rather than concrete input→output.
+      Score 4: Validation section has specific tests: "101st request within 60s window → HTTP 429", "request after window slides → HTTP 200", "different API keys → independent counters."
+      BONUS (score 5): Includes Non-Goals (what it doesn't rate limit, e.g., not per-endpoint), distinguishes blackbox (curl commands), automated (test script), and edge cases (clock skew, distributed counters).
+
+  - name: refuse-to-implement-without-spec
+    input: "I need a webhook system. Just start building it — receivers register URLs, we POST events to them with retries."
+    criteria: |
+      PRIMARY: Agent pushes back on "just start building" and insists on a spec (or at minimum clarification) before implementing.
+      AUTOMATIC FAIL (score 1): Starts writing implementation code immediately.
+      Score 2: Starts coding but mentions "we should document this later."
+      Score 3: Asks a couple questions but then starts implementing anyway.
+      Score 4: Refuses to implement without a spec. Asks: retry policy (how many, backoff?), event format, authentication (HMAC?), failure handling (dead letter queue?), delivery guarantees (at-least-once?). Proposes writing a spec first.
+      BONUS (score 5): Assesses complexity (3-4), proposes writing a light spec with the answers, identifies the request has enough info for requirements but missing validation criteria and non-goals.
+
+trials: 3
+threshold: 4
+delta_threshold: 1.0
+timeout: 120
+tags: [skill-effectiveness, spec-driven, self-gating, unprompted-behavior]

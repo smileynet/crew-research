@@ -16,9 +16,10 @@ Every project gets a PLAN.md and per-feature specs. Specs exist for every featur
 2. **Clarify** — resolve ALL ambiguity. Block on vague language.
 3. **Write PLAN.md** — intent, phases, task graph with dependencies
 4. **Write specs** for current phase before implementing
-5. **Implement against spec** — requirements are acceptance criteria
-6. **Reconcile** — update spec to match what was actually built
-7. **Validate** using spec's validation section
+5. **Self-review** — run quality gates on your own spec before presenting
+6. **Implement against spec** — requirements are acceptance criteria
+7. **Reconcile** — update spec to match what was actually built
+8. **Validate** using spec's validation section
 
 ## Complexity Scoring
 
@@ -32,7 +33,23 @@ Every project gets a PLAN.md and per-feature specs. Specs exist for every featur
 
 ## Clarification Gate
 
-Do NOT proceed if any requirement uses vague language ("appropriate", "as needed", "various"), has implicit assumptions, or references undefined terms. Stop and ask.
+When the user's request contains vague language, DO NOT write a spec. Instead:
+1. List every vague/ambiguous term found
+2. Propose concrete alternatives for each
+3. Ask the user to confirm before proceeding
+
+Blocked terms: "appropriate", "as needed", "various", "properly", "efficiently", "user-friendly", "fast enough", "etc.", "handle X somehow"
+
+## Self-Review Gates (run before presenting spec)
+
+After drafting, silently check before showing the user:
+
+- **Scope**: Does "What" use "and" to connect 3+ distinct capabilities? → Split.
+- **Non-Goals**: Is it empty for complexity 3+? → Add 3-5 boundaries.
+- **Validation**: Could someone run these checks without asking me questions? If no → rewrite as concrete input→output.
+- **Testability**: Replace any criterion containing "correctly", "properly", "timely", "responsive" with a measurable target.
+
+Do not present a spec that fails these. Fix it first.
 
 ## PLAN.md
 
@@ -67,16 +84,10 @@ Optional: Unresolved Questions, Alternatives Considered.
 Draft → Accepted → Implemented → Reconciled → Validated
 ```
 
-- **Accepted**: no unresolved questions, approved to build
-- **Implemented**: code written, tests pass
-- **Reconciled**: spec updated if implementation diverged
-- **Validated**: validation criteria confirmed passing
-
 ## Rules
 
-- Assess complexity before choosing depth
-- Clarification is a gate, not a suggestion
-- Non-Goals section mandatory for complexity 3+
-- Validation must be concrete — "it works" fails
+- Clarification is a gate — vague input = ask, don't assume
+- Self-review before presenting — never show a spec with vague validation
+- Non-Goals mandatory for complexity 3+
 - Reconcile after implementation — lying specs are worse than no specs
 - `[P]` = parallelizable, `→` = dependency
