@@ -235,7 +235,11 @@ run_eval() {
 
   # Run each condition
   declare -A cond_scores=()
+  declare -A cond_stddev=()
+  declare -A cond_min=()
+  declare -A cond_max=()
   local activation_count=0 activation_total=0
+  local task_scores_json="["
 
   for cond in "${condition_names[@]}"; do
     local cond_all_scores=()
@@ -245,6 +249,7 @@ run_eval() {
       local input="${inputs[$task_idx]}"
       local criteria="${criterias[$task_idx]}"
       local ideal="${ideals[$task_idx]}"
+      local task_trial_scores=()
 
       for trial in $(seq 1 "$run_trials"); do
         local workdir=$(mktemp -d -t "eval-${name}-${cond}-XXXX")
@@ -268,6 +273,7 @@ run_eval() {
         local score
         score=$(parse_score "$judge_result")
         cond_all_scores+=("$score")
+        task_trial_scores+=("$score")
 
         # Check activation for first skill in list
         if [[ "$DRY_RUN" != true && ${#skills_arr[@]} -gt 0 && -n "${skills_arr[0]}" ]]; then
@@ -279,14 +285,40 @@ run_eval() {
 
         rm -rf "$workdir"
       done
+
+      # Per-task average for this condition
+      local task_sum=0
+      for s in "${task_trial_scores[@]}"; do task_sum=$((task_sum + s)); done
+      local task_avg=$(echo "scale=2; $task_sum / ${#task_trial_scores[@]}" | bc)
+      task_scores_json="$task_scores_json{\"task\":$task_idx,\"condition\":\"$cond\",\"avg\":$task_avg,\"scores\":[$(IFS=,; echo "${task_trial_scores[*]}")]}"
+      # Add comma if not last
+      if [[ $task_idx -lt $((${#inputs[@]} - 1)) || "$cond" != "${condition_names[-1]}" ]]; then
+        task_scores_json="$task_scores_json,"
+      fi
     done
 
-    # Compute average for this condition
+    # Compute average, stddev, min, max for this condition
     local sum=0 count=${#cond_all_scores[@]}
-    for s in "${cond_all_scores[@]}"; do sum=$((sum + s)); done
+    local min_s=999 max_s=0
+    for s in "${cond_all_scores[@]}"; do
+      sum=$((sum + s))
+      [[ $s -lt $min_s ]] && min_s=$s
+      [[ $s -gt $max_s ]] && max_s=$s
+    done
     local avg=$(echo "scale=2; $sum / $count" | bc)
+    # Stddev
+    local sq_sum=0
+    for s in "${cond_all_scores[@]}"; do
+      sq_sum=$(echo "$sq_sum + ($s - $avg)^2" | bc -l)
+    done
+    local stddev=$(echo "scale=2; sqrt($sq_sum / $count)" | bc -l)
+
     cond_scores["$cond"]="$avg"
+    cond_stddev["$cond"]="$stddev"
+    cond_min["$cond"]="$min_s"
+    cond_max["$cond"]="$max_s"
   done
+  task_scores_json="$task_scores_json]"
 
   # Compute results
   local status="PASS" reason="" avg_score=0 delta=0
@@ -350,9 +382,12 @@ run_eval() {
     done
     [[ -z "$baseline_cond" ]] && baseline_cond="${condition_names[-1]}"
     [[ -z "$primary_cond" ]] && primary_cond="${condition_names[0]}"
-    score_line="$score_line,\"with_score\":${cond_scores[$primary_cond]},\"without_score\":${cond_scores[$baseline_cond]},\"delta\":$delta"
+    score_line="$score_line,\"with_score\":${cond_scores[$primary_cond]},\"with_stddev\":${cond_stddev[$primary_cond]},\"with_min\":${cond_min[$primary_cond]},\"with_max\":${cond_max[$primary_cond]},\"without_score\":${cond_scores[$baseline_cond]},\"without_stddev\":${cond_stddev[$baseline_cond]},\"without_min\":${cond_min[$baseline_cond]},\"without_max\":${cond_max[$baseline_cond]},\"delta\":$delta"
+  else
+    local cond="${condition_names[0]}"
+    score_line="$score_line,\"stddev\":${cond_stddev[$cond]},\"min\":${cond_min[$cond]},\"max\":${cond_max[$cond]}"
   fi
-  score_line="$score_line}"
+  score_line="$score_line,\"task_scores\":$task_scores_json}"
   echo "$score_line" >> "$SCORES_FILE"
 }
 

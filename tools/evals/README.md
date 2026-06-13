@@ -81,3 +81,37 @@ extract-metrics.sh (pulls tokens, tool calls, phases)
     ↓
 experiment.jsonl + summary.json (results)
 ```
+
+## Results Format (scores.jsonl)
+
+Each eval run produces a JSONL line with:
+
+```json
+{
+  "name": "eval-name",
+  "status": "PASS|FAIL",
+  "score": 4.25,
+  "reason": "human-readable pass/fail reason",
+  "activated": 12,
+  "activation_total": 12,
+  "activation_rate": 1.00,
+  "with_score": 4.25,
+  "with_stddev": 0.43,
+  "with_min": 3,
+  "with_max": 5,
+  "without_score": 2.33,
+  "without_stddev": 0.47,
+  "without_min": 2,
+  "without_max": 3,
+  "delta": 1.92,
+  "task_scores": [
+    {"task": 0, "condition": "with-skill", "avg": 4.33, "scores": [4,5,4]},
+    {"task": 0, "condition": "baseline", "avg": 2.33, "scores": [2,3,2]}
+  ]
+}
+```
+
+**Key metrics:**
+- `delta` — behavioral difference (positive = skill helps)
+- `stddev` — consistency (low = reliable improvement)
+- `task_scores` — per-task breakdown (identifies which behaviors improve/regress)
