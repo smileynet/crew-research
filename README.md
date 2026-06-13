@@ -32,12 +32,12 @@ That's it. Skills are now active.
 
 | Tier | What you get | Best for |
 |------|-------------|----------|
-| **basic** | 30 skills + 5 always-on rules | Active development — planning, building, reviewing, shipping |
-| **full** | 52 skills + 5 always-on rules | Basic + research workflows, prototyping, creative writing, agent development |
+| **basic** | 40 skills + 5 always-on rules | Active development — planning, building, reviewing, shipping |
+| **full** | 52 skills + 5 always-on rules | Basic + creative writing, prototyping, agent development |
 
-**basic** covers the full ship-code lifecycle: plan → build → review → test → commit → deploy → hand off. Includes architecture, diagrams, README writing, changelogs, deployment safety.
+**basic** covers the full ship-code lifecycle: plan → research → build → review → test → commit → deploy → hand off. Includes architecture, diagrams, README writing, changelogs, deployment safety.
 
-**full** adds specialized workflows: deep research with parallel dispatch, PoC/prototype lifecycle, fiction/world-building, documentation audits, and meta-skills for building new skills.
+**full** adds specialist workflows: fiction/world-building, PoC/prototyping, UX walkthroughs, and meta-skills for building new skills.
 
 Start with **basic**. Upgrade to full if you need research dispatch, prototyping workflows, or creative writing.
 

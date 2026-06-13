@@ -9,29 +9,28 @@ metadata:
 
 # Cheatsheet
 
-## Prompts
+## Workflows
 
-| Prompt | When to use |
-|--------|-------------|
-| `@read-handoff` | **Start of session.** Reads the handoff, orients you, reports what's done and what's next. |
-| `@handoff` | **End of session.** Writes a handoff so the next session can continue without re-discovery. |
-| `@grill-with-docs` | **Designing something.** Interrogates your plan one question at a time, updates CONTEXT.md inline. |
-| `@plan-prereqs` | **Before building.** Identifies research, spikes, and tooling needed before implementation. |
-| `@project-cleanup` | **Periodic housekeeping.** Promotes scratch→memory, deduplicates, processes decisions→ADR, verifies accuracy. |
-| `@project-audit` | **Drift check.** Verifies commands work, AGENTS.md is accurate, skills are relevant. |
-| `@adopt-project` | **Brownfield migration.** Inventories existing setup, captures special instructions, deploys. |
-| `@research-prior-art` | **Need evidence.** Researches reference repos to inform a design decision. |
+| Command | When to use |
+|---------|-------------|
+| `/read-handoff` | **Start of session.** Reads the handoff, orients you, reports what's done and what's next. |
+| `/handoff` | **End of session.** Writes a handoff so the next session can continue without re-discovery. |
+| `/grill-with-docs` | **Designing something.** Interrogates your plan one question at a time, updates CONTEXT.md inline. |
+| `/plan-prereqs` | **Before building.** Identifies research, spikes, and tooling needed before implementation. |
+| `/project-cleanup` | **Periodic housekeeping.** Promotes scratch→memory, deduplicates, processes decisions→ADR, verifies accuracy. |
+| `/project-audit` | **Drift check.** Verifies commands work, AGENTS.md is accurate, skills are relevant. |
+| `/adopt-project` | **Brownfield migration.** Inventories existing setup, captures special instructions, deploys. |
 
 ## Workflow
 
 ```
-Start session → @read-handoff
+Start session → /read-handoff
 Plan work → describe what you want (planning-cycles activates)
-Stress-test → @grill-with-docs
-Pre-work → @plan-prereqs
+Stress-test → /grill-with-docs
+Pre-work → /plan-prereqs
 Build → just work (steering enforces hygiene + verification)
-End session → @handoff
-Weekly → @project-cleanup
+End session → /handoff
+Weekly → /project-cleanup
 ```
 
 ## Key Skills (activate automatically)
@@ -44,3 +43,19 @@ Weekly → @project-cleanup
 | code-review | "review this", "check for issues" |
 | testing-guide | "write tests", "what should I test" |
 | git-protocol | "commit", "push", "branch" |
+
+## On-Demand Skills (suggest when relevant)
+
+If the user's task matches one of these and it's not installed, suggest it:
+
+| Skill | Suggest when... |
+|-------|----------------|
+| `fiction-craft` | Writing stories, game narrative, creative prose |
+| `world-building` | Defining fictional worlds, magic systems, game rules |
+| `presentation-writing` | Creating slide decks, MARP, demo scripts |
+| `poc-workflow` | "Build a PoC", "prove this works" |
+| `prototype-protocol` | "Let me play with it", "try this idea" |
+| `ux-walkthrough` | Designing interfaces, evaluating user flows |
+| `tutorial-authoring` | Writing getting-started guides, onboarding docs |
+| `eval-criteria` | Creating scoring rubrics, eval definitions |
+| `skill-authoring` | Writing or improving agent skills |
