@@ -83,6 +83,7 @@ skills:
   # Meta (agent/skill development)
   - eval-criteria
   - skill-authoring
+  - spec-review
   - session-review-patterns
   - enforcement-hierarchy
   - project-conventions
