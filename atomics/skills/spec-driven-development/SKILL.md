@@ -63,23 +63,7 @@ Never present a spec that fails these. Fix it silently, or if unfixable without 
 
 ## PLAN.md
 
-```markdown
-# Project Name
-
-## Intent
-One paragraph: what and why.
-
-## Phases
-### Phase 1: [Name]
-- Goal: what this achieves
-- Features: list (link to .specs/ files)
-- Validates: how we know it works
-
-## Task Graph
-- Phase 1 → Phase 2 (dependency reason)
-- Feature A → Feature B (B uses A's output)
-- Feature C [P] (parallelizable)
-```
+Intent (what/why), phases (goal + features + validates), task graph (`→` = dependency, `[P]` = parallel). See [references/spec-template.md](references/spec-template.md) for full templates.
 
 ## Feature Specs (`.specs/{slug}.md`)
 
