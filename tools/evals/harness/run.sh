@@ -38,6 +38,9 @@ for cmd in yq kiro-cli; do
   fi
 done
 
+# Validate trials
+[[ "$TRIALS" -gt 0 ]] 2>/dev/null || { echo "Error: --trials must be > 0" >&2; exit 1; }
+
 # Load adapter
 ADAPTER_FILE="$ADAPTERS_DIR/$ADAPTER.yaml"
 [[ -f "$ADAPTER_FILE" ]] || { echo "Error: adapter not found: $ADAPTER_FILE" >&2; exit 2; }
@@ -289,7 +292,7 @@ run_eval() {
       # Per-task average for this condition
       local task_sum=0
       for s in "${task_trial_scores[@]}"; do task_sum=$((task_sum + s)); done
-      local task_avg=$(echo "scale=2; $task_sum / ${#task_trial_scores[@]}" | bc)
+      local task_avg=$(echo "scale=2; $task_sum / ${#task_trial_scores[@]}" | bc | sed 's/^\./0./;s/^-\./-0./')
       task_scores_json="$task_scores_json{\"task\":$task_idx,\"condition\":\"$cond\",\"avg\":$task_avg,\"scores\":[$(IFS=,; echo "${task_trial_scores[*]}")]}"
       # Add comma if not last
       if [[ $task_idx -lt $((${#inputs[@]} - 1)) || "$cond" != "${condition_names[-1]}" ]]; then
@@ -299,19 +302,26 @@ run_eval() {
 
     # Compute average, stddev, min, max for this condition
     local sum=0 count=${#cond_all_scores[@]}
-    local min_s=999 max_s=0
+    if [[ $count -eq 0 ]]; then
+      cond_scores["$cond"]="0"
+      cond_stddev["$cond"]="0"
+      cond_min["$cond"]="0"
+      cond_max["$cond"]="0"
+      continue
+    fi
+    local min_s=${cond_all_scores[0]} max_s=${cond_all_scores[0]}
     for s in "${cond_all_scores[@]}"; do
       sum=$((sum + s))
       [[ $s -lt $min_s ]] && min_s=$s
       [[ $s -gt $max_s ]] && max_s=$s
     done
-    local avg=$(echo "scale=2; $sum / $count" | bc)
-    # Stddev
+    local avg=$(echo "scale=2; $sum / $count" | bc | sed 's/^\./0./;s/^-\./-0./')
+    # Population stddev (intentional: measuring all trials, not sampling)
     local sq_sum=0
     for s in "${cond_all_scores[@]}"; do
       sq_sum=$(echo "$sq_sum + ($s - $avg)^2" | bc -l)
     done
-    local stddev=$(echo "scale=2; sqrt($sq_sum / $count)" | bc -l)
+    local stddev=$(echo "scale=2; sqrt($sq_sum / $count)" | bc -l | sed 's/^\./0./;s/^-\./-0./')
 
     cond_scores["$cond"]="$avg"
     cond_stddev["$cond"]="$stddev"
@@ -338,7 +348,7 @@ run_eval() {
 
     local avg_primary=${cond_scores[$primary_cond]}
     local avg_baseline=${cond_scores[$baseline_cond]}
-    delta=$(echo "scale=2; $avg_primary - $avg_baseline" | bc)
+    delta=$(echo "scale=2; $avg_primary - $avg_baseline" | bc | sed 's/^\./0./;s/^-\./-0./')
     avg_score=$avg_primary
 
     if (( $(echo "$avg_primary < $threshold" | bc -l) )); then
@@ -371,9 +381,11 @@ run_eval() {
   # Write JSONL
   local activation_rate="null"
   if [[ $activation_total -gt 0 ]]; then
-    activation_rate=$(echo "scale=2; $activation_count / $activation_total" | bc)
+    activation_rate=$(echo "scale=2; $activation_count / $activation_total" | bc | sed 's/^\./0./;s/^-\./-0./')
   fi
-  local score_line="{\"name\":\"$name\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
+  local escaped_reason="${reason//\\/\\\\}"
+  escaped_reason="${escaped_reason//\"/\\\"}"
+  local score_line="{\"name\":\"$name\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
   if [[ $is_comparison -eq 1 ]]; then
     local primary_cond="" baseline_cond=""
     for cond in "${condition_names[@]}"; do

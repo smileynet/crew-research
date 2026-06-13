@@ -54,10 +54,10 @@ skills:
   - git-protocol
   - situation-routing
   - adr-authoring
+  - spec-review
 
   # Maintain
   - init-project
   - adopt-project
   - project-cleanup
   - project-audit
-  - spec-review

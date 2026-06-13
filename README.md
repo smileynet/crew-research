@@ -32,8 +32,8 @@ That's it. Skills are now active.
 
 | Tier | What you get | Best for |
 |------|-------------|----------|
-| **basic** | 12 skills + 5 always-on rules | Minimal global — planning, building, shipping essentials |
-| **full** | 42 skills + 5 always-on rules | Full lifecycle — research, architecture, docs, deployment |
+| **basic** | Minimal global skills + always-on rules | Planning, building, shipping essentials |
+| **full** | Full lifecycle skills + always-on rules | Research, architecture, docs, deployment |
 
 **basic** is tiny: session continuity, planning, code review, testing, git, and project init. Everything you need in every project, nothing you don't.
 
@@ -64,7 +64,7 @@ After setup, these workflows are available in any kiro-cli session:
 | `/handoff` | Capture session state so the next session can pick up where you left off |
 | `/read-handoff` | Orient at the start of a session — read prior state and continue |
 | `/plan-prereqs` | Identify research, spikes, and tooling needed before implementing |
-| `/workspace-cleanup` | Consolidate notes, update glossary, remove stale artifacts |
+| `/project-cleanup` | Consolidate notes, update glossary, remove stale artifacts |
 | `/study-reference` | Deep-dive a reference repo and extract patterns |
 | `/cheatsheet` | Quick reference for everything available |
 

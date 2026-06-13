@@ -49,7 +49,7 @@ Weekly → /project-cleanup
 These are NOT in global tiers. Install to a project's `.kiro/skills/` when needed:
 
 ```bash
-mise run add-skill -- <name> --project ~/your-project
+mise run add-skill -- <name>
 ```
 
 | Skill | Install when project involves... |
