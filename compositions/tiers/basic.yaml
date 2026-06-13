@@ -1,4 +1,4 @@
-description: "Core development lifecycle + research + docs + architecture. Covers what most projects need."
+description: "Minimal global — session continuity, planning, building, shipping fundamentals."
 
 steering:
   - ai-generation-hygiene
@@ -8,56 +8,25 @@ steering:
   - context-budget-awareness
 
 skills:
-  # Plan & Research
-  - planning-cycles
-  - spec-driven-development
-  - vertical-slice-planning
-  - five-whys
-  - assumption-tracking
-  - grill-with-docs
-  - plan-prereqs
-  - research-methodology
-  - research-output
-  - research-dispatch
-  - research-topics
-  - reference-exploration
-  - study-reference
-  - study-all-references
-
-  # Build
-  - feedback-loop-debugging
-  - troubleshooting-protocol
-  - code-review
-  - testing-guide
-  - script-authoring
-  - architecture-deepening
-  - diagrams
-  - image-analysis
-
-  # Write & Document
-  - writing-style
-  - readme-writing
-  - changelog-discipline
-  - commit-pr-discipline
-  - docs-audit
-  - diataxis-classification
-  - document-formats
-
-  # Verify & Ship
-  - completion-protocol
-  - deployment-safety
-  - git-protocol
-  - situation-routing
-  - adr-authoring
-
-  # Maintain
-  - init-project
-  - adopt-project
-  - project-cleanup
-  - project-audit
-  - spec-review
-
   # Session
   - handoff
   - read-handoff
   - cheatsheet
+
+  # Plan
+  - planning-cycles
+  - spec-driven-development
+  - grill-with-docs
+
+  # Build
+  - feedback-loop-debugging
+  - code-review
+  - testing-guide
+
+  # Ship
+  - git-protocol
+  - completion-protocol
+
+  # Maintain
+  - init-project
+  - adopt-project

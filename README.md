@@ -32,14 +32,20 @@ That's it. Skills are now active.
 
 | Tier | What you get | Best for |
 |------|-------------|----------|
-| **basic** | 40 skills + 5 always-on rules | Active development — planning, building, reviewing, shipping |
-| **full** | 52 skills + 5 always-on rules | Basic + creative writing, prototyping, agent development |
+| **basic** | 12 skills + 5 always-on rules | Minimal global — planning, building, shipping essentials |
+| **full** | 42 skills + 5 always-on rules | Full lifecycle — research, architecture, docs, deployment |
 
-**basic** covers the full ship-code lifecycle: plan → research → build → review → test → commit → deploy → hand off. Includes architecture, diagrams, README writing, changelogs, deployment safety.
+**basic** is tiny: session continuity, planning, code review, testing, git, and project init. Everything you need in every project, nothing you don't.
 
-**full** adds specialist workflows: fiction/world-building, PoC/prototyping, UX walkthroughs, and meta-skills for building new skills.
+**full** adds research dispatch, architecture deepening, diagrams, README/changelog writing, deployment safety, and project maintenance workflows.
 
-Start with **basic**. Upgrade to full if you need research dispatch, prototyping workflows, or creative writing.
+**Project-level skills** (creative writing, prototyping, meta-skills) install per-project when needed — not in global space. The agent suggests them during init or when it detects matching work.
+
+Start with **basic**. Upgrade to full if you want the complete development lifecycle globally.
+
+```bash
+mise run catalog    # browse all available skills
+```
 
 ## Where to deploy
 

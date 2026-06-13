@@ -44,18 +44,27 @@ Weekly → /project-cleanup
 | testing-guide | "write tests", "what should I test" |
 | git-protocol | "commit", "push", "branch" |
 
-## On-Demand Skills (suggest when relevant)
+## Project-Level Skills (install per-project)
 
-If the user's task matches one of these and it's not installed, suggest it:
+These are NOT in global tiers. Install to a project's `.kiro/skills/` when needed:
 
-| Skill | Suggest when... |
-|-------|----------------|
-| `fiction-craft` | Writing stories, game narrative, creative prose |
-| `world-building` | Defining fictional worlds, magic systems, game rules |
-| `presentation-writing` | Creating slide decks, MARP, demo scripts |
-| `poc-workflow` | "Build a PoC", "prove this works" |
-| `prototype-protocol` | "Let me play with it", "try this idea" |
-| `ux-walkthrough` | Designing interfaces, evaluating user flows |
-| `tutorial-authoring` | Writing getting-started guides, onboarding docs |
-| `eval-criteria` | Creating scoring rubrics, eval definitions |
+```bash
+mise run add-skill -- <name> --project ~/your-project
+```
+
+| Skill | Install when project involves... |
+|-------|----------------------------------|
+| `fiction-craft` | Stories, game narrative, creative prose |
+| `world-building` | Fictional worlds, magic systems, game rules |
+| `presentation-writing` | Slide decks, MARP, demo scripts, workshops |
+| `poc-workflow` | Proofs of concept, "prove this works" |
+| `prototype-protocol` | Throwaway prototypes, "let me play with it" |
+| `ux-walkthrough` | Interface design, user flow evaluation |
+| `tutorial-authoring` | Getting-started guides, onboarding docs |
+| `eval-criteria` | Scoring rubrics, LLM-judged evals |
 | `skill-authoring` | Writing or improving agent skills |
+| `session-review-patterns` | Reviewing session transcripts for quality |
+| `enforcement-hierarchy` | Deciding how to enforce agent behavior rules |
+| `project-conventions` | Project-specific behavioral rules |
+
+**When to suggest:** during init, adopt-project, read-handoff, or when a plan includes matching work.

@@ -16,7 +16,9 @@ When a user asks about setting up crew-research, installing skills, or getting s
 Ask: "What does your workflow look like?"
 
 - **Building and shipping code** (plan, build, review, test, deploy) → `basic`
-- **Also doing deep research, prototyping, creative writing, or building agent skills** → `full`
+- **Full development lifecycle** (also research, architecture, docs, deployment safety) → `full`
+
+Both tiers are global. **Project-level specialist skills** (creative, prototyping, meta) install per-project — suggest them during init or when you detect matching work.
 
 ## Setup Steps
 

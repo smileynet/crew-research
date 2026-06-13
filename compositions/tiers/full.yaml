@@ -1,4 +1,4 @@
-description: "Everything in basic + specialist skills (creative, meta, prototyping). Install full when you need these regularly."
+description: "Full active development lifecycle — plan, research, build, document, deploy, maintain."
 
 steering:
   - ai-generation-hygiene
@@ -8,7 +8,10 @@ steering:
   - context-budget-awareness
 
 skills:
-  # === Basic tier (all included) ===
+  # Session
+  - handoff
+  - read-handoff
+  - cheatsheet
 
   # Plan & Research
   - planning-cycles
@@ -58,28 +61,3 @@ skills:
   - project-cleanup
   - project-audit
   - spec-review
-
-  # Session
-  - handoff
-  - read-handoff
-  - cheatsheet
-
-  # === Specialist (full-only) ===
-
-  # Creative
-  - fiction-craft
-  - world-building
-  - presentation-writing
-
-  # Prototyping
-  - poc-workflow
-  - prototype-protocol
-  - ux-walkthrough
-  - tutorial-authoring
-
-  # Meta (agent/skill development)
-  - eval-criteria
-  - skill-authoring
-  - session-review-patterns
-  - enforcement-hierarchy
-  - project-conventions
