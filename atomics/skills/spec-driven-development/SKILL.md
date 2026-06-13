@@ -33,23 +33,33 @@ Every project gets a PLAN.md and per-feature specs. Specs exist for every featur
 
 ## Clarification Gate
 
-When the user's request contains vague language, DO NOT write a spec. Instead:
-1. List every vague/ambiguous term found
-2. Propose concrete alternatives for each
-3. Ask the user to confirm before proceeding
+When the user's request contains vague language, OUTPUT ONLY a clarification request. Do not include a draft, assumptions, or "meanwhile here's what I'd suggest." Questions OR spec, never both.
 
 Blocked terms: "appropriate", "as needed", "various", "properly", "efficiently", "user-friendly", "fast enough", "etc.", "handle X somehow"
+
+**Refusal format:**
+```
+## Cannot Write Spec Yet
+
+These terms need definition before I can proceed:
+- "fast" → What latency target? (e.g., <10ms p99, <100ms p50)
+- "various" → Which specific formats? List them.
+
+Once you clarify, I'll write the spec.
+```
+
+**Scope gate:** If requirements span 3+ independent capabilities, respond with a PLAN.md proposal showing decomposition — not a single monolithic spec.
 
 ## Self-Review Gates (run before presenting spec)
 
 After drafting, silently check before showing the user:
 
-- **Scope**: Does "What" use "and" to connect 3+ distinct capabilities? → Split.
-- **Non-Goals**: Is it empty for complexity 3+? → Add 3-5 boundaries.
-- **Validation**: Could someone run these checks without asking me questions? If no → rewrite as concrete input→output.
+- **Scope**: Does "What" use "and" to connect 3+ distinct capabilities? → Don't present. Propose decomposition instead.
+- **Non-Goals**: Is it empty for complexity 3+? → Add 3-5 boundaries before presenting.
+- **Validation**: Could someone run these checks without asking me questions? If no → rewrite as concrete input→output before presenting.
 - **Testability**: Replace any criterion containing "correctly", "properly", "timely", "responsive" with a measurable target.
 
-Do not present a spec that fails these. Fix it first.
+Never present a spec that fails these. Fix it silently, or if unfixable without user input, ask — but never show a flawed draft alongside the questions.
 
 ## PLAN.md
 
