@@ -68,6 +68,7 @@ Present recommendation and wait for approval before proceeding.
 - Run verification commands
 - Check that no existing workflows were broken
 - Report what changed and what was preserved
+- Suggest project-level skills based on detected work (creative, prototyping, meta)
 
 ## Rules
 

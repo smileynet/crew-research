@@ -63,3 +63,22 @@ run = "bash tools/evals/harness/run-qualitative-experiment.sh --experiment ${usa
 description = "Parse session transcripts for metrics"
 usage = 'arg "[days]" help="Days to analyze" default="7"'
 run = "python tools/session-analyzer/parse.py --days ${usage_days?}"
+
+[tasks."add-skill"]
+description = "Install a project-level skill"
+usage = 'arg "<name>" help="Skill slug to install"'
+run = """
+SKILL_SRC="atomics/skills/${usage_name}/SKILL.md"
+PROJECT="${MISE_PROJECT_DIR:-.}"
+DEST="$PROJECT/.kiro/skills/${usage_name}/SKILL.md"
+if [[ ! -f "$SKILL_SRC" ]]; then
+  echo "Error: skill '${usage_name}' not found" >&2; exit 1
+fi
+mkdir -p "$(dirname "$DEST")"
+cp "$SKILL_SRC" "$DEST"
+# Copy references/ if they exist
+if [[ -d "atomics/skills/${usage_name}/references" ]]; then
+  cp -r "atomics/skills/${usage_name}/references" "$(dirname "$DEST")/"
+fi
+echo "Installed ${usage_name} → $DEST"
+"""

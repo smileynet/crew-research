@@ -62,3 +62,17 @@ Tell the user:
 - Add project-specific steering to `.kiro/steering/` if needed
 - Add project terms to `.memory/CONTEXT.md` as they emerge
 - Use `/grill-with-docs` to stress-test plans before building
+
+## Suggest Project-Level Skills
+
+Based on what you detect in the project, suggest specialist skills:
+
+| If project has... | Suggest |
+|-------------------|---------|
+| Creative writing, narrative, game scripts | `fiction-craft`, `world-building` |
+| UI/UX design work, mockups | `ux-walkthrough`, `prototype-protocol` |
+| Proof-of-concept or spike-heavy work | `poc-workflow`, `prototype-protocol` |
+| Getting-started guides, onboarding docs | `tutorial-authoring` |
+| Slide decks, workshops, demos | `presentation-writing` |
+
+Install: `mise run add-skill -- <name>`
