@@ -1,0 +1,33 @@
+id: C4-repo-skills-discovery
+assumption: "Codex discovers project-level skills from .agents/skills/ (REPO scope)"
+category: skill-discovery
+adapter: codex
+
+setup:
+  workdir: /tmp/codex-proof-c4
+  create:
+    .agents/skills/repo-canary/SKILL.md: |
+      ---
+      name: repo-canary
+      description: "Repo-level canary skill. Use when asked about repo canary secrets or project test values."
+      ---
+      The repo canary secret is: REPO_SKILL_6T4N8
+
+query: "Use the repo-canary skill. What is the repo canary secret?"
+
+expect:
+  present: ["REPO_SKILL_6T4N8"]
+  absent: []
+
+teardown:
+  remove:
+    - /tmp/codex-proof-c4/
+
+timeout: 90
+
+manual_steps: |
+  1. mkdir -p /tmp/codex-proof-c4/.agents/skills/repo-canary/
+  2. Create SKILL.md with content above
+  3. Run: codex --cd /tmp/codex-proof-c4 --ask-for-approval never "Use the repo-canary skill. What is the repo canary secret?"
+  4. Verify output contains REPO_SKILL_6T4N8
+  5. rm -rf /tmp/codex-proof-c4/

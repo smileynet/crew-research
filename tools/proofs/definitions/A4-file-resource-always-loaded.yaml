@@ -17,4 +17,7 @@ expect:
   present: ["CANARY_FILE_7X9Q2"]
   absent: []
 
+log_checks:
+  - "context_contains:CANARY_FILE_7X9Q2"
+
 timeout: 90

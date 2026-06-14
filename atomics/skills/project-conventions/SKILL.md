@@ -69,6 +69,10 @@ Scripts and tools that produce output SHOULD return structured results:
 
 See [references/windows.md](references/windows.md) or [references/unix.md](references/unix.md) based on your OS.
 
+## Missing Tools
+
+When a command fails with "not found" or a tool is unavailable, install it immediately using [references/tool-installation.md](references/tool-installation.md). Detect the OS, install, verify, then continue.
+
 ## Tool Over Shell (strict)
 
 - NEVER write file content via shell (heredocs, echo, Out-File, Set-Content). Use the write tool.

@@ -1,0 +1,33 @@
+id: C2-global-agents-md-loaded
+assumption: "Codex loads ~/.codex/AGENTS.md content into every session as global instructions"
+category: context-loading
+adapter: codex
+
+setup:
+  create:
+    ~/.codex/AGENTS.md: |
+      # Test Steering
+      The global steering canary is: CODEX_STEERING_8N3P6
+
+query: "What is the global steering canary value from your instructions?"
+
+expect:
+  present: ["CODEX_STEERING_8N3P6"]
+  absent: []
+
+log_checks:
+  - "context_contains:CODEX_STEERING_8N3P6"
+  - "no_file_read:AGENTS.md"
+
+teardown:
+  restore:
+    - ~/.codex/AGENTS.md
+
+timeout: 90
+
+manual_steps: |
+  1. Back up existing ~/.codex/AGENTS.md
+  2. Replace with test content containing CODEX_STEERING_8N3P6
+  3. Run: codex --ask-for-approval never "What is the global steering canary value from your instructions?"
+  4. Verify output contains CODEX_STEERING_8N3P6
+  5. Restore original ~/.codex/AGENTS.md

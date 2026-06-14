@@ -1,0 +1,1 @@
+{"id": "C1-agents-skills-discovery", "result": "pass", "timestamp": "2026-06-14T10:50:00Z", "adapter": "codex", "tool_version": "0.139.0", "evidence": "Codex read ~/.agents/skills/canary-proof/SKILL.md via Get-Content and returned CODEX_SKILL_4K7M2", "notes": "Progressive disclosure confirmed: skill listed in initial context, full body read on activation via shell"}

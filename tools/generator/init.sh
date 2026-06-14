@@ -1,8 +1,9 @@
 #!/bin/bash
 # tools/generator/init.sh — Deploy crew-research skills globally or scaffold a project
 # Usage:
-#   ./init.sh --global --tier <basic|full>              # Deploy to ~/.kiro/
-#   ./init.sh --project <path> [--tier <basic|full>]    # Scaffold workspace only
+#   ./init.sh --global --tier <basic|full> [--tool kiro-cli] [--tool codex]
+#   ./init.sh --project <path> [--tier <basic|full>]
+# If --tool is omitted, reads CREW_TOOLS env var or defaults to kiro-cli.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -13,7 +14,7 @@ SKILLS_DIR="$ROOT_DIR/atomics/skills"
 PROJECT=""
 GLOBAL=false
 TIER="basic"
-TOOL="kiro-cli"
+TOOLS=()
 LANGUAGE=""
 BUILD_CMD=""
 TEST_CMD=""
@@ -24,11 +25,23 @@ while [[ $# -gt 0 ]]; do
     --global) GLOBAL=true; shift ;;
     --project) PROJECT="$2"; shift 2 ;;
     --tier) TIER="$2"; shift 2 ;;
-    --tool) TOOL="$2"; shift 2 ;;
+    --tool) TOOLS+=("$2"); shift 2 ;;
     --language) LANGUAGE="$2"; shift 2 ;;
     *) echo "Unknown: $1" >&2; exit 1 ;;
   esac
 done
+
+# Resolve tools: explicit --tool flags > CREW_TOOLS env > default kiro-cli
+if [[ ${#TOOLS[@]} -eq 0 ]]; then
+  if [[ -n "${CREW_TOOLS:-}" ]]; then
+    read -ra TOOLS <<< "$CREW_TOOLS"
+  else
+    TOOLS=("kiro-cli")
+  fi
+fi
+
+# Resolve tier from env if not overridden on CLI (default still basic)
+[[ "$TIER" == "basic" && -n "${CREW_TIER:-}" ]] && TIER="$CREW_TIER"
 
 # Validate
 TIER_FILE="$TIERS_DIR/$TIER.yaml"
@@ -36,25 +49,16 @@ TIER_FILE="$TIERS_DIR/$TIER.yaml"
 
 if [[ "$GLOBAL" == true ]]; then
   # ═══════════════════════════════════════════════════════════════
-  # GLOBAL DEPLOY — steering + skills to ~/.kiro/
-  # Diff-based: only updates changed files, prunes removed ones.
+  # GLOBAL DEPLOY — deploy to each tool's native paths
   # ═══════════════════════════════════════════════════════════════
-  DEST="$HOME/.kiro"
-  echo "Deploying crew-research ($TIER tier) to $DEST"
-  echo ""
 
   # Read tier
   STEERING=($(yq -r '.steering[]' "$TIER_FILE"))
   SKILLS=($(yq -r '.skills[]' "$TIER_FILE"))
 
-  # Counters
-  updated=0; removed=0; unchanged=0
-
   # Helper: deploy a file only if content differs (resolves params)
-  # Follows symlinks on write (content goes to target); skips nothing.
   deploy_file() {
     local src="$1" dest="$2"
-    # If dest is a symlink, resolve to real path for mkdir + diff
     local real_dest="$dest"
     [[ -L "$dest" ]] && real_dest="$(readlink -f "$dest")"
     mkdir -p "$(dirname "$real_dest")"
@@ -76,13 +80,11 @@ if [[ "$GLOBAL" == true ]]; then
   }
 
   # Helper: deploy generated content only if it differs
-  # Follows symlinks on write (content goes to target).
   deploy_content() {
     local content="$1" dest="$2"
     local real_dest="$dest"
     [[ -L "$dest" ]] && real_dest="$(readlink -f "$dest")"
     mkdir -p "$(dirname "$real_dest")"
-    # Resolve params before comparing
     content=$(echo "$content" | sed \
       -e 's|{{params.ephemeral_path}}|.scratch|g' \
       -e 's|{{params.handoff_file}}|HANDOFF.md|g' \
@@ -99,75 +101,174 @@ if [[ "$GLOBAL" == true ]]; then
     fi
   }
 
-  # Track desired files for pruning
-  declare -A DESIRED_FILES
+  # ─── Tool-specific deploy functions ───────────────────────────
 
-  # --- Deploy steering ---
-  mkdir -p "$DEST/steering"
-  for skill in "${STEERING[@]}"; do
-    src="$SKILLS_DIR/$skill/SKILL.md"
-    if [[ -f "$src" ]]; then
-      dest="$DEST/steering/$skill.md"
-      content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
-      deploy_content "$content" "$dest"
-      DESIRED_FILES["$dest"]=1
-    fi
-  done
+  deploy_kiro_cli() {
+    local DEST="$HOME/.kiro"
+    echo "Deploying crew-research ($TIER tier) → kiro-cli ($DEST)"
+    echo ""
 
-  # --- Deploy skills ---
-  mkdir -p "$DEST/skills"
-  for skill in "${SKILLS[@]}"; do
-    src_dir="$SKILLS_DIR/$skill"
-    if [[ -d "$src_dir" ]]; then
-      dest="$DEST/skills/$skill"
-      mkdir -p "$dest"
-      deploy_file "$src_dir/SKILL.md" "$dest/SKILL.md"
-      DESIRED_FILES["$dest/SKILL.md"]=1
-      if [[ -d "$src_dir/references" ]]; then
-        for ref in "$src_dir/references/"*; do
+    updated=0; removed=0; unchanged=0
+    declare -A DESIRED_FILES
+
+    # --- Deploy steering ---
+    mkdir -p "$DEST/steering"
+    for skill in "${STEERING[@]}"; do
+      src="$SKILLS_DIR/$skill/SKILL.md"
+      if [[ -f "$src" ]]; then
+        dest="$DEST/steering/$skill.md"
+        content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
+        deploy_content "$content" "$dest"
+        DESIRED_FILES["$dest"]=1
+      fi
+      # Deploy steering references (progressive-load companions)
+      if [[ -d "$SKILLS_DIR/$skill/references" ]]; then
+        mkdir -p "$DEST/steering/references"
+        for ref in "$SKILLS_DIR/$skill/references/"*; do
           [[ -f "$ref" ]] || continue
-          deploy_file "$ref" "$dest/references/$(basename "$ref")"
-          DESIRED_FILES["$dest/references/$(basename "$ref")"]=1
+          deploy_file "$ref" "$DEST/steering/references/$(basename "$ref")"
+          DESIRED_FILES["$DEST/steering/references/$(basename "$ref")"]=1
         done
       fi
+    done
+
+    # --- Deploy skills ---
+    mkdir -p "$DEST/skills"
+    for skill in "${SKILLS[@]}"; do
+      src_dir="$SKILLS_DIR/$skill"
+      if [[ -d "$src_dir" ]]; then
+        dest="$DEST/skills/$skill"
+        mkdir -p "$dest"
+        deploy_file "$src_dir/SKILL.md" "$dest/SKILL.md"
+        DESIRED_FILES["$dest/SKILL.md"]=1
+        if [[ -d "$src_dir/references" ]]; then
+          for ref in "$src_dir/references/"*; do
+            [[ -f "$ref" ]] || continue
+            deploy_file "$ref" "$dest/references/$(basename "$ref")"
+            DESIRED_FILES["$dest/references/$(basename "$ref")"]=1
+          done
+        fi
+      fi
+    done
+
+    # --- Prune stale files ---
+    for f in "$DEST/steering/"*.md; do
+      [[ -f "$f" ]] || continue
+      [[ -L "$f" ]] && { echo "  kept (symlink): $(basename "$f")"; continue; }
+      if [[ -z "${DESIRED_FILES[$f]:-}" ]]; then
+        rm "$f"
+        removed=$((removed + 1))
+        echo "  pruned: $(basename "$f")"
+      fi
+    done
+
+    for d in "$DEST/skills/"*/; do
+      [[ -d "$d" ]] || continue
+      [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
+      skill_name=$(basename "$d")
+      if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name"; then
+        rm -rf "$d"
+        removed=$((removed + 1))
+        echo "  pruned: skills/$skill_name/"
+      fi
+    done
+
+    if [[ -d "$DEST/prompts" ]]; then
+      rm -rf "$DEST/prompts"
+      echo "  pruned: prompts/ (migrated to skills)"
     fi
+
+    echo ""
+    echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]}"
+    echo "  $updated updated, $removed pruned, $unchanged unchanged"
+    echo ""
+  }
+
+  deploy_codex() {
+    local SKILLS_DEST="$HOME/.agents/skills"
+    local CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+    echo "Deploying crew-research ($TIER tier) → codex ($SKILLS_DEST + $CODEX_HOME)"
+    echo ""
+
+    updated=0; removed=0; unchanged=0
+    declare -A DESIRED_SKILLS
+
+    # --- Deploy skills to ~/.agents/skills/ (identical SKILL.md format) ---
+    mkdir -p "$SKILLS_DEST"
+    for skill in "${SKILLS[@]}"; do
+      src_dir="$SKILLS_DIR/$skill"
+      if [[ -d "$src_dir" ]]; then
+        dest="$SKILLS_DEST/$skill"
+        mkdir -p "$dest"
+        deploy_file "$src_dir/SKILL.md" "$dest/SKILL.md"
+        DESIRED_SKILLS["$skill"]=1
+        if [[ -d "$src_dir/references" ]]; then
+          mkdir -p "$dest/references"
+          for ref in "$src_dir/references/"*; do
+            [[ -f "$ref" ]] || continue
+            deploy_file "$ref" "$dest/references/$(basename "$ref")"
+          done
+        fi
+      fi
+    done
+
+    # --- Render steering into ~/.codex/AGENTS.md ---
+    mkdir -p "$CODEX_HOME"
+    local agents_content="# crew-research steering ($TIER tier)"
+    agents_content+=$'\n'"# Auto-generated by crew-research init.sh — do not edit manually"
+    agents_content+=$'\n'
+    for skill in "${STEERING[@]}"; do
+      src="$SKILLS_DIR/$skill/SKILL.md"
+      if [[ -f "$src" ]]; then
+        local body
+        body=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
+        body=$(echo "$body" | sed \
+          -e 's|{{params.ephemeral_path}}|.scratch|g' \
+          -e 's|{{params.handoff_file}}|HANDOFF.md|g' \
+          -e 's|{{params.glossary_path}}|.memory/CONTEXT.md|g' \
+          -e 's|{{params.durable_path}}|.memory|g' \
+          -e 's|{{params.scripts_path}}|tools|g' \
+          -e 's|{{params.mise_file}}|mise.toml|g' \
+          -e 's|{{params.output_path}}|.scratch/research|g')
+        agents_content+=$'\n'"$body"$'\n'
+      fi
+    done
+    local agents_dest="$CODEX_HOME/AGENTS.md"
+    if [[ -f "$agents_dest" ]] && printf '%s\n' "$agents_content" | diff -q - "$agents_dest" &>/dev/null; then
+      unchanged=$((unchanged + 1))
+    else
+      printf '%s\n' "$agents_content" > "$agents_dest"
+      updated=$((updated + 1))
+    fi
+
+    # --- Prune stale skill dirs ---
+    for d in "$SKILLS_DEST/"*/; do
+      [[ -d "$d" ]] || continue
+      [[ -L "${d%/}" ]] && continue
+      skill_name=$(basename "$d")
+      if [[ -z "${DESIRED_SKILLS[$skill_name]:-}" ]]; then
+        rm -rf "$d"
+        removed=$((removed + 1))
+        echo "  pruned: skills/$skill_name/"
+      fi
+    done
+
+    echo ""
+    echo "  Skills: ${#SKILLS[@]} | Steering → AGENTS.md (${#STEERING[@]} sections)"
+    echo "  $updated updated, $removed pruned, $unchanged unchanged"
+    echo ""
+  }
+
+  # ─── Deploy to each requested tool ───────────────────────────
+
+  for tool in "${TOOLS[@]}"; do
+    case "$tool" in
+      kiro-cli) deploy_kiro_cli ;;
+      codex)    deploy_codex ;;
+      *)        echo "Error: unknown tool '$tool'" >&2; exit 1 ;;
+    esac
   done
 
-  # --- Prune stale files ---
-  # Steering: remove .md files not in tier (skip symlinks — project-managed)
-  for f in "$DEST/steering/"*.md; do
-    [[ -f "$f" ]] || continue
-    [[ -L "$f" ]] && { echo "  kept (symlink): $(basename "$f")"; continue; }
-    if [[ -z "${DESIRED_FILES[$f]:-}" ]]; then
-      rm "$f"
-      removed=$((removed + 1))
-      echo "  pruned: $(basename "$f")"
-    fi
-  done
-
-  # Skills: remove skill dirs not in tier (skip symlinks — project-managed)
-  for d in "$DEST/skills/"*/; do
-    [[ -d "$d" ]] || continue
-    [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
-    skill_name=$(basename "$d")
-    if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name"; then
-      rm -rf "$d"
-      removed=$((removed + 1))
-      echo "  pruned: skills/$skill_name/"
-    fi
-  done
-
-  # Prompts: remove entire directory (skills-only model)
-  if [[ -d "$DEST/prompts" ]]; then
-    rm -rf "$DEST/prompts"
-    echo "  pruned: prompts/ (migrated to skills)"
-  fi
-
-  # --- Summary ---
-  echo ""
-  echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]}"
-  echo "  $updated updated, $removed pruned, $unchanged unchanged"
-  echo ""
   echo "Done. Skills available in all projects."
   echo "Run: ./init.sh --project <path> to scaffold a specific project."
 
@@ -288,7 +389,9 @@ EOF
 
 else
   echo "Usage:"
-  echo "  $0 --global --tier <basic|full>           # Deploy to ~/.kiro/"
-  echo "  $0 --project <path> [--tier <basic|full>] # Scaffold workspace"
+  echo "  $0 --global [--tier <basic|full>] [--tool <kiro-cli|codex>...]"
+  echo "  $0 --project <path> [--tier <basic|full>]"
+  echo ""
+  echo "If --tool is omitted, reads CREW_TOOLS env (from .mise.local.toml) or defaults to kiro-cli."
   exit 1
 fi

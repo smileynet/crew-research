@@ -134,13 +134,23 @@ invoke_agent() {
 
 # Send output to judge, get SCORE and REASON
 judge_output() {
-  local output="$1" criteria="$2" ideal="${3:-}"
+  local output="$1" criteria="$2" ideal="${3:-}" session_summary="${4:-}"
+
+  local behavioral_section=""
+  if [[ -n "$session_summary" ]]; then
+    behavioral_section="
+BEHAVIORAL CONTEXT (from session log — factor this into your scoring):
+$session_summary
+
+NOTE: Excessive tool calls, error loops, or scope violations should lower the score even if the final output looks correct. Efficient execution with appropriate tool usage should be considered positively.
+"
+  fi
 
   local judge_prompt="You are an evaluation judge. Score the following agent output on a 1-5 scale.
 
 CRITERIA:
 $criteria
-
+$behavioral_section
 $(if [[ -n "$ideal" ]]; then echo "IDEAL RESPONSE (for calibration):
 $ideal
 "; fi)
@@ -170,12 +180,12 @@ REASON: judge invocation failed"
 # Parse score from judge output
 parse_score() {
   local judge_output="$1"
-  echo "$judge_output" | grep -oP 'SCORE:\s*\K[0-9]+' | tail -1 || echo "0"
+  echo "$judge_output" | grep -o 'SCORE: *[0-9]*' | grep -o '[0-9]*$' | tail -1 || echo "0"
 }
 
 parse_reason() {
   local judge_output="$1"
-  echo "$judge_output" | grep -oP 'REASON:\s*\K.*' | tail -1 || echo "parse error"
+  echo "$judge_output" | grep -o 'REASON: .*' | sed 's/^REASON: //' | tail -1 || echo "parse error"
 }
 
 # Run a single eval (standard or dual-run)
@@ -289,10 +299,38 @@ run_eval() {
 
         local output
         output=$(invoke_agent "$workdir" "$input" "" "$timeout")
+
+        # Extract session behavioral summary for judge context
+        local session_summary=""
+        local use_log_analysis=$(yq '.log_analysis.include_in_judge // true' "$def_file")
+        if [[ "$DRY_RUN" != true && "$use_log_analysis" != "false" ]]; then
+          session_summary=$("$SCRIPT_DIR/extract-session-summary.sh" --adapter "$ADAPTER" 2>/dev/null) || session_summary=""
+        fi
+
+        # Apply log penalties (hard score adjustments)
+        local log_penalty=0
+        if [[ "$DRY_RUN" != true ]]; then
+          local max_tools=$(yq '.log_analysis.penalties.max_tool_calls // 0' "$def_file")
+          if [[ "$max_tools" -gt 0 && -n "$session_summary" ]]; then
+            local actual_tools=$(echo "$session_summary" | grep -o 'Total tool invocations: [0-9]*' | grep -o '[0-9]*$' || echo 0)
+            [[ "$actual_tools" -gt "$max_tools" ]] && log_penalty=$((log_penalty + 1))
+          fi
+          local max_retries=$(yq '.log_analysis.penalties.max_retries // 0' "$def_file")
+          if [[ "$max_retries" -gt 0 && -n "$session_summary" ]]; then
+            local actual_retries=$(echo "$session_summary" | grep -o 'Retry patterns detected: [0-9]*' | grep -o '[0-9]*$' || echo 0)
+            [[ "$actual_retries" -gt "$max_retries" ]] && log_penalty=$((log_penalty + 1))
+          fi
+        fi
+
         local judge_result
-        judge_result=$(judge_output "$output" "$criteria" "$ideal")
+        judge_result=$(judge_output "$output" "$criteria" "$ideal" "$session_summary")
         local score
         score=$(parse_score "$judge_result")
+        # Apply log penalties (floor at 1)
+        if [[ $log_penalty -gt 0 ]]; then
+          score=$((score - log_penalty))
+          [[ $score -lt 1 ]] && score=1
+        fi
         cond_all_scores+=("$score")
         task_trial_scores+=("$score")
 

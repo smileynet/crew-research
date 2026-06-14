@@ -4,6 +4,9 @@
 !.env.example
 !.env.template
 
+# Machine-local mise config (tools/tier selection per machine)
+.mise.local.toml
+
 # Ephemeral workspace
 .scratch/
 
@@ -31,3 +34,4 @@ Thumbs.db
 # Eval results (local runs, not publishable)
 tools/evals/results/
 !tools/evals/results/.gitkeep
+.references/

@@ -21,4 +21,7 @@ expect:
   present: []
   absent: ["2W4P6"]
 
+log_checks:
+  - "context_absent:STEERING_SECRET_2W4P6"
+
 timeout: 90

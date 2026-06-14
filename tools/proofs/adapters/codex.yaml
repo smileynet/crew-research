@@ -1,0 +1,31 @@
+tool: codex
+version_command: "codex --version"
+
+invoke:
+  command: 'codex --ask-for-approval never --cd {workdir} "{query}"'
+  timeout: 90
+
+skill:
+  location: ".agents/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+  discovery: "~/.agents/skills/ (USER scope) and .agents/skills/ (REPO scope)"
+
+agents_md:
+  location: "AGENTS.md"
+  format: markdown
+  global_location: "~/.codex/AGENTS.md"
+  discovery: |
+    1. Global: ~/.codex/AGENTS.md (or AGENTS.override.md)
+    2. Project: repo root → CWD, one file per directory
+    3. Merge order: root-down concatenation (later overrides earlier)
+    Limit: project_doc_max_bytes (32KiB default)
+
+output:
+  strip_ansi: true
+  encoding: utf-8
+
+notes: |
+  Codex has no explicit agent/resource system like kiro-cli.
+  Skills use the same SKILL.md format (name + description frontmatter).
+  Steering is delivered via AGENTS.md (concatenated), not per-file.
+  Proofs must be run manually — Codex CLI needs interactive or --ask-for-approval mode.

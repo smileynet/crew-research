@@ -1,0 +1,7 @@
+project: crew-research
+language: unknown
+
+verification:
+  build: ""
+  test: ""
+  lint: ""

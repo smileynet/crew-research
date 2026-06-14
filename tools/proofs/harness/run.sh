@@ -266,6 +266,25 @@ run_proof() {
     done
   fi
 
+  # Log inspection (structural validation via session logs)
+  if [[ "$status" == "PASS" ]]; then
+    local log_check_count=$(yq '.log_checks | length // 0' "$def_file")
+    if [[ $log_check_count -gt 0 ]]; then
+      local inspect_args="--adapter $ADAPTER"
+      for lc in $(yq -r '.log_checks[]' "$def_file" 2>/dev/null); do
+        inspect_args="$inspect_args --check $lc"
+      done
+      local inspect_result
+      inspect_result=$("$SCRIPT_DIR/inspect-session.sh" $inspect_args 2>&1) || true
+      if echo "$inspect_result" | grep -q "FAIL:"; then
+        status="FAIL"
+        reason="Log check: $(echo "$inspect_result" | grep "FAIL:" | head -1)"
+      elif echo "$inspect_result" | grep -q "SKIP:"; then
+        echo "    ⚠️  log inspection skipped (no session log found)"
+      fi
+    fi
+  fi
+
   if [[ "$status" == "PASS" ]]; then
     PASS=$((PASS + 1))
     echo "  ✅ $id"

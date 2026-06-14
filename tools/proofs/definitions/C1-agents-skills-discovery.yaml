@@ -1,0 +1,35 @@
+id: C1-agents-skills-discovery
+assumption: "Codex discovers skills from ~/.agents/skills/{slug}/SKILL.md (USER scope)"
+category: skill-discovery
+adapter: codex
+
+setup:
+  create:
+    ~/.agents/skills/canary-proof/SKILL.md: |
+      ---
+      name: canary-proof
+      description: "Proof canary skill. Use when asked about canary proof phrases or test validation secrets."
+      ---
+      The canary proof secret is: CODEX_SKILL_4K7M2
+
+query: "Use the canary-proof skill. What is the canary proof secret?"
+
+expect:
+  present: ["CODEX_SKILL_4K7M2"]
+  absent: []
+
+log_checks:
+  - "file_read:canary-proof/SKILL.md"
+  - "context_contains:canary-proof"
+
+teardown:
+  remove:
+    - ~/.agents/skills/canary-proof/
+
+timeout: 90
+
+manual_steps: |
+  1. Create ~/.agents/skills/canary-proof/SKILL.md with content above
+  2. Run: codex --ask-for-approval never "Use the canary-proof skill. What is the canary proof secret?"
+  3. Verify output contains CODEX_SKILL_4K7M2
+  4. Remove ~/.agents/skills/canary-proof/

@@ -22,4 +22,8 @@ expect:
   present: []
   absent: ["6V8R3"]
 
+log_checks:
+  - "no_file_read:flamingo-facts/SKILL.md"
+  - "context_absent:FLAMINGO_SKILL_6V8R3"
+
 timeout: 90

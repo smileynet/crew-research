@@ -1,0 +1,35 @@
+id: C3-skill-progressive-disclosure
+assumption: "Codex skill body is NOT loaded into context until the skill is activated (progressive disclosure)"
+category: skill-activation
+adapter: codex
+
+setup:
+  create:
+    ~/.agents/skills/obscure-mineral/SKILL.md: |
+      ---
+      name: obscure-mineral
+      description: "Facts about obscure minerals. Use when asked about geology, rare minerals, or crystallography."
+      ---
+      The mineral skill secret is: MINERAL_SECRET_5W2J9
+
+query: "What is 2+2? Answer with just the number."
+
+expect:
+  present: []
+  absent: ["MINERAL_SECRET_5W2J9"]
+
+log_checks:
+  - "no_file_read:obscure-mineral/SKILL.md"
+  - "context_absent:MINERAL_SECRET_5W2J9"
+
+teardown:
+  remove:
+    - ~/.agents/skills/obscure-mineral/
+
+timeout: 90
+
+manual_steps: |
+  1. Create ~/.agents/skills/obscure-mineral/SKILL.md with content above
+  2. Run: codex --ask-for-approval never "What is 2+2? Answer with just the number."
+  3. Verify output does NOT contain MINERAL_SECRET_5W2J9
+  4. Remove ~/.agents/skills/obscure-mineral/

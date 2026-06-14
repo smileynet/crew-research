@@ -1,0 +1,19 @@
+# .mise.local.toml — Machine-specific deployment config (gitignored)
+#
+# Copy this file to .mise.local.toml and customize for your machine.
+# This file is NOT committed — each machine declares its own tools.
+#
+# After editing, run:  mise run init -- --global --tier <your-tier>
+# The init script reads these values to deploy to the correct targets.
+
+[env]
+# Which tools to deploy to. Space-separated list.
+# Options: kiro-cli, codex
+CREW_TOOLS = "kiro-cli"
+
+# Deployment tier (basic or full)
+CREW_TIER = "basic"
+
+# Deployment type: "global" deploys to ~/.<tool>/ paths
+# "project" only scaffolds project workspace (used with --project flag)
+CREW_DEPLOY = "global"
