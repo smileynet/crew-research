@@ -2,8 +2,13 @@ tool: agy
 version_command: "agy --version"
 
 invoke:
-  command: 'agy --non-interactive "{query}"'
+  command: 'agy --print "{query}" --dangerously-skip-permissions'
   timeout: 90
+  notes: |
+    --print runs non-interactively, prints response, exits.
+    --dangerously-skip-permissions auto-approves tool calls.
+    Auth required: run `agy` interactively first to complete Google Sign-In.
+    Log: use --log-file <path> to capture debug output.
 
 skill:
   location: ".agents/skills/{name}/SKILL.md"
