@@ -22,7 +22,7 @@ echo "Practices → Skills:"
 for f in "$PRACTICES_DIR"/*.md; do
   [[ -f "$f" ]] || continue
   # Extract skills: [...] from frontmatter
-  skills=$(sed -n '/^---$/,/^---$/{ /^skills:/{ s/^skills: *\[//; s/\].*//; s/,/ /g; p; } }' "$f")
+  skills=$(awk '/^---$/{n++; next} n==1 && /^skills:/{gsub(/^skills: *\[|\].*/, ""); gsub(/,/, " "); print}' "$f")
   for s in $skills; do
     s=$(echo "$s" | tr -d ' ')
     [[ -z "$s" ]] && continue
@@ -42,7 +42,7 @@ echo "Skills → Practices:"
 for f in "$SKILLS_DIR"/*/SKILL.md; do
   [[ -f "$f" ]] || continue
   slug=$(basename "$(dirname "$f")")
-  practice=$(sed -n '/^---$/,/^---$/{ /practice:/{ s/.*practice: *//; s/ *$//; p; } }' "$f" | head -1)
+  practice=$(awk '/^---$/{n++; next} n==1 && /practice:/{sub(/.*practice: */, ""); sub(/ *$/, ""); print}' "$f" | head -1)
   [[ -z "$practice" || "$practice" == "null" ]] && continue
   if [[ -f "$PRACTICES_DIR/$practice.md" ]]; then
     echo "  ✅ $slug → $practice"
@@ -59,7 +59,7 @@ echo "Staleness:"
 for f in "$SKILLS_DIR"/*/SKILL.md; do
   [[ -f "$f" ]] || continue
   slug=$(basename "$(dirname "$f")")
-  practice=$(sed -n '/^---$/,/^---$/{ /practice:/{ s/.*practice: *//; s/ *$//; p; } }' "$f" | head -1)
+  practice=$(awk '/^---$/{n++; next} n==1 && /practice:/{sub(/.*practice: */, ""); sub(/ *$/, ""); print}' "$f" | head -1)
   [[ -z "$practice" || "$practice" == "null" ]] && continue
   practice_file="$PRACTICES_DIR/$practice.md"
   [[ -f "$practice_file" ]] || continue
