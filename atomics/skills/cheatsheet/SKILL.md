@@ -66,5 +66,6 @@ mise run add-skill -- <name>
 | `session-review-patterns` | Reviewing session transcripts for quality |
 | `enforcement-hierarchy` | Deciding how to enforce agent behavior rules |
 | `project-conventions` | Project-specific behavioral rules |
+| `project-winddown` | Wrapping up a project, extracting lessons learned |
 
 **When to suggest:** during init, adopt-project, read-handoff, or when a plan includes matching work.
