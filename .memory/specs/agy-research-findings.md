@@ -120,6 +120,46 @@ Verified: files deployed correctly, content matches source.
 | Session transcript extraction | 🔬 Spike needed | Trajectory extractor via live RPC |
 | Eval harness integration | ❌ Blocked | Can't capture output for judge scoring |
 
+### Spike Result: Direct RPC Works on Windows ✅
+
+**Date:** 2026-06-14 | **Time spent:** 30 min
+
+The language_server RPC is directly callable on Windows without the trajectory extractor tool:
+
+```
+POST https://127.0.0.1:{port}/exa.language_server_pb.LanguageServerService/{method}
+Header: x-codeium-csrf-token: {token}
+Content-Type: application/json
+```
+
+**Discovery on Windows:**
+1. Port: `Get-NetTCPConnection -OwningProcess {pid} -State Listen`
+2. CSRF token: `Get-CimInstance Win32_Process -Filter "Name='language_server.exe'"` → parse `--csrf_token` from CommandLine
+3. Cascade ID: from `GetAllCascadeTrajectories` response or `--log-file` output
+
+**RPC Methods verified:**
+- `GetAllCascadeTrajectories` → lists all sessions with summaries, step counts, workspace info
+- `GetCascadeTrajectorySteps` → returns full step data including:
+  - `userInput.userResponse` — user's prompt text
+  - `plannerResponse.response` — model's response (the text shown in TUI)
+  - `plannerResponse.thinking` — reasoning/thinking content
+  - `ephemeralMessage.content` — system prompts, skill injection
+  - Tool call steps (file reads, writes, shell commands)
+  - Timestamps for every step
+
+**Step types observed:**
+- `CORTEX_STEP_TYPE_USER_INPUT` — user message
+- `CORTEX_STEP_TYPE_CONVERSATION_HISTORY` — prior context
+- `CORTEX_STEP_TYPE_EPHEMERAL_MESSAGE` — system/skill injection
+- `CORTEX_STEP_TYPE_PLANNER_RESPONSE` — model response with thinking
+- `CORTEX_STEP_TYPE_CHECKPOINT` — session summary/intent
+
+**Implications:**
+- Session analysis is fully viable via direct RPC (no third-party tool needed)
+- Can extract response text for eval judge input (unblocks eval harness for agy)
+- Can verify skill activation by checking ephemeral messages
+- Works on Windows with standard curl or Python urllib
+
 | Aspect | kiro-cli | Codex | agy |
 |--------|----------|-------|-----|
 | Skills path (global) | `~/.kiro/skills/` | `~/.agents/skills/` | `~/.gemini/antigravity-cli/skills/` |
