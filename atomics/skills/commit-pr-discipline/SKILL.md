@@ -38,6 +38,9 @@ git diff --stat             # unintended files? unstage them
 
 **Scope test:** if the subject needs "and" to connect unrelated things, split.
 
+## PR Template Check
+Before creating a PR, check for `.github/PULL_REQUEST_TEMPLATE.md`. If it exists, follow its format exactly — fill every section, delete unused sections, don't invent your own structure.
+
 ## PR Title Format
 ```
 type(scope): description
