@@ -73,6 +73,7 @@ See [references/windows.md](references/windows.md) or [references/unix.md](refer
 
 - NEVER write file content via shell (heredocs, echo, Out-File, Set-Content). Use the write tool.
 - NEVER check file existence via shell (Test-Path). Use read or glob.
+- NEVER prefix commands with `cd` to change directory. Use the `working_dir` parameter instead.
 - The write tool creates parent directories automatically — don't mkdir first.
 - Reserve shell for: git, build commands, process management, and commands with no tool equivalent.
 
