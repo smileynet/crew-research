@@ -73,15 +73,15 @@ Verified: files deployed correctly, content matches source.
 
 ## Proofs Status
 
-| ID | Assumption | Status |
-|----|-----------|--------|
-| G1 | Workspace skills from `.agents/skills/` | BLOCKED (auth) |
-| G2 | AGENTS.md loaded from project root | BLOCKED (auth) |
-| G3 | GEMINI.md overrides AGENTS.md | BLOCKED (auth) |
-| G4 | Skills NOT loaded for unrelated queries | BLOCKED (auth) |
-| G5 | Global GEMINI.md loaded everywhere | BLOCKED (auth) |
+| ID | Assumption | Status | Evidence |
+|----|-----------|--------|----------|
+| G1 | Workspace skills from `.agents/skills/` | ✅ PASS | Wrote AGY_SKILL_7M3K9 to answer.txt after reading skill |
+| G2 | AGENTS.md loaded from project root | ✅ PASS | Wrote AGY_AGENTS_4R8W2 from project AGENTS.md |
+| G3 | GEMINI.md overrides AGENTS.md | ✅ PASS | Wrote GEMINI_WINS_3Z9P4 (not AGENTS_WINS_1X5Y7) |
+| G4 | Skills NOT loaded for unrelated queries | ✅ PASS | Answered "4" without leaking AGY_MINERAL_6V2J8 |
+| G5 | Global ~/.gemini/AGENTS.md loaded | ✅ PASS | Listed P1-P9 from crew-research steering in global AGENTS.md |
 
-**To unblock:** Run `agy` interactively in a terminal with browser access to complete Google Sign-In.
+**Run date:** 2026-06-14, agy v1.0.8, Gemini 3.5 Flash
 
 ## Key Differences from Other Tools
 

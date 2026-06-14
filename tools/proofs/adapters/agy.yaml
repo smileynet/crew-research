@@ -5,10 +5,12 @@ invoke:
   command: 'agy --print "{query}" --dangerously-skip-permissions'
   timeout: 90
   notes: |
-    --print runs non-interactively, prints response, exits.
+    --print runs non-interactively, prints response to TUI (not capturable via stdout redirect).
     --dangerously-skip-permissions auto-approves tool calls.
     Auth required: run `agy` interactively first to complete Google Sign-In.
     Log: use --log-file <path> to capture debug output.
+    Proof pattern: ask agent to write answer to a file, then read the file.
+    Output goes to console directly (TUI), not stdout — cannot pipe/redirect.
 
 skill:
   location: ".agents/skills/{name}/SKILL.md"
