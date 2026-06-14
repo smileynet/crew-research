@@ -93,3 +93,28 @@ status: complete
 3. **Steering pointers work.** The mechanism is reliable, context-efficient, and doesn't bleed. Ready for user-facing documentation.
 4. **Variance is the enemy.** Both evals show the same pattern: skills reduce variance more than they raise average. A skill that makes a 1→4 floor is more valuable than one that makes a 4→5 ceiling.
 5. **Critical framing > dispatch mechanics.** Self-review quality depends on prompt framing ("find issues", "what would break"), not execution context. Don't add mechanism complexity when better prompting solves it.
+6. **Model catch-up erodes skill value.** SDD scored +1.17 delta in early June; by mid-June the baseline rose from 2.33 to 4.66. Skills encoding now-standard model behavior lose their delta over time. Focus skill investment on behaviors the model consistently fails at unprompted.
+
+---
+
+## Spec-Driven Development — Closed (Model Caught Up)
+
+**Question:** Can we harden SDD from 3.50 → 4.0?
+
+**Finding:** The baseline moved. Re-running the eval shows:
+- With skill: 4.75 (stddev 0.42)
+- Baseline: 4.66 (stddev 0.61)  
+- Delta: 0.09 (was +1.17 in early June)
+
+| Task | With Skill | Baseline | Gap |
+|------|-----------|----------|-----|
+| Write PLAN.md | 4.0 (4/4/4) | 4.33 (5/4/4) | -0.33 |
+| Write feature spec | 5.0 (5/5/5) | 5.0 (5/5/5) | 0.0 |
+| Backfill existing spec | 5.0 (5/5/5) | 4.33 (5/3/5) | +0.67 |
+| Clarification gate | 5.0 (5/5/5) | 5.0 (5/5/5) | 0.0 |
+
+**Why the delta collapsed:** The model now naturally writes structured specs, refuses vague input, and includes non-goals without being told. The skill's gates (clarification refusal, self-review, complexity scoring) encode behavior the model has internalized.
+
+**Remaining value:** Floor-raising — the skill prevents the occasional bad run (baseline has a 3, skill never drops below 4). But average improvement is negligible.
+
+**Decision:** Accept current state. No further hardening — the marginal value is too low. Invest in skills targeting behaviors the model still fails at unprompted.
