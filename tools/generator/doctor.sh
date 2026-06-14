@@ -31,6 +31,9 @@ check_tool kiro-cli
 check_tool yq
 check_tool jq
 
+# Determine deployed tools from CREW_TOOLS env (default: kiro-cli)
+read -ra DEPLOYED_TOOLS <<< "${CREW_TOOLS:-kiro-cli}"
+
 # Check global deployment
 echo ""
 echo "Global (~/.kiro/):"
@@ -48,6 +51,33 @@ fi
 if grep -r '{{params' ~/.kiro/skills/ 2>/dev/null | grep -q .; then
   echo "  ⚠️  Unresolved {{params}} in global files (re-run global deploy)"
   warnings=$((warnings + 1))
+fi
+
+# Check codex deployment (if in CREW_TOOLS)
+if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx codex; then
+  echo ""
+  echo "Global (codex):"
+  codex_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
+  codex_agents_md="${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
+  if [[ $codex_skills -gt 0 && -f "$codex_agents_md" ]]; then
+    echo "  ✅ $codex_skills skills, AGENTS.md present"
+  else
+    echo "  ❌ Codex not deployed (run: mise run init -- --global)"
+    errors=$((errors + 1))
+  fi
+fi
+
+# Check agy deployment (if in CREW_TOOLS)
+if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then
+  echo ""
+  echo "Global (agy):"
+  agy_skills=$(find ~/.gemini/antigravity-cli/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
+  if [[ $agy_skills -gt 0 && -f "$HOME/.gemini/AGENTS.md" ]]; then
+    echo "  ✅ $agy_skills skills, ~/.gemini/AGENTS.md present"
+  else
+    echo "  ❌ agy not deployed (run: mise run init -- --global)"
+    errors=$((errors + 1))
+  fi
 fi
 
 # Check project workspace

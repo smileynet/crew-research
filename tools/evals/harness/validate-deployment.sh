@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 TIER="${1:-basic}"
-[[ "$1" == "--tier" ]] && TIER="${2:-basic}"
+[[ "${1:-}" == "--tier" ]] && TIER="${2:-basic}"
 MOCK_PROJECT=$(mktemp -d -t "validate-XXXX")
 TIMEOUT=60
 PASS=0
