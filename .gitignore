@@ -34,4 +34,9 @@ Thumbs.db
 # Eval results (local runs, not publishable)
 tools/evals/results/
 !tools/evals/results/.gitkeep
+
+# Proof results (local runs, regenerate with mise run proof)
+tools/proofs/results/
+!tools/proofs/results/.gitkeep
+!tools/proofs/results/*/.gitkeep
 .references/

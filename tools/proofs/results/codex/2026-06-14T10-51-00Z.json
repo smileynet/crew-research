@@ -1,1 +1,0 @@
-{"id": "C3-skill-progressive-disclosure", "result": "pass", "timestamp": "2026-06-14T10:51:00Z", "adapter": "codex", "tool_version": "0.139.0", "evidence": "Codex answered '4' to '2+2' without reading any skill file or mentioning canary-proof content", "notes": "No shell exec occurred — skill body remains unloaded for unrelated queries"}

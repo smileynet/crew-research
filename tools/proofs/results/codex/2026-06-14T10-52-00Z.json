@@ -1,1 +1,0 @@
-{"id": "C2-global-agents-md-loaded", "result": "pass", "timestamp": "2026-06-14T10:52:00Z", "adapter": "codex", "tool_version": "0.139.0", "evidence": "Codex correctly listed P1-P9 banned patterns from AI Generation Hygiene section in ~/.codex/AGENTS.md without reading any file", "notes": "Global AGENTS.md content is pre-loaded into session context"}
