@@ -25,8 +25,8 @@ Create these if they don't exist:
 4. **`tools/`** — project scripts and automation (validation, extraction, deployment)
 5. **`AGENTS.md`** — project reference (project layout, commands, workflows)
 6. **`.crew-config.yaml`** — detected build/test/lint commands
-7. **`.gitignore`** entries — `.scratch/` and `references/`
-8. **`references/`** — directory for reference repos
+7. **`.gitignore`** entries — `.scratch/` and `.references/`
+8. **`.references/`** — directory for reference repos
 
 ## Auto-detect
 
@@ -46,10 +46,11 @@ Check for existing decisions files (`decisions.md`, `DECISIONS.md`, `docs/decisi
 
 ## Detect References Directory
 
-Check for both `references/` and `resources/` directories:
-- If `resources/` exists and is gitignored → rename to `references/`, update `.gitignore`
-- If both exist → ask user which contains reference repos, consolidate to `references/`
-- Ensure `references/` is in `.gitignore`
+Check for `references/`, `.references/`, and `resources/` directories:
+- If `references/` exists and is gitignored → rename to `.references/`, update `.gitignore`
+- If `resources/` exists and is gitignored → rename to `.references/`, update `.gitignore`
+- If multiple exist → ask user which contains reference repos, consolidate to `.references/`
+- Ensure `.references/` is in `.gitignore`
 
 ## AGENTS.md Content
 
@@ -60,6 +61,7 @@ Include: project layout, detected commands, available workflows, references sect
 Tell the user:
 - Skills are available globally from `~/.kiro/`
 - Add project-specific steering to `.kiro/steering/` if needed
+- To inject domain knowledge into a global skill without forking it, use a **steering pointer**: a tiny always-loaded file pointing to a `inclusion: manual` detail file (see ADR 0002)
 - Add project terms to `.memory/CONTEXT.md` as they emerge
 - Use `/grill-with-docs` to stress-test plans before building
 

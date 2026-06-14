@@ -195,6 +195,7 @@ run_eval() {
 
   # Resolve conditions: new format (conditions:) or legacy (runs:)
   local -A condition_skills=()
+  local -A condition_steering=()
   local condition_names=()
   local has_conditions=$(yq '.conditions // null' "$def_file")
 
@@ -204,6 +205,9 @@ run_eval() {
     for cond in "${condition_names[@]}"; do
       local skills_list=$(yq ".conditions.${cond}.skills | join(\",\")" "$def_file")
       condition_skills["$cond"]="$skills_list"
+      # Parse steering files per condition
+      local steering_list=$(yq ".conditions.${cond}.steering // [] | join(\",\")" "$def_file")
+      condition_steering["$cond"]="$steering_list"
     done
   else
     # Legacy format: runs.with_skill / runs.without_skill
@@ -266,6 +270,20 @@ run_eval() {
             local skill_dest="$workdir/$(echo "$SKILL_LOCATION" | sed "s/{name}/$s/")"
             mkdir -p "$(dirname "$skill_dest")"
             cp "$skill_src" "$skill_dest"
+          fi
+        done
+
+        # Deploy steering files for this condition
+        IFS=',' read -ra steering_arr <<< "${condition_steering[$cond]:-}"
+        for st in "${steering_arr[@]}"; do
+          [[ -z "$st" ]] && continue
+          local steering_src="$EVALS_DIR/steering/$st"
+          if [[ -f "$steering_src" ]]; then
+            local steering_dest="$workdir/.kiro/steering/$st"
+            mkdir -p "$(dirname "$steering_dest")"
+            cp "$steering_src" "$steering_dest"
+          else
+            echo "[warn] Steering file not found: $steering_src" >&2
           fi
         done
 

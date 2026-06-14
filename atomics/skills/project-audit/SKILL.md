@@ -43,9 +43,9 @@ Check whether the crew-research deployment still matches project reality.
 - Is the language field correct?
 
 ### 7. References Directory
-- Is `references/` used consistently (not `resources/`)?
-- If `resources/` exists and is gitignored → flag for rename to `references/`
-- Is `references/` in `.gitignore`?
+- Is `.references/` used consistently (not `resources/` or bare `references/`)?
+- If `resources/` or `references/` exists and is gitignored → flag for rename to `.references/`
+- Is `.references/` in `.gitignore`?
 - Are reference repos documented in AGENTS.md?
 
 ### 8. Unprocessed Decisions

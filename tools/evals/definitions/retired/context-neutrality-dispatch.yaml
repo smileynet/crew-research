@@ -1,0 +1,39 @@
+name: context-neutrality-dispatch
+description: "Does dispatching evaluation tasks to a subagent produce better critique than inline review?"
+skill: code-review
+fixture: defu
+
+conditions:
+  with-dispatch-hint:
+    skills: [code-review]
+    steering: [dispatch-review.md]
+  inline-review:
+    skills: [code-review]
+
+tasks:
+  - input: |
+      First, add a mergeArrays option to defu that concatenates arrays instead of replacing them.
+      Then review your implementation for correctness, edge cases, and potential issues.
+      Report both the implementation and your review findings.
+    criteria: |
+      PRIMARY: Review quality — does the agent find real issues in its own implementation?
+      AUTOMATIC FAIL (score 1): No review performed, or review says "looks good" with no specifics.
+      Score 3: Review is superficial — mentions generic concerns (edge cases, types) without finding specific issues in the actual implementation.
+      Score 4: Review identifies at least one concrete issue specific to the implementation (not generic advice). Finds a real bug, missing edge case, or design problem.
+      BONUS (score 5): Review is genuinely critical — identifies multiple specific issues, questions design choices, suggests concrete improvements, as if reviewing someone else's code.
+
+  - input: |
+      First, implement a freeze option for defu that makes the merged result deeply immutable.
+      Then audit your implementation: what would break? What edge cases did you miss? What would a hostile code reviewer find?
+    criteria: |
+      PRIMARY: Self-audit quality — does the agent find weaknesses in its own work?
+      AUTOMATIC FAIL (score 1): No audit, or audit is purely positive ("implementation is solid").
+      Score 3: Mentions potential issues but they're generic (performance, types) rather than specific to this implementation.
+      Score 4: Identifies at least one concrete weakness specific to the freeze implementation (circular refs, symbols, prototype handling, etc).
+      BONUS (score 5): Finds multiple specific weaknesses, distinguishes "would break in production" from "nice to have", suggests which to fix now vs document as known limitations.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 240
+tags: [mechanism-eval, context-neutrality, dispatch]

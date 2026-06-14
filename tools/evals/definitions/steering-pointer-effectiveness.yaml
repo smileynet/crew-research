@@ -1,0 +1,34 @@
+name: steering-pointer-effectiveness
+description: "Does a steering pointer reliably cause the agent to read a manual-inclusion detail file and incorporate its content during skill execution?"
+skill: grill-with-docs
+fixture: defu
+
+conditions:
+  with-pointer:
+    skills: [grill-with-docs]
+    steering: [grill-pointer.md, grill-context.md]
+  baseline:
+    skills: [grill-with-docs]
+
+tasks:
+  - input: "Run a grill-with-docs session on this plan: 'Add multiplayer support to the game engine using WebSockets for real-time state synchronization between players.'"
+    criteria: |
+      PRIMARY: Agent reads the detail file (via pointer instruction) and incorporates project-specific domain questions/priorities into the grill session.
+      AUTOMATIC FAIL (score 1): Agent runs grill-with-docs generically without reading or referencing any project-specific context file.
+      Score 3: Agent reads the detail file but questions remain generic (no domain-specific terminology like tick rate, delta compression, ECS, client-side prediction).
+      Score 4: Agent reads the detail file and asks domain-specific questions informed by its content (references bandwidth budgets, reconnection handling, ECS interaction, or testing without real latency).
+      BONUS (score 5): Agent explicitly cites domain constraints from the detail file, tailors research sources to the listed priorities (gafferongames, Valve wiki), and asks questions from the Domain Questions list.
+
+  - input: "Write a unit test for the createDefu function that verifies custom merge behavior."
+    criteria: |
+      PRIMARY: Agent does NOT read the grill-context.md file or reference game engine domain context during an unrelated coding task.
+      AUTOMATIC FAIL (score 1): Agent reads grill-context.md or references game engine concepts during a simple testing task.
+      Score 3: Agent doesn't read the file but mentions it or acknowledges the pointer unnecessarily.
+      Score 4: Agent completes the testing task cleanly without referencing the pointer or detail file.
+      BONUS (score 5): Clean execution — focuses entirely on the defu codebase, writes a working test, no trace of pointer awareness.
+
+trials: 3
+threshold: 4
+delta_threshold: 1.0
+timeout: 120
+tags: [mechanism-eval, steering-pointer, customization]

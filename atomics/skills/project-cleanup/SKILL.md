@@ -51,8 +51,8 @@ Check: is every entry in CONTEXT.md still accurate? Remove stale definitions.
 
 ## Phase 4: References Directory
 
-- If `resources/` exists and is gitignored → rename to `references/`, update `.gitignore`
-- Ensure `references/` is in `.gitignore`
+- If `resources/` or `references/` exists and is gitignored → rename to `.references/`, update `.gitignore`
+- Ensure `.references/` is in `.gitignore`
 - Verify reference repos are documented in AGENTS.md
 
 ## Phase 5: Organize Scripts

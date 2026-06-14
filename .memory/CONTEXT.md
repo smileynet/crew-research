@@ -193,3 +193,7 @@ _Avoid_: "full tier skill" (full is a global tier), "optional skill" (all skills
 **Three-tier deployment**:
 The deployment model: basic (minimal global fundamentals), full (complete lifecycle globally), project-level (specialist skills per-project on demand). Global tiers deploy to `~/.kiro/`, project-level deploys to `<project>/.kiro/skills/`.
 _Avoid_: "packs" (no pack mechanism exists), "optional tier" (it's not a tier, it's per-project)
+
+**Steering pointer**:
+A tiny always-loaded steering file (~50 chars) that instructs the agent to read a manual-inclusion detail file when a specific skill activates. Provides project-specific knowledge injection into global skills without forking or drift.
+_Avoid_: extends (that's a full shadow), params (that's value substitution)

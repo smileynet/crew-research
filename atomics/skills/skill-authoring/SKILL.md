@@ -26,11 +26,25 @@ Body: Markdown, <100 lines total (including frontmatter).
 
 ## Rules
 
-1. **One concern per skill** — if it covers two topics, split it
+1. **One concern per skill** — if it covers two topics, STOP and split. Never combine.
 2. **Description IS the trigger** — kiro-cli matches tasks against this field. Generic = never activates
 3. **Process, not knowledge dump** — tell the agent what to DO, not everything to KNOW
 4. **Under 100 lines** — forces focus; put depth in `references/` companion files
 5. **Progressive loading** — SKILL.md is the entry point; link `references/*.md` for detail
+
+## Creation Gates (mandatory for new skills)
+
+Before presenting a new skill as complete, verify ALL gates pass:
+
+| # | Gate | Fail action |
+|---|------|-------------|
+| G1 | Description contains "Use when" + 3+ trigger keywords | Rewrite description |
+| G2 | Body is steps/process (not a list of facts) | Restructure as imperative |
+| G3 | Scope boundary declared ("Does NOT cover: ...") | Add scope section |
+| G4 | Under 100 lines total | Extract to references/ |
+| G5 | Single concern (would you split this into two skills?) | Split now |
+
+If G1-G5 don't all pass, the skill is not done. Fix before presenting.
 
 ## Writing a Good Description
 

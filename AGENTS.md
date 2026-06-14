@@ -23,7 +23,7 @@ tools/session-analyzer/           — Session transcript parsing
 .scratch/                         — Ephemeral (handoffs, active plans)
 docs/                             — Research history (eval results, experiment plans)
 docs/development/                 — Practices, spike records, results
-references/                       — Local reference repos (gitignored)
+.references/                      — Local reference repos (gitignored)
 ```
 
 ## Commands
@@ -57,6 +57,13 @@ mise run session:parse               # parse session transcripts
 - Practices in `docs/development/` are source research; skills are distilled deployment
 - Cross-link: skill declares `practice: slug`, practice declares `skills: [slug]`
 
+### Eval-Proven Patterns
+
+- **Gates > suggestions** — mandatory checklists with "fix before presenting" produce consistent behavior; optional advice doesn't
+- **Target unprompted behavior** — skills that enforce what the model WON'T do unprompted show delta; skills encoding what it already does when asked show none
+- **Variance reduction is the value** — a skill that raises the floor (1→4) matters more than one that raises the ceiling (4→5)
+- **Steering pointers for customization** — inject domain knowledge via pointer + manual-inclusion detail file instead of forking skills (see ADR 0002)
+
 ## Conventions
 
 - **Glossary**: `.memory/CONTEXT.md` — update immediately when terms resolve
@@ -85,7 +92,7 @@ When processing GitHub issues:
 
 ## Constraints
 
-- Do NOT modify files in `references/` (read-only)
+- Do NOT modify files in `.references/` (read-only)
 - Do NOT put implementation details in CONTEXT.md (glossary only)
 - Do NOT create skills over 100 lines without justification
 - Do NOT mix user docs and agent-loadable content in the same file

@@ -192,9 +192,9 @@ elif [[ -n "$PROJECT" ]]; then
   # .gitignore
   if [[ -f "$PROJECT/.gitignore" ]]; then
     grep -qx '.scratch/' "$PROJECT/.gitignore" 2>/dev/null || echo '.scratch/' >> "$PROJECT/.gitignore"
-    grep -qx 'references/' "$PROJECT/.gitignore" 2>/dev/null || echo 'references/' >> "$PROJECT/.gitignore"
+    grep -qx '.references/' "$PROJECT/.gitignore" 2>/dev/null || echo '.references/' >> "$PROJECT/.gitignore"
   else
-    printf '.scratch/\nreferences/\n' > "$PROJECT/.gitignore"
+    printf '.scratch/\n.references/\n' > "$PROJECT/.gitignore"
   fi
   echo "  ✅ .gitignore"
 
@@ -218,7 +218,7 @@ $PROJECT_NAME
 - \`.memory/\` — Durable artifacts (glossary, ADRs)
 - \`.memory/CONTEXT.md\` — Project glossary (update when terms are resolved)
 - \`docs/\` — User-facing documents
-- \`references/\` — Third-party repos for reference (gitignored)
+- \`.references/\` — Third-party repos for reference (gitignored)
 
 ## Commands
 \`\`\`bash

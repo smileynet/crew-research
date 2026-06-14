@@ -45,7 +45,7 @@ document-placement: |
   Default: .scratch/ (ephemeral) or .memory/ (durable)
   Only docs/: development research, eval results, experiment records
   Never docs/: user-facing content (that goes in README), scratch work
-  references/: third-party code for analysis (gitignored, rehydrate from .memory/references.md)
+  .references/: third-party code for analysis (gitignored, rehydrate from .memory/references.md)
 
 eager-context:
   - workspace

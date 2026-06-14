@@ -19,7 +19,7 @@ secrets.*
 node_modules/
 
 # Local reference repos (symlinked/cloned, not part of this project)
-/references/
+/.references/
 
 # OS
 .DS_Store

@@ -3,9 +3,9 @@ skill: reference-exploration
 category: activation
 
 tasks:
-  - input: "Explore the agent-crews repo in references/ and summarize how they handle skill loading."
+  - input: "Explore the agent-crews repo in .references/ and summarize how they handle skill loading."
     expect_activation: true
-  - input: "Analyze the third-party library in references/ to understand its plugin architecture."
+  - input: "Analyze the third-party library in .references/ to understand its plugin architecture."
     expect_activation: true
   - input: "Look at the reference implementation and document how they solved caching."
     expect_activation: true

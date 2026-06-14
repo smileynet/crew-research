@@ -19,7 +19,7 @@ Check for existing configuration:
 - `CONVENTIONS.md`, `CONTRIBUTING.md`, `DEVELOPMENT.md`
 - Existing session docs (`.scratch/`, `.memory/`)
 - Any custom workflows (skills with `invocation: user-only`)
-- `references/` (reference repo directories — note clone URLs if available)
+- `references/` or `.references/` (reference repo directories — note clone URLs if available)
 
 Report what exists and what would be replaced or merged.
 
@@ -45,6 +45,7 @@ Based on inventory:
 - Identify any project-specific steering rules to add locally
 - List which existing workflows to keep vs replace with crew-research equivalents
 - Flag conflicts between existing conventions and crew-research defaults
+- For domain-specific knowledge that global skills need: recommend **steering pointers** (tiny always-loaded pointer + manual-inclusion detail file) rather than full skill shadows. Use extends only when the skill's process/gates need changing.
 
 State explicitly: "Your global skills remain active. This sets up project-specific workspace conventions."
 

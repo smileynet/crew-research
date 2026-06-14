@@ -14,13 +14,18 @@ Extract everything learned from a project into a durable, portable summary that 
 
 ### 1. Confirm Scope
 
-Before proceeding, confirm with the user:
-- What is the project? (name, purpose, duration)
-- What's the intended audience for the summary? (future-you, team, public)
-- What format? (folder with README + topic docs is default)
-- Where should output live? (`.memory/lessons/`, `docs/lessons/`, separate repo)
+Infer defaults, don't interrogate. Only ask what you can't determine:
 
-Do NOT proceed until scope is confirmed.
+- **Project**: detect from AGENTS.md, README, or directory name
+- **Output**: `summary/` at project root (default — portable, discoverable)
+- **Audience**: future-you (default unless told otherwise)
+
+Ask only:
+- Full winddown or mid-project checkpoint?
+- Emphasis areas? (or "all equally")
+- Any grouping preference? (domain, JTBD, UX pattern, chronological)
+
+Do NOT ask 4+ questions before starting. Propose defaults, proceed unless corrected.
 
 ### 2. Dispatch Research Subagents
 
@@ -38,10 +43,10 @@ Each subagent writes findings to a temp file. Do NOT provide them with conclusio
 
 ### 3. Synthesize
 
-Combine subagent findings into a summary folder:
+Combine subagent findings into `summary/` at project root:
 
 ```
-lessons/
+summary/
 ├── README.md           — Overview + index of all docs
 ├── decisions.md        — Key decisions and their outcomes
 ├── patterns.md         — Reusable patterns discovered
@@ -49,6 +54,8 @@ lessons/
 ├── tools-and-setup.md  — Tooling choices worth reusing
 └── methodology.md      — Process insights (planning, testing, collaboration)
 ```
+
+Group by user need (JTBD) or domain when the project spans multiple areas. Adapt the structure to the project — don't force all projects into the same 6 files.
 
 ### 4. Quality Check
 

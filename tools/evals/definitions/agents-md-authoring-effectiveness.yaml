@@ -1,0 +1,33 @@
+name: agents-md-authoring-effectiveness
+description: "Does the skill produce shorter, more structured AGENTS.md files with escalation rules and verifiable criteria?"
+skill: agents-md-authoring
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [agents-md-authoring]
+  baseline:
+    skills: []
+
+tasks:
+  - input: "Write an AGENTS.md for the defu project. It's a TypeScript deep merge utility using vitest for tests and unbuild for building."
+    criteria: |
+      PRIMARY: Produced AGENTS.md is ≤150 lines, includes verifiable done criteria for commands, and has escalation rules.
+      AUTOMATIC FAIL (score 1): Over 200 lines or just a copy of README content.
+      Score 3: Under 150 lines but missing escalation rules or verifiable done criteria for commands.
+      Score 4: Under 150 lines, includes "When Blocked" section, has commands with verifiable done criteria (expected output or exit code), uses tables or lists over prose paragraphs.
+      BONUS (score 5): Includes decision tables, pairs "don'ts" with "dos", uses progressive disclosure (links to docs/), no prose paragraphs longer than 3 lines, separates agent concerns from user concerns.
+
+  - input: "This AGENTS.md is 300 lines and the agent seems to be spending too much time on instructions instead of working. Help me fix it."
+    criteria: |
+      PRIMARY: Reduces to ≤150 lines while preserving essential information via progressive disclosure.
+      AUTOMATIC FAIL (score 1): Keeps it over 150 lines or just deletes content without extracting to linked docs.
+      Score 3: Reduces length but loses important information without extraction.
+      Score 4: Extracts detail to referenced docs, keeps core under 150 lines, maintains routing to extracted content.
+      BONUS (score 5): Explains the reasoning token argument for brevity, identifies specific anti-patterns in the original, restructures prose to tables, adds missing escalation rules.
+
+trials: 3
+threshold: 4
+delta_threshold: 1.0
+timeout: 120
+tags: [skill-effectiveness, documentation]

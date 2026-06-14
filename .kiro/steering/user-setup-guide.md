@@ -43,6 +43,16 @@ Teach the user these workflows:
 - **Ending a session**: `/handoff`
 - **Periodic cleanup**: `/workspace-cleanup`
 
+### Customizing Global Skills
+
+If a global skill needs project-specific knowledge (domain questions, source priorities, cross-reference targets), use a **steering pointer** instead of forking the skill:
+
+1. Create `.kiro/steering/pointer-file.md` (always-loaded, ~2 lines): "Before starting [skill], read [detail file]"
+2. Create `.kiro/steering/detail-file.md` with `inclusion: manual` — contains the domain context
+3. The global skill runs unmodified; the agent reads the detail file on demand when the skill activates
+
+This costs ~50 characters of always-loaded context vs thousands for a full skill copy. See ADR 0002 for when to use params vs pointers vs extends.
+
 ## Troubleshooting
 
 | Problem | Fix |

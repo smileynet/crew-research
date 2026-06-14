@@ -42,7 +42,7 @@ BONUS (score 5): What excellence looks like.
 
 | ❌ Bad | ✅ Good |
 |--------|---------|
-| "Should handle correctly" | "PRIMARY: Delegates to crew-researcher" |
+| "Should handle correctly" | "PRIMARY: Reads the file before proposing changes" |
 | "Should not do bad things" | "AUTOMATIC FAIL: Implements feature (scope is bugs only)" |
 | Testing routing + style in one eval | Separate eval per concern |
 | No ideal on routing eval | Ideal showing correct delegation |
@@ -54,7 +54,7 @@ Score reasoning quality, not vocabulary. An agent that correctly resolves a sour
 
 ## Naming Convention
 
-`{agent}-{verb}-{noun}` — e.g., `dispatcher-routes-researcher`, `augmenter-checks-invariants`
+`{skill}-{verb}-{noun}` — e.g., `planning-cycles-produces-phases`, `code-review-checks-security`
 
 ## Threshold Rationale
 

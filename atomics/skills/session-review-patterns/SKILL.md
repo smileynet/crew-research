@@ -4,7 +4,7 @@ metadata:
   invocation: both
   practice: null
 name: session-review-patterns
-description: "Patterns for reviewing kiro-cli session transcripts. Use when analyzing sessions for protocol compliance, performance issues, or crew improvements."
+description: "Patterns for reviewing kiro-cli session transcripts. Use when analyzing sessions for protocol compliance, performance issues, or skill improvements."
 ---
 
 # Session Review Patterns
@@ -20,25 +20,20 @@ description: "Patterns for reviewing kiro-cli session transcripts. Use when anal
 ### Performance Issues
 - Context overflow (agent forgets earlier instructions mid-session)
 - Repeated failures without strategy change (retry amplification)
-- Orchestrator doing worker work (role bleed)
-- Workers asking open-ended questions instead of researching
+- Agent doing research inline instead of dispatching to subagent
+- Agent asking open-ended questions instead of researching first
 
-### Crew Design Issues
-- Agent prompt too long (> 80 lines = split signal)
+### Skill/Steering Issues
 - Skills triggering when irrelevant (vague descriptions)
-- Tool/rule contradictions (allowedCommands permits what prompt forbids)
-- Dead config (hooks in base crew.yaml ignored in full mode)
-
-## Hook Gotchas
-
-Only `agentSpawn` reliably deploys in full-mode projects (those with `crews/` directory). Other hooks (`stop`, `postToolUse`) must be defined in the themed crew YAML under the archetype, not in the base crew.yaml.
+- Skill too broad (covers multiple concerns → split signal)
+- Steering contradictions (two files give opposite guidance)
 
 ## Subagent Limitations
 
 When spawned as subagent, these tools are NOT available:
 grep, glob, code, web_search, web_fetch, use_aws, todo_list
 
-If a session shows an agent failing because it tried to use `web_search` as a subagent — that's a crew design issue, not an agent issue.
+If a session shows an agent failing because it tried to use `web_search` as a subagent — that's a dispatch issue. Dispatch research tasks from the main agent instead.
 
 ## Red Flags in Transcripts
 
