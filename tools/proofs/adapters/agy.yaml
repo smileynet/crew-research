@@ -80,3 +80,17 @@ notes: |
   Conversations can be exported to 2.0 via @conversation dropdown.
   Auth: system keyring + Google Sign-In. SSH sessions get printed auth URL.
   Enterprise: connects via GCP project. Consumer: Google AI Pro/Ultra.
+
+  KNOWN LIMITATIONS:
+  - Issue #76: --print drops stdout in non-TTY contexts (pipe, redirect, subprocess).
+    Output goes to console TUI handle only. Cannot capture programmatically.
+  - No --json or --output flag exists yet.
+  - Proofs use "write answer to file" workaround.
+  - Eval harness integration blocked until stdout capture is fixed.
+
+  SESSION ANALYSIS:
+  - --log-file captures tool calls and timing but NOT response text.
+  - Conversation DB: ~/.gemini/antigravity-cli/conversations/{cascade_id}.db (SQLite, protobuf blobs)
+  - Best path: antigravity-trajectory-extractor (live RPC to running language_server)
+    Exports decoded steps + transcript as JSON/Markdown.
+    Repo: github.com/jijiamoer/antigravity-trajectory-extractor

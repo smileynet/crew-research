@@ -83,7 +83,42 @@ Verified: files deployed correctly, content matches source.
 
 **Run date:** 2026-06-14, agy v1.0.8, Gemini 3.5 Flash
 
-## Key Differences from Other Tools
+## Session Analysis
+
+### stdout Capture: BLOCKED (Issue #76)
+
+`agy --print` writes to the TUI console handle directly, **not stdout**. When stdout is not a TTY (pipe, redirect, subprocess), output is silently dropped — exit 0, zero bytes. Confirmed bug: [google-antigravity/antigravity-cli#76](https://github.com/google-antigravity/antigravity-cli/issues/76). No fix shipped as of v1.0.8.
+
+**Impact:** Cannot use agy as an eval harness subject (no capturable output for judge scoring).
+
+### Available Data Sources
+
+| Source | Content | Access |
+|--------|---------|--------|
+| `--log-file <path>` | Tool calls, auth, timing, errors. NOT response text. | Direct flag |
+| SQLite conversation DB | Protobuf-encoded trajectory steps, metadata | `~/.gemini/antigravity-cli/conversations/{cascade_id}.db` |
+| Live RPC (trajectory extractor) | Decoded steps, transcript, generator_metadata as JSON/Markdown | Requires running Antigravity process |
+
+### Trajectory Extractor (Best Path)
+
+[jijiamoer/antigravity-trajectory-extractor](https://github.com/jijiamoer/antigravity-trajectory-extractor) — Python tool that:
+1. Discovers `cascade_id` values from local conversation cache (`~/.gemini/antigravity/conversations/*.pb`)
+2. Connects to running Antigravity `language_server` process on localhost
+3. Fetches decoded trajectories via RPC: `GetCascadeTrajectory`, `GetCascadeTrajectorySteps`, `GetCascadeTrajectoryGeneratorMetadata`
+4. Exports as Markdown or JSON (includes steps, transcript, metadata)
+
+**Requirements:** Antigravity process running, macOS/Linux RPC discovery (Windows untested).
+
+### Capability Matrix
+
+| Capability | Status | Method |
+|-----------|--------|--------|
+| Non-interactive execution | ✅ | `agy --print` (output to console only) |
+| Capture output programmatically | ❌ Issue #76 | No stdout in non-TTY |
+| Proof validation | ✅ Workaround | Ask agent to write answer to file |
+| Session log analysis (tools) | ⚠️ Partial | `--log-file` shows tool approvals, not text |
+| Session transcript extraction | 🔬 Spike needed | Trajectory extractor via live RPC |
+| Eval harness integration | ❌ Blocked | Can't capture output for judge scoring |
 
 | Aspect | kiro-cli | Codex | agy |
 |--------|----------|-------|-----|
