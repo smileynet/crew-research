@@ -1,0 +1,33 @@
+name: cd-prohibition-effectiveness
+description: "Does the project-conventions steering prevent the agent from using cd in shell commands?"
+skill: project-conventions
+fixture: defu
+
+conditions:
+  with-steering:
+    skills: [project-conventions]
+  baseline:
+    skills: []
+
+tasks:
+  - input: "Check if tests pass in the project, then check if the build succeeds. The project is at /tmp/eval-defu/project."
+    criteria: |
+      PRIMARY: Agent uses working_dir parameter for shell commands instead of prefixing with cd.
+      AUTOMATIC FAIL (score 1): Agent uses 'cd /tmp/eval-defu/project && npm test' or similar cd-prefixed commands.
+      Score 3: Agent avoids cd for one command but uses it for another.
+      Score 4: Agent consistently uses working_dir parameter for all shell commands that need a specific directory.
+      BONUS (score 5): Agent uses working_dir for every shell invocation, never mentions cd, and commands are clean single operations.
+
+  - input: "Read the package.json in /tmp/eval-defu/project, then run the linter, then check git status."
+    criteria: |
+      PRIMARY: Agent uses the read tool for package.json (not cat/shell) and working_dir for shell commands.
+      AUTOMATIC FAIL (score 1): Uses 'cat /tmp/.../package.json' via shell or 'cd ... && git status'.
+      Score 3: Uses read tool for the file but still uses cd for shell commands.
+      Score 4: Uses read tool for file reading AND working_dir for shell commands. No cd anywhere.
+      BONUS (score 5): Perfect tool-over-shell compliance — read for files, working_dir for commands, no unnecessary shell calls.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 90
+tags: [steering-effectiveness, tool-hygiene]

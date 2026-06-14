@@ -1,0 +1,33 @@
+name: project-winddown-effectiveness
+description: "Does the skill produce a winddown with minimal ceremony and correct output location?"
+skill: project-winddown
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [project-winddown]
+  baseline:
+    skills: []
+
+tasks:
+  - input: "Wind down this project — we're done with defu. Capture what we learned."
+    criteria: |
+      PRIMARY: Agent proposes defaults and starts working with ≤2 clarifying questions (not 4+ that block progress).
+      AUTOMATIC FAIL (score 1): Agent asks 4+ questions about audience, format, location, and scope before doing anything.
+      Score 3: Asks 2-3 questions including ones that should have defaults (where to put output, what format).
+      Score 4: Proposes defaults (summary/ output, full winddown), asks at most 1-2 focused questions (emphasis? checkpoint or full?), then starts researching the project.
+      BONUS (score 5): States defaults, asks one question at most, and immediately begins dispatching research into the codebase.
+
+  - input: "Wind down this project. Focus on what we learned about testing patterns and the architecture decisions."
+    criteria: |
+      PRIMARY: Agent targets summary/ as output location and adapts grouping to the user's stated focus areas.
+      AUTOMATIC FAIL (score 1): Asks where to put output despite the skill specifying summary/ as default, or ignores the stated focus.
+      Score 3: Uses summary/ but produces generic template structure ignoring the user's emphasis on testing + architecture.
+      Score 4: Uses summary/ at root, structures output around the stated focus areas (testing patterns, architecture decisions), proposes adapted file structure.
+      BONUS (score 5): Adapts the default template (e.g., testing-patterns.md, architecture-decisions.md instead of generic methodology.md/decisions.md), groups by domain, proceeds with minimal ceremony.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 120
+tags: [skill-effectiveness, lifecycle]

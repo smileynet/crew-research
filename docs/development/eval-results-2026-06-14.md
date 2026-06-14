@@ -118,3 +118,30 @@ status: complete
 **Remaining value:** Floor-raising — the skill prevents the occasional bad run (baseline has a 3, skill never drops below 4). But average improvement is negligible.
 
 **Decision:** Accept current state. No further hardening — the marginal value is too low. Invest in skills targeting behaviors the model still fails at unprompted.
+
+---
+
+## Research: `cd` Anti-Pattern in Agent TUIs
+
+**Question:** Is the cd problem kiro-cli specific or generic? What's best practice?
+
+**Finding:** Universal across all agent TUIs. Same issue, same feature requests, same solution.
+
+| Tool | Mechanism | cd behavior |
+|------|-----------|-------------|
+| Claude Code | Tracks cd via marker file + AsyncLocalStorage (~200 LOC) | Persists across calls |
+| Codex CLI | `-C` flag at start; `working_dir` per call | Does not persist |
+| Cursor | `working_directory` field on Shell tool | Does not persist |
+| Kiro CLI | `working_dir` parameter on shell tool | Does not persist |
+
+**Why the model uses cd despite steering:**
+1. Training data — 99% of shell examples use `cd && command` patterns
+2. Long session attention decay — steering from early context loses influence
+3. Multi-directory work feels more natural with cd
+4. SSH sessions — `working_dir` doesn't apply to remote shells
+
+**Industry consensus:** "Use the working_dir parameter, not cd" — all tools give this guidance. No tool blocks cd at the harness level. No tool makes working_dir required.
+
+**Our approach vs field:** Our steering prohibition matches industry best practice. The residual 627 cd commands come from SSH (legitimate), long sessions (attention decay), and non-crew-research projects (steering not deployed). No further action needed.
+
+**Sources:** [L5:verified] Claude Code source analysis (kenhuangus.substack.com), GitHub issues (Claude Code #19903, Codex #12464/#14025, Kiro #5693), Cursor forum reports.
