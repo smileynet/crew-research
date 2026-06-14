@@ -44,6 +44,16 @@ Validates that tool adapters correctly deliver context to agents (eager files lo
 | C3 | Skill body NOT loaded until activated (progressive disclosure) |
 | C4 | Project skills discovered from `.agents/skills/` (REPO scope) |
 
+### Antigravity CLI (G-series)
+
+| ID | Assumption |
+|----|-----------|
+| G1 | Workspace skills discovered from `.agents/skills/` |
+| G2 | `AGENTS.md` loaded from project root into session context |
+| G3 | `GEMINI.md` overrides `AGENTS.md` when both present |
+| G4 | Skills NOT loaded for unrelated queries |
+| G5 | `~/.gemini/GEMINI.md` loaded as global context |
+
 ## Adding Proofs
 
 1. Create `definitions/{ID}-{slug}.yaml` following existing patterns

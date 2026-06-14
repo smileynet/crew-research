@@ -8,6 +8,7 @@ When a required tool is missing, install it using the commands below. Detect the
 |------|---------|-------------|
 | `kiro-cli` | AI coding assistant CLI | All deployments |
 | `codex` | OpenAI Codex CLI | Codex deployments only |
+| `agy` | Google Antigravity CLI | Antigravity deployments only |
 | `yq` | YAML processor | init.sh, doctor.sh |
 | `mise` | Task runner / env manager | All mise run commands |
 | `jq` | JSON processor | eval harness |
@@ -33,6 +34,10 @@ winget install --id Amazon.Kiro-CLI
 # codex (OpenAI Codex CLI)
 winget install --id OpenAI.Codex
 # Or: npm install -g @openai/codex
+
+# agy (Google Antigravity CLI)
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+# Or from PowerShell: irm https://antigravity.google/cli/install.ps1 | iex
 
 # yq
 winget install --id MikeFarah.yq
@@ -86,6 +91,9 @@ brew install --cask kiro-cli
 brew install openai-codex
 # Or: npm install -g @openai/codex
 
+# agy (Google Antigravity CLI)
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+
 # yq
 brew install yq
 
@@ -110,6 +118,9 @@ curl -fsSL https://kiro.dev/install | sh
 
 # codex
 npm install -g @openai/codex
+
+# agy (Google Antigravity CLI)
+curl -fsSL https://antigravity.google/cli/install.sh | bash
 
 # yq
 sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
@@ -153,6 +164,7 @@ Or manually:
 ```bash
 kiro-cli --version
 codex --version
+agy --version
 yq --version
 mise --version
 jq --version

@@ -8,7 +8,7 @@
 
 [env]
 # Which tools to deploy to. Space-separated list.
-# Options: kiro-cli, codex
+# Options: kiro-cli, codex, agy
 CREW_TOOLS = "kiro-cli"
 
 # Deployment tier (basic or full)

@@ -1,0 +1,33 @@
+id: G2-agents-md-loaded
+assumption: "Antigravity CLI loads AGENTS.md from project root into session context"
+category: context-loading
+adapter: agy
+
+setup:
+  workdir: /tmp/agy-proof-g2
+  create:
+    AGENTS.md: |
+      # Project Rules
+      The project canary phrase is: AGY_AGENTS_4R8W2
+
+query: "What is the project canary phrase from your project rules?"
+
+expect:
+  present: ["AGY_AGENTS_4R8W2"]
+  absent: []
+
+log_checks:
+  - "context_contains:AGY_AGENTS_4R8W2"
+
+teardown:
+  remove:
+    - /tmp/agy-proof-g2/
+
+timeout: 90
+
+manual_steps: |
+  1. mkdir -p /tmp/agy-proof-g2/
+  2. Create AGENTS.md with canary content
+  3. cd /tmp/agy-proof-g2 && agy "What is the project canary phrase from your project rules?"
+  4. Verify output contains AGY_AGENTS_4R8W2
+  5. rm -rf /tmp/agy-proof-g2/

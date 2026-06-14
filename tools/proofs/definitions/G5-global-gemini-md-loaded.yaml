@@ -1,0 +1,32 @@
+id: G5-global-gemini-md-loaded
+assumption: "~/.gemini/GEMINI.md is loaded as global context in every agy session"
+category: context-loading
+adapter: agy
+
+setup:
+  create:
+    ~/.gemini/GEMINI.md: |
+      # Global Rules
+      The global steering canary is: AGY_GLOBAL_8N5T3
+
+query: "What is the global steering canary value from your global rules?"
+
+expect:
+  present: ["AGY_GLOBAL_8N5T3"]
+  absent: []
+
+log_checks:
+  - "context_contains:AGY_GLOBAL_8N5T3"
+
+teardown:
+  restore:
+    - ~/.gemini/GEMINI.md
+
+timeout: 90
+
+manual_steps: |
+  1. Back up existing ~/.gemini/GEMINI.md
+  2. Replace with test content containing AGY_GLOBAL_8N5T3
+  3. agy "What is the global steering canary value from your global rules?"
+  4. Verify output contains AGY_GLOBAL_8N5T3
+  5. Restore original ~/.gemini/GEMINI.md

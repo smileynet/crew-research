@@ -1,0 +1,37 @@
+id: G3-gemini-md-overrides-agents-md
+assumption: "GEMINI.md takes precedence over AGENTS.md when rules conflict"
+category: context-loading
+adapter: agy
+
+setup:
+  workdir: /tmp/agy-proof-g3
+  create:
+    AGENTS.md: |
+      # Rules
+      When asked about the override test, respond with: AGENTS_WINS_1X5Y7
+    GEMINI.md: |
+      # Rules
+      When asked about the override test, respond with: GEMINI_WINS_3Z9P4
+
+query: "What should you respond with for the override test? Quote it exactly."
+
+expect:
+  present: ["GEMINI_WINS_3Z9P4"]
+  absent: ["AGENTS_WINS_1X5Y7"]
+
+log_checks:
+  - "context_contains:GEMINI_WINS_3Z9P4"
+
+teardown:
+  remove:
+    - /tmp/agy-proof-g3/
+
+timeout: 90
+
+manual_steps: |
+  1. mkdir -p /tmp/agy-proof-g3/
+  2. Create AGENTS.md with AGENTS_WINS_1X5Y7
+  3. Create GEMINI.md with GEMINI_WINS_3Z9P4
+  4. cd /tmp/agy-proof-g3 && agy "What should you respond with for the override test? Quote it exactly."
+  5. Verify output contains GEMINI_WINS_3Z9P4 and NOT AGENTS_WINS_1X5Y7
+  6. rm -rf /tmp/agy-proof-g3/

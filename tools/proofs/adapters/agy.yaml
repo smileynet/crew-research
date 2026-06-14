@@ -1,0 +1,75 @@
+tool: agy
+version_command: "agy --version"
+
+invoke:
+  command: 'agy --non-interactive "{query}"'
+  timeout: 90
+
+skill:
+  location: ".agents/skills/{name}/SKILL.md"
+  format: markdown
+  global_location: "~/.gemini/antigravity-cli/skills/"
+  discovery: |
+    Global: ~/.gemini/antigravity-cli/skills/
+    Workspace: .agents/skills/
+    Skills use /skills command in-session. No terminal-level management command yet.
+    Install community skills: npx skills install <name>
+
+agents_md:
+  location: "AGENTS.md"
+  format: markdown
+  global_location: "~/.gemini/AGENTS.md"
+  tool_specific: "GEMINI.md"
+  tool_specific_global: "~/.gemini/GEMINI.md"
+  discovery: |
+    Precedence (highest to lowest):
+    1. System rules (Google DeepMind, immutable)
+    2. GEMINI.md (agy-specific overrides, wins over AGENTS.md)
+    3. AGENTS.md (cross-tool foundation)
+    4. .agent/rules/ (supplemental workspace rules)
+    Scopes:
+    - Global: ~/.gemini/AGENTS.md, ~/.gemini/GEMINI.md
+    - Project: ./AGENTS.md, ./GEMINI.md
+    - Nested: subdirectory AGENTS.md (opt-in via settings)
+
+plugins:
+  migrate_from: "agy plugin import gemini"
+  location: "~/.gemini/antigravity-cli/plugins/"
+  notes: "Replaces Gemini CLI 'extensions'. Commands become skills on import."
+
+mcp:
+  config_file: ".agents/mcp_config.json"
+  global_config: "~/.gemini/antigravity-cli/mcp_config.json"
+  notes: |
+    Remote servers use 'serverUrl' field (not 'url' or 'httpUrl').
+    Config is separate file, not inline in settings.json.
+
+hooks:
+  format: json
+  notes: |
+    JSON hooks intercept agent lifecycle: before tool call, after file edit, session start.
+    Same format as Antigravity 2.0 hooks.
+
+subagents:
+  supported: true
+  notes: |
+    Main agent spawns focused subagents for parallel/background work.
+    Async workflows: large refactors, multi-topic research run as subagents.
+
+output:
+  strip_ansi: true
+  encoding: utf-8
+
+install:
+  macos_linux: "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+  windows_powershell: "irm https://antigravity.google/cli/install.ps1 | iex"
+  windows_cmd: "curl -fsSL https://antigravity.google/cli/install.cmd -o install.cmd && install.cmd && del install.cmd"
+  binary_name: "agy"
+
+notes: |
+  Antigravity CLI (agy) is Google's Go-based terminal agent, replacing Gemini CLI (May 2026).
+  Same agent harness as Antigravity 2.0 desktop app.
+  Settings and permissions sync bidirectionally with Antigravity 2.0.
+  Conversations can be exported to 2.0 via @conversation dropdown.
+  Auth: system keyring + Google Sign-In. SSH sessions get printed auth URL.
+  Enterprise: connects via GCP project. Consumer: Google AI Pro/Ultra.

@@ -1,0 +1,37 @@
+id: G4-skill-not-loaded-unrelated
+assumption: "Workspace skills are NOT loaded into context for unrelated queries"
+category: skill-activation
+adapter: agy
+
+setup:
+  workdir: /tmp/agy-proof-g4
+  create:
+    .agents/skills/rare-mineral/skill.md: |
+      ---
+      name: rare-mineral
+      description: Facts about rare minerals. Use when asked about geology or crystallography.
+      ---
+      The mineral secret is: AGY_MINERAL_6V2J8
+
+query: "What is 2+2? Answer with just the number."
+
+expect:
+  present: []
+  absent: ["AGY_MINERAL_6V2J8"]
+
+log_checks:
+  - "no_file_read:rare-mineral"
+  - "context_absent:AGY_MINERAL_6V2J8"
+
+teardown:
+  remove:
+    - /tmp/agy-proof-g4/
+
+timeout: 90
+
+manual_steps: |
+  1. mkdir -p /tmp/agy-proof-g4/.agents/skills/rare-mineral/
+  2. Create skill.md with mineral secret
+  3. cd /tmp/agy-proof-g4 && agy "What is 2+2? Answer with just the number."
+  4. Verify output does NOT contain AGY_MINERAL_6V2J8
+  5. rm -rf /tmp/agy-proof-g4/

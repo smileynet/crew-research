@@ -1,0 +1,37 @@
+id: G1-workspace-skills-discovery
+assumption: "Antigravity CLI discovers workspace skills from .agents/skills/{slug}/"
+category: skill-discovery
+adapter: agy
+
+setup:
+  workdir: /tmp/agy-proof-g1
+  create:
+    .agents/skills/canary-proof/skill.md: |
+      ---
+      name: canary-proof
+      description: Proof canary skill. Use when asked about canary proof secrets.
+      ---
+      The canary proof secret is: AGY_SKILL_7M3K9
+
+query: "Use the canary-proof skill. What is the canary proof secret?"
+
+expect:
+  present: ["AGY_SKILL_7M3K9"]
+  absent: []
+
+log_checks:
+  - "file_read:canary-proof"
+  - "context_contains:canary-proof"
+
+teardown:
+  remove:
+    - /tmp/agy-proof-g1/
+
+timeout: 90
+
+manual_steps: |
+  1. mkdir -p /tmp/agy-proof-g1/.agents/skills/canary-proof/
+  2. Create skill.md with content above
+  3. cd /tmp/agy-proof-g1 && agy "Use the canary-proof skill. What is the canary proof secret?"
+  4. Verify output contains AGY_SKILL_7M3K9
+  5. rm -rf /tmp/agy-proof-g1/
