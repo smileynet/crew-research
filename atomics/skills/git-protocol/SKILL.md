@@ -29,6 +29,15 @@ Solo/personal workflow: commit frequently, push immediately.
 - Message must explain WHAT changed and WHY (not HOW)
 - One logical change per commit
 
+## Pre-Push Gate (mandatory)
+Before ANY push:
+1. `git fetch`
+2. `git log --oneline HEAD..origin/<branch>` — upstream commits?
+3. If yes: STOP. Tell the user what's upstream. Never push over upstream changes.
+4. If no: push normally.
+
+Skipping this risks data loss. No exceptions.
+
 ## Rules
 - Stage explicit files (not `git add .`)
 - Never force-push without explicit user permission

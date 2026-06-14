@@ -51,9 +51,13 @@ if [[ "$GLOBAL" == true ]]; then
   updated=0; removed=0; unchanged=0
 
   # Helper: deploy a file only if content differs (resolves params)
+  # Follows symlinks on write (content goes to target); skips nothing.
   deploy_file() {
     local src="$1" dest="$2"
-    mkdir -p "$(dirname "$dest")"
+    # If dest is a symlink, resolve to real path for mkdir + diff
+    local real_dest="$dest"
+    [[ -L "$dest" ]] && real_dest="$(readlink -f "$dest")"
+    mkdir -p "$(dirname "$real_dest")"
     local content
     content=$(sed \
       -e 's|{{params.ephemeral_path}}|.scratch|g' \
@@ -63,18 +67,21 @@ if [[ "$GLOBAL" == true ]]; then
       -e 's|{{params.scripts_path}}|tools|g' \
       -e 's|{{params.mise_file}}|mise.toml|g' \
       -e 's|{{params.output_path}}|.scratch/research|g' "$src")
-    if [[ -f "$dest" ]] && printf '%s\n' "$content" | diff -q - "$dest" &>/dev/null; then
+    if [[ -f "$real_dest" ]] && printf '%s\n' "$content" | diff -q - "$real_dest" &>/dev/null; then
       unchanged=$((unchanged + 1))
     else
-      printf '%s\n' "$content" > "$dest"
+      printf '%s\n' "$content" > "$real_dest"
       updated=$((updated + 1))
     fi
   }
 
   # Helper: deploy generated content only if it differs
+  # Follows symlinks on write (content goes to target).
   deploy_content() {
     local content="$1" dest="$2"
-    mkdir -p "$(dirname "$dest")"
+    local real_dest="$dest"
+    [[ -L "$dest" ]] && real_dest="$(readlink -f "$dest")"
+    mkdir -p "$(dirname "$real_dest")"
     # Resolve params before comparing
     content=$(echo "$content" | sed \
       -e 's|{{params.ephemeral_path}}|.scratch|g' \
@@ -84,10 +91,10 @@ if [[ "$GLOBAL" == true ]]; then
       -e 's|{{params.scripts_path}}|tools|g' \
       -e 's|{{params.mise_file}}|mise.toml|g' \
       -e 's|{{params.output_path}}|.scratch/research|g')
-    if [[ -f "$dest" ]] && printf '%s\n' "$content" | diff -q - "$dest" &>/dev/null; then
+    if [[ -f "$real_dest" ]] && printf '%s\n' "$content" | diff -q - "$real_dest" &>/dev/null; then
       unchanged=$((unchanged + 1))
     else
-      printf '%s\n' "$content" > "$dest"
+      printf '%s\n' "$content" > "$real_dest"
       updated=$((updated + 1))
     fi
   }
@@ -127,9 +134,10 @@ if [[ "$GLOBAL" == true ]]; then
   done
 
   # --- Prune stale files ---
-  # Steering: remove .md files not in tier
+  # Steering: remove .md files not in tier (skip symlinks — project-managed)
   for f in "$DEST/steering/"*.md; do
     [[ -f "$f" ]] || continue
+    [[ -L "$f" ]] && { echo "  kept (symlink): $(basename "$f")"; continue; }
     if [[ -z "${DESIRED_FILES[$f]:-}" ]]; then
       rm "$f"
       removed=$((removed + 1))
@@ -137,9 +145,10 @@ if [[ "$GLOBAL" == true ]]; then
     fi
   done
 
-  # Skills: remove skill dirs not in tier
+  # Skills: remove skill dirs not in tier (skip symlinks — project-managed)
   for d in "$DEST/skills/"*/; do
     [[ -d "$d" ]] || continue
+    [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
     skill_name=$(basename "$d")
     if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name"; then
       rm -rf "$d"

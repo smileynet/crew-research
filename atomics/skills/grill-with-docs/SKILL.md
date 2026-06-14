@@ -114,6 +114,19 @@ Only offer when ALL THREE are true:
 
 Format: `.memory/adr/NNNN-slug.md` — short title + 1-3 sentences (context, decision, why).
 
+## Project Customization
+
+To inject project-specific domain context without forking this skill, use a **steering pointer** (ADR 0002):
+
+1. Create `.kiro/steering/grill-pointer.md` (always-loaded, ~2 lines):
+   "Before starting a grill-with-docs session, read `.kiro/steering/grill-context.md`"
+2. Create `.kiro/steering/grill-context.md` with `inclusion: manual` containing:
+   - Domain constraints, research source priority
+   - Domain-specific questions to always ask
+   - Cross-reference targets (ADRs, docs, specs)
+
+Cost: ~50 chars always-loaded. Global skill runs unmodified.
+
 ## Exit Criteria
 
 Complete when:

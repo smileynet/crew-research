@@ -15,6 +15,10 @@ description: 'Task completion sequence including verification, git, signaling, a
    - If `git remote get-url origin` succeeds → `git pull --rebase && git push`
    - If NO remote → commit locally, report "No git remote. Committed at [SHA]."
    - Never silently skip push.
+3. **CI Check** — after push, if `.github/workflows/` exists:
+   - `gh run list --branch <current> --limit 1` — confirm run triggered
+   - Report: "Pushed. CI triggered." Do NOT claim "deployed" until CI confirmed green.
+   - If project has `just monitor`: mention it as option to track.
 3. **Signaling** — emit structured status signal (see format below)
 4. **Followups** — file issues for out-of-scope findings
 5. **Handoff** — deliver handoff summary (see elements below)
