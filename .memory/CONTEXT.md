@@ -184,3 +184,12 @@ _Avoid_: search limit (too generic)
 **Promotion** (artifact lifecycle):
 Moving an artifact from ephemeral (`.scratch/`) to durable (`.memory/`) when it has lasting value. Triggered during handoff. Opposite of "scratch stays scratch."
 _Avoid_: archiving (implies cold storage)
+
+
+**Project-level skill**:
+A specialist skill installed to a specific project's `.kiro/skills/` rather than globally. Suggested by the agent during init, adopt-project, or read-handoff when it detects matching work. Examples: fiction-craft, poc-workflow, skill-authoring. Avoids polluting global space with skills most projects don't need.
+_Avoid_: "full tier skill" (full is a global tier), "optional skill" (all skills are optional)
+
+**Three-tier deployment**:
+The deployment model: basic (minimal global fundamentals), full (complete lifecycle globally), project-level (specialist skills per-project on demand). Global tiers deploy to `~/.kiro/`, project-level deploys to `<project>/.kiro/skills/`.
+_Avoid_: "packs" (no pack mechanism exists), "optional tier" (it's not a tier, it's per-project)
