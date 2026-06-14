@@ -59,6 +59,12 @@ Scripts and tools that produce output SHOULD return structured results:
 3. **If diverged** (both sides have commits): tell the user what the upstream commits are, whether conflicts are likely (check `git merge --no-commit --no-ff origin/main` then `git merge --abort`), and ask how they want to proceed (merge vs rebase)
 4. Never force-push or auto-rebase without telling the user what happened upstream
 
+### After pushing (corrections)
+
+- Never amend a commit that has been pushed. Always fix forward with a new commit.
+- Before any push (including after a correction), run `git fetch` and verify no upstream changes exist.
+- Force push requires explicit user permission AND a stated reason. "I just pushed this" is not sufficient justification.
+
 ## Long-Running Commands
 
 See [references/windows.md](references/windows.md) or [references/unix.md](references/unix.md) based on your OS.

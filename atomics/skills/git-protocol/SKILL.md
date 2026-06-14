@@ -34,3 +34,11 @@ Solo/personal workflow: commit frequently, push immediately.
 - Never force-push without explicit user permission
 - Never amend pushed commits
 - If unsure whether to commit: commit (you can always squash later)
+
+## Fixing Mistakes on Pushed Commits
+- NEVER amend a pushed commit. Make a new fixup commit instead.
+- If you realize a just-pushed commit needs correction:
+  1. `git fetch` — check for upstream changes first
+  2. Make the fix as a new commit: `fix(scope): description`
+  3. Push normally
+- The only exception: user explicitly says "amend and force push"
