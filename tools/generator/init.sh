@@ -267,11 +267,13 @@ if [[ "$GLOBAL" == true ]]; then
   }
 
   deploy_agy() {
-    # ~/.gemini/skills/ is the shared path for ALL Antigravity tools (CLI + IDE + 2.0)
-    # ~/.gemini/antigravity-cli/skills/ is CLI-only
-    # Deploy to both so skills work everywhere
+    # Per Google DevRel (June 2026):
+    #   Antigravity 2.0 desktop: global = ~/.agents/skills/
+    #   Antigravity CLI:          global = ~/.gemini/antigravity-cli/skills/
+    #   Both read ~/.gemini/AGENTS.md for steering
+    # Deploy skills to both locations; steering to AGENTS.md
     deploy_agents_md_tool "agy" \
-      "$HOME/.gemini/skills" \
+      "$HOME/.agents/skills" \
       "$HOME/.gemini/AGENTS.md"
     # Also deploy to CLI-specific path
     local cli_dest="$HOME/.gemini/antigravity-cli/skills"

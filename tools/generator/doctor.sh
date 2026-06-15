@@ -71,13 +71,13 @@ fi
 if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then
   echo ""
   echo "Global (agy):"
-  agy_shared_skills=$(find ~/.gemini/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
+  agy_desktop_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
   agy_cli_skills=$(find ~/.gemini/antigravity-cli/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
-  if [[ $agy_shared_skills -gt 0 && -f "$HOME/.gemini/AGENTS.md" ]]; then
-    echo "  ✅ $agy_shared_skills skills (shared), $agy_cli_skills skills (CLI), AGENTS.md present"
+  if [[ $agy_desktop_skills -gt 0 && -f "$HOME/.gemini/AGENTS.md" ]]; then
+    echo "  ✅ $agy_desktop_skills skills (~/.agents/skills), $agy_cli_skills skills (CLI), AGENTS.md present"
   else
     echo "  ❌ agy not fully deployed (run: mise run init -- --global)"
-    [[ $agy_shared_skills -eq 0 ]] && echo "     missing: ~/.gemini/skills/"
+    [[ $agy_desktop_skills -eq 0 ]] && echo "     missing: ~/.agents/skills/"
     [[ ! -f "$HOME/.gemini/AGENTS.md" ]] && echo "     missing: ~/.gemini/AGENTS.md"
     errors=$((errors + 1))
   fi
