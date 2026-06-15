@@ -267,9 +267,28 @@ if [[ "$GLOBAL" == true ]]; then
   }
 
   deploy_agy() {
+    # Deploy to both CLI and IDE paths (they look in different dirs)
     deploy_agents_md_tool "agy" \
       "$HOME/.gemini/antigravity-cli/skills" \
       "$HOME/.gemini/AGENTS.md"
+    # Mirror skills to IDE path (antigravity/ without -cli)
+    local ide_dest="$HOME/.gemini/antigravity/skills"
+    mkdir -p "$ide_dest"
+    for skill in "${SKILLS[@]}"; do
+      src_dir="$SKILLS_DIR/$skill"
+      if [[ -d "$src_dir" ]]; then
+        dest="$ide_dest/$skill"
+        mkdir -p "$dest"
+        deploy_file "$src_dir/SKILL.md" "$dest/SKILL.md"
+        if [[ -d "$src_dir/references" ]]; then
+          mkdir -p "$dest/references"
+          for ref in "$src_dir/references/"*; do
+            [[ -f "$ref" ]] || continue
+            deploy_file "$ref" "$dest/references/$(basename "$ref")"
+          done
+        fi
+      fi
+    done
   }
 
   # ─── Deploy to each requested tool ───────────────────────────
