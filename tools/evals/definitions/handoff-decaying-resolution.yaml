@@ -1,0 +1,40 @@
+name: handoff-decaying-resolution
+description: "Does the handoff skill produce compressed, phase-aware handoffs that decay old context?"
+skill: handoff
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [handoff]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      We've been working on defu for 3 sessions. Here's what happened:
+      - Session 1: Researched how other merge libraries work (lodash.merge, deepmerge, Object.assign). Decided on recursive approach. Wrote ADR.
+      - Session 2: Implemented core merge, added tests for plain objects, arrays, null handling. Found a bug with circular references, decided to punt it.
+      - Session 3 (current): Added TypeScript types, fixed the array merge strategy to concat instead of replace, added 5 new tests all passing.
+
+      Write a handoff for the next session.
+    criteria: |
+      PRIMARY: Handoff compresses prior sessions (1-2) to essentials while keeping current session (3) in full detail.
+      AUTOMATIC FAIL (score 1): Handoff is >80 lines or includes full detail from all 3 sessions equally.
+      Score 3: Under 60 lines but treats all sessions equally (no compression of older work).
+      Score 4: Current session in full detail (types, array fix, tests), prior sessions compressed to outcomes + decisions only ("chose recursive approach", "circular refs punted"), under 60 lines.
+      BONUS (score 5): Explicitly marks what's decayed ("Prior: ..."), includes base_commit placeholder, evidence paths, and next steps. Session 1 is one line, Session 2 is 2-3 lines, Session 3 is full.
+
+  - input: |
+      Write a handoff. This session I fixed a failing test in defu — the 'should handle nested arrays' test was broken because the merge function wasn't recursing into array elements. I also ran the full test suite (23 tests pass) and pushed to main.
+    criteria: |
+      PRIMARY: Handoff is concise (under 40 lines for a simple bug fix session) with evidence and next steps.
+      AUTOMATIC FAIL (score 1): Handoff is >60 lines for what was a single bug fix, or missing evidence (test output, commit SHA).
+      Score 3: Reasonable length but missing either evidence or next steps.
+      Score 4: Under 40 lines, includes what was fixed, evidence (test count, push confirmation), and next steps or "none".
+      BONUS (score 5): Includes base_commit, handoff_key, concise format matching the template, no bloat.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 120
+tags: [skill-effectiveness, session-management]

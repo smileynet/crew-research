@@ -48,6 +48,7 @@ handoff_key: {workstream-slug}
 - Point to evidence; do not paste logs or transcripts
 - Include what was TRIED and failed (prevents repeated dead ends)
 - New handoff supersedes old for the same `handoff_key`
+- **Decay prior work**: current phase = full detail; prior phase = one-line outcomes + decisions; 2+ phases ago = drop (unless it's a decision or constraint)
 
 ## Quality Check
 
