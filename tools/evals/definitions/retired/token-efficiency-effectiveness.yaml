@@ -1,0 +1,46 @@
+name: token-efficiency-effectiveness
+description: "Does the skill reduce context waste by compressing between phases and extracting selectively from research?"
+skill: token-efficiency
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [token-efficiency]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      Research all the edge cases in defu's array handling (read the tests), then implement support for merging Set objects. Write tests.
+    criteria: |
+      PRIMARY: Agent compresses research findings before moving to implementation (doesn't carry raw exploration into code phase).
+      AUTOMATIC FAIL (score 1): Copy-pastes raw test content into implementation reasoning without summarization.
+      Score 3: Completes the task but carries verbose research artifacts throughout.
+      Score 4: Summarizes research into structured findings before implementing, references summaries not raw source.
+      BONUS (score 5): Writes findings to a file or states them as compressed bullets, keeps implementation context clean, demonstrates intentional phase transition.
+
+  - input: |
+      Here are research findings about Set merging (from a prior research session, 150+ lines originally):
+
+      KEY FINDINGS:
+      - 6 libraries surveyed: lodash (ignores Sets), deepmerge (replaces), ts-deepmerge (union/custom)
+      - Best approach: forEach+add (62k ops/sec, lowest memory, no intermediate array)
+      - Edge cases: WeakSet (skip), nested Sets (don't recurse - no key to match), type mismatch (source wins)
+      - Empty target = source wins, nullish target = source wins
+      - Detection: `source instanceof Set`, integrate before object-recursion in _defu()
+
+      FULL DETAILS in .scratch/set-research.md (benchmarks, all 6 library analyses, 8 test cases)
+
+      Using these findings, implement Set merging support in defu with tests.
+    criteria: |
+      PRIMARY: Agent works from the compressed findings above rather than demanding to read the full 150-line file first.
+      AUTOMATIC FAIL (score 1): Ignores the provided summary and insists on reading the full file before starting.
+      Score 3: Uses the findings but also reads the full file unnecessarily, carrying extra context.
+      Score 4: Works directly from the summary, implements based on the key findings, writes tests covering the identified edge cases.
+      BONUS (score 5): Explicitly acknowledges the compression ("these findings are sufficient"), implements cleanly from the extract, only reads the full file if a specific detail is needed (not speculatively).
+
+trials: 3
+threshold: 4
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, context-management]
