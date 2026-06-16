@@ -42,6 +42,7 @@ skills:
   # Write & Document
   - writing-style
   - readme-writing
+  - agents-md-authoring
   - changelog-discipline
   - commit-pr-discipline
   - docs-audit
@@ -62,3 +63,4 @@ skills:
   - project-cleanup
   - project-audit
   - project-winddown
+  - skill-authoring
