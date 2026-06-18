@@ -69,3 +69,17 @@ Summarize the subagent's findings. Group by severity, cap at 5 critical/importan
 - Never say "looks good" without checking
 - Cap at 5 findings; defer low-severity with a count
 - If the review is clean, say so in one line — don't manufacture feedback
+
+## Verdict System
+
+Every review MUST end with exactly one verdict line. No exceptions.
+
+| Verdict | Meaning | Action |
+|---------|---------|--------|
+| **APPROVED** | No critical/important issues | Merge |
+| **CHANGES REQUESTED** | Issues found, specific fixes listed | Author fixes, re-review |
+| **NEEDS DISCUSSION** | Design-level concern, not a code fix | Escalate to planning |
+
+Output format: `**Verdict: APPROVED**` or `**Verdict: CHANGES REQUESTED**` or `**Verdict: NEEDS DISCUSSION**`
+
+**Max 2 review rounds.** If still not approved after 2 rounds, escalate — the disagreement is architectural, not code-level.

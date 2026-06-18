@@ -19,6 +19,20 @@ The first line (project name + one-sentence description) must answer "what is th
 
 Write what the project does, not how it does it.
 
+## Jobs-To-Be-Done Table
+
+For tools and libraries, include a JTBD table after "What it does" — shows who uses this and why in natural language:
+
+```markdown
+| When I'm... | I want to... | So I can... |
+|-------------|-------------|-------------|
+| Starting a new project | scaffold conventions | stop re-inventing structure |
+| Ending a session | capture state for next time | continue without re-discovery |
+| Reviewing my own code | get objective feedback | catch issues before shipping |
+```
+
+5-7 rows. User's language, not implementation language. Each row is a trigger condition for the project's value.
+
 ## Quick Start Is the Most Important Section
 
 Get a reader to a working state in under five minutes. Show real commands, expected output, and minimal required setup. No theory, no background.
