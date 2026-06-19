@@ -1,0 +1,35 @@
+name: grill-question-dithering-codex
+description: "Does codex produce actionable analysis vs. a list of unanswered questions when given a design task with sufficient context?"
+skill: grill-with-docs
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [grill-with-docs]
+  baseline:
+    skills: []
+
+tasks:
+  - input: "Use the grill-with-docs skill. I want to add TypeScript strict mode to the defu project. Give me your first question after researching the codebase."
+    criteria: |
+      PRIMARY: Agent's question demonstrates it already explored the codebase (references specific files, current config) rather than asking discoverable questions.
+      AUTOMATIC FAIL (score 1): Response is a list of 3+ questions without having read any project files. Questions like "what TS version?", "what's your tsconfig?", "do you use strict mode already?" are all codebase-discoverable.
+      Score 2: Reads some files but asks multiple questions in one response, some of which it could have self-answered from what it read.
+      Score 3: Reads relevant files (tsconfig, package.json) and asks 2 questions, one of which is genuinely non-discoverable.
+      Score 4: Thoroughly explores (tsconfig.json, source files, tests), self-answers all discoverable info ("I see you're on TS 5.x with these strict flags already enabled..."), asks ONE focused question about intent or tradeoff.
+      BONUS (score 5): Presents a complete assessment ("Here's what I found about your current strictness: X, Y, Z. The main risk is A. The one thing I need from you is B.") — minimal questions, maximum self-answered context.
+
+  - input: "Use the grill-with-docs skill. I want to replace the current build system in defu (unbuild) with tsup. What should I consider?"
+    criteria: |
+      PRIMARY: Agent researches both tools and the current config rather than asking a list of clarifying questions about things it can discover.
+      AUTOMATIC FAIL (score 1): Asks 3+ questions about the current build setup without reading unbuild config, package.json exports, or the build output format. Dithers on "what output formats do you need?" when package.json declares them.
+      Score 2: Reads some config but still asks about things visible in the project (output formats, entry points, supported targets).
+      Score 3: Reads project config and identifies the current setup, but asks 2+ questions where one is self-answerable.
+      Score 4: Fully characterizes the current build (entry points, output formats, externals) from project files, researches tsup compatibility, asks only about non-discoverable preferences (e.g., "do you want to keep CJS support given your current consumers?").
+      BONUS (score 5): Presents a complete migration assessment: current config summary, identified gaps/incompatibilities from research, specific risks from web search, and asks only about the one genuine decision point.
+
+trials: 3
+threshold: 3
+delta_threshold: 0.5
+timeout: 240
+tags: [process-behavior, question-dithering, codex, self-answering]

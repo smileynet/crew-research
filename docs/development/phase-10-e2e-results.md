@@ -62,7 +62,6 @@ Tested on `~/code/crew-test` — a TypeScript project initialized with developme
 **Result**: Created complete workspace:
 - 7 agents, 25 skills, 2 prompts, 3 steering files
 - AGENTS.md with detected npm commands
-- .crew-config.yaml with correct crews
 - .memory/CONTEXT.md and resources.md templates
 - .gitignore with .scratch/ and references/
 

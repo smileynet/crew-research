@@ -49,7 +49,6 @@ cd "$MOCK_PROJECT" && git init -q && git add -A && git commit -q -m "init"
 [[ -f "$MOCK_PROJECT/AGENTS.md" ]] && pass "AGENTS.md created" || fail "AGENTS.md missing"
 [[ -f "$MOCK_PROJECT/.memory/CONTEXT.md" ]] && pass ".memory/CONTEXT.md created" || fail ".memory/CONTEXT.md missing"
 [[ -d "$MOCK_PROJECT/.scratch" ]] && pass ".scratch/ created" || fail ".scratch/ missing"
-[[ -f "$MOCK_PROJECT/.crew-config.yaml" ]] && pass ".crew-config.yaml created" || fail ".crew-config.yaml missing"
 [[ ! -d "$MOCK_PROJECT/.kiro/skills" ]] && pass "no local .kiro/skills (correct)" || fail ".kiro/skills exists (should be global only)"
 [[ ! -d "$MOCK_PROJECT/.kiro/prompts" ]] && pass "no local .kiro/prompts (correct)" || fail ".kiro/prompts exists (should be global only)"
 

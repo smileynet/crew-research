@@ -6,7 +6,7 @@ When adopting a brownfield project, captured special instructions go here. This 
 
 | Source | Capture | Placement |
 |--------|---------|-----------|
-| "Always run X before committing" | Verification command | `.crew-config.yaml` → `verify` |
+| "Always run X before committing" | Verification command | `AGENTS.md` → Commands section |
 | "Never use library Y" | Constraint | `.kiro/steering/project-rules.md` |
 | "We call X by the name Z" | Terminology | `.memory/CONTEXT.md` |
 | "Deploy requires steps A, B, C" | Process | `.kiro/skills/deploy/references/` or steering |
@@ -14,13 +14,17 @@ When adopting a brownfield project, captured special instructions go here. This 
 | "Use tabs/2-space/4-space" | Formatting | `.editorconfig` or steering |
 | Architecture choice with rationale | Decision | `.memory/adr/NNNN-slug.md` |
 
-## .crew-config.yaml Format
+## AGENTS.md Commands Section
 
-```yaml
+```markdown
+## Commands
+
+```bash
 build: "npm run build"
 test: "npm test"
 lint: "npm run lint"
 verify: "npm run typecheck && npm test"
+```
 ```
 
 ## .kiro/steering/project-rules.md Format
@@ -45,7 +49,7 @@ verify: "npm run typecheck && npm test"
 
 After adoption, verify:
 - [ ] All "always/never" rules captured in steering
-- [ ] Build/test/lint commands in .crew-config.yaml
+- [ ] Build/test/lint commands in AGENTS.md Commands section
 - [ ] Terminology in CONTEXT.md
 - [ ] Reference repos documented in AGENTS.md
 - [ ] Existing workflows preserved or mapped to crew equivalents

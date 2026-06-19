@@ -1,0 +1,36 @@
+name: grill-research-gates-codex-steering
+description: "Does putting research gates in AGENTS.md (always-loaded) produce stronger compliance in codex than a skill file?"
+skill: grill-with-docs
+fixture: defu
+
+conditions:
+  with-steering:
+    skills: [grill-with-docs]
+    steering: [grill-research-gates-steering.md]
+  skill-only:
+    skills: [grill-with-docs]
+
+tasks:
+  - input: "Use the grill-with-docs skill. I want to add a plugin system to defu so users can register custom merge strategies per key path. Plugins should be composable and order-independent."
+    criteria: |
+      PRIMARY: Agent searches for PROBLEMS/WARNINGS about the recommended approach (not just how to do it) and includes sourced cons.
+      AUTOMATIC FAIL (score 1): Recommends approaches without any web search for potential problems, anti-patterns, or warnings. Cons are generic ("might be complex") without sources.
+      Score 2: Does positive research (how to do it) but no negative research — cons column has no cited sources from issue trackers, migration guides, or maintainer warnings.
+      Score 3: Mentions potential issues but from general knowledge, not from searched sources. No search queries targeting problems or deprecation.
+      Score 4: Explicitly searches for problems/warnings (e.g., searches for issues, known problems, deprecated approaches) and includes findings as sourced cons in the options table.
+      BONUS (score 5): Multiple negative-research searches (problems, deprecation, migration pain), cons cite specific GitHub issues or maintainer statements, explicitly flags approaches that looked good but have known problems.
+
+  - input: "Use the grill-with-docs skill. I want to use Proxy objects in defu to intercept property access during merge and track which keys were touched. This would let users see a diff of what changed."
+    criteria: |
+      PRIMARY: Agent searches for known problems/limitations with the recommended approach (Proxy performance, debugging difficulty, library compatibility) and surfaces them with sources.
+      AUTOMATIC FAIL (score 1): Accepts the Proxy approach without searching for known issues, or only searches for how to implement it.
+      Score 2: Mentions Proxy has "some overhead" generically but doesn't search for specific evidence or benchmarks.
+      Score 3: Does some research but only positive (how Proxy works, examples). Doesn't specifically search for problems or compatibility issues.
+      Score 4: Searches for Proxy problems/limitations (performance issues, debugging difficulty, bundler issues, library incompatibilities) and presents sourced findings in cons.
+      BONUS (score 5): Finds specific evidence of Proxy problems in similar contexts (utility libraries, merge tools), cites benchmarks or issue reports, suggests alternatives with sourced trade-offs, warns about specific ecosystem incompatibilities.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.3
+timeout: 240
+tags: [skill-effectiveness, negative-research, gate-behavior, codex, steering-vs-skill]

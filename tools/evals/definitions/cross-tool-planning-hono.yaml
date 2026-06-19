@@ -1,0 +1,41 @@
+name: cross-tool-planning-hono
+description: "Compare planning, code, and prose quality on a larger project (hono, ~15k LOC) to stress-test codebase navigation."
+skill: null
+fixture: hono
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - input: "Read the middleware architecture in src/middleware/. Write a PLAN.md (under 25 lines) for adding a rate-limiting middleware. The plan should identify where to add it, what existing middleware patterns to follow, what configuration options to expose, and how to test it."
+    criteria: |
+      PRIMARY: Plan demonstrates understanding of hono's middleware pattern (Context, Next, MiddlewareHandler) and proposes a design consistent with existing middleware.
+      AUTOMATIC FAIL (score 1): Generic rate-limiting plan with no evidence of reading hono's middleware source. No references to hono's types or patterns.
+      Score 2: References some files but doesn't identify the middleware signature pattern or existing middleware conventions.
+      Score 3: Identifies the MiddlewareHandler pattern and proposes following it, but configuration or testing plan is generic.
+      Score 4: References specific middleware examples (cors, logger, etc.), proposes correct type signature, identifies appropriate config pattern (factory function returning MiddlewareHandler), testing approach references hono's test patterns.
+      BONUS (score 5): Identifies runtime considerations (Workers vs Node memory for rate state), proposes adapter pattern for storage backend, references hono's existing helper patterns, comprehensive test scenarios.
+
+  - input: "Find and read the router implementation. Write a technical explanation (under 300 words) of how hono's routing works, suitable for a contributor who wants to add a new route matching feature. Write it to ROUTING-EXPLAINED.md."
+    criteria: |
+      PRIMARY: Explanation accurately describes the actual routing mechanism after reading the source, not from general knowledge about web frameworks.
+      AUTOMATIC FAIL (score 1): Generic explanation of web routing that could apply to Express/Fastify. No evidence of reading hono's specific router implementation.
+      Score 2: References hono's files but explanation is superficial or inaccurate about the actual mechanism.
+      Score 3: Correctly identifies the router type(s) used (RegExpRouter, TrieRouter, SmartRouter) and explains the basic flow, but misses key details.
+      Score 4: Accurately explains the router dispatch mechanism, how routes are compiled, the SmartRouter fallback strategy, and how middleware integrates with routing. Written clearly for a contributor.
+      BONUS (score 5): Explains the performance tradeoffs between router types, how route compilation works, the role of the node/trie structure, and gives a clear path for where a contributor would add new matching logic.
+
+  - input: "There's a performance issue: the cors middleware re-compiles its origin checking regex on every request even when the origin option is a static string. Read the cors middleware source, identify the issue, and write an optimized version that pre-compiles static patterns. Write the fix to the source file."
+    criteria: |
+      PRIMARY: Correctly identifies the cors middleware location, understands the current origin checking logic, and implements a valid optimization.
+      AUTOMATIC FAIL (score 1): Can't find the cors middleware, or proposes a fix to the wrong file, or the fix is conceptually wrong.
+      Score 2: Finds the file but misunderstands the current implementation. Fix doesn't actually address the stated issue or introduces bugs.
+      Score 3: Correctly identifies the origin checking logic and proposes pre-compilation, but implementation has edge cases or doesn't preserve all existing behavior.
+      Score 4: Clean fix that pre-compiles static origin patterns at middleware creation time (in the factory function), preserves dynamic origin checking for function/array patterns, and maintains backward compatibility.
+      BONUS (score 5): Fix is minimal, handles all origin option types (string, array, regex, function), adds early-return optimization for exact string match, and the approach is clearly correct without needing to run tests.
+
+trials: 2
+threshold: 3
+timeout: 300
+tags: [cross-tool, planning, code-writing, prose, larger-project, hono]

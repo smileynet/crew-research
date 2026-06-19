@@ -33,7 +33,7 @@ Fan out subagents to review the project's artifacts in parallel:
 
 | Subagent | Reviews | Extracts |
 |----------|---------|----------|
-| Decisions | `.memory/adr/`, `AGENTS.md`, `.crew-config.yaml` | Architecture choices, what worked, what didn't |
+| Decisions | `.memory/adr/`, `AGENTS.md` | Architecture choices, what worked, what didn't |
 | Code | `src/`, `crates/`, `lib/` (structure, not every file) | Patterns adopted, abstractions that paid off, dead ends |
 | Process | `.scratch/`, `.memory/`, handoffs, commit history | Workflow discoveries, methodology insights |
 | Research | `docs/`, `.scratch/research/`, references used | Key findings, sources worth keeping, dead-end topics |

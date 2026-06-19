@@ -24,7 +24,7 @@ git diff main          # or git diff HEAD~1, or the relevant range
 Provide the subagent with:
 - The diff (or file list + contents)
 - The review checklist below
-- Any project-specific rules from `.kiro/steering/` or `.crew-config.yaml`
+- Any project-specific rules from `.kiro/steering/`
 
 Do NOT provide: the task description, design rationale, or conversation history. The reviewer should evaluate the code on its own merits.
 

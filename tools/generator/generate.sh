@@ -26,15 +26,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Load project overlay if specified
-PROJECT_CONFIG=""
 PROJECT_CREWS=""
 if [[ -n "$PROJECT" ]]; then
-  PROJECT_CONFIG="$PROJECT/.crew-config.yaml"
-  if [[ -f "$PROJECT_CONFIG" ]]; then
-    PROJECT_CREWS=$(yq '.crews[]?' "$PROJECT_CONFIG" 2>/dev/null | tr '\n' ' ')
-    echo "Project: $(yq '.project' "$PROJECT_CONFIG") ($(echo $PROJECT_CREWS | wc -w) crews)"
-  else
-    echo "Warning: --project specified but no .crew-config.yaml found" >&2
+  if [[ -f "$PROJECT/AGENTS.md" ]]; then
+    echo "Project: $PROJECT (AGENTS.md found)"
   fi
 fi
 

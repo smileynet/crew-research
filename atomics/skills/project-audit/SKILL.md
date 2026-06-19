@@ -38,9 +38,9 @@ Check whether the crew-research deployment still matches project reality.
 - Any terms used in recent work but not yet defined?
 - Any stale definitions that should be removed?
 
-### 6. .crew-config.yaml
-- Does it reflect current build/test/lint commands?
-- Is the language field correct?
+### 6. AGENTS.md Commands
+- Do build/test/lint commands still work?
+- Are any new commands missing?
 
 ### 7. References Directory
 - Is `.references/` used consistently (not `resources/` or bare `references/`)?

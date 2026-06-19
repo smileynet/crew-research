@@ -10,7 +10,7 @@ Interview me relentlessly about every aspect of this plan until we reach a share
 
 Ask one question at a time. Wait for my answer before continuing.
 
-If a question can be answered by exploring the codebase, explore the codebase instead.
+**Self-answer gate (mandatory):** Before asking ANY question, check: can the codebase, docs, or a web search answer this? If yes, explore and state what you found — do not ask. Only ask when the answer requires user intent, preference, or constraints not discoverable from available sources.
 
 **Before presenting each question, research it.** Do not rely on general knowledge alone.
 
@@ -32,6 +32,16 @@ Score each option along:
 - **Scoped vs. global** — affects only this subsystem, or the whole architecture?
 - **Reversible vs. sticky** — how easy to change later?
 - **Portable vs. environment-specific** — works everywhere, or only specific OS/tooling?
+
+### Research gates (mandatory before presenting options)
+
+| # | Gate | Fail action |
+|---|------|-------------|
+| G1 | Found relevant docs/examples for this technology | Search `"{technology} {concept} docs"` |
+| G2 | Searched for WARNINGS against this approach | Search `"{technology} {approach} problems"` or `"deprecated"` or `"migration"` |
+| G3 | Found 2+ independent sources before recommending | Search more broadly; if only 1 source, label "unconfirmed" |
+
+Do NOT present options until all 3 gates pass. G2 findings MUST appear in the Con column with source.
 
 ### How to present
 

@@ -55,3 +55,13 @@ Format: `[L{n}:{confidence}]` — use in research findings, multi-agent handoffs
 - Separate observation from interpretation
 - When sources conflict, surface BOTH with levels before resolving
 - Never present speculation as fact — use confidence labels
+
+## Research Gates (before recommending approaches)
+
+| # | Gate | Fail action |
+|---|------|-------------|
+| G1 | Found relevant docs/examples | Search `"{technology} {concept} docs"` |
+| G2 | Searched for WARNINGS against this approach | Search `"{approach} problems"` or `"deprecated"` |
+| G3 | 2+ independent sources before recommending | Search more broadly; label single-source as "unconfirmed" |
+
+G2 findings MUST appear in the Con column with source. Do NOT present options until all gates pass.

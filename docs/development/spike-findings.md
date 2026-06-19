@@ -96,7 +96,7 @@ Tested 3 approaches against 4 real use cases:
 | C: Params (value injection) | ✅ | ❌ | ⚠️ | ❌ |
 
 **Decision:** Use both:
-- **Params** (80% of cases): Skills declare `params:` with defaults. Projects provide values in `.crew-config.yaml`. Handles commands, paths, thresholds.
+- **Params** (80% of cases): Skills declare `params:` with defaults. Projects provide values in `AGENTS.md` Commands section or steering files. Handles commands, paths, thresholds.
 - **Extends** (20% of cases): Project creates a local skill that shadows the shared one. Handles new sections, replaced content, structural changes.
 
 Resolution order: local skill > shared skill + project params > shared skill with defaults.

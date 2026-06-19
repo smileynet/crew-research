@@ -41,7 +41,7 @@ Write captured instructions to `.memory/project-specific-rules.md`.
 **Important framing:** If skills are already deployed globally (`~/.kiro/`), the agent has full access to all skills in every project regardless of what's scaffolded locally. This recommendation is about what *workspace structure* to set up in this specific project — not about limiting capability.
 
 Based on inventory:
-- Recommend what to scaffold locally (`.memory/`, `.scratch/`, AGENTS.md, `.crew-config.yaml`)
+- Recommend what to scaffold locally (`.memory/`, `.scratch/`, AGENTS.md)
 - Identify any project-specific steering rules to add locally
 - List which existing workflows to keep vs replace with crew-research equivalents
 - Flag conflicts between existing conventions and crew-research defaults
@@ -58,7 +58,6 @@ Present recommendation and wait for approval before proceeding.
 3. Merge captured special instructions into:
    - `.kiro/steering/project-rules.md` (always-on rules)
    - `.kiro/skills/{name}/references/project-notes.md` (skill-specific context)
-   - `.crew-config.yaml` (param overrides)
 4. Preserve any unique workflows as skills in `.kiro/skills/`
 5. Migrate existing CONTEXT.md / glossary content if present
 6. Document any reference repos in AGENTS.md "References" section with clone commands
