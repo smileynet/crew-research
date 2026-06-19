@@ -18,11 +18,21 @@ Activate when: starting a new feature/epic, task feels too vague, scope unclear,
 
 Do NOT activate for: bug fixes, small well-defined tasks, tasks with clear specs.
 
-## The Four Phases
+## The Five Phases
 
 ```
-Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (commit)
+Specify (anchor) → Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (commit)
 ```
+
+### Phase 0: Specify
+- Describe the desired experience in the USER'S language (not implementation language)
+- Format: "When [user does X], they [see/get Y]"
+- 3-7 statements that define success from outside the system
+- **Output:** specify document (user-facing acceptance criteria)
+- **Gate:** user must approve before Phase 1 begins
+- **Skip when:** user already provided clear acceptance criteria
+
+**Phase 0 is mandatory for new features.** Your first output MUST be specify statements. If your instinct is to discuss architecture, STOP — write "When [user]..." statements first. Do NOT produce technical content before Phase 0 is complete.
 
 ### Phase 1: Brainstorm
 - Ask clarifying questions
@@ -72,15 +82,15 @@ Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (co
 
 | Situation | Run Phases |
 |-----------|-----------|
-| New feature, unclear requirements | 1 → 2 → 3 → 4 |
+| New feature, unclear requirements | 0 → 1 → 2 → 3 → 4 |
 | Clear requirements, user-facing | 2 → 3 → 4 |
 | Clear requirements, backend-only | 3 → 4 |
-| Uncertain data model or state machine | 1 → 2b → 3 → 4 |
-| UI direction unclear | 2 → 2b → 3 → 4 |
+| Uncertain data model or state machine | 0 → 1 → 2b → 3 → 4 |
+| UI direction unclear | 0 → 2 → 2b → 3 → 4 |
 | Bug fix or small task | Skip (just do it) |
 | Exploring a new domain | 1 only |
 | Refactoring | 3 → 4 |
-| Large feature needing PRD | 1 → 2 → 3 → 4 (PRD output) |
+| Large feature needing PRD | 0 → 1 → 2 → 3 → 4 (PRD output) |
 | Full PoC (new system/integration) | Use [poc-workflow](../poc-workflow/SKILL.md) instead |
 
 ## References
