@@ -19,7 +19,8 @@ const JUDGES_DIR = join(EVALS_DIR, "judges");
 const args = process.argv.slice(2);
 const defName = args[args.indexOf("--definition") + 1];
 const trials = parseInt(args[args.indexOf("--trials") + 1] || "3");
-if (!defName) { console.error("Usage: --definition <name>"); process.exit(1); }
+const model = args.includes("--model") ? args[args.indexOf("--model") + 1] : undefined;
+if (!defName) { console.error("Usage: --definition <name> [--trials 3] [--model gpt-5.5]"); process.exit(1); }
 
 // Load definition
 const defPath = join(EVALS_DIR, "definitions", `${defName}.yaml`);
@@ -31,7 +32,7 @@ const judgeYaml = execSync(`yq -o=json '.' "${join(JUDGES_DIR, "default.yaml")}"
 const judgeConfig = JSON.parse(judgeYaml);
 
 console.log(`Multi-turn eval: ${def.name}`);
-console.log(`Trials: ${trials} | Mode: codex-sdk threads`);
+console.log(`Trials: ${trials} | Mode: codex-sdk threads | Model: ${model || "default"}`);
 console.log();
 
 // Setup workspace with fixture
@@ -65,6 +66,7 @@ async function runMultiTurn(workdir, turns) {
     sandboxMode: "workspace-write",
     approvalPolicy: "never",
     skipGitRepoCheck: true,
+    ...(model && { model }),
   });
 
   const transcript = [];
