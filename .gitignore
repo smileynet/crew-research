@@ -40,3 +40,8 @@ tools/proofs/results/
 !tools/proofs/results/.gitkeep
 !tools/proofs/results/*/.gitkeep
 .references/
+
+
+# Python
+__pycache__/
+*.pyc

@@ -1,0 +1,33 @@
+question: "Does recall reduce re-discovery and improve decision consistency vs handoff alone?"
+experiment: memory-recall-efficiency
+category: methodology
+
+conditions:
+  - name: no-memory
+    skills: []
+  - name: handoff-only
+    skills: [handoff, read-handoff]
+  - name: recall-only
+    skills: [recall]
+  - name: combined
+    skills: [handoff, read-handoff, recall]
+
+tasks:
+  - name: recall-past-decision
+    input: "What coordinate system did we choose for play data and why?"
+  - name: avoid-contradiction
+    input: "Should we add a new autoload for the ball state service?"
+  - name: continue-prior-work
+    input: "Continue the architecture work from last session on the fielder controller split."
+
+metrics:
+  - total_tokens
+  - context_usage_pct
+  - tool_use_count
+  - duration_ms
+
+acceptance_criteria: |
+  - recall-only and combined conditions score higher than no-memory on recall tasks
+  - combined condition is at least as good as the best individual condition
+  - Token overhead of recall is documented (compare total_tokens across conditions)
+  - No condition regresses below no-memory baseline on any task

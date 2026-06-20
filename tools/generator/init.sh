@@ -19,6 +19,8 @@ LANGUAGE=""
 BUILD_CMD=""
 TEST_CMD=""
 LINT_CMD=""
+PLUGIN=""
+REMOVE_PLUGIN=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -27,6 +29,8 @@ while [[ $# -gt 0 ]]; do
     --tier) TIER="$2"; shift 2 ;;
     --tool) TOOLS+=("$2"); shift 2 ;;
     --language) LANGUAGE="$2"; shift 2 ;;
+    --plugin) PLUGIN="$2"; shift 2 ;;
+    --remove-plugin) REMOVE_PLUGIN="$2"; shift 2 ;;
     *) echo "Unknown: $1" >&2; exit 1 ;;
   esac
 done
@@ -42,6 +46,136 @@ fi
 
 # Resolve tier from env if not overridden on CLI (default still basic)
 [[ "$TIER" == "basic" && -n "${CREW_TIER:-}" ]] && TIER="$CREW_TIER"
+
+# ═══════════════════════════════════════════════════════════════
+# PLUGIN INSTALL / REMOVE
+# ═══════════════════════════════════════════════════════════════
+
+PLUGINS_DIR="$ROOT_DIR/compositions/plugins"
+PLUGINS_STATE="$HOME/.crew-research/plugins.json"
+
+if [[ -n "$PLUGIN" || -n "$REMOVE_PLUGIN" ]]; then
+  mkdir -p "$HOME/.crew-research"
+
+  if [[ -n "$PLUGIN" ]]; then
+    PLUGIN_FILE="$PLUGINS_DIR/$PLUGIN.yaml"
+    [[ -f "$PLUGIN_FILE" ]] || { echo "Error: plugin '$PLUGIN' not found at $PLUGIN_FILE" >&2; exit 1; }
+
+    # Check prerequisites
+    while IFS= read -r cmd_check; do
+      [[ -z "$cmd_check" ]] && continue
+      if ! eval "$cmd_check" &>/dev/null; then
+        hint=$(yq -r '.prerequisites.commands[] | select(.check == "'"$cmd_check"'") | .install_hint' "$PLUGIN_FILE")
+        echo "Prerequisite failed: $cmd_check"
+        echo "  Install: $hint"
+        exit 1
+      fi
+    done < <(yq -r '.prerequisites.commands[].check' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$')
+
+    echo "Installing plugin: $PLUGIN"
+
+    # Deploy steering
+    for item in $(yq -r '.deploys.steering[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
+      src="$SKILLS_DIR/$item/SKILL.md"
+      if [[ -f "$src" ]]; then
+        for tool in "${TOOLS[@]}"; do
+          case "$tool" in
+            kiro-cli)
+              dest="$HOME/.kiro/steering/$item.md"
+              mkdir -p "$(dirname "$dest")"
+              content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
+              printf '%s\n' "$content" > "$dest"
+              echo "  steering: $item -> $dest"
+              ;;
+          esac
+        done
+      fi
+    done
+
+    # Deploy skills
+    for item in $(yq -r '.deploys.skills[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
+      src_dir="$SKILLS_DIR/$item"
+      if [[ -d "$src_dir" ]]; then
+        for tool in "${TOOLS[@]}"; do
+          case "$tool" in
+            kiro-cli)
+              dest="$HOME/.kiro/skills/$item"
+              mkdir -p "$dest"
+              cp "$src_dir/SKILL.md" "$dest/SKILL.md"
+              if [[ -d "$src_dir/references" ]]; then
+                mkdir -p "$dest/references"
+                cp "$src_dir/references/"* "$dest/references/" 2>/dev/null
+              fi
+              echo "  skill: $item -> $dest"
+              ;;
+          esac
+        done
+      fi
+    done
+
+    # Update state
+    timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date +%Y-%m-%dT%H:%M:%SZ)
+    mkdir -p "$HOME/.crew-research"
+    PYCMD=$(command -v python3 || command -v python)
+    tools_json=$(printf '%s\n' "${TOOLS[@]}" | $PYCMD -c "import sys,json; print(json.dumps(sys.stdin.read().split()))")
+    if [[ -f "$PLUGINS_STATE" ]]; then
+      $PYCMD -c "
+import json
+state = json.load(open('$PLUGINS_STATE'))
+state.setdefault('installed', {})['$PLUGIN'] = {'version': '$(yq -r '.version' "$PLUGIN_FILE")', 'installed_at': '$timestamp', 'tools': $tools_json}
+json.dump(state, open('$PLUGINS_STATE', 'w'), indent=2)
+"
+    else
+      $PYCMD -c "
+import json
+state = {'installed': {'$PLUGIN': {'version': '$(yq -r '.version' "$PLUGIN_FILE")', 'installed_at': '$timestamp', 'tools': $tools_json}}}
+json.dump(state, open('$PLUGINS_STATE', 'w'), indent=2)
+"
+    fi
+    echo ""
+    echo "Plugin '$PLUGIN' installed."
+    exit 0
+  fi
+
+  if [[ -n "$REMOVE_PLUGIN" ]]; then
+    PLUGIN_FILE="$PLUGINS_DIR/$REMOVE_PLUGIN.yaml"
+    [[ -f "$PLUGIN_FILE" ]] || { echo "Error: plugin '$REMOVE_PLUGIN' not found" >&2; exit 1; }
+
+    echo "Removing plugin: $REMOVE_PLUGIN"
+
+    # Remove steering
+    for item in $(yq -r '.deploys.steering[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
+      for tool in "${TOOLS[@]}"; do
+        case "$tool" in
+          kiro-cli) rm -f "$HOME/.kiro/steering/$item.md"; echo "  removed: steering/$item.md" ;;
+        esac
+      done
+    done
+
+    # Remove skills
+    for item in $(yq -r '.deploys.skills[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
+      for tool in "${TOOLS[@]}"; do
+        case "$tool" in
+          kiro-cli) rm -rf "$HOME/.kiro/skills/$item"; echo "  removed: skills/$item/" ;;
+        esac
+      done
+    done
+
+    # Update state
+    if [[ -f "$PLUGINS_STATE" ]]; then
+      PYCMD=$(command -v python3 || command -v python)
+      $PYCMD -c "
+import json
+state = json.load(open('$PLUGINS_STATE'))
+state.get('installed', {}).pop('$REMOVE_PLUGIN', None)
+json.dump(state, open('$PLUGINS_STATE', 'w'), indent=2)
+"
+    fi
+    echo ""
+    echo "Plugin '$REMOVE_PLUGIN' removed."
+    exit 0
+  fi
+fi
 
 # Validate
 TIER_FILE="$TIERS_DIR/$TIER.yaml"

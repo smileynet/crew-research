@@ -1,0 +1,19 @@
+[project]
+name = "recall"
+version = "0.1.0"
+description = "Cross-session semantic memory for AI coding agents"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+    "onnxruntime>=1.17.0",
+    "numpy>=1.24.0",
+    "tokenizers>=0.15.0",
+    "huggingface_hub>=0.20.0",
+]
+
+[project.scripts]
+recall = "recall.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

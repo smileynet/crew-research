@@ -1,0 +1,13 @@
+{
+  "model": "nomic-embed-text-v1.5",
+  "dimension": 768,
+  "install_size_mb": 274,
+  "chunks_ingested": 731,
+  "ingest_time_s": 296.2,
+  "ingest_rate_chunks_per_s": 2,
+  "recall_at_3": 0.8,
+  "recall_hits": 4,
+  "recall_total": 5,
+  "query_latency_p50_ms": 217,
+  "query_latency_p95_ms": 271
+}

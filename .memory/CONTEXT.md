@@ -197,3 +197,20 @@ _Avoid_: "packs" (no pack mechanism exists), "optional tier" (it's not a tier, i
 **Steering pointer**:
 A tiny always-loaded steering file (~50 chars) that instructs the agent to read a manual-inclusion detail file when a specific skill activates. Provides project-specific knowledge injection into global skills without forking or drift.
 _Avoid_: extends (that's a full shadow), params (that's value substitution)
+
+
+**Recall**:
+Purpose-built CLI tool (`tools/recall/`) providing cross-session semantic memory for agents. Hybrid BM25 + vector search over ingested conversation history, with agent write-back. Installed to PATH; invoked via shell calls.
+_Avoid_: MemPalace (that's the upstream project we chose not to wrap), memory system (too generic)
+
+**Plugin (crew-research)**:
+A named bundle of steering + skills + prerequisites that requires deliberate install/uninstall, declared in `compositions/plugins/<name>.yaml`. For capabilities with external tool dependencies. State tracked at `~/.crew-research/plugins.json`.
+_Avoid_: tier (that's the built-in selection mechanism), addon (informal)
+
+**Wing**:
+A project-scoped namespace within the recall database. Auto-derived from session `cwd` metadata during ingest. Enables scoped search without separate databases.
+_Avoid_: project (overloaded), namespace (too generic)
+
+**Prime**:
+The `recall prime` output — a self-contained payload of usage instructions + recent agent-written facts + top retrieval results, injected at session start. Callable from skills, eager-context, or hooks.
+_Avoid_: wake-up (that's MemPalace's term), context dump (too vague)

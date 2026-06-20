@@ -1,0 +1,15 @@
+name: recall
+description: "Cross-session memory recall via the recall CLI"
+version: "0.1.0"
+
+prerequisites:
+  commands:
+    - name: recall
+      check: "recall --version"
+      install_hint: "uv tool install --from ~/code/crew-research/tools/recall recall"
+
+deploys:
+  steering:
+    - recall-session-start
+  skills:
+    - recall

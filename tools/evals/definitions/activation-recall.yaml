@@ -1,0 +1,30 @@
+name: activation-recall
+skill: recall
+category: activation
+
+tasks:
+  # 5 relevant tasks (skill SHOULD activate)
+  - input: "What did we decide about the coordinate system for play data?"
+    expect_activation: true
+  - input: "Remind me what approach we chose for the state machine architecture."
+    expect_activation: true
+  - input: "Last session we discussed autoloads. What was the decision?"
+    expect_activation: true
+  - input: "Continue from where we left off on the fielder controller split."
+    expect_activation: true
+  - input: "What was previously discussed about mirroring play data?"
+    expect_activation: true
+  # 5 irrelevant tasks (skill should NOT activate)
+  - input: "Add a function that sorts an array by date descending."
+    expect_activation: false
+  - input: "Fix the null pointer exception in the login handler."
+    expect_activation: false
+  - input: "Write a unit test for the parse_config function."
+    expect_activation: false
+  - input: "Refactor this class to use dependency injection."
+    expect_activation: false
+  - input: "What does the map() function do in JavaScript?"
+    expect_activation: false
+
+threshold: 4
+timeout: 60

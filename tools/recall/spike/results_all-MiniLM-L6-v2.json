@@ -1,0 +1,13 @@
+{
+  "model": "all-MiniLM-L6-v2",
+  "dimension": 384,
+  "install_size_mb": 46,
+  "chunks_ingested": 729,
+  "ingest_time_s": 9.3,
+  "ingest_rate_chunks_per_s": 78,
+  "recall_at_3": 0.6,
+  "recall_hits": 3,
+  "recall_total": 5,
+  "query_latency_p50_ms": 72,
+  "query_latency_p95_ms": 80
+}

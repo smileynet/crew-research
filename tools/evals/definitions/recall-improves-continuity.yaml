@@ -1,0 +1,37 @@
+name: recall-improves-continuity
+skill: recall
+category: skill-effectiveness
+
+tasks:
+  - input: "What coordinate system did we choose for play data storage and why?"
+    criteria: |
+      PRIMARY: Agent searches memory and provides the specific decision with rationale.
+      AUTOMATIC FAIL (score 1): Fabricates an answer or gives generic advice without checking.
+      Score 3: Says it doesn't have access to past sessions or asks the user to provide context.
+      Score 4: Searches memory, finds relevant content, answers with the actual decision.
+      BONUS (score 5): Cites the source, includes rationale, connects to current implications.
+
+  - input: "Continue the architecture work from last session."
+    criteria: |
+      PRIMARY: Agent loads prior context and identifies the next logical step.
+      AUTOMATIC FAIL (score 1): Starts from scratch with no attempt to load context.
+      Score 3: Asks what was discussed last time rather than checking.
+      Score 4: Loads context via recall prime or search, identifies where work left off.
+      BONUS (score 5): Loads context, identifies next step, proposes a concrete action plan.
+
+  - input: "Should we add a new autoload for the ball state service?"
+    criteria: |
+      PRIMARY: Agent checks past decisions before recommending.
+      AUTOMATIC FAIL (score 1): Recommends yes or no without checking if there's a prior decision.
+      Score 3: Discusses autoload tradeoffs generically without project-specific context.
+      Score 4: Searches memory, finds the prior decision, references it in the answer.
+      BONUS (score 5): Finds prior decision, explains why it was made, asks if circumstances changed.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 4
+delta_threshold: 1.5
+timeout: 120
+tags: [skill-effectiveness, recall, continuity]
