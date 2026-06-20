@@ -40,3 +40,4 @@ tools/proofs/results/
 !tools/proofs/results/.gitkeep
 !tools/proofs/results/*/.gitkeep
 .references/
+tools/evals/harness/node_modules/

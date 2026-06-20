@@ -1,0 +1,84 @@
+name: spike-1-compound-prompt
+description: "Spike 1: Does embedding synthetic conversation history in the prompt trigger interactive gate behaviors?"
+skill: planning-cycles
+fixture: defu
+
+conditions:
+  with-skills:
+    skills: [planning-cycles, code-review, assumption-tracking]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      [This is a continuation of our planning session. Prior conversation:]
+
+      User: "I want to add WebSocket support to this project for real-time collaboration. Plan this out."
+
+      [You have NOT yet produced any Phase 0 specify statements. You jumped straight to discussing architecture. The user is now asking you to start over properly.]
+
+      User: "Wait — before we get into architecture, what does success actually look like from the user's perspective? Start with that."
+
+      Respond to the user's latest message. Produce Phase 0 specify statements describing the desired experience in user language ("When [user does X], they [see/get Y]").
+    criteria: |
+      PRIMARY: Agent produces Phase 0 specify statements in "When [user]..." format BEFORE any technical discussion.
+      AUTOMATIC FAIL (score 1): Jumps to technical architecture or implementation details without specify statements.
+      Score 3: Mentions user experience but in prose rather than structured "When...they..." statements.
+      Score 4: Produces 3+ "When [user does X], they [see/get Y]" statements that define success from outside the system.
+      BONUS (score 5): Produces 5+ testable specify statements, clearly separates user-facing outcomes from implementation, offers to move to Phase 1 after approval.
+
+  - input: |
+      Review this code change and provide your assessment:
+
+      ```diff
+      --- a/src/merge.ts
+      +++ b/src/merge.ts
+      @@ -1,5 +1,15 @@
+      +function deepMerge(target: any, source: any): any {
+      +  for (const key of Object.keys(source)) {
+      +    if (source[key] instanceof Object && key in target) {
+      +      target[key] = deepMerge(target[key], source[key])
+      +    } else {
+      +      target[key] = source[key]
+      +    }
+      +  }
+      +  return target
+      +}
+      ```
+
+      This is a PR submission. Provide a complete code review with a final verdict.
+    criteria: |
+      PRIMARY: Review ends with an explicit verdict line: "Verdict: APPROVED" or "Verdict: CHANGES REQUESTED" or "Verdict: NEEDS DISCUSSION".
+      AUTOMATIC FAIL (score 1): No verdict line anywhere in the response. Just commentary without a clear decision.
+      Score 3: Identifies issues but verdict is buried in prose or ambiguous ("I'd suggest some changes").
+      Score 4: Identifies real issues (prototype pollution, mutates target, no array handling, `any` types) AND ends with a clearly formatted verdict + specific requested changes.
+      BONUS (score 5): Uses exact format "**Verdict: CHANGES REQUESTED**", groups findings by severity, each finding has specific request + reason, caps at 5 items.
+
+  - input: |
+      [Continuing our assumption-tracking session. Here's what happened so far:]
+
+      Turn 1 — User: "For the caching layer, I assume Redis is available in all environments."
+      You responded: "✓ Confirmed — checked docker-compose.yml, Redis service is defined."
+
+      Turn 2 — User: "Cache invalidation can be purely time-based, no event-driven invalidation needed."
+      You responded: "✓ Confirmed — for this use case (session data), TTL-based expiry is standard."
+
+      Turn 3 — User: "All cached data will fit in the default Redis memory allocation (256MB)."
+      You responded: "✓ Confirmed — session data at projected scale (~10K users × 2KB) = ~20MB, well within limits."
+
+      [Now the user says:]
+      "We won't need cache warming on deploy — cold start is acceptable."
+
+      Continue from here.
+    criteria: |
+      PRIMARY: Agent pauses and challenges the rubber-stamp pattern (4 consecutive acceptances without pushback) before or instead of simply confirming.
+      AUTOMATIC FAIL (score 1): Simply confirms with "✓ Confirmed" and moves on without any pause or challenge.
+      Score 3: Confirms but adds a disclaimer ("we've accepted several in a row").
+      Score 4: Explicitly pauses — names the pattern ("4 consecutive acceptances"), challenges at least one prior assumption or the current one with specific counter-evidence.
+      BONUS (score 5): Invokes the rubber-stamp guard explicitly, challenges the weakest assumption with specific reasoning (e.g., "cold start on a cache layer can cause thundering herd"), asks "are these genuinely aligned or are we moving too fast?"
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 120
+tags: [spike, multi-turn, compound-prompt]
