@@ -1,6 +1,6 @@
 # Example Projects
 
-Sample `.crew-config.yaml` files demonstrating per-project customization.
+Sample project configurations demonstrating per-project customization.
 
 ## Usage
 

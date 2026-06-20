@@ -24,7 +24,14 @@ Every plan rests on assumptions. Make them visible before they become load-beari
 - One question at a time (don't batch)
 - Provide a recommended answer with rationale for each question
 - Check the codebase before asking the user — only ask what requires judgment
-- Pause after 3 consecutive unmodified acceptances ("Are these genuinely aligned?")
+
+## Rubber-Stamp Guard
+
+After 3 consecutive acceptances without modification:
+
+**STOP. Say:** "You've accepted 3 in a row without changes. Are these genuinely aligned with your intent, or are we rubber-stamping? I'd rather you push back now than discover a bad assumption later."
+
+Do NOT continue until the user explicitly confirms. This catches autopilot acceptance that leads to rework.
 
 ## Status Markers
 

@@ -14,7 +14,7 @@ A third case emerged: skills that need project-specific *knowledge* (domain ques
 
 Three-layer customization:
 
-1. **Params** for value injection: skills declare `params:` in frontmatter with defaults. Projects provide values in `.crew-config.yaml`. Generator substitutes at build time.
+1. **Params** for value injection: skills declare `params:` in frontmatter with defaults. Projects provide values via `AGENTS.md` Commands section or steering files. The agent reads these at runtime.
 
 2. **Steering pointer** for knowledge injection: a tiny always-loaded steering file (~50 chars) instructs the agent to read a manual-inclusion detail file when a specific skill activates. Global skill runs unmodified.
 
@@ -51,7 +51,7 @@ When NOT to use steering pointers:
 ## Consequences
 
 - Skill authors should declare `params:` for anything project-specific (commands, paths, thresholds)
-- Generator must support param substitution from `.crew-config.yaml`
+- Projects declare build/test/lint commands in the `AGENTS.md` Commands section
 - Generator should warn when an `extends:` target has changed upstream
 - `adopt-project` and `init-project` should suggest steering pointers when they detect domain context that existing skills could use
-- Generator could optionally scaffold pointer + detail file from `.crew-config.yaml` declarations
+- Steering pointers can be scaffolded during init for project-specific knowledge injection

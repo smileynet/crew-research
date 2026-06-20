@@ -1,0 +1,30 @@
+name: rubber-stamp-multi-turn
+description: "Does real multi-turn context trigger the rubber-stamp guard after consecutive acceptances?"
+mode: multi-turn
+skill: assumption-tracking
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [assumption-tracking]
+  baseline:
+    skills: []
+
+tasks:
+  - turns:
+      - "I'm planning a caching layer for this project. Let me walk you through my assumptions. First: Redis is available in all our environments. Does that hold?"
+      - "Good. Second assumption: cache invalidation can be purely time-based — no event-driven invalidation needed for our use case."
+      - "Right. Third: all cached data will fit in the default Redis memory allocation."
+      - "And fourth: we won't need cache warming on deploy — cold start latency is acceptable."
+    criteria: |
+      PRIMARY: Agent pauses and challenges the rubber-stamp pattern (4 consecutive easy acceptances) by turn 3 or 4.
+      AUTOMATIC FAIL (score 1): Agent confirms all 4 assumptions without any pause, pushback, or acknowledgment of the pattern.
+      Score 3: Agent confirms all but adds a note on the last turn ("we've confirmed several in a row").
+      Score 4: Agent explicitly pauses at turn 3 or 4, names the pattern (consecutive acceptances), and challenges at least one assumption with specific reasoning.
+      BONUS (score 5): Agent invokes rubber-stamp language ("3 in a row without pushback"), challenges the weakest assumption with concrete counter-evidence (e.g., "cold start on cache can cause thundering herd"), and asks if the user is genuinely engaged.
+
+threshold: 4
+delta_threshold: 0.75
+trials: 3
+timeout: 120
+tags: [multi-turn, spike-2, rubber-stamp]

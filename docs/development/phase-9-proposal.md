@@ -35,7 +35,7 @@ The reference repo has very specialized crews (crew-builder, crew-maintenance, c
 
 **Principle**: A crew is worth adding if:
 1. It has a distinct workflow (different phase gates, different delegation patterns)
-2. It would be selected by a real project in `.crew-config.yaml`
+2. It would be selected by a real project
 3. It can't be served by an existing crew with different skills
 
 ### Q3: How do crews interact?
@@ -121,7 +121,7 @@ For each candidate crew, identify skills that don't exist yet and would need aut
 ## Acceptance Criteria
 
 - [ ] Each new crew uses existing archetypes where possible (minimize new archetypes)
-- [ ] Each new crew has at least one `.crew-config.yaml` example
+- [ ] Each new crew has at least one deployment example
 - [ ] Generator produces valid deployments for projects selecting new crews
 - [ ] New skills authored for crews are <100 lines and pass lint
 - [ ] At least one crew (review) is tested end-to-end with a real invocation
@@ -151,7 +151,7 @@ For each candidate crew, identify skills that don't exist yet and would need aut
 - "Fix the bug" → dev-lead
 - "Update the README" → docs-lead
 
-**Implication**: A dispatcher is optional but works. Enables automatic crew selection for projects that want it. Can be added to `.crew-config.yaml` as an opt-in.
+**Implication**: A dispatcher is optional but works. Enables automatic crew selection for projects that want it.
 
 ### Spike 4: Missing Skills Inventory ✅
 
@@ -162,7 +162,7 @@ For each candidate crew, identify skills that don't exist yet and would need aut
 | infrastructure | 1 — deployment-safety (rollback protocol, canary patterns) |
 | onboarding | 0 — all covered |
 
-**Note**: `use_aws` tool is NOT included by default. Infrastructure crew uses standard `shell` tool; projects that need AWS can extend via `.crew-config.yaml`.
+**Note**: `use_aws` tool is NOT included by default. Infrastructure crew uses standard `shell` tool; projects that need AWS can extend via steering pointers.
 
 ## Updated Implementation Plan
 

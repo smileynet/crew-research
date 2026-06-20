@@ -29,7 +29,6 @@ After sustained use on real projects, evaluate these decisions:
 | Is 4 steering files too much context cost? | Measure token usage with/without steering on real tasks |
 | Should research-dispatch be a skill that activates on "research X" instead? | Check if it fires inappropriately on simple questions |
 | Is the idempotent init pattern working? | Track whether re-runs cause issues or confusion |
-| Do users customize .crew-config.yaml, or ignore it? | Check deployed projects after 1 month |
 
 ## When to Evaluate
 

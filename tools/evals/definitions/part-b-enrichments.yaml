@@ -1,0 +1,67 @@
+name: part-b-enrichments
+description: "Do the Part B enrichments add measurable value? Tests Phase 0 specify, three-verdict review, rubber-stamp guard, and JTBD table."
+skill: planning-cycles
+fixture: defu
+
+conditions:
+  with-enrichments:
+    skills: [planning-cycles, code-review, assumption-tracking, readme-writing]
+  baseline:
+    skills: []
+
+tasks:
+  - input: "I want to add WebSocket support to this project for real-time collaboration. Plan this out."
+    criteria: |
+      PRIMARY: Agent starts with Phase 0 — describing desired experience in USER language ("when user does X, they see Y") BEFORE diving into technical brainstorming.
+      AUTOMATIC FAIL (score 1): Jumps straight to technical architecture without anchoring user-facing outcomes.
+      Score 3: Mentions user experience but mixes it with technical planning in the same breath.
+      Score 4: Produces distinct specify-then-brainstorm phases. Phase 0 has 3+ "when...they..." statements before any implementation discussion.
+      BONUS (score 5): Phase 0 statements are testable acceptance criteria, gates Phase 1 on user approval, clearly separates WHAT users get from HOW to build it.
+
+  - input: |
+      Review this code change:
+      ```diff
+      +function merge(target, source) {
+      +  for (const key in source) {
+      +    if (source[key] instanceof Object) {
+      +      target[key] = merge(target[key] || {}, source[key])
+      +    } else {
+      +      target[key] = source[key]
+      +    }
+      +  }
+      +  return target
+      +}
+      ```
+    criteria: |
+      PRIMARY: Review ends with a clear verdict (APPROVED, CHANGES REQUESTED, or NEEDS DISCUSSION) — not open-ended commentary.
+      AUTOMATIC FAIL (score 1): No verdict, or just says "looks good" without checking for issues.
+      Score 3: Identifies issues but doesn't end with a structured verdict.
+      Score 4: Identifies real issues (prototype pollution, mutates target, no array handling) AND ends with an explicit verdict + specific requested changes.
+      BONUS (score 5): Uses the exact three-verdict format, caps findings at 5, groups by severity, each finding has file:line format with request+reason.
+
+  - input: |
+      I'm planning a caching layer. Here are my assumptions:
+      1. Redis is available in all environments ← yes
+      2. Cache invalidation can be time-based only ← yes
+      3. All cached data fits in memory ← yes
+      4. We don't need cache warming on deploy ← yes
+    criteria: |
+      PRIMARY: After 3+ consecutive unmodified acceptances, agent pauses and challenges whether the user is genuinely aligned or rubber-stamping.
+      AUTOMATIC FAIL (score 1): Accepts all 4 without any pushback or pause.
+      Score 3: Accepts all but notes they seem suspiciously easy.
+      Score 4: After the 3rd acceptance, explicitly pauses and asks "are these genuinely aligned?" or challenges at least one assumption with counter-evidence.
+      BONUS (score 5): Explicitly invokes the rubber-stamp pattern ("3 in a row without changes — let me push back"), challenges the weakest assumption with specific evidence (e.g., "cache invalidation time-based only is risky because...").
+
+  - input: "Write a README for this defu project."
+    criteria: |
+      PRIMARY: README includes a JTBD table showing who uses the project and why, in natural language.
+      AUTOMATIC FAIL (score 1): No JTBD table or equivalent user-situation framing.
+      Score 3: Has usage examples but no explicit JTBD framing or "when I'm...I want to..." patterns.
+      Score 4: Includes a JTBD-style table (or equivalent) with 3+ rows showing user situations and desired outcomes.
+      BONUS (score 5): JTBD table has 5+ rows in natural language, each row is a trigger condition, placed before or alongside Quick Start.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 180
+tags: [skill-effectiveness, enrichments, batch]

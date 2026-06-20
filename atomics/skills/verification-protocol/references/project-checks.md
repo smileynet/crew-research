@@ -4,7 +4,7 @@ Lookup table for verification commands by project type. The agent reads this whe
 
 ## Discovery Order
 
-1. Check `.crew-config.yaml` for explicit commands
+1. Check `AGENTS.md` Commands section for explicit commands
 2. Check `mise.toml` / `Makefile` / `justfile` / `package.json` scripts
 3. Infer from project files (see table below)
 

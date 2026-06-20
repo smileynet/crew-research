@@ -1,0 +1,8 @@
+{
+  "name": "crew-eval-harness",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@openai/codex-sdk": "latest"
+  }
+}

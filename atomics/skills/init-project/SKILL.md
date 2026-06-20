@@ -1,6 +1,6 @@
 ---
 name: init-project
-description: "Scaffold project conventions. Creates .memory, .scratch, AGENTS.md, .crew-config.yaml. Use when starting a new project or when project structure is missing."
+description: "Scaffold project conventions. Creates .memory, .scratch, AGENTS.md. Use when starting a new project or when project structure is missing."
 metadata:
   type: process
   invocation: user-only
@@ -24,15 +24,13 @@ Create these if they don't exist:
 3. **`.memory/adr/`** — architecture decision records
 4. **`tools/`** — project scripts and automation (validation, extraction, deployment)
 5. **`AGENTS.md`** — project reference (project layout, commands, workflows)
-6. **`.crew-config.yaml`** — detected build/test/lint commands
-7. **`.gitignore`** entries — `.scratch/` and `.references/`
-8. **`.references/`** — directory for reference repos
+6. **`.gitignore`** entries — `.scratch/` and `.references/`
+7. **`.references/`** — directory for reference repos
 
 ## Auto-detect
 
 - Check for `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`
-- Extract build/test/lint commands
-- Set language in `.crew-config.yaml`
+- Extract build/test/lint commands into AGENTS.md Commands section
 
 ## Process Existing Decisions
 

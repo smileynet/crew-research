@@ -128,7 +128,19 @@ invoke_agent() {
   local input_file=$(mktemp "$workdir/.eval-input-XXXX")
   printf '%s' "$input" > "$input_file"
   cd "$workdir"
-  timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never "$(cat "$1")"' _ "$input_file" 2>&1 | strip_ansi || true
+
+  # Use adapter-specific invocation
+  case "$ADAPTER" in
+    codex)
+      timeout "$timeout" bash -c 'codex exec --dangerously-bypass-approvals-and-sandbox --ephemeral -C "$1" "$(cat "$2")" < /dev/null' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      ;;
+    agy)
+      timeout "$timeout" bash -c 'cd "$1" && agy --print "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      ;;
+    *)
+      timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never "$(cat "$1")"' _ "$input_file" 2>&1 | strip_ansi || true
+      ;;
+  esac
   rm -f "$input_file"
 }
 
@@ -289,9 +301,18 @@ run_eval() {
           [[ -z "$st" ]] && continue
           local steering_src="$EVALS_DIR/steering/$st"
           if [[ -f "$steering_src" ]]; then
-            local steering_dest="$workdir/.kiro/steering/$st"
-            mkdir -p "$(dirname "$steering_dest")"
-            cp "$steering_src" "$steering_dest"
+            case "$ADAPTER" in
+              codex|agy)
+                # Codex/agy reads steering from AGENTS.md — append steering content
+                mkdir -p "$workdir"
+                cat "$steering_src" >> "$workdir/AGENTS.md"
+                ;;
+              *)
+                local steering_dest="$workdir/.kiro/steering/$st"
+                mkdir -p "$(dirname "$steering_dest")"
+                cp "$steering_src" "$steering_dest"
+                ;;
+            esac
           else
             echo "[warn] Steering file not found: $steering_src" >&2
           fi

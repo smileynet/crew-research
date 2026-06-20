@@ -525,7 +525,6 @@ User-invocable workflows via \`/name\`:
 - **Add project-specific rules**: create \`.kiro/steering/project-rules.md\`
 - **Add project-specific skills**: create \`.kiro/skills/{name}/SKILL.md\`
 - **Update glossary**: add terms to \`.memory/CONTEXT.md\` as they emerge
-- **Customize verification**: edit \`.crew-config.yaml\` with build/test/lint commands
 - **Remove unwanted rules**: delete specific files from \`.kiro/steering/\`
 
 ## References
@@ -536,21 +535,6 @@ Third-party repos for analysis. Gitignored — clone to restore:
 \`\`\`
 EOF
     echo "  ✅ AGENTS.md"
-  fi
-
-  # .crew-config.yaml
-  if [[ ! -f "$PROJECT/.crew-config.yaml" ]]; then
-    PROJECT_NAME=$(basename "$PROJECT")
-    cat > "$PROJECT/.crew-config.yaml" <<EOF
-project: $PROJECT_NAME
-language: ${LANGUAGE:-unknown}
-
-verification:
-  build: "${BUILD_CMD}"
-  test: "${TEST_CMD}"
-  lint: "${LINT_CMD}"
-EOF
-    echo "  ✅ .crew-config.yaml"
   fi
 
   echo ""

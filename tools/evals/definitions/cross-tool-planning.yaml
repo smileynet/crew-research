@@ -1,0 +1,41 @@
+name: cross-tool-planning
+description: "Compare planning quality across kiro-cli, codex, and agy on a real project task."
+skill: null
+fixture: defu
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - input: "Read the source code in src/ and the test files. Then write a PLAN.md (under 20 lines) for adding a 'onConflict' callback option to defu that lets users handle merge conflicts for specific key paths. The plan should cover: what to change, what to test, and what risks exist."
+    criteria: |
+      PRIMARY: Plan is specific to the actual codebase (references real files, functions, types) and covers implementation, testing, and risks.
+      AUTOMATIC FAIL (score 1): Generic plan that could apply to any project. No evidence of reading the source code. No file paths or function names referenced.
+      Score 2: References some real files but plan is vague ("modify the merge function", "add tests"). No specific types, no specific test scenarios.
+      Score 3: References specific functions (e.g., _defu, createDefu) and types, proposes concrete changes, but testing plan or risk assessment is weak.
+      Score 4: References specific code locations, proposes type-safe API design consistent with existing patterns (e.g., createDefu's merger pattern), identifies specific test scenarios, and names at least one real risk (breaking changes, performance, type inference).
+      BONUS (score 5): Plan demonstrates deep understanding — references how existing merger functions work, proposes API that fits the createDefu pattern, identifies edge cases from actual test coverage, risk assessment references specific downstream consumers or type export concerns.
+
+  - input: "Read the project structure and tests. Write a CHANGELOG entry (in Keep a Changelog format) summarizing what changed in the most recent commits. Write it to CHANGELOG-DRAFT.md."
+    criteria: |
+      PRIMARY: Produces a well-structured changelog entry based on actual git history, not fabricated changes.
+      AUTOMATIC FAIL (score 1): Fabricates changes not in the repo, or produces generic template without reading git log. Doesn't write the file.
+      Score 2: Reads git log but produces overly verbose or poorly structured output. Wrong format.
+      Score 3: Correct Keep a Changelog format, based on real commits, but entries are too technical (commit messages, not user-facing descriptions).
+      Score 4: User-facing descriptions grouped correctly (Added/Changed/Fixed), based on actual commits, concise. File is written.
+      BONUS (score 5): Entries are clear and user-facing, correctly categorized, include relevant version context, and the file is well-formatted markdown.
+
+  - input: "There's a bug: when using defu with arrays, if a user passes `null` for an array field, defu treats it as an empty value and the default array wins. The expected behavior is that explicit null should override the default. Read the source and tests, identify where this happens, and write a fix. Write the fix directly to the source file."
+    criteria: |
+      PRIMARY: Correctly identifies the merge logic location, understands the current null handling, and implements a working fix.
+      AUTOMATIC FAIL (score 1): Doesn't read the source. Proposes changes to wrong files. Fix is syntactically invalid or conceptually wrong.
+      Score 2: Reads source, identifies roughly where merging happens, but fix is incomplete or introduces new bugs (breaks non-array null handling).
+      Score 3: Identifies the correct location (the null/undefined check in _defu), proposes a reasonable fix, but doesn't verify with tests or misses edge cases.
+      Score 4: Correct location, correct fix that distinguishes explicit null from undefined, preserves existing behavior for non-null cases, tests pass or the approach is clearly correct.
+      BONUS (score 5): Fix is minimal and precise, handles the edge case correctly, considers backward compatibility, and ideally adds or suggests a test case for the new behavior.
+
+trials: 2
+threshold: 3
+timeout: 300
+tags: [cross-tool, planning, code-writing, prose, capability-comparison]
