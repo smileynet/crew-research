@@ -11,11 +11,13 @@ atomics/skills/{slug}/SKILL.md    — Skill source (agent-loadable, <100 lines)
 atomics/skills/{slug}/references/ — Progressive-loading companion files
 atomics/eager-context/            — Always-on context modules
 compositions/tiers/{name}.yaml    — What ships in each tier
+compositions/plugins/{name}.yaml  — Optional plugin manifests (external deps)
 compositions/workspace-conventions/ — File/folder contracts
 tools/generator/                  — init.sh, doctor.sh, catalog.sh, generate.sh
 tools/evals/                      — Eval harness, definitions, fixtures, experiments
 tools/proofs/                     — Platform assumption tests
 tools/lint/                       — Cross-link validation
+tools/recall/                     — Cross-session memory CLI tool (plugin)
 tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
@@ -31,6 +33,8 @@ docs/development/                 — Practices, spike records, results
 ```bash
 # Deployment
 mise run init -- --project <path> --tier basic --tool kiro-cli
+mise run init -- --plugin recall               # install a plugin
+mise run init -- --remove-plugin recall         # uninstall a plugin
 mise run catalog
 mise run doctor -- --project <path>
 mise run validate-deployment

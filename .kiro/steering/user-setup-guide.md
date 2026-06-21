@@ -53,6 +53,26 @@ If a global skill needs project-specific knowledge (domain questions, source pri
 
 This costs ~50 characters of always-loaded context vs thousands for a full skill copy. See ADR 0002 for when to use params vs pointers vs extends.
 
+### Plugins (Optional Enhancements)
+
+Plugins add capabilities that require external tools. They're separate from tiers because they have prerequisites beyond kiro-cli.
+
+```bash
+mise run init -- --plugin recall          # install
+mise run init -- --remove-plugin recall   # uninstall
+```
+
+| Plugin | What it adds | Prerequisite |
+|--------|-------------|--------------|
+| `recall` | Cross-session memory — remembers decisions, past work, preferences | `recall` CLI on PATH |
+
+**When to suggest:** If the user works on long-lived projects, frequently resumes work across sessions, or asks about past decisions — suggest the recall plugin.
+
+**Install recall prerequisite:**
+```bash
+uv tool install recall   # from PyPI, or from local crew-research clone
+```
+
 ## Troubleshooting
 
 | Problem | Fix |

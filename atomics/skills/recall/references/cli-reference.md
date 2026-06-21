@@ -9,7 +9,7 @@ recall search "query" --room decisions        # scoped to room
 recall search "query" --results 10            # more results
 
 recall add "text" --wing X --room Y --type T  # persist a fact
-recall add "text" --type decision             # wing defaults to 'global'
+recall add "text" --type decision             # wing auto-detects from cwd
 
 recall ingest ~/.kiro/sessions/cli            # auto-tag wings from cwd
 recall ingest <path> --project ~/code/myapp   # filter to one project
@@ -35,6 +35,8 @@ recall status                                 # show indexed content
 
 ## Scoping
 
-- **Wing** = project (auto-derived from session cwd during ingest)
+- **Wing** = project (auto-derived from cwd for `add` and `prime`; cross-project for `search`)
 - **Room** = topic (auto-classified by keyword matching during ingest)
-- Unscoped search finds content across all projects
+- Omit `--wing` on search to find content across all projects
+- Omit `--wing` on add/prime to use cwd-based auto-detection
+- Pass `--wing name` to override auto-detection

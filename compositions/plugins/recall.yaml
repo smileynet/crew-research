@@ -6,7 +6,7 @@ prerequisites:
   commands:
     - name: recall
       check: "recall --version"
-      install_hint: "uv tool install --from ~/code/crew-research/tools/recall recall"
+      install_hint: "uv tool install recall  # or: uv tool install --from ./tools/recall recall"
 
 deploys:
   steering:

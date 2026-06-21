@@ -10,7 +10,7 @@ metadata:
 
 At the beginning of each session, if `recall` is available on PATH:
 
-1. Run `recall prime --wing <project>` (derive project from cwd)
+1. Run `recall prime` (wing auto-detects from cwd)
 2. Internalize the output as background context
 3. Do not repeat the output to the user unless asked
 

@@ -47,6 +47,21 @@ Start with **basic**. Upgrade to full if you want the complete development lifec
 mise run catalog    # browse all available skills
 ```
 
+## Plugins
+
+Plugins add capabilities with external tool dependencies. Install separately from tiers:
+
+```bash
+mise run init -- --plugin recall          # install
+mise run init -- --remove-plugin recall   # uninstall
+```
+
+| Plugin | What it adds | Prerequisite |
+|--------|-------------|--------------|
+| `recall` | Cross-session memory — recalls past decisions, prior work, preferences | `recall` CLI (`uv tool install recall`) |
+
+Plugins are optional. The agent suggests them when it detects matching work patterns.
+
 ## Where to deploy
 
 - **To a project** (`~/my-project`) — skills and workspace conventions are scoped to that project

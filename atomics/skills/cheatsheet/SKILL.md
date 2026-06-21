@@ -69,3 +69,11 @@ mise run add-skill -- <name>
 | `project-winddown` | Wrapping up a project, extracting lessons learned |
 
 **When to suggest:** during init, adopt-project, read-handoff, or when a plan includes matching work.
+
+## Plugins (if installed)
+
+| Plugin | Commands | What it does |
+|--------|----------|-------------|
+| `recall` | `recall search "query"`, `recall add "fact" --type decision` | Cross-session memory — past decisions, prior work. Auto-primes at session start. |
+
+Install: `mise run init -- --plugin recall` (requires `recall` CLI on PATH)

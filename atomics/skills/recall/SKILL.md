@@ -9,8 +9,6 @@ description: >
 metadata:
   type: protocol
   invocation: both
-  params:
-    wing: ""
 ---
 
 # Recall — Cross-Session Memory
@@ -26,10 +24,10 @@ metadata:
 ## Search (before answering about the past)
 
 ```bash
-recall search "query" --wing {{params.wing}} --results 5
+recall search "query" --results 5
 ```
 
-If `--wing` is empty, search across all projects. Add `--room decisions` to narrow to decisions only.
+Search is cross-project by default. Add `--wing name` to scope to one project, or `--room decisions` to narrow by topic.
 
 **Rules:**
 - Search BEFORE answering questions about past work — do not guess
@@ -39,9 +37,11 @@ If `--wing` is empty, search across all projects. Add `--room decisions` to narr
 ## Write-back (persist decisions and lessons)
 
 ```bash
-recall add "We decided X because Y" --wing {{params.wing}} --room decisions --type decision
-recall add "Learned: approach Z doesn't work because..." --wing {{params.wing}} --type lesson
+recall add "We decided X because Y" --room decisions --type decision
+recall add "Learned: approach Z doesn't work because..." --type lesson
 ```
+
+Wing auto-detects from the current working directory. Pass `--wing name` only to override.
 
 **Types:** `decision` | `fact` | `lesson` | `preference`
 
@@ -54,10 +54,10 @@ recall add "Learned: approach Z doesn't work because..." --wing {{params.wing}} 
 ## Prime (session start — if instructed by steering)
 
 ```bash
-recall prime --wing {{params.wing}}
+recall prime
 ```
 
-Outputs recent memories + relevant context. Internalize but don't repeat verbatim to the user.
+Wing auto-detects from cwd. Outputs recent memories + relevant context. Internalize but don't repeat verbatim to the user.
 
 ## Fallback (when recall is unavailable)
 

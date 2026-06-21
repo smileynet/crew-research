@@ -38,7 +38,7 @@ tools/recall/             # source in crew-research repo
   recall/
     __init__.py
     cli.py                # entry point: search, add, ingest, prime, status
-    embedder.py           # ONNX model loading (model TBD by spike)
+    embedder.py           # ONNX model loading (bge-base-en-v1.5 int8)
     store.py              # SQLite: vectors as BLOB, FTS5, hybrid scoring
     normalize.py          # kiro-cli + codex JSONL parsers
     chunker.py            # exchange-pair chunking + room classification
@@ -347,7 +347,7 @@ Multi-condition experiment:
 | kiro-cli session data | ✅ 121 sessions across 10 projects |
 | codex session data | ✅ 3 rollout files (Jun 16) |
 | ONNX runtime | Install with recall tool |
-| Embedding model | TBD by spike |
+| Embedding model | bge-base-en-v1.5 int8 ONNX (resolved by spike, see ADR 0007) |
 | Eval harness | ✅ Existing in crew-research |
 
 ## Risks
