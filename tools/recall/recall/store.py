@@ -10,7 +10,9 @@ from typing import Optional
 
 import numpy as np
 
-DB_PATH = Path.home() / ".recall" / "recall.sqlite3"
+import os
+
+DB_PATH = Path(os.environ.get("RECALL_DB", str(Path.home() / ".recall" / "recall.sqlite3")))
 _TOKEN_RE = re.compile(r"\w{2,}", re.UNICODE)
 
 SCHEMA_VERSION = 1

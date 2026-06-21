@@ -1,8 +1,12 @@
 """cli.py — recall CLI: search, add, ingest, prime, status."""
 
 import argparse
+import os
 import sys
 from pathlib import Path
+
+# Suppress HuggingFace auth warnings
+os.environ.setdefault("HF_HUB_VERBOSITY", "error")
 
 # Fix Windows console encoding
 if sys.platform == "win32":
@@ -219,6 +223,10 @@ def main():
     if not args.command:
         parser.print_help()
         sys.exit(1)
+
+    # Auto-detect wing from cwd for add/prime (not search — search defaults to all projects)
+    if hasattr(args, "wing") and args.wing is None and args.command in ("add", "prime"):
+        args.wing = Path.cwd().name.replace("-", "_")
 
     commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "prime": cmd_prime, "status": cmd_status}
     commands[args.command](args)

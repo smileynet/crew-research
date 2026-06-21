@@ -1,6 +1,7 @@
 name: recall-improves-continuity
 skill: recall
 category: skill-effectiveness
+fixture: recall-workspace
 
 tasks:
   - input: "What coordinate system did we choose for play data storage and why?"

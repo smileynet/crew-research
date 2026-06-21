@@ -1,0 +1,21 @@
+# Fixture for recall eval: provides project context so the agent has something to continue from
+repo: ""
+install: "true"
+
+# Workspace files injected into eval workspace
+files:
+  .scratch/HANDOFF.md: |
+    ---
+    created_at: 2026-06-19
+    handoff_key: fielder-architecture
+    ---
+    # Handoff
+    ## Objective
+    Refactoring the fielder controller into separate state machine components.
+    ## Current State
+    - Split FielderController into FielderMovement + FielderDecision
+    - Movement component done, decision component in progress
+    ## Next Steps
+    1. Implement FielderDecision with ObjectivePlanBuilder integration
+    2. Wire up signals between Movement and Decision
+    3. Add unit tests for the new split

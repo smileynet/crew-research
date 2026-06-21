@@ -84,6 +84,11 @@ echo ""
 RUN_DIR="$RESULTS_DIR/$TIMESTAMP"
 mkdir -p "$RUN_DIR"
 
+# Warm up recall embedding model (avoids first-run latency in trials)
+if command -v recall &>/dev/null; then
+  recall search "warmup" --results 1 >/dev/null 2>&1 || true
+fi
+
 TOTAL=0; PASSED=0; FAILED=0
 SCORES_FILE="$RUN_DIR/scores.jsonl"
 : > "$SCORES_FILE"
@@ -99,8 +104,21 @@ setup_fixture() {
   local repo=$(yq '.repo' "$fixture_file")
   local install_cmd=$(yq '.install' "$fixture_file")
 
-  git clone --depth 1 -q "$repo" "$workdir/project" 2>/dev/null || { echo "[warn] Clone failed" >&2; return 0; }
-  (cd "$workdir/project" && eval "$install_cmd" > /dev/null 2>&1) || { echo "[warn] Install failed" >&2; return 0; }
+  # Clone repo if specified
+  if [[ -n "$repo" && "$repo" != "null" && "$repo" != "" ]]; then
+    git clone --depth 1 -q "$repo" "$workdir/project" 2>/dev/null || { echo "[warn] Clone failed" >&2; return 0; }
+    (cd "$workdir/project" && eval "$install_cmd" > /dev/null 2>&1) || { echo "[warn] Install failed" >&2; return 0; }
+  fi
+
+  # Inject workspace files if specified
+  local file_count=$(yq '.files | length // 0' "$fixture_file" 2>/dev/null)
+  if [[ "$file_count" -gt 0 ]]; then
+    for key in $(yq '.files | keys | .[]' "$fixture_file" 2>/dev/null); do
+      local dest="$workdir/$key"
+      mkdir -p "$(dirname "$dest")"
+      yq ".files.\"$key\"" "$fixture_file" > "$dest"
+    done
+  fi
 }
 
 # Invoke agent in isolated workspace, capture output
@@ -320,6 +338,13 @@ run_eval() {
 
         local output
         output=$(invoke_agent "$workdir" "$input" "" "$timeout")
+
+        # Save output for activation detection and post-hoc analysis
+        echo "$output" > "$workdir/.eval-output"
+        if [[ -d "$RUN_DIR" ]]; then
+          mkdir -p "$RUN_DIR/outputs"
+          echo "$output" > "$RUN_DIR/outputs/${cond}-task${task_idx}-trial${trial}.txt"
+        fi
 
         # Extract session behavioral summary for judge context
         local session_summary=""

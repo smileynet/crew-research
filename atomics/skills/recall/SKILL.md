@@ -58,3 +58,10 @@ recall prime --wing {{params.wing}}
 ```
 
 Outputs recent memories + relevant context. Internalize but don't repeat verbatim to the user.
+
+## Fallback (when recall is unavailable)
+
+If `recall` is not on PATH, exits non-zero, or returns "No results found":
+1. Tell the user: "I can't check past sessions right now"
+2. Answer from current context only
+3. Never fabricate past decisions — say you don't know
