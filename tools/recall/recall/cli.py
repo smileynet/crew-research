@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+import time
 from pathlib import Path
 
 # Suppress HuggingFace auth warnings
@@ -130,6 +131,10 @@ def cmd_ingest(args):
 
     conn.close()
     print(f"\n  Done: {files_processed} files, {total_chunks} chunks ingested, {files_skipped} skipped (already filed)")
+
+    # Write last-run marker
+    marker = Path.home() / ".recall" / "last_ingest"
+    marker.write_text(str(int(time.time())))
 
 
 def cmd_prime(args):
