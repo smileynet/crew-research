@@ -78,14 +78,26 @@ if [[ -n "$PLUGIN" || -n "$REMOVE_PLUGIN" ]]; then
     for item in $(yq -r '.deploys.steering[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
       src="$SKILLS_DIR/$item/SKILL.md"
       if [[ -f "$src" ]]; then
+        content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
         for tool in "${TOOLS[@]}"; do
           case "$tool" in
             kiro-cli)
               dest="$HOME/.kiro/steering/$item.md"
               mkdir -p "$(dirname "$dest")"
-              content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
               printf '%s\n' "$content" > "$dest"
               echo "  steering: $item -> $dest"
+              ;;
+            codex)
+              # Append to global AGENTS.md
+              agentsmd="${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
+              printf '\n# %s\n\n%s\n' "$item" "$content" >> "$agentsmd"
+              echo "  steering: $item -> $agentsmd (appended)"
+              ;;
+            agy)
+              # Append to global AGENTS.md
+              agentsmd="$HOME/.gemini/AGENTS.md"
+              printf '\n# %s\n\n%s\n' "$item" "$content" >> "$agentsmd"
+              echo "  steering: $item -> $agentsmd (appended)"
               ;;
           esac
         done
@@ -100,6 +112,26 @@ if [[ -n "$PLUGIN" || -n "$REMOVE_PLUGIN" ]]; then
           case "$tool" in
             kiro-cli)
               dest="$HOME/.kiro/skills/$item"
+              mkdir -p "$dest"
+              cp "$src_dir/SKILL.md" "$dest/SKILL.md"
+              if [[ -d "$src_dir/references" ]]; then
+                mkdir -p "$dest/references"
+                cp "$src_dir/references/"* "$dest/references/" 2>/dev/null
+              fi
+              echo "  skill: $item -> $dest"
+              ;;
+            codex)
+              dest="$HOME/.agents/skills/$item"
+              mkdir -p "$dest"
+              cp "$src_dir/SKILL.md" "$dest/SKILL.md"
+              if [[ -d "$src_dir/references" ]]; then
+                mkdir -p "$dest/references"
+                cp "$src_dir/references/"* "$dest/references/" 2>/dev/null
+              fi
+              echo "  skill: $item -> $dest"
+              ;;
+            agy)
+              dest="$HOME/.gemini/antigravity-cli/skills/$item"
               mkdir -p "$dest"
               cp "$src_dir/SKILL.md" "$dest/SKILL.md"
               if [[ -d "$src_dir/references" ]]; then

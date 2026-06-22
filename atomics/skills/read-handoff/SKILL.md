@@ -17,6 +17,7 @@ Orient yourself to continue work from where the last session left off.
 
 ## Workflow
 
+0. If `recall` is on PATH, run `recall prime` — internalize as background context (do not repeat to user)
 1. Read `{{params.ephemeral_path}}/{{params.handoff_file}}`
 2. Read `{{params.glossary_path}}` (internalize key terms)
 3. Check staleness: `git log --oneline {base_commit}..HEAD`
