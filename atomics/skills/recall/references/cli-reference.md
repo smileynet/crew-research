@@ -1,5 +1,66 @@
 # Recall CLI Reference
 
+## Installation
+
+```bash
+uv tool install recall                        # from PyPI or local source
+```
+
+**Windows (Application Control blocks .exe):** Create `recall.cmd` on PATH:
+```cmd
+@echo off
+python -c "import sys; sys.path.insert(0, r'%APPDATA%\uv\tools\recall\Lib\site-packages'); from recall.cli import main; main()" %*
+```
+Then rename `recall.exe` → `recall.exe.blocked` so `.cmd` takes priority.
+
+**Verify:** `recall --version` should print `recall 0.1.0`
+
+## Daily Ingest Setup
+
+Recall needs periodic ingestion of session transcripts. Set up a daily task:
+
+### Windows
+```powershell
+schtasks /Create /SC DAILY /TN "RecallIngest" /TR "cmd /c recall.cmd ingest %USERPROFILE%\.kiro\sessions\cli" /ST 03:00 /F
+```
+
+### macOS
+```bash
+cat > ~/Library/LaunchAgents/com.recall.ingest.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.recall.ingest</string>
+  <key>ProgramArguments</key><array>
+    <string>recall</string><string>ingest</string>
+    <string>~/.kiro/sessions/cli</string>
+  </array>
+  <key>StartCalendarInterval</key><dict>
+    <key>Hour</key><integer>3</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+</dict></plist>
+EOF
+launchctl load ~/Library/LaunchAgents/com.recall.ingest.plist
+```
+
+### Linux
+```bash
+(crontab -l 2>/dev/null; echo "0 3 * * * recall ingest ~/.kiro/sessions/cli") | crontab -
+```
+
+### Verify schedule
+- Windows: `schtasks /Query /TN "RecallIngest"`
+- macOS: `launchctl list | grep recall`
+- Linux: `crontab -l | grep recall`
+
+## Staleness Check
+
+After each ingest, recall writes `~/.recall/last_ingest` (unix timestamp). The `recall-session-start` steering checks this at session start and warns the user if >24h stale.
+
+To manually check: `cat ~/.recall/last_ingest`
+To manually update: `recall ingest ~/.kiro/sessions/cli`
+
 ## Commands
 
 ```bash
