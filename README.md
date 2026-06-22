@@ -1,6 +1,6 @@
 # crew-research
 
-Portable skills and workflows that make AI coding assistants (kiro-cli) more effective at every stage of development — from planning through delivery.
+Portable skills and workflows that make AI coding assistants more effective at every stage of development — from planning through delivery. Works with kiro-cli, codex, and other skill-compatible tools.
 
 ## What It Does
 

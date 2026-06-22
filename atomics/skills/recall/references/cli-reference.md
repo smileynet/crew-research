@@ -15,6 +15,7 @@ recall ingest ~/.kiro/sessions/cli            # auto-tag wings from cwd
 recall ingest <path> --project ~/code/myapp   # filter to one project
 
 recall prime --wing name                      # session-start context
+recall prime                                  # wing auto-detects from cwd
 recall status                                 # show indexed content
 ```
 

@@ -97,3 +97,44 @@ If we exclude the two 0-scores from Task 1 (treating them as eval infrastructure
 3. **Skill improvements:**
    - Add fallback behavior when `recall` command fails (degrade gracefully to asking the user)
    - Consider adding `--wing` auto-detection from cwd in the skill instructions
+
+
+---
+
+## Updated Results (post-improvements)
+
+**Date:** 2026-06-21
+**Commit:** 71525b9
+**Improvements applied:** HANDOFF.md fixture, recall warm-up, output-based activation detection, bash arithmetic fix
+
+### Effectiveness Eval: recall-improves-continuity (v2)
+
+| Task | With-Skill | Baseline | Delta |
+|------|-----------|----------|-------|
+| 0: Recall past decision | **5.00** (5,5,5) | 3.00 (3,3,3) | **+2.00** |
+| 1: Continue prior work | **5.00** (5,5,5) | 3.33 (0,5,5) | **+1.67** |
+| 2: Check prior decision | **4.00** (4,4,4) | 3.00 (3,3,3) | **+1.00** |
+| **Overall** | **4.67** | 3.11 | **+1.56** |
+
+- Activation rate: **1.0** (9/9) — output-based detection works
+- Stddev: **0.47** (was 1.95)
+- All with-skill scores ≥ 4 (floor raised)
+
+### Cross-tool verification
+
+| Tool | Result | Evidence |
+|------|--------|----------|
+| kiro-cli 2.8.1 | ✅ PASS | Temp dir — found FieldPointYards decision, cited source |
+| codex 0.140.0 (gpt-5.5) | ✅ PASS | Temp dir — found decision, cited source |
+
+### What fixed Task 1
+
+The original 0-scores were caused by:
+1. No project context in temp workspace (agent had nothing to "continue")
+2. First-run model download timing out
+
+Fixes applied:
+1. Injected `.scratch/HANDOFF.md` fixture with project state
+2. Added `recall search "warmup"` before trials (pre-loads model)
+
+Task 1 went from 1.33 (two failures) to **5.00** (three perfect scores).
