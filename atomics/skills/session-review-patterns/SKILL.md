@@ -42,3 +42,21 @@ If a session shows an agent failing because it tried to use `web_search` as a su
 - 3+ consecutive agent decisions without user input → rubber-stamp guard should fire
 - "Done!" with no verification evidence → hallucinated success
 - Agent modifies .kiro/agents/ or .kiro/steering/ → deniedPaths violation
+
+## Periodic Delta Regression (monthly)
+
+Re-run 3-5 key skill evals to detect model catch-up (skills whose delta has collapsed):
+
+```bash
+mise run eval:one -- skill-authoring-effectiveness
+mise run eval:one -- prompt-vocabulary-effectiveness
+mise run eval:one -- agents-md-authoring-effectiveness
+mise run eval:one -- steering-pointer-effectiveness
+```
+
+If a skill's delta drops below 0.5 from its original measurement:
+- The model has internalized the behavior — the skill is now floor-raising only
+- Consider: demote to lower tier, merge into steering, or accept as consistency insurance
+- Document the finding in eval results
+
+Models improve continuously. Skills that showed +1.5 delta at creation may show +0.1 six months later.

@@ -17,6 +17,7 @@ DEFINITION=""
 RUN_ALL=false
 DRY_RUN=false
 TRIALS=3
+MODEL=""
 JUDGE_CONFIG="$JUDGES_DIR/default.yaml"
 
 while [[ $# -gt 0 ]]; do
@@ -26,6 +27,7 @@ while [[ $# -gt 0 ]]; do
     --all) RUN_ALL=true; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
     --trials) TRIALS="$2"; shift 2 ;;
+    --model) MODEL="$2"; shift 2 ;;
     --judge) JUDGE_CONFIG="$2"; shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
@@ -150,13 +152,19 @@ invoke_agent() {
   # Use adapter-specific invocation
   case "$ADAPTER" in
     codex)
-      timeout "$timeout" bash -c 'codex exec --dangerously-bypass-approvals-and-sandbox --ephemeral -C "$1" "$(cat "$2")" < /dev/null' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      local model_flag=""
+      [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
+      timeout "$timeout" bash -c 'codex exec --dangerously-bypass-approvals-and-sandbox --ephemeral '"$model_flag"' -C "$1" "$(cat "$2")" < /dev/null' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
       ;;
     agy)
-      timeout "$timeout" bash -c 'cd "$1" && agy --print "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      local model_flag=""
+      [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
+      timeout "$timeout" bash -c 'cd "$1" && agy --print '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
       ;;
     *)
-      timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never "$(cat "$1")"' _ "$input_file" 2>&1 | strip_ansi || true
+      local model_flag=""
+      [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
+      timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' "$(cat "$1")"' _ "$input_file" 2>&1 | strip_ansi || true
       ;;
   esac
   rm -f "$input_file"
@@ -199,10 +207,30 @@ REASON: <one sentence>"
   fi
 
   # Judge runs in isolated empty dir (no skills, no context contamination)
+  # Try available tools as judge — fail gracefully if one is unavailable
   local judge_dir=$(mktemp -d -t "judge-XXXX")
-  local judge_result
-  judge_result=$(cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$judge_prompt" 2>/dev/null | strip_ansi) || judge_result="SCORE: 0
-REASON: judge invocation failed"
+  local judge_result=""
+  local judge_tool_used=""
+
+  # Try kiro-cli first (primary), then codex, then agy
+  if command -v kiro-cli &>/dev/null; then
+    judge_result=$(cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="kiro-cli"
+  fi
+
+  if [[ -z "$judge_tool_used" ]] && command -v codex &>/dev/null; then
+    judge_result=$(cd "$judge_dir" && codex exec --skip-git-repo-check "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="codex"
+  fi
+
+  if [[ -z "$judge_tool_used" ]] && command -v agy &>/dev/null; then
+    judge_result=$(cd "$judge_dir" && agy --print "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="agy"
+  fi
+
+  if [[ -z "$judge_tool_used" ]]; then
+    echo "[warn] No judge tool available (tried: kiro-cli, codex, agy)" >&2
+    judge_result="SCORE: 0
+REASON: no judge tool available"
+  fi
+
   rm -rf "$judge_dir"
   echo "$judge_result"
 }
