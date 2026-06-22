@@ -67,3 +67,13 @@ Before finalizing, review the session for promotable artifacts:
 4. **Dead scratch** — any `.scratch/` files that are now obsolete? Note for cleanup.
 
 Don't batch these — capture before writing the handoff.
+
+## Recall Write-Back (if available)
+
+If `recall` is on PATH, persist qualifying decisions from this session:
+
+```bash
+recall add "decided X because Y" --room decisions --type decision
+```
+
+A decision qualifies if: hard-to-reverse OR will matter beyond the next session. Do NOT persist file paths, implementation details, or observations (those go in HANDOFF.md only).

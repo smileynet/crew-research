@@ -148,5 +148,6 @@ Complete when:
 - No unresolved dependencies
 - CONTEXT.md updated with new/changed terms
 - User confirms shared understanding
+- If `recall` is on PATH: persist each decision from the tracking table via `recall add "Q{n}: decided {X} because {Y}" --room decisions --type decision`
 
 Then: summarize decisions, offer ADRs if qualifying, propose first implementation step.
