@@ -453,9 +453,9 @@ run_eval() {
     delta=$(echo "scale=2; $avg_primary - $avg_baseline" | bc | sed 's/^\./0./;s/^-\./-0./')
     avg_score=$avg_primary
 
-    if (( $(echo "$avg_primary < $threshold" | bc -l) )); then
+    if [[ "$(echo "$avg_primary < $threshold" | bc)" == 1* ]]; then
       status="FAIL"; reason="$primary_cond avg $avg_primary < threshold $threshold"
-    elif (( $(echo "$delta < $delta_threshold" | bc -l) )); then
+    elif [[ "$(echo "$delta < $delta_threshold" | bc)" == 1* ]]; then
       status="FAIL"; reason="delta $delta < delta_threshold $delta_threshold"
     else
       reason="$primary_cond=$avg_primary $baseline_cond=$avg_baseline delta=$delta"
@@ -464,7 +464,7 @@ run_eval() {
     # Single condition: majority pass
     local cond="${condition_names[0]}"
     avg_score=${cond_scores[$cond]}
-    if (( $(echo "$avg_score < $threshold" | bc -l) )); then
+    if [[ "$(echo "$avg_score < $threshold" | bc)" == 1* ]]; then
       status="FAIL"; reason="avg $avg_score < threshold $threshold"
     else
       reason="avg=$avg_score (threshold=$threshold)"
