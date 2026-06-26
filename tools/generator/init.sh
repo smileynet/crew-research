@@ -344,6 +344,12 @@ if [[ "$GLOBAL" == true ]]; then
       echo "  pruned: prompts/ (migrated to skills)"
     fi
 
+    # --- Deploy permissions.yaml (v3 forward-compatible) ---
+    local perms_src="$ROOT_DIR/atomics/eager-context/permissions.yaml"
+    if [[ -f "$perms_src" ]]; then
+      deploy_file "$perms_src" "$DEST/permissions.yaml"
+    fi
+
     echo ""
     echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]}"
     echo "  $updated updated, $removed pruned, $unchanged unchanged"

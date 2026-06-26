@@ -11,6 +11,10 @@ def detect_and_parse(filepath: Path) -> Optional[list[tuple[str, str]]]:
     if not content.strip():
         return None
 
+    messages = parse_kiro_v3_jsonl(content)
+    if messages:
+        return messages
+
     messages = parse_kiro_cli_jsonl(content)
     if messages:
         return messages
@@ -22,8 +26,50 @@ def detect_and_parse(filepath: Path) -> Optional[list[tuple[str, str]]]:
     return None
 
 
+def parse_kiro_v3_jsonl(content: str) -> Optional[list[tuple[str, str]]]:
+    """Parse kiro-cli v3 JSONL (payload.type format) into messages."""
+    lines = [l.strip() for l in content.split("\n") if l.strip()]
+    if not lines:
+        return None
+
+    # Detect: v3 uses {id, timestamp, payload: {type, ...}}
+    try:
+        first = json.loads(lines[0])
+    except json.JSONDecodeError:
+        return None
+    if not (isinstance(first, dict) and "payload" in first
+            and isinstance(first.get("payload"), dict)
+            and "type" in first["payload"]):
+        return None
+
+    messages = []
+    for line in lines:
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        payload = entry.get("payload", {})
+        if not isinstance(payload, dict):
+            continue
+
+        ptype = payload.get("type")
+        if ptype == "user":
+            text = payload.get("content", "").strip()
+            if text:
+                messages.append(("user", text))
+        elif ptype == "assistant":
+            text = payload.get("content", "").strip()
+            if text:
+                if messages and messages[-1][0] == "assistant":
+                    messages[-1] = ("assistant", messages[-1][1] + "\n" + text)
+                else:
+                    messages.append(("assistant", text))
+
+    return messages if len(messages) >= 2 else None
+
+
 def parse_kiro_cli_jsonl(content: str) -> Optional[list[tuple[str, str]]]:
-    """Parse kiro-cli v1 JSONL into messages with tool summaries."""
+    """Parse kiro-cli v1/v2 JSONL into messages with tool summaries."""
     lines = [l.strip() for l in content.split("\n") if l.strip()]
     if not lines:
         return None
@@ -129,20 +175,33 @@ def parse_codex_jsonl(content: str) -> Optional[list[tuple[str, str]]]:
 
 
 def extract_cwd_from_session(session_dir: Path, session_id: str) -> Optional[str]:
-    """Extract project cwd from session JSON metadata."""
+    """Extract project cwd from session JSON metadata (v2 or v3)."""
+    # V2: session_dir/<session_id>.json with "cwd" field
     json_file = session_dir / f"{session_id}.json"
-    if not json_file.exists():
-        # Try to find it from the filename pattern
-        for f in session_dir.glob("*.json"):
-            try:
-                data = json.loads(f.read_text(encoding="utf-8", errors="replace"))
-                if data.get("session_id") == session_id:
-                    return data.get("cwd")
-            except (json.JSONDecodeError, KeyError):
-                continue
-        return None
-    try:
-        data = json.loads(json_file.read_text(encoding="utf-8", errors="replace"))
-        return data.get("cwd")
-    except (json.JSONDecodeError, KeyError):
-        return None
+    if json_file.exists():
+        try:
+            data = json.loads(json_file.read_text(encoding="utf-8", errors="replace"))
+            return data.get("cwd")
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    # V3: session_dir is already the sess_ dir, look for session.json with workspacePaths
+    v3_meta = session_dir / "session.json"
+    if v3_meta.exists():
+        try:
+            data = json.loads(v3_meta.read_text(encoding="utf-8", errors="replace"))
+            paths = data.get("workspacePaths", [])
+            if paths:
+                return paths[0]
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    # V2 fallback: scan .json files in directory
+    for f in session_dir.glob("*.json"):
+        try:
+            data = json.loads(f.read_text(encoding="utf-8", errors="replace"))
+            if data.get("session_id") == session_id:
+                return data.get("cwd")
+        except (json.JSONDecodeError, KeyError):
+            continue
+    return None

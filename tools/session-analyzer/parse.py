@@ -29,12 +29,18 @@ def parse_args():
     return days, output
 
 def find_sessions(days):
-    sessions_dir = Path.home() / ".kiro" / "sessions" / "cli"
+    sessions_dir = Path.home() / ".kiro" / "sessions"
+    cli_dir = sessions_dir / "cli"
     cutoff = datetime.now() - timedelta(days=days)
     files = []
-    for f in sessions_dir.rglob("*.jsonl"):
-        mtime = datetime.fromtimestamp(f.stat().st_mtime)
-        if mtime > cutoff:
+    # V2: ~/.kiro/sessions/cli/*.jsonl
+    if cli_dir.exists():
+        for f in cli_dir.glob("*.jsonl"):
+            if datetime.fromtimestamp(f.stat().st_mtime) > cutoff:
+                files.append(f)
+    # V3: ~/.kiro/sessions/<hash>/sess_*/messages.jsonl
+    for f in sessions_dir.glob("*/sess_*/messages.jsonl"):
+        if datetime.fromtimestamp(f.stat().st_mtime) > cutoff:
             files.append(f)
     return sorted(files, key=lambda f: f.stat().st_mtime)
 
@@ -49,10 +55,11 @@ def extract_working_dir(tool_input):
     return None
 
 def parse_conversation(filepath):
+    is_v3 = filepath.name == "messages.jsonl"
     result = {
         "file": str(filepath),
-        "session_id": filepath.parent.name,
-        "conversation_id": filepath.stem,
+        "session_id": filepath.parent.name if is_v3 else filepath.parent.name,
+        "conversation_id": filepath.parent.name if is_v3 else filepath.stem,
         "messages": 0,
         "user_prompts": [],
         "tool_calls": Counter(),
@@ -74,46 +81,92 @@ def parse_conversation(filepath):
                 continue
 
             result["messages"] += 1
-            kind = msg.get("kind")
-            data = msg.get("data", {})
 
-            if kind == "Prompt":
-                ts = data.get("meta", {}).get("timestamp")
-                if ts:
-                    if not result["first_timestamp"] or ts < result["first_timestamp"]:
-                        result["first_timestamp"] = ts
-                    if not result["last_timestamp"] or ts > result["last_timestamp"]:
-                        result["last_timestamp"] = ts
-                for content in data.get("content", []):
-                    if content.get("kind") == "text" and content.get("data"):
-                        text = content["data"][:200]
-                        result["user_prompts"].append(text)
-
-            elif kind == "AssistantMessage":
-                for content in data.get("content", []):
-                    if content.get("kind") == "toolUse":
-                        tool_data = content.get("data", {})
-                        tool_name = tool_data.get("name", "unknown")
-                        result["tool_calls"][tool_name] += 1
-                        tool_input = tool_data.get("input", {})
-                        if tool_name == "shell":
-                            cmd = extract_shell_command(tool_input)
-                            if cmd:
-                                result["shell_commands"].append(cmd)
-                            wd = extract_working_dir(tool_input)
-                            if wd:
-                                result["working_dirs"].add(wd)
-
-            elif kind == "ToolResults":
-                for content in data.get("content", []):
-                    if content.get("kind") == "toolResult":
-                        tr_data = content.get("data", {})
-                        if tr_data.get("status") == "error":
-                            result["errors"].append(str(tr_data.get("content", ""))[:200])
+            if is_v3:
+                _parse_v3_event(msg, result)
+            else:
+                _parse_v2_event(msg, result)
 
     result["working_dirs"] = list(result["working_dirs"])
     result["tool_calls"] = dict(result["tool_calls"])
     return result
+
+
+def _parse_v2_event(msg, result):
+    kind = msg.get("kind")
+    data = msg.get("data", {})
+
+    if kind == "Prompt":
+        ts = data.get("meta", {}).get("timestamp")
+        if ts:
+            if not result["first_timestamp"] or ts < result["first_timestamp"]:
+                result["first_timestamp"] = ts
+            if not result["last_timestamp"] or ts > result["last_timestamp"]:
+                result["last_timestamp"] = ts
+        for content in data.get("content", []):
+            if content.get("kind") == "text" and content.get("data"):
+                result["user_prompts"].append(content["data"][:200])
+
+    elif kind == "AssistantMessage":
+        for content in data.get("content", []):
+            if content.get("kind") == "toolUse":
+                tool_data = content.get("data", {})
+                tool_name = tool_data.get("name", "unknown")
+                result["tool_calls"][tool_name] += 1
+                tool_input = tool_data.get("input", {})
+                if tool_name == "shell":
+                    cmd = extract_shell_command(tool_input)
+                    if cmd:
+                        result["shell_commands"].append(cmd)
+                    wd = extract_working_dir(tool_input)
+                    if wd:
+                        result["working_dirs"].add(wd)
+
+    elif kind == "ToolResults":
+        for content in data.get("content", []):
+            if content.get("kind") == "toolResult":
+                tr_data = content.get("data", {})
+                if tr_data.get("status") == "error":
+                    result["errors"].append(str(tr_data.get("content", ""))[:200])
+
+
+def _parse_v3_event(msg, result):
+    payload = msg.get("payload", {})
+    ptype = payload.get("type")
+    ts = msg.get("timestamp")
+
+    if ptype == "user":
+        if ts:
+            if not result["first_timestamp"] or ts < result["first_timestamp"]:
+                result["first_timestamp"] = ts
+            if not result["last_timestamp"] or ts > result["last_timestamp"]:
+                result["last_timestamp"] = ts
+        text = payload.get("content", "")
+        if text:
+            result["user_prompts"].append(text[:200])
+
+    elif ptype == "assistant":
+        if ts:
+            if not result["last_timestamp"] or ts > result["last_timestamp"]:
+                result["last_timestamp"] = ts
+        # V3 assistant content is plain text (tool calls are separate events)
+        pass
+
+    elif ptype == "tool_use":
+        tool_name = payload.get("toolName", "unknown")
+        result["tool_calls"][tool_name] += 1
+        tool_input = payload.get("input", {})
+        if tool_name == "shell":
+            cmd = extract_shell_command(tool_input)
+            if cmd:
+                result["shell_commands"].append(cmd)
+            wd = extract_working_dir(tool_input)
+            if wd:
+                result["working_dirs"].add(wd)
+
+    elif ptype == "tool_result":
+        if payload.get("status") == "error":
+            result["errors"].append(str(payload.get("content", ""))[:200])
 
 def infer_project(conversation):
     dirs = conversation["working_dirs"]

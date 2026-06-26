@@ -1,0 +1,15 @@
+# permissions.yaml — kiro-cli v3 capability-based permissions
+# Deployed by crew-research init.sh. Edit to restrict per-project.
+version: v1
+allow:
+  - capability: filesystem
+  - capability: shell
+  - capability: web_fetch
+  - capability: web_search
+  - capability: subagent
+  - capability: skill
+  - capability: mcp
+  - capability: context
+deny:
+  - capability: shell
+    commands: ["rm -rf /", "rm -rf ~", "git push --force", "git reset --hard"]

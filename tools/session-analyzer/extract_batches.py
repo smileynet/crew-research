@@ -15,10 +15,18 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 def find_recent_files(days):
-    sessions_dir = Path.home() / ".kiro" / "sessions" / "cli"
+    sessions_dir = Path.home() / ".kiro" / "sessions"
+    cli_dir = sessions_dir / "cli"
     cutoff = datetime.now() - timedelta(days=days)
     files = []
-    for f in sessions_dir.rglob("*.jsonl"):
+    # V2
+    if cli_dir.exists():
+        for f in cli_dir.glob("*.jsonl"):
+            mtime = datetime.fromtimestamp(f.stat().st_mtime)
+            if mtime > cutoff:
+                files.append((f, mtime))
+    # V3
+    for f in sessions_dir.glob("*/sess_*/messages.jsonl"):
         mtime = datetime.fromtimestamp(f.stat().st_mtime)
         if mtime > cutoff:
             files.append((f, mtime))
@@ -26,8 +34,9 @@ def find_recent_files(days):
 
 def extract_summary(filepath):
     """Extract a condensed but complete summary of a conversation."""
+    is_v3 = filepath.name == "messages.jsonl"
     summary = {
-        "file": filepath.name,
+        "file": filepath.name if not is_v3 else filepath.parent.name,
         "session": filepath.parent.name,
         "user_prompts": [],
         "assistant_actions": [],
@@ -49,46 +58,79 @@ def extract_summary(filepath):
                 continue
 
             summary["message_count"] += 1
-            kind = msg.get("kind")
-            data = msg.get("data", {})
 
-            if kind == "Prompt":
-                for content in data.get("content", []):
-                    if content.get("kind") == "text" and content.get("data"):
-                        summary["user_prompts"].append(content["data"][:500])
+            if is_v3:
+                payload = msg.get("payload", {})
+                ptype = payload.get("type")
+                if ptype == "user":
+                    text = payload.get("content", "")
+                    if text:
+                        summary["user_prompts"].append(text[:500])
+                elif ptype == "assistant":
+                    text = payload.get("content", "")
+                    if text:
+                        summary["assistant_actions"].append(("text", text[:300]))
+                elif ptype == "tool_use":
+                    tool_name = payload.get("toolName", "?")
+                    tool_input = payload.get("input", {})
+                    summary["tool_sequence"].append(tool_name)
+                    if tool_name == "shell":
+                        cmd = tool_input.get("command", "")
+                        wd = tool_input.get("working_dir", "")
+                        summary["shell_commands"].append(cmd[:300])
+                        if wd:
+                            summary["working_dirs"].add(wd)
+                    elif tool_name == "write":
+                        path = tool_input.get("path", "")
+                        op = tool_input.get("command", "")
+                        summary["assistant_actions"].append(("write", f"{op}: {path}"))
+                    elif tool_name == "web_search":
+                        q = tool_input.get("query", "")
+                        summary["assistant_actions"].append(("search", q))
+                elif ptype == "tool_result":
+                    if payload.get("status") == "error":
+                        summary["errors"].append(str(payload.get("content", ""))[:200])
+            else:
+                kind = msg.get("kind")
+                data = msg.get("data", {})
 
-            elif kind == "AssistantMessage":
-                for content in data.get("content", []):
-                    if content.get("kind") == "text" and content.get("data"):
-                        text = content["data"][:300]
-                        if text.strip():
-                            summary["assistant_actions"].append(("text", text))
-                    elif content.get("kind") == "toolUse":
-                        td = content.get("data", {})
-                        tool_name = td.get("name", "?")
-                        tool_input = td.get("input", {})
-                        summary["tool_sequence"].append(tool_name)
-                        if tool_name == "shell":
-                            cmd = tool_input.get("command", "")
-                            wd = tool_input.get("working_dir", "")
-                            summary["shell_commands"].append(cmd[:300])
-                            if wd:
-                                summary["working_dirs"].add(wd)
-                        elif tool_name == "write":
-                            path = tool_input.get("path", "")
-                            op = tool_input.get("command", "")
-                            summary["assistant_actions"].append(("write", f"{op}: {path}"))
-                        elif tool_name == "web_search":
-                            q = tool_input.get("query", "")
-                            summary["assistant_actions"].append(("search", q))
+                if kind == "Prompt":
+                    for content in data.get("content", []):
+                        if content.get("kind") == "text" and content.get("data"):
+                            summary["user_prompts"].append(content["data"][:500])
 
-            elif kind == "ToolResults":
-                for content in data.get("content", []):
-                    if content.get("kind") == "toolResult":
-                        tr = content.get("data", {})
-                        if tr.get("status") == "error":
-                            err_content = tr.get("content", "")
-                            summary["errors"].append(str(err_content)[:200])
+                elif kind == "AssistantMessage":
+                    for content in data.get("content", []):
+                        if content.get("kind") == "text" and content.get("data"):
+                            text = content["data"][:300]
+                            if text.strip():
+                                summary["assistant_actions"].append(("text", text))
+                        elif content.get("kind") == "toolUse":
+                            td = content.get("data", {})
+                            tool_name = td.get("name", "?")
+                            tool_input = td.get("input", {})
+                            summary["tool_sequence"].append(tool_name)
+                            if tool_name == "shell":
+                                cmd = tool_input.get("command", "")
+                                wd = tool_input.get("working_dir", "")
+                                summary["shell_commands"].append(cmd[:300])
+                                if wd:
+                                    summary["working_dirs"].add(wd)
+                            elif tool_name == "write":
+                                path = tool_input.get("path", "")
+                                op = tool_input.get("command", "")
+                                summary["assistant_actions"].append(("write", f"{op}: {path}"))
+                            elif tool_name == "web_search":
+                                q = tool_input.get("query", "")
+                                summary["assistant_actions"].append(("search", q))
+
+                elif kind == "ToolResults":
+                    for content in data.get("content", []):
+                        if content.get("kind") == "toolResult":
+                            tr = content.get("data", {})
+                            if tr.get("status") == "error":
+                                err_content = tr.get("content", "")
+                                summary["errors"].append(str(err_content)[:200])
 
     summary["working_dirs"] = list(summary["working_dirs"])
     # Infer project

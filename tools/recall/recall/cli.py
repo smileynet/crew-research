@@ -73,7 +73,11 @@ def cmd_ingest(args):
 
     conn = store.get_connection()
     keywords = chunker.load_topic_keywords()
+
+    # Discover JSONL files: v2 (flat *.jsonl) + v3 (*/sess_*/messages.jsonl)
     jsonl_files = sorted(source_dir.glob("*.jsonl"))
+    v3_files = sorted(source_dir.glob("*/sess_*/messages.jsonl"))
+    all_files = jsonl_files + v3_files
 
     if args.project:
         project_path = Path(args.project).expanduser().resolve()
@@ -87,18 +91,23 @@ def cmd_ingest(args):
     files_skipped = 0
 
     print(f"\n  Ingesting: {source_dir}")
-    print(f"  Files: {len(jsonl_files)} JSONL")
+    print(f"  Files: {len(all_files)} JSONL ({len(jsonl_files)} v2, {len(v3_files)} v3)")
     print()
 
-    for i, f in enumerate(jsonl_files):
-        if store.is_file_ingested(conn, f.name):
+    for i, f in enumerate(all_files):
+        if store.is_file_ingested(conn, f.name if f.name != "messages.jsonl" else f.parent.name):
             files_skipped += 1
             continue
 
         # Determine wing from session metadata
         wing = "global"
-        session_id = f.stem
-        cwd = normalize.extract_cwd_from_session(source_dir, session_id)
+        is_v3 = (f.name == "messages.jsonl")
+        if is_v3:
+            session_id = f.parent.name  # sess_<uuid>
+            cwd = normalize.extract_cwd_from_session(f.parent, session_id)
+        else:
+            session_id = f.stem
+            cwd = normalize.extract_cwd_from_session(source_dir, session_id)
         if project_name:
             wing = project_name
         elif cwd:
@@ -117,10 +126,11 @@ def cmd_ingest(args):
             continue
 
         embeddings = embedder.embed_documents(chunks)
+        source_label = f.parent.name if is_v3 else f.name
         rows = []
         for chunk, emb in zip(chunks, embeddings):
             room = chunker.classify_room(chunk, keywords)
-            rows.append({"content": chunk, "embedding": emb, "wing": wing, "room": room, "source": f"ingest:{f.name}", "source_file": f.name})
+            rows.append({"content": chunk, "embedding": emb, "wing": wing, "room": room, "source": f"ingest:{source_label}", "source_file": source_label})
 
         store.upsert_batch(conn, rows)
         total_chunks += len(chunks)

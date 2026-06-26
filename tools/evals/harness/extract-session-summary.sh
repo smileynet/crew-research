@@ -22,7 +22,9 @@ done
 if [[ -z "$SESSION_FILE" ]]; then
   case "$ADAPTER" in
     kiro-cli)
-      SESSION_FILE=$(find "$HOME/.kiro/sessions/cli/" -name "*.jsonl" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
+      # Try v3 first (newer), then v2
+      SESSION_FILE=$(find "$HOME/.kiro/sessions/" -path "*/sess_*/messages.jsonl" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
+      [[ -z "$SESSION_FILE" ]] && SESSION_FILE=$(find "$HOME/.kiro/sessions/cli/" -name "*.jsonl" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
       ;;
     codex)
       SESSION_FILE=$(find "$HOME/.codex/sessions/" -name "rollout-*.jsonl" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
@@ -38,15 +40,29 @@ fi
 # Extract summary based on adapter format
 case "$ADAPTER" in
   kiro-cli)
-    # kiro-cli format: {"version":"v1","kind":"ToolResults|AssistantMessage|Prompt","data":{...}}
-    local_tool_calls=$(grep -o '"name":"[^"]*"' "$SESSION_FILE" | sort | uniq -c | sort -rn | head -10)
-    local_files_read=$(grep -o '"path":"[^"]*"' "$SESSION_FILE" | sort -u | head -20)
-    local_errors=$(grep -c '"status":"error"' "$SESSION_FILE" 2>/dev/null || echo 0)
-    local_skill_reads=$(grep -o 'skill://[^"]*' "$SESSION_FILE" | sort -u)
-    local_total_tools=$(grep -c '"toolUseId"' "$SESSION_FILE" 2>/dev/null || echo 0)
+    # Detect v3 format: first line has "payload" with "type"
+    is_v3=false
+    if head -1 "$SESSION_FILE" | grep -q '"payload".*"type"'; then
+      is_v3=true
+    fi
 
-    # Detect retries: same tool+path called multiple times
-    local_retries=$(grep -o '"name":"[^"]*".*"path":"[^"]*"' "$SESSION_FILE" 2>/dev/null | sort | uniq -d | wc -l)
+    if [[ "$is_v3" == "true" ]]; then
+      # V3 format: {id, timestamp, payload: {type, toolName, content, ...}}
+      local_tool_calls=$(grep -o '"toolName":"[^"]*"' "$SESSION_FILE" | sort | uniq -c | sort -rn | head -10)
+      local_files_read=$(grep -o '"path":"[^"]*"' "$SESSION_FILE" | sort -u | head -20)
+      local_errors=$(grep -c '"status":"error"' "$SESSION_FILE" 2>/dev/null || echo 0)
+      local_skill_reads=$(grep -o 'skill://[^"]*' "$SESSION_FILE" | sort -u)
+      local_total_tools=$(grep -c '"type":"tool_use"' "$SESSION_FILE" 2>/dev/null || echo 0)
+      local_retries=$(grep -o '"toolName":"[^"]*".*"path":"[^"]*"' "$SESSION_FILE" 2>/dev/null | sort | uniq -d | wc -l)
+    else
+      # V2 format: {"version":"v1","kind":"ToolResults|AssistantMessage|Prompt","data":{...}}
+      local_tool_calls=$(grep -o '"name":"[^"]*"' "$SESSION_FILE" | sort | uniq -c | sort -rn | head -10)
+      local_files_read=$(grep -o '"path":"[^"]*"' "$SESSION_FILE" | sort -u | head -20)
+      local_errors=$(grep -c '"status":"error"' "$SESSION_FILE" 2>/dev/null || echo 0)
+      local_skill_reads=$(grep -o 'skill://[^"]*' "$SESSION_FILE" | sort -u)
+      local_total_tools=$(grep -c '"toolUseId"' "$SESSION_FILE" 2>/dev/null || echo 0)
+      local_retries=$(grep -o '"name":"[^"]*".*"path":"[^"]*"' "$SESSION_FILE" 2>/dev/null | sort | uniq -d | wc -l)
+    fi
     ;;
   codex)
     # codex format: {"timestamp":...,"type":"event_msg","payload":{...}}
