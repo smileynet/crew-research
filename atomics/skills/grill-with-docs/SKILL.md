@@ -137,9 +137,15 @@ To inject project-specific domain context without forking this skill, use a **st
 
 Cost: ~50 chars always-loaded. Global skill runs unmodified.
 
-## Context Persistence
+## Context Persistence (mandatory)
 
-Long grill sessions lose early context. Persist each resolved question to `.scratch/grill-{slug}/Q{nn}-{slug}.md` with the question, research, answer, and options considered. Maintain an `INDEX.md` linking all question files. See [references/grill-persistence.md](references/grill-persistence.md) for full format.
+**At session start:** create `.scratch/grill-{topic-slug}/INDEX.md` with the session header and empty questions table.
+
+**After each question is resolved:**
+1. Write `.scratch/grill-{topic-slug}/Q{nn}-{slug}.md` with question, research, options, decision, and implications
+2. Update INDEX.md — add a row linking to the new question file
+
+**This is not optional.** Every resolved question gets its own file. INDEX.md stays current after every entry. See [references/grill-persistence.md](references/grill-persistence.md) for full format.
 
 ## Exit Criteria
 
