@@ -1,0 +1,20 @@
+tool: crush
+version_command: "crush --version"
+
+invoke:
+  command: 'crush run --quiet --yolo --model glm/glm-5.2 "{query}"'
+  timeout: 120
+
+skill:
+  location: ".kiro/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+  env_var: CRUSH_SKILLS_DIR
+
+eager_context:
+  location: ".kiro/steering/{name}.md"
+  format: markdown-frontmatter
+  mechanism: context_paths
+
+output:
+  strip_ansi: false
+  encoding: utf-8

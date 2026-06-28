@@ -34,11 +34,18 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate tools
-for cmd in yq kiro-cli; do
+for cmd in yq; do
   if ! command -v "$cmd" &>/dev/null; then
     echo "Error: $cmd required" >&2; exit 2
   fi
 done
+# Validate adapter tool is available
+case "$ADAPTER" in
+  crush) command -v crush &>/dev/null || { echo "Error: crush not found" >&2; exit 2; } ;;
+  codex) command -v codex &>/dev/null || { echo "Error: codex not found" >&2; exit 2; } ;;
+  agy) command -v agy &>/dev/null || { echo "Error: agy not found" >&2; exit 2; } ;;
+  *) command -v kiro-cli &>/dev/null || { echo "Error: kiro-cli not found" >&2; exit 2; } ;;
+esac
 
 # Validate trials
 [[ "$TRIALS" -gt 0 ]] 2>/dev/null || { echo "Error: --trials must be > 0" >&2; exit 1; }
@@ -151,6 +158,11 @@ invoke_agent() {
 
   # Use adapter-specific invocation
   case "$ADAPTER" in
+    crush)
+      local model_flag="--model glm/glm-5.2"
+      [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
+      timeout "$timeout" bash -c 'cd "$1" && crush run --quiet '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      ;;
     codex)
       local model_flag=""
       [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
@@ -212,7 +224,7 @@ REASON: <one sentence>"
   local judge_result=""
   local judge_tool_used=""
 
-  # Try kiro-cli first (primary), then codex, then agy
+  # Try kiro-cli first (primary), then codex, then crush, then agy
   if command -v kiro-cli &>/dev/null; then
     judge_result=$(cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="kiro-cli"
   fi
@@ -221,12 +233,16 @@ REASON: <one sentence>"
     judge_result=$(cd "$judge_dir" && codex exec --skip-git-repo-check "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="codex"
   fi
 
+  if [[ -z "$judge_tool_used" ]] && command -v crush &>/dev/null; then
+    judge_result=$(cd "$judge_dir" && crush run --quiet --model glm/glm-5.2 "$judge_prompt" 2>/dev/null) && judge_tool_used="crush"
+  fi
+
   if [[ -z "$judge_tool_used" ]] && command -v agy &>/dev/null; then
     judge_result=$(cd "$judge_dir" && agy --print "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="agy"
   fi
 
   if [[ -z "$judge_tool_used" ]]; then
-    echo "[warn] No judge tool available (tried: kiro-cli, codex, agy)" >&2
+    echo "[warn] No judge tool available (tried: kiro-cli, codex, crush, agy)" >&2
     judge_result="SCORE: 0
 REASON: no judge tool available"
   fi
