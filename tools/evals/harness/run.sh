@@ -16,6 +16,7 @@ ADAPTER="kiro-cli"
 DEFINITION=""
 RUN_ALL=false
 DRY_RUN=false
+ISOLATED=false
 TRIALS=3
 MODEL=""
 ENGINE=""
@@ -27,6 +28,7 @@ while [[ $# -gt 0 ]]; do
     --definition) DEFINITION="$2"; shift 2 ;;
     --all) RUN_ALL=true; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
+    --isolated) ISOLATED=true; shift ;;
     --trials) TRIALS="$2"; shift 2 ;;
     --model) MODEL="$2"; shift 2 ;;
     --engine) ENGINE="$2"; shift 2 ;;
@@ -180,8 +182,17 @@ invoke_agent() {
       [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
       local engine_flag=""
       [[ -n "$ENGINE" ]] && engine_flag="--agent-engine $ENGINE"
+      local env_prefix=""
+      [[ "$ISOLATED" == true ]] && env_prefix="KIRO_HOME=$workdir/.kiro-isolated"
       local out_file=$(mktemp)
-      timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' '"$engine_flag"' "$(cat "$1")" > "$2" 2>&1' _ "$input_file" "$out_file" || true
+      if [[ -n "$env_prefix" ]]; then
+        mkdir -p "$workdir/.kiro-isolated"
+        # Copy skill into isolated home if deployed
+        [[ -d "$workdir/.kiro/skills" ]] && cp -r "$workdir/.kiro/skills" "$workdir/.kiro-isolated/"
+        timeout "$timeout" bash -c "$env_prefix"' kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' '"$engine_flag"' "$(cat "$1")" > "$2" 2>&1' _ "$input_file" "$out_file" || true
+      else
+        timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' '"$engine_flag"' "$(cat "$1")" > "$2" 2>&1' _ "$input_file" "$out_file" || true
+      fi
       strip_ansi < "$out_file"
       rm -f "$out_file"
       ;;
