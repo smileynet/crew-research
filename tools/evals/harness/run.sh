@@ -1,6 +1,6 @@
 #!/bin/bash
 # tools/evals/harness/run.sh — LLM-as-judge eval harness with dual-run support
-# Usage: ./run.sh [--adapter kiro-cli] [--definition name] [--all] [--dry-run] [--trials 3]
+# Usage: ./run.sh [--adapter kiro-cli|crush|codex|agy] [--definition name] [--all] [--dry-run] [--trials 3] [--engine v2|v3]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -18,6 +18,7 @@ RUN_ALL=false
 DRY_RUN=false
 TRIALS=3
 MODEL=""
+ENGINE=""
 JUDGE_CONFIG="$JUDGES_DIR/default.yaml"
 
 while [[ $# -gt 0 ]]; do
@@ -28,6 +29,7 @@ while [[ $# -gt 0 ]]; do
     --dry-run) DRY_RUN=true; shift ;;
     --trials) TRIALS="$2"; shift 2 ;;
     --model) MODEL="$2"; shift 2 ;;
+    --engine) ENGINE="$2"; shift 2 ;;
     --judge) JUDGE_CONFIG="$2"; shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
@@ -176,7 +178,12 @@ invoke_agent() {
     *)
       local model_flag=""
       [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
-      timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' "$(cat "$1")"' _ "$input_file" 2>&1 | strip_ansi || true
+      local engine_flag=""
+      [[ -n "$ENGINE" ]] && engine_flag="--agent-engine $ENGINE"
+      local out_file=$(mktemp)
+      timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' '"$engine_flag"' "$(cat "$1")" > "$2" 2>&1' _ "$input_file" "$out_file" || true
+      strip_ansi < "$out_file"
+      rm -f "$out_file"
       ;;
   esac
   rm -f "$input_file"
