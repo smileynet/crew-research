@@ -9,6 +9,15 @@ metadata:
 
 # Deployment Safety
 
+## Phase 0: Define Success
+
+Before executing ANY deployment, state in user terms:
+- What the user/system will experience after successful deploy
+- What "healthy" looks like (specific metrics, endpoints, behaviors)
+- What rollback looks like (how long, what's lost)
+
+Get confirmation: "Does this match your expectations for this deploy?"
+
 ## Pre-Deploy Checklist
 1. **Rollback plan exists** — how to undo this if it fails?
 2. **Dependencies ready** — downstream services, databases, configs in place?
@@ -44,6 +53,15 @@ metadata:
 - Key user flows working (smoke test)
 - No new errors in logs
 - Resource counts match expected
+
+## Deploy Verdict (REQUIRED after verification)
+
+End every deployment with exactly one verdict:
+- **DEPLOY CONFIRMED** — all checks pass, declare success
+- **HOLD** — something unclear, need more monitoring time
+- **ROLLBACK** — any trigger hit, revert immediately
+
+Do NOT leave a deployment in ambiguous state. State the verdict explicitly.
 
 ## Anti-Patterns
 - "Deploy and pray" — no verification after deploy

@@ -9,6 +9,24 @@ metadata:
 
 # Testing Guide
 
+## Phase 0: What Are We Protecting?
+
+Before writing tests, state in user terms what behavior matters:
+- "When a user submits a form with invalid email, they see an error — not a crash"
+- "When the payment service is down, orders queue instead of failing silently"
+- "When config changes, the app picks it up without restart"
+
+These become your test descriptions. If you can't state what you're protecting, you're not ready to test.
+
+## Who Benefits (JTBD)
+
+| When I'm... | I want tests that... | So I can... |
+|-------------|---------------------|-------------|
+| Refactoring | Prove behavior unchanged | Move fast without fear |
+| Fixing a bug | Prove the bug existed and is now fixed | Prevent regression |
+| Reviewing a PR | See what's covered | Trust the change |
+| Onboarding | Understand the contract | Read tests as documentation |
+
 ## What to Test
 
 | Priority | Test Type | What It Catches |

@@ -33,6 +33,15 @@ Use these terms precisely. Full definitions in [references/vocabulary.md](refere
 
 ## Process
 
+### 0. Specify Desired Outcome (before exploring)
+
+Before diving into code, establish what "better" means in USER terms:
+- "When a developer adds a new payment method, they touch only ONE module"
+- "When a bug appears in notifications, the search space is 2 files, not 12"
+- "When we need to swap the email provider, zero business logic changes"
+
+Write 3+ statements in this form. Get user confirmation before exploring.
+
 ### 1. Explore
 
 Read the project's domain glossary (CONTEXT.md) and ADRs first. Then explore organically:
@@ -61,6 +70,8 @@ Do NOT propose interfaces yet. Ask: "Which of these would you like to explore?"
 ### 3. Grilling Loop
 
 Walk the design tree: constraints, dependencies, shape of the deepened module, what sits behind the seam, what tests survive.
+
+**Rubber-stamp guard**: If user accepts 3+ candidates in a row without modification or pushback, PAUSE. Say: "You've accepted 3 in a row — are these genuinely aligned with your priorities, or should I push harder on trade-offs?" Challenge the weakest candidate.
 
 **Side effects during grilling:**
 - New module name not in CONTEXT.md? → Add it immediately
