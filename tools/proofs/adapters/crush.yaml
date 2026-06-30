@@ -2,7 +2,7 @@ tool: crush
 version_command: "crush --version"
 
 invoke:
-  command: 'crush run --quiet --yolo --model glm/glm-5.2 "{query}"'
+  command: 'crush run --quiet --model glm-5.2 "{query}"'
   timeout: 120
 
 skill:

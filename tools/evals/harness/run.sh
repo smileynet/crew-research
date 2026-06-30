@@ -163,7 +163,7 @@ invoke_agent() {
   # Use adapter-specific invocation
   case "$ADAPTER" in
     crush)
-      local model_flag="--model glm/glm-5.2"
+      local model_flag="--model glm-5.2"
       [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
       timeout "$timeout" bash -c 'cd "$1" && crush run --quiet '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
       ;;
