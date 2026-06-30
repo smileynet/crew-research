@@ -42,39 +42,46 @@ def cascade_id_from_log(log_path):
 
 
 def discover_servers_windows():
-    """Discover language_server processes on Windows via WMIC."""
+    """Discover language_server processes on Windows via PowerShell."""
     servers = []
     try:
-        result = subprocess.run(
-            ["wmic", "process", "where",
-             "name like '%language_server%'",
-             "get", "ProcessId,CommandLine", "/FORMAT:CSV"],
-            capture_output=True, text=True, timeout=10
+        # Use PowerShell to get process details reliably
+        ps_cmd = (
+            'Get-CimInstance Win32_Process -Filter "Name like \'%language_server%\'" '
+            '| Select-Object ProcessId, CommandLine '
+            '| ConvertTo-Json -Compress'
         )
-        for line in result.stdout.strip().splitlines():
-            if "language_server" not in line:
-                continue
-            parts = line.split(",")
-            if len(parts) < 3:
-                continue
-            cmdline = ",".join(parts[1:-1])
-            pid = parts[-1].strip()
-            if not pid.isdigit():
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", ps_cmd],
+            capture_output=True, text=True, timeout=15
+        )
+        if result.returncode != 0 or not result.stdout.strip():
+            return servers
+
+        data = json.loads(result.stdout)
+        # Normalize to list (single result comes as dict)
+        if isinstance(data, dict):
+            data = [data]
+
+        for proc in data:
+            cmdline = proc.get("CommandLine", "")
+            pid = proc.get("ProcessId")
+            if not cmdline or not pid:
                 continue
             token_match = re.search(r"--csrf_token\s+(\S+)", cmdline)
             if not token_match:
                 continue
             token = token_match.group(1)
-            is_ide = "language_server_windows_x64" in cmdline
-            port = _get_port_windows(int(pid))
-            if port:
+            is_ide = "language_server_windows_x64" in cmdline or "--standalone" in cmdline
+            ports = _get_port_windows(int(pid))
+            for port in ports:
                 servers.append({
                     "pid": int(pid),
                     "port": port,
                     "token": token,
                     "is_ide": is_ide,
                 })
-    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError, json.JSONDecodeError):
         pass
     # Sort: IDE first (more reliable)
     servers.sort(key=lambda s: (not s["is_ide"], s["pid"]))
@@ -82,23 +89,25 @@ def discover_servers_windows():
 
 
 def _get_port_windows(pid):
-    """Get listening port for a PID on Windows."""
+    """Get listening ports for a PID on Windows via PowerShell."""
     try:
+        ps_cmd = (
+            f'Get-NetTCPConnection -OwningProcess {pid} -State Listen -ErrorAction SilentlyContinue '
+            '| Select-Object -ExpandProperty LocalPort'
+        )
         result = subprocess.run(
-            ["netstat", "-ano"],
+            ["powershell", "-NoProfile", "-Command", ps_cmd],
             capture_output=True, text=True, timeout=10
         )
-        for line in result.stdout.splitlines():
-            if "LISTENING" in line and str(pid) in line:
-                parts = line.split()
-                for part in parts:
-                    if ":" in part and part.split(":")[-1].isdigit():
-                        port = int(part.split(":")[-1])
-                        if port > 1024:
-                            return port
+        ports = []
+        for line in result.stdout.strip().splitlines():
+            line = line.strip()
+            if line.isdigit():
+                ports.append(int(line))
+        return ports
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
         pass
-    return None
+    return []
 
 
 def discover_servers_unix():
@@ -187,15 +196,31 @@ def rpc_call(server, method, payload=None):
 
 
 def get_most_recent_cascade(server):
-    """Get the most recent cascade ID from the server."""
+    """Get the most recent cascade ID from the server or local files."""
+    # Try RPC first
     result = rpc_call(server, "GetAllCascadeTrajectories")
-    if not result:
-        return None
-    trajectories = result.get("trajectories", [])
-    if not trajectories:
-        return None
-    # Return the last one (most recent)
-    return trajectories[-1].get("cascadeId")
+    if result:
+        trajectories = result.get("trajectories", [])
+        if trajectories:
+            return trajectories[-1].get("cascadeId")
+
+    # Fallback: discover from local conversation .db files (sorted by mtime)
+    conv_dirs = [
+        os.path.expanduser("~/.gemini/antigravity/conversations"),
+        os.path.expanduser("~/.gemini/antigravity-cli/conversations"),
+    ]
+    db_files = []
+    for conv_dir in conv_dirs:
+        if os.path.isdir(conv_dir):
+            for f in os.listdir(conv_dir):
+                if f.endswith(".db"):
+                    full = os.path.join(conv_dir, f)
+                    db_files.append((os.path.getmtime(full), f[:-3]))  # strip .db
+    if db_files:
+        db_files.sort(reverse=True)  # most recent first
+        return db_files[0][1]  # cascade_id is the filename without extension
+
+    return None
 
 
 def get_trajectory_steps(server, cascade_id):
