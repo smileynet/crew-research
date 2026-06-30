@@ -29,6 +29,12 @@ if [[ -z "$SESSION_FILE" ]]; then
     codex)
       SESSION_FILE=$(find "$HOME/.codex/sessions/" -name "rollout-*.jsonl" 2>/dev/null | xargs ls -t 2>/dev/null | head -1)
       ;;
+    agy)
+      # agy uses RPC extraction — no session file needed; delegate to Python script
+      SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+      python "$SCRIPT_DIR/extract_agy_session.py" --format summary
+      exit 0
+      ;;
   esac
 fi
 

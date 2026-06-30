@@ -47,6 +47,14 @@ find_session_file() {
         find "$HOME/.codex/sessions/" -name "rollout-*.jsonl" 2>/dev/null | xargs ls -t 2>/dev/null | head -1
       fi
       ;;
+    agy)
+      # agy uses RPC — extract to temp file for grep-based assertions
+      local tmpfile
+      tmpfile=$(mktemp /tmp/agy-session-XXXX.json)
+      SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+      python "$SCRIPT_DIR/../evals/harness/extract_agy_session.py" --format json > "$tmpfile" 2>/dev/null
+      echo "$tmpfile"
+      ;;
   esac
 }
 

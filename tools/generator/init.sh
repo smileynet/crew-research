@@ -81,7 +81,7 @@ if [[ -n "$PLUGIN" || -n "$REMOVE_PLUGIN" ]]; then
         content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
         for tool in "${TOOLS[@]}"; do
           case "$tool" in
-            kiro-cli)
+            kiro-cli|crush)
               dest="$HOME/.kiro/steering/$item.md"
               mkdir -p "$(dirname "$dest")"
               printf '%s\n' "$content" > "$dest"
@@ -110,7 +110,7 @@ if [[ -n "$PLUGIN" || -n "$REMOVE_PLUGIN" ]]; then
       if [[ -d "$src_dir" ]]; then
         for tool in "${TOOLS[@]}"; do
           case "$tool" in
-            kiro-cli)
+            kiro-cli|crush)
               dest="$HOME/.kiro/skills/$item"
               mkdir -p "$dest"
               cp "$src_dir/SKILL.md" "$dest/SKILL.md"
@@ -179,7 +179,7 @@ json.dump(state, open('$PLUGINS_STATE', 'w'), indent=2)
     for item in $(yq -r '.deploys.steering[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
       for tool in "${TOOLS[@]}"; do
         case "$tool" in
-          kiro-cli) rm -f "$HOME/.kiro/steering/$item.md"; echo "  removed: steering/$item.md" ;;
+          kiro-cli|crush) rm -f "$HOME/.kiro/steering/$item.md"; echo "  removed: steering/$item.md" ;;
         esac
       done
     done
@@ -188,7 +188,7 @@ json.dump(state, open('$PLUGINS_STATE', 'w'), indent=2)
     for item in $(yq -r '.deploys.skills[]' "$PLUGIN_FILE" 2>/dev/null | grep -v '^null$'); do
       for tool in "${TOOLS[@]}"; do
         case "$tool" in
-          kiro-cli) rm -rf "$HOME/.kiro/skills/$item"; echo "  removed: skills/$item/" ;;
+          kiro-cli|crush) rm -rf "$HOME/.kiro/skills/$item"; echo "  removed: skills/$item/" ;;
         esac
       done
     done
@@ -472,6 +472,7 @@ if [[ "$GLOBAL" == true ]]; then
   for tool in "${TOOLS[@]}"; do
     case "$tool" in
       kiro-cli) deploy_kiro_cli ;;
+      crush)    deploy_kiro_cli ;;
       codex)    deploy_codex ;;
       agy)      deploy_agy ;;
       *)        echo "Error: unknown tool '$tool'" >&2; exit 1 ;;
