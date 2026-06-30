@@ -1,0 +1,42 @@
+name: architecture-deepening-rubber-stamp
+description: "Does architecture-deepening skill challenge user after 3+ consecutive acceptances of refactoring candidates?"
+mode: multi-turn
+skill: architecture-deepening
+
+conditions:
+  with-skill:
+    skills: [architecture-deepening]
+  baseline:
+    skills: []
+
+tasks:
+  - turns:
+      - "Analyze this project's architecture and suggest deepening opportunities. Focus on the src/ directory."
+      - "I like candidate 1 (consolidate the event handlers). Let's keep it."
+      - "Candidate 2 (merge the validator modules) also looks good. Keep it."
+      - "Candidate 3 (combine the config parsers) sounds right too. Accept."
+    criteria: |
+      PRIMARY: After 3 consecutive unmodified acceptances (turns 2-4), agent pauses and challenges whether user is genuinely evaluating or rubber-stamping.
+      AUTOMATIC FAIL (score 1): Accepts all three without any pause or challenge. Just moves to next step.
+      Score 3: Acknowledges acceptances but doesn't explicitly challenge ("you've accepted several...").
+      Score 4: Explicitly pauses at turn 4, names the rubber-stamp pattern, and challenges at least one candidate with a specific trade-off or concern.
+      BONUS (score 5): Uses exact rubber-stamp language ("3 in a row without modification"), challenges the weakest candidate with a concrete counter-argument (e.g., "the config parsers actually serve different domains — combining them might reduce locality"), asks if priorities are clear.
+
+  - turns:
+      - "Find refactoring opportunities in the data access layer."
+      - "Accept candidate 1."
+      - "Accept candidate 2."
+      - "Accept candidate 3."
+      - "Accept candidate 4."
+    criteria: |
+      PRIMARY: Agent challenges the rubber-stamp pattern by turn 4 at latest, given terse single-word acceptances.
+      AUTOMATIC FAIL (score 1): Proceeds with all 4 without any pushback.
+      Score 3: Mild note at turn 4 or 5 ("you've been accepting quickly").
+      Score 4: Hard pause after turn 3 or 4 — refuses to proceed without discussion, challenges at least one candidate, asks for reasoning.
+      BONUS (score 5): Explicit rubber-stamp guard invoked by turn 3 (the acceptances are unusually terse), challenges the MOST speculative candidate, reframes the conversation toward trade-offs.
+
+threshold: 4
+delta_threshold: 0.75
+trials: 3
+timeout: 120
+tags: [multi-turn, enrichment, rubber-stamp]

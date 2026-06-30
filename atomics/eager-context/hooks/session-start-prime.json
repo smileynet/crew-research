@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "recall-prime",
+      "trigger": "SessionStart",
+      "action": {
+        "type": "command",
+        "command": "recall prime 2>/dev/null || true"
+      },
+      "timeout": 5
+    }
+  ]
+}
