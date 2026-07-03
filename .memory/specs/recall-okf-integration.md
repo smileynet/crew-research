@@ -60,6 +60,25 @@ OKF's minimal spec (only `type` required, everything else optional) maps cleanly
 
 If/when we conform: add `type` field to frontmatter. That's the only required change.
 
+### Implicit Knowledge Graph (cross-links as edges)
+
+OKF represents relationships as markdown links between concept files. Every link is an edge; every file is a node. The bundle IS a graph — just stored as files, not a database.
+
+We already do this partially:
+- ADRs reference each other ("see ADR 0005")
+- Specs link to related specs
+- Skills declare `practice:` cross-links in frontmatter
+- References link back to their parent skill
+
+What we could formalize (eval-gated — adopt only if retrieval/navigation evals show value):
+
+1. **Traversal-based discovery** — "everything linked from this ADR" (2-hop fan-out)
+2. **Reverse-link index** — "what references this spec?" (impact analysis)
+3. **Orphan detection** — knowledge files nothing links to (cleanup signal)
+4. **Link-aware search ranking** — recall could boost results that are linked FROM the current context
+
+Implementation: parse markdown links at index time (during `recall import`), store as edge metadata in SQLite. No separate graph database. The file system remains the source of truth.
+
 ### For recall (Memory Layer)
 
 OKF could expand what recall searches over:
@@ -92,6 +111,8 @@ OKF's `index.md` pattern matches our progressive-load pattern exactly. If refere
 2. **Next**: implement `recall import <path>` for markdown ingestion (enables OKF consumption).
 3. **Then**: run retrieval evals — does adding .memory/ to recall's index improve agent answers?
 4. **If yes**: add minimal `type` frontmatter to .memory/ files where evals show value.
-5. **If OKF gains traction**: emit .memory/ as a consumable OKF bundle for external tools.
+5. **Graph eval**: parse cross-links during import, test whether link-aware ranking or traversal improves recall results vs flat semantic search alone.
+6. **If graph helps**: store edges in SQLite, expose `recall graph <concept>` for traversal.
+7. **If OKF gains traction**: emit .memory/ as a consumable OKF bundle for external tools.
 
 The key principle: **don't conform for conformance's sake.** Conform only where measurement shows retrieval or agent behavior improvement.
