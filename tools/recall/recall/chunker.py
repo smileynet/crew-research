@@ -41,6 +41,56 @@ def classify_room(text: str, keywords: Optional[dict] = None) -> str:
     return max(scores, key=scores.get) if scores else "general"
 
 
+def chunk_markdown(text: str) -> list[str]:
+    """Chunk markdown by heading boundaries, falling back to size limit.
+
+    Splits on ## headings. Keeps frontmatter attached to the first chunk.
+    Oversized sections are split at paragraph boundaries (double newline).
+    """
+    lines = text.split("\n")
+    sections: list[list[str]] = []
+    current: list[str] = []
+
+    for line in lines:
+        if line.startswith("## ") and current:
+            sections.append(current)
+            current = [line]
+        else:
+            current.append(line)
+
+    if current:
+        sections.append(current)
+
+    # Convert sections to text chunks, splitting oversized ones at paragraphs
+    chunks = []
+    for section in sections:
+        section_text = "\n".join(section).strip()
+        if not section_text or len(section_text) < MIN_CHUNK_SIZE:
+            continue
+
+        if len(section_text) <= CHUNK_SIZE:
+            chunks.append(section_text)
+        else:
+            # Split at paragraph boundaries
+            paragraphs = section_text.split("\n\n")
+            buf: list[str] = []
+            buf_len = 0
+            for para in paragraphs:
+                if buf_len + len(para) > CHUNK_SIZE and buf:
+                    chunks.append("\n\n".join(buf))
+                    buf = [para]
+                    buf_len = len(para)
+                else:
+                    buf.append(para)
+                    buf_len += len(para) + 2  # account for \n\n join
+            if buf:
+                remainder = "\n\n".join(buf)
+                if len(remainder) >= MIN_CHUNK_SIZE:
+                    chunks.append(remainder)
+
+    return chunks
+
+
 def chunk_messages(messages: list[tuple[str, str]]) -> list[str]:
     """Chunk conversation messages into ~CHUNK_SIZE char drawers."""
     chunks = []

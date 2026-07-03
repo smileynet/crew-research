@@ -15,7 +15,7 @@ import os
 DB_PATH = Path(os.environ.get("RECALL_DB", str(Path.home() / ".recall" / "recall.sqlite3")))
 _TOKEN_RE = re.compile(r"\w{2,}", re.UNICODE)
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def _ensure_db() -> sqlite3.Connection:
@@ -60,7 +60,25 @@ def _ensure_db() -> sqlite3.Connection:
             END
         """)
     conn.commit()
+
+    # Schema migration: v1 → v2 (add title column)
+    _migrate(conn)
+
     return conn
+
+
+def _migrate(conn: sqlite3.Connection):
+    """Run schema migrations to bring DB up to current SCHEMA_VERSION."""
+    row = conn.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
+    current = int(row[0]) if row else 1
+
+    if current < 2:
+        # v2: add nullable title column
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(drawers)").fetchall()]
+        if "title" not in cols:
+            conn.execute("ALTER TABLE drawers ADD COLUMN title TEXT")
+        conn.execute("UPDATE meta SET value = '2' WHERE key = 'schema_version'")
+        conn.commit()
 
 
 def get_connection() -> sqlite3.Connection:

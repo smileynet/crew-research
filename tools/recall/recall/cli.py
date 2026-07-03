@@ -2,9 +2,11 @@
 
 import argparse
 import os
+import re
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 # Suppress HuggingFace auth warnings
 os.environ.setdefault("HF_HUB_VERBOSITY", "error")
@@ -147,6 +149,117 @@ def cmd_ingest(args):
     marker.write_text(str(int(time.time())))
 
 
+def cmd_import(args):
+    import re
+    from . import chunker, embedder, store
+
+    source_dir = Path(args.path).expanduser().resolve()
+    if not source_dir.is_dir():
+        print(f"Error: {source_dir} is not a directory", file=sys.stderr)
+        sys.exit(1)
+
+    conn = store.get_connection()
+
+    md_files = sorted(source_dir.rglob("*.md"))
+    md_files = [f for f in md_files if f.name != "index.md"]
+
+    if not md_files:
+        print(f"  No .md files found in {source_dir}")
+        return
+
+    total_chunks = 0
+    files_imported = 0
+    files_skipped = 0
+
+    print(f"\n  Importing: {source_dir}")
+    print(f"  Files: {len(md_files)} markdown")
+    print()
+
+    for md_file in md_files:
+        rel_path = md_file.relative_to(source_dir)
+        source_key = f"import:{rel_path}"
+
+        # Idempotency: skip if already imported
+        row = conn.execute(
+            "SELECT 1 FROM drawers WHERE source = ? LIMIT 1", (source_key,)
+        ).fetchone()
+        if row:
+            files_skipped += 1
+            continue
+
+        text = md_file.read_text(encoding="utf-8", errors="replace")
+        if not text.strip():
+            continue
+
+        # Parse frontmatter shallowly
+        title, type_ = _parse_frontmatter(text)
+        if not type_:
+            type_ = "document"
+
+        # Chunk
+        chunks = chunker.chunk_markdown(text)
+        if not chunks:
+            continue
+
+        # Derive wing and room from path
+        parts = list(rel_path.parts)
+        room = parts[0] if len(parts) > 1 else "general"
+
+        # Wing: parent directory name of source_dir
+        wing = source_dir.name.replace("-", "_").replace(".", "")
+
+        embeddings = embedder.embed_documents(chunks)
+        rows = []
+        for chunk, emb in zip(chunks, embeddings):
+            rows.append({
+                "content": chunk,
+                "embedding": emb,
+                "wing": wing,
+                "room": room,
+                "type": type_,
+                "source": source_key,
+                "source_file": str(rel_path),
+            })
+
+        store.upsert_batch(conn, rows)
+        total_chunks += len(chunks)
+        files_imported += 1
+
+    conn.close()
+    print(f"  Done: {files_imported} files, {total_chunks} chunks imported, {files_skipped} skipped (already filed)")
+
+
+_FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?\n)---\s*\n", re.DOTALL)
+_FENCED_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+
+
+def _parse_frontmatter(text: str) -> tuple[Optional[str], Optional[str]]:
+    """Extract title and type from YAML frontmatter without PyYAML.
+
+    Returns (title, type) — either may be None.
+    Handles code fences that might contain --- markers.
+    """
+    # Strip leading whitespace/BOM
+    text = text.lstrip("\ufeff")
+
+    m = _FRONTMATTER_RE.match(text)
+    if not m:
+        return None, None
+
+    fm_block = m.group(1)
+    title = None
+    type_ = None
+
+    for line in fm_block.split("\n"):
+        line = line.strip()
+        if line.startswith("title:"):
+            title = line[6:].strip().strip("\"'")
+        elif line.startswith("type:"):
+            type_ = line[5:].strip().strip("\"'")
+
+    return title or None, type_ or None
+
+
 def cmd_prime(args):
     from . import embedder, store
 
@@ -227,6 +340,10 @@ def main():
     p.add_argument("path")
     p.add_argument("--project", default=None, help="Filter to sessions from this project path")
 
+    # import
+    p = sub.add_parser("import", help="Import markdown files into recall")
+    p.add_argument("path", help="Directory containing .md files")
+
     # prime
     p = sub.add_parser("prime", help="Output session-start context")
     p.add_argument("--wing", default=None)
@@ -243,7 +360,7 @@ def main():
     if hasattr(args, "wing") and args.wing is None and args.command in ("add", "prime"):
         args.wing = Path.cwd().name.replace("-", "_")
 
-    commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "prime": cmd_prime, "status": cmd_status}
+    commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "import": cmd_import, "prime": cmd_prime, "status": cmd_status}
     commands[args.command](args)
 
 
