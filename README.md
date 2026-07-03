@@ -111,6 +111,36 @@ mise run doctor -- --project ~/your-project    # diagnose issues
 | A rule feels too strict | Remove the specific file from `.kiro/steering/` |
 | Starting fresh | Delete `.kiro/` and re-run init |
 
+## Architecture
+
+crew-research operates across three complementary layers:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Behavior Layer (skills + steering)                 │
+│  "How to act" — protocols, reasoning modes, gates   │
+│  Format: SKILL.md (markdown + YAML frontmatter)     │
+├─────────────────────────────────────────────────────┤
+│  Memory Layer (recall plugin)                       │
+│  "What happened" — decisions, lessons, preferences  │
+│  Adapted from: MemPalace (wings/rooms/drawers)      │
+├─────────────────────────────────────────────────────┤
+│  Knowledge Layer (.memory/)                         │
+│  "What exists" — glossary, ADRs, specs, references  │
+│  Informed by: Google OKF (markdown knowledge bundles)│
+└─────────────────────────────────────────────────────┘
+```
+
+**Skills** tell the agent what to DO. **Recall** gives it memory of what WAS. **Knowledge** describes what IS. All three are plain files — portable, git-native, tool-agnostic.
+
+## Adapted From
+
+crew-research builds on ideas from two open-source projects:
+
+**[MemPalace](https://github.com/MemPalace/mempalace)** — The `recall` plugin adapts MemPalace's core architecture: wings (project scoping), rooms (topic classification), and drawers (searchable chunks). We chose a purpose-built 673-line implementation over the full MemPalace system to avoid its heavy dependencies (ChromaDB, 200MB+ install) while keeping the conceptual model that makes verbatim-storage + semantic-retrieval work. See [ADR 0007](/.memory/adr/0007-purpose-built-recall-tool.md).
+
+**[Google OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)** (Open Knowledge Format) — OKF's insight that knowledge is "nouns, not verbs" informs how we separate the knowledge layer (`.memory/`) from the behavior layer (`skills/`). OKF's minimal spec (markdown + YAML frontmatter, only `type` required) validates our existing file-as-knowledge-unit pattern and progressive-disclosure approach. We're evaluating OKF conformance for `.memory/` and `recall import` for consuming external OKF bundles as searchable context.
+
 ## Feedback
 
 - [Report a bug](https://github.com/smileynet/crew-research/issues/new?template=bug_report.md)
