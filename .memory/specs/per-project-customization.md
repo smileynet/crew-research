@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Per-Project Customization"
+---
+
 # Per-Project Customization
 
 ## How Projects Declare Commands

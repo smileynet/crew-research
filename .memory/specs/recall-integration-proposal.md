@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Recall Integration Proposal (v2)"
+---
+
 # Recall Integration Proposal (v2)
 
 ## Intent

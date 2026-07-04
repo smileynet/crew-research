@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0001: Practice-Skill Cross-Linking Convention"
+---
+
 # ADR 0001: Practice-Skill Cross-Linking Convention
 
 **Status:** Accepted

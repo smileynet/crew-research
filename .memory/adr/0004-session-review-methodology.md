@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0004: Session Review Methodology"
+---
+
 # ADR 0004: Session Review Methodology
 
 ## Status

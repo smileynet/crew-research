@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0002: Per-Project Module Customization"
+---
+
 # ADR 0002: Per-Project Module Customization
 
 **Status:** Accepted

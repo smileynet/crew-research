@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Spec: Antigravity CLI Session Extraction via Local RPC"
+---
+
 # Spec: Antigravity CLI Session Extraction via Local RPC
 
 **Status:** Ready for implementation  

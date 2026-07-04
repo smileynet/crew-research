@@ -1,3 +1,8 @@
+---
+type: specification
+title: "SDD Reference Exploration — Recommendations"
+---
+
 # SDD Reference Exploration — Recommendations
 
 ## Context

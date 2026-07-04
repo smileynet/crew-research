@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Antigravity CLI (agy) — Research Findings"
+---
+
 # Antigravity CLI (agy) — Research Findings
 
 **Date:** 2026-06-14  

@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0006: Multi-Tool Deployment Architecture"
+---
+
 # ADR 0006: Multi-Tool Deployment Architecture
 
 **Status:** Accepted  

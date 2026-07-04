@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Eager-Context Format Specification"
+---
+
 # Eager-Context Format Specification
 
 ## Overview

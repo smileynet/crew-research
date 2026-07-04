@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0007: Purpose-Built Recall Tool Over MemPalace"
+---
+
 # ADR 0007: Purpose-Built Recall Tool Over MemPalace
 
 **Status:** Accepted

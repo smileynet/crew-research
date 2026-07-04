@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Skill Format Specification"
+---
+
 # Skill Format Specification
 
 ## Overview

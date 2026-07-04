@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0005: Three-Tier Deployment Model"
+---
+
 # ADR 0005: Three-Tier Deployment Model
 
 ## Context

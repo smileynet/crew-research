@@ -1,3 +1,8 @@
+---
+type: specification
+title: "How Recall + OKF Fit Together"
+---
+
 # How Recall + OKF Fit Together
 
 ## The Three-Layer Model

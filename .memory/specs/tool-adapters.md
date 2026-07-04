@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Tool Adapters Specification"
+---
+
 # Tool Adapters Specification
 
 ## Overview

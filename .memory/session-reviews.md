@@ -1,4 +1,6 @@
 ---
+type: reference
+title: "Session Reviews"
 last_reviewed: 2026-06-14T09:30:00-07:00
 sessions_through: 2026-06-14
 machine: SharkTank

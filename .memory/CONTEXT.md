@@ -1,3 +1,8 @@
+---
+type: glossary
+title: "Context"
+---
+
 # Context
 
 **Module**:

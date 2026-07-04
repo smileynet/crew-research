@@ -1,3 +1,8 @@
+---
+type: decision
+title: "ADR 0003: Skills-Only Deployment (No Prompts Directory)"
+---
+
 # ADR 0003: Skills-Only Deployment (No Prompts Directory)
 
 ## Context

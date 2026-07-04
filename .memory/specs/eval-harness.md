@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Eval Harness Specification (Phase 2)"
+---
+
 # Eval Harness Specification (Phase 2)
 
 ## Overview

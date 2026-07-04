@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Cross-Tool Context Delivery Reference"
+---
+
 # Cross-Tool Context Delivery Reference
 
 ## Context Delivery Mechanisms by Tool

@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Proof Harness Specification (Phase 1)"
+---
+
 # Proof Harness Specification (Phase 1)
 
 ## Overview

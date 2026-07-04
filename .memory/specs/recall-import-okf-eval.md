@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Spec: recall import + OKF Retrieval Evaluation"
+---
+
 # Spec: recall import + OKF Retrieval Evaluation
 
 **Status:** Ready

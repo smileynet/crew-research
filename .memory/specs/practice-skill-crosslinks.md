@@ -1,3 +1,8 @@
+---
+type: specification
+title: "Practice-Skill Cross-Linking Specification"
+---
+
 # Practice-Skill Cross-Linking Specification
 
 ## Overview

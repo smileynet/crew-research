@@ -1,4 +1,5 @@
 ---
+type: specification
 title: "Distribution Design — Basic vs Full Tiers"
 date: 2026-05-27
 status: proposed
