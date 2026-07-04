@@ -110,7 +110,8 @@ def upsert_batch(conn: sqlite3.Connection, rows: list[dict]):
 
 
 def search(conn: sqlite3.Connection, query_embedding: list[float], query_text: str,
-           wing: Optional[str] = None, room: Optional[str] = None, n_results: int = 5) -> list[dict]:
+           wing: Optional[str] = None, room: Optional[str] = None,
+           type_: Optional[str] = None, n_results: int = 5) -> list[dict]:
     query_vec = np.asarray(query_embedding, dtype=np.float32)
 
     where = []
@@ -121,6 +122,9 @@ def search(conn: sqlite3.Connection, query_embedding: list[float], query_text: s
     if room:
         where.append("room = ?")
         params.append(room)
+    if type_:
+        where.append("type = ?")
+        params.append(type_)
     where_clause = f"WHERE {' AND '.join(where)}" if where else ""
 
     rows = conn.execute(f"SELECT id, content, embedding, wing, room, source_file FROM drawers {where_clause}", params).fetchall()

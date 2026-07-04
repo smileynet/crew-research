@@ -11,5 +11,6 @@ prerequisites:
 deploys:
   steering:
     - recall-session-start
+    - recall-check
   skills:
     - recall

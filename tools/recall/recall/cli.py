@@ -22,7 +22,8 @@ def cmd_search(args):
 
     conn = store.get_connection()
     query_emb = embedder.embed_query(args.query)
-    results = store.search(conn, query_emb, args.query, wing=args.wing, room=args.room, n_results=args.results)
+    results = store.search(conn, query_emb, args.query, wing=args.wing, room=args.room,
+                           type_=args.type, n_results=args.results)
     conn.close()
 
     if not results:
@@ -144,6 +145,22 @@ def cmd_ingest(args):
     conn.close()
     print(f"\n  Done: {files_processed} files, {total_chunks} chunks ingested, {files_skipped} skipped (already filed)")
 
+    # Auto-import .memory/ if project has one
+    memory_dir = None
+    if project_path and (project_path / ".memory").is_dir():
+        memory_dir = project_path / ".memory"
+    elif not project_path and Path.cwd().joinpath(".memory").is_dir():
+        memory_dir = Path.cwd() / ".memory"
+
+    if memory_dir:
+        print(f"\n  Auto-importing: {memory_dir}")
+        # Reuse cmd_import logic via a minimal args object
+        class _ImportArgs:
+            path = str(memory_dir)
+            wing = project_name or memory_dir.parent.name.replace("-", "_")
+            force = False
+        cmd_import(_ImportArgs())
+
     # Write last-run marker
     marker = Path.home() / ".recall" / "last_ingest"
     marker.write_text(str(int(time.time())))
@@ -160,6 +177,17 @@ def cmd_import(args):
 
     conn = store.get_connection()
 
+    # --force: delete existing imports from this source dir
+    if args.force:
+        deleted = conn.execute(
+            "DELETE FROM drawers WHERE source LIKE ?", (f"import:%",)
+        ).rowcount
+        # Rebuild FTS for deleted rows
+        if deleted:
+            conn.execute("INSERT INTO drawers_fts(drawers_fts) VALUES('rebuild')")
+        conn.commit()
+        print(f"  Force: deleted {deleted} existing import chunks")
+
     md_files = sorted(source_dir.rglob("*.md"))
     md_files = [f for f in md_files if f.name != "index.md"]
 
@@ -171,7 +199,11 @@ def cmd_import(args):
     files_imported = 0
     files_skipped = 0
 
+    # Wing: explicit override > directory name
+    wing = args.wing or source_dir.name.replace("-", "_").replace(".", "")
+
     print(f"\n  Importing: {source_dir}")
+    print(f"  Wing: {wing}")
     print(f"  Files: {len(md_files)} markdown")
     print()
 
@@ -179,13 +211,14 @@ def cmd_import(args):
         rel_path = md_file.relative_to(source_dir)
         source_key = f"import:{rel_path}"
 
-        # Idempotency: skip if already imported
-        row = conn.execute(
-            "SELECT 1 FROM drawers WHERE source = ? LIMIT 1", (source_key,)
-        ).fetchone()
-        if row:
-            files_skipped += 1
-            continue
+        # Idempotency: skip if already imported (unless --force already cleared)
+        if not args.force:
+            row = conn.execute(
+                "SELECT 1 FROM drawers WHERE source = ? LIMIT 1", (source_key,)
+            ).fetchone()
+            if row:
+                files_skipped += 1
+                continue
 
         text = md_file.read_text(encoding="utf-8", errors="replace")
         if not text.strip():
@@ -201,12 +234,9 @@ def cmd_import(args):
         if not chunks:
             continue
 
-        # Derive wing and room from path
+        # Derive room from path
         parts = list(rel_path.parts)
         room = parts[0] if len(parts) > 1 else "general"
-
-        # Wing: parent directory name of source_dir
-        wing = source_dir.name.replace("-", "_").replace(".", "")
 
         embeddings = embedder.embed_documents(chunks)
         rows = []
@@ -326,6 +356,7 @@ def main():
     p.add_argument("query")
     p.add_argument("--wing", default=None)
     p.add_argument("--room", default=None)
+    p.add_argument("--type", default=None, help="Filter by type (decision, specification, etc.)")
     p.add_argument("--results", type=int, default=5)
 
     # add
@@ -343,6 +374,8 @@ def main():
     # import
     p = sub.add_parser("import", help="Import markdown files into recall")
     p.add_argument("path", help="Directory containing .md files")
+    p.add_argument("--wing", default=None, help="Override wing (default: directory name)")
+    p.add_argument("--force", action="store_true", help="Delete existing imports and reimport")
 
     # prime
     p = sub.add_parser("prime", help="Output session-start context")
