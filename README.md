@@ -1,47 +1,59 @@
 # crew-research
 
-Portable skills and workflows that make AI coding assistants more effective at every stage of development — from planning through delivery. Works with kiro-cli, codex, and other skill-compatible tools.
+Portable behavioral skills that make AI coding assistants plan before building, verify before claiming done, and remember decisions across sessions.
 
 ## What It Does
 
-You install a set of behavioral skills into your project. Your AI assistant automatically gets better at:
+You install skills into your project. Your AI assistant gets better without changing how you work:
 
-- **Planning** — structured design thinking, assumption tracking, pre-work identification
-- **Building** — code review standards, testing guidance, architecture decisions
-- **Verifying** — automated checks before reporting done, scope enforcement
-- **Delivering** — commit discipline, PR standards, deployment safety
-- **Continuity** — session handoffs, project glossary, workspace hygiene
+- Plans before building — asks clarifying questions, tracks assumptions
+- Verifies before reporting done — runs checks, cites evidence
+- Remembers across sessions — recalls past decisions, continues prior work
+- Produces cleaner code — concise, well-structured, no defensive bloat
 
-Skills activate automatically based on what you're doing. No configuration needed after setup.
+Skills are plain markdown files. They work with kiro-cli, codex, and other skill-compatible tools.
+
+| When I'm... | I want to... | So I can... |
+|-------------|-------------|-------------|
+| Starting a new feature | get structured planning | stop diving in without thinking |
+| Ending a session | capture state automatically | continue tomorrow without re-discovery |
+| Asking "what did we decide?" | get the actual decision, not a guess | avoid contradicting past choices |
+| Reviewing generated code | have objective standards applied | catch bloat and missing verification |
+| Deploying to production | get safety checks enforced | avoid breaking things on Friday |
+| Working across projects | have consistent conventions | stop re-learning workspace layout |
+| Onboarding to a codebase | get existing knowledge surfaced | skip the "where is everything?" phase |
 
 ## Quick Start
 
 ```bash
-kiro-cli chat
+# Prerequisites
+brew install mise yq                     # macOS (or: see docs for Linux/Windows)
+curl -fsSL https://kiro.dev/install | sh # kiro-cli
+
+# Deploy skills globally
+mise run init -- --global --tier basic --tool kiro-cli
+
+# Scaffold a project workspace
+mise run init -- --project ~/my-project
+
+# Verify
+mise run doctor -- --project ~/my-project
+# ✅ kiro-cli (2.10.0)
+# ✅ 6 steering, 18 skills
+# ✅ .memory/CONTEXT.md
+# ✅ Healthy
 ```
 
-Then ask:
-
-> Install crew-research prerequisites (kiro-cli, yq, mise)
-
-> Deploy crew-research basic tier to ~/my-project
-
-That's it. Skills are now active.
+That's it. Open any kiro-cli session — skills activate automatically.
 
 ## Tiers
 
 | Tier | What you get | Best for |
 |------|-------------|----------|
-| **basic** | Minimal global skills + always-on rules | Planning, building, shipping essentials |
-| **full** | Full lifecycle skills + always-on rules | Research, architecture, docs, deployment |
+| **basic** | Planning, code review, testing, git, session continuity | Everyday development |
+| **full** | + research, architecture, diagrams, deployment safety, docs | Full lifecycle |
 
-**basic** is tiny: session continuity, planning, code review, testing, git, and project init. Everything you need in every project, nothing you don't.
-
-**full** adds research dispatch, architecture deepening, diagrams, README/changelog writing, deployment safety, and project maintenance workflows.
-
-**Project-level skills** (creative writing, prototyping, meta-skills) install per-project when needed — not in global space. The agent suggests them during init or when it detects matching work.
-
-Start with **basic**. Upgrade to full if you want the complete development lifecycle globally.
+Start with **basic**. Everything you need in every project, nothing you don't.
 
 ```bash
 mise run catalog    # browse all available skills
@@ -49,25 +61,23 @@ mise run catalog    # browse all available skills
 
 ## Plugins
 
-Plugins add capabilities with external tool dependencies. Install separately from tiers:
+Plugins add capabilities with external tool dependencies:
 
 ```bash
-mise run init -- --plugin recall          # install
-mise run init -- --remove-plugin recall   # uninstall
+# Install cross-session memory
+uv tool install recall                    # prerequisite
+mise run init -- --plugin recall          # deploys skill + steering
+
+# Now the agent remembers past decisions
+recall import .memory/ --wing my_project  # index project knowledge
+recall search "what did we decide about X"
 ```
 
 | Plugin | What it adds | Prerequisite |
 |--------|-------------|--------------|
-| `recall` | Cross-session memory — recalls past decisions, prior work, preferences | `recall` CLI (`uv tool install recall`) |
+| `recall` | Cross-session memory — searches past decisions, imports project knowledge | `recall` CLI |
 
-Plugins are optional. The agent suggests them when it detects matching work patterns.
-
-## Where to deploy
-
-- **To a project** (`~/my-project`) — skills and workspace conventions are scoped to that project
-- **Globally** (`--global`) — skills install to `~/.kiro/` and are available in every project
-
-Most people deploy globally once, then scaffold per-project workspace conventions as needed.
+The agent suggests plugins when it detects matching work patterns.
 
 ## What You Can Do
 
@@ -75,45 +85,28 @@ After setup, these workflows are available in any kiro-cli session:
 
 | Command | What it does |
 |---------|-------------|
-| `/grill-with-docs` | Stress-test a plan with evidence-backed questions before you build |
-| `/handoff` | Capture session state so the next session can pick up where you left off |
-| `/read-handoff` | Orient at the start of a session — read prior state and continue |
-| `/plan-prereqs` | Identify research, spikes, and tooling needed before implementing |
+| `/grill-with-docs` | Stress-test a plan with evidence-backed questions |
+| `/handoff` | Capture session state for the next session |
+| `/read-handoff` | Orient at session start — continue where you left off |
+| `/plan-prereqs` | Identify research and tooling needed before building |
 | `/project-cleanup` | Consolidate notes, update glossary, remove stale artifacts |
 | `/study-reference` | Deep-dive a reference repo and extract patterns |
 | `/cheatsheet` | Quick reference for everything available |
 
-You don't need to memorize these — `/cheatsheet` lists them all.
+## How It Works
 
-## How It Improves Your Workflow
-
-**Before:** You ask the AI to build something. It dives straight in, skips verification, produces verbose code, loses context between sessions.
+**Before:** AI dives straight in, skips verification, loses context between sessions.
 
 **After:** The AI automatically:
 - Asks clarifying questions before building (planning skills)
 - Verifies its work before reporting done (verification protocol)
-- Produces concise, well-structured code (code hygiene rules)
-- Captures state at session end so the next session can continue (handoff)
-- Tracks project terminology so it uses the right words (glossary)
+- Produces concise code (code hygiene steering)
+- Recalls past decisions when asked (recall plugin)
+- Captures state at session end (handoff)
 
 None of this requires you to change how you work. You just chat normally.
 
-## Troubleshooting
-
-```bash
-mise run doctor -- --project ~/your-project    # diagnose issues
-```
-
-| Problem | Fix |
-|---------|-----|
-| Skills not activating | Run `mise run doctor`; check that `.kiro/skills/` has files |
-| Want to add more skills | Re-run init with `--tier full` |
-| A rule feels too strict | Remove the specific file from `.kiro/steering/` |
-| Starting fresh | Delete `.kiro/` and re-run init |
-
 ## Architecture
-
-crew-research operates across three complementary layers:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -123,28 +116,43 @@ crew-research operates across three complementary layers:
 ├─────────────────────────────────────────────────────┤
 │  Memory Layer (recall plugin)                       │
 │  "What happened" — decisions, lessons, preferences  │
-│  Adapted from: MemPalace (wings/rooms/drawers)      │
+│  Hybrid BM25 + vector search over sessions + docs   │
 ├─────────────────────────────────────────────────────┤
 │  Knowledge Layer (.memory/)                         │
 │  "What exists" — glossary, ADRs, specs, references  │
-│  Informed by: Google OKF (markdown knowledge bundles)│
+│  OKF-compatible (markdown + type/title frontmatter) │
 └─────────────────────────────────────────────────────┘
 ```
 
 **Skills** tell the agent what to DO. **Recall** gives it memory of what WAS. **Knowledge** describes what IS. All three are plain files — portable, git-native, tool-agnostic.
 
+## Deployment Options
+
+- **Globally** (`--global`) — skills install to `~/.kiro/` and apply in every project
+- **To a project** (`~/my-project`) — workspace conventions scoped to that project
+- **Per-project skills** — specialist skills (creative writing, prototyping) install only where needed
+
+Most people deploy globally once, then scaffold per-project workspace conventions as needed.
+
+## Troubleshooting
+
+```bash
+mise run doctor -- --project ~/your-project
+```
+
+| Problem | Fix |
+|---------|-----|
+| Skills not activating | `mise run doctor`; check `.kiro/skills/` has files |
+| Want more skills | Re-run init with `--tier full` |
+| A rule feels too strict | Remove the file from `.kiro/steering/` |
+| Starting fresh | Delete `.kiro/` and re-run init |
+| Recall not finding things | `recall import .memory/ --wing project_name` |
+
 ## Adapted From
 
-crew-research builds on ideas from two open-source projects:
+**[MemPalace](https://github.com/MemPalace/mempalace)** — The recall plugin adapts MemPalace's architecture (wings/rooms/drawers) as a purpose-built 673-line implementation. SQLite + FTS5 + local embeddings, no server dependencies. See [ADR 0007](.memory/adr/0007-purpose-built-recall-tool.md).
 
-**[MemPalace](https://github.com/MemPalace/mempalace)** — The `recall` plugin adapts MemPalace's core architecture: wings (project scoping), rooms (topic classification), and drawers (searchable chunks). We chose a purpose-built 673-line implementation over the full MemPalace system to avoid its heavy dependencies (ChromaDB, 200MB+ install) while keeping the conceptual model that makes verbatim-storage + semantic-retrieval work. See [ADR 0007](/.memory/adr/0007-purpose-built-recall-tool.md).
-
-**[Google OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)** (Open Knowledge Format) — OKF's insight that knowledge is "nouns, not verbs" informs how we separate the knowledge layer (`.memory/`) from the behavior layer (`skills/`). OKF's minimal spec (markdown + YAML frontmatter, only `type` required) validates our existing file-as-knowledge-unit pattern and progressive-disclosure approach. Its implicit graph structure (cross-links between files = edges) informs how we think about relationships between knowledge artifacts. We're evaluating OKF conformance for `.memory/` and `recall import` for consuming external OKF bundles as searchable context.
-
-## Feedback
-
-- [Report a bug](https://github.com/smileynet/crew-research/issues/new?template=bug_report.md)
-- [Request a feature](https://github.com/smileynet/crew-research/issues/new?template=feature_request.md)
+**[Google OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)** — OKF's "nouns, not verbs" insight shapes how `.memory/` (knowledge) stays separate from skills (behavior). All `.memory/` files use OKF-compatible frontmatter (`type` + `title`), importable via `recall import`.
 
 ## License
 
