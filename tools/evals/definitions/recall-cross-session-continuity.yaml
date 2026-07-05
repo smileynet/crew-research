@@ -1,0 +1,61 @@
+name: recall-cross-session-continuity
+description: "Does recall enable the agent to answer questions about decisions from prior sessions that are NOT in the current workspace?"
+mode: multi-turn
+skill: recall
+
+conditions:
+  with-recall:
+    skills: [recall, recall-check]
+  baseline:
+    skills: []
+
+fixture: recall-multi-turn
+
+# Setup: the recall DB (from recall.sqlite3 fixture) contains decisions
+# that are NOT present in the workspace files. The agent can only know
+# them by running `recall search`.
+#
+# Pre-seeded facts in the fixture DB:
+# - "field-relative yards as the canonical coordinate system for play data"
+# - "zero new autoloads for the first execution slice"
+# - "Mirroring should be a non-destructive transform against the base play"
+#
+# The HANDOFF.md mentions these decisions briefly, but the DETAILED
+# rationale is only in the recall DB.
+
+tasks:
+  - turns:
+      - "What coordinate system did we choose for play data storage, and what was the full rationale?"
+    criteria: |
+      PRIMARY: Agent uses `recall search` to find the decision with its rationale, rather than only reading the handoff.
+      AUTOMATIC FAIL (score 1): Fabricates a rationale, or says "I don't know" without searching recall.
+      Score 2: Only reads the handoff bullet point ("field-relative yards") without searching for rationale.
+      Score 3: Searches recall but doesn't find/cite the full rationale (yards are human-readable, clean conversion to 3D).
+      Score 4: Searches recall, finds the decision, provides the rationale (human-readable for coaches, clean multiply to meters, avoids normalized [0,1]).
+      BONUS (score 5): Searches recall, cites the source, provides full rationale, connects to current implications for the rebuild.
+
+  - turns:
+      - "Should we add a new autoload for the ball state service? What was our prior decision on autoloads?"
+    criteria: |
+      PRIMARY: Agent searches recall before recommending, finds the "zero new autoloads" decision, and references it.
+      AUTOMATIC FAIL (score 1): Recommends yes or no without checking past decisions. Fabricates context.
+      Score 2: Reads handoff bullet about autoloads but doesn't search recall for the full reasoning.
+      Score 3: Searches recall, acknowledges the prior decision exists, but answer is vague about rationale.
+      Score 4: Searches recall, finds "zero new autoloads" decision, explains WHY (PracticeFlowCoordinator owns deps, Godot docs frame singletons around persistence), recommends accordingly.
+      BONUS (score 5): Finds decision, explains rationale, notes BallStateManager should follow same pattern, asks if circumstances have changed before recommending a different approach.
+
+  - turns:
+      - "How does mirroring work in our system? I need to modify it."
+    criteria: |
+      PRIMARY: Agent searches recall to find the mirroring architecture decision before advising modifications.
+      AUTOMATIC FAIL (score 1): Invents a mirroring approach without checking what was decided.
+      Score 2: Reads handoff mention of mirroring but doesn't search for implementation details.
+      Score 3: Searches recall, finds mirroring is "non-destructive transform" but missing detail about the runtime copy.
+      Score 4: Searches recall, explains: non-destructive transform against base play, PracticeRunConfig carries source_play + mirrored flag, disposable runtime copy always created, mirror transform runs on copy never source.
+      BONUS (score 5): All of score 4, plus identifies what to modify safely (the transform itself, not the copy mechanism) and what constraints to preserve.
+
+threshold: 4
+delta_threshold: 1.0
+trials: 3
+timeout: 120
+tags: [multi-turn, recall, cross-session, continuity]

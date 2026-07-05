@@ -4,7 +4,7 @@
 // Usage: node multi-turn-codex.mjs --definition <name> [--trials 3]
 
 import { Codex } from "@openai/codex-sdk";
-import { readFileSync, mkdtempSync, cpSync, mkdirSync, writeFileSync, rmSync } from "fs";
+import { readFileSync, mkdtempSync, cpSync, mkdirSync, writeFileSync, rmSync, existsSync } from "fs";
 import { execSync } from "child_process";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -42,19 +42,60 @@ function setupWorkspace(fixture) {
     const fixturePath = join(EVALS_DIR, "fixtures", `${fixture}.yaml`);
     const fixtureYaml = execSync(`yq -o=json '.' "${fixturePath}"`, { encoding: "utf8" });
     const fixtureData = JSON.parse(fixtureYaml);
-    execSync(`git clone --depth 1 -q "${fixtureData.repo}" "${workdir}/project"`, { stdio: "pipe" });
-    try { execSync(fixtureData.install, { cwd: `${workdir}/project`, stdio: "pipe" }); } catch {}
+
+    // Clone repo if specified, otherwise create empty project dir
+    if (fixtureData.repo) {
+      execSync(`git clone --depth 1 -q "${fixtureData.repo}" "${workdir}/project"`, { stdio: "pipe" });
+      try { execSync(fixtureData.install, { cwd: `${workdir}/project`, stdio: "pipe" }); } catch {}
+    } else {
+      mkdirSync(join(workdir, "project"), { recursive: true });
+    }
+
+    // Write fixture files into workspace
+    if (fixtureData.files) {
+      for (const [filePath, content] of Object.entries(fixtureData.files)) {
+        const dest = join(workdir, "project", filePath);
+        mkdirSync(dirname(dest), { recursive: true });
+        writeFileSync(dest, typeof content === "string" ? content : JSON.stringify(content));
+      }
+    }
+
+    // Copy recall DB fixture if recall is referenced in the fixture
+    const recallDb = join(EVALS_DIR, "fixtures", "recall.sqlite3");
+    const agentsMd = fixtureData.files?.["AGENTS.md"] || "";
+    if (agentsMd.includes("recall") && existsSync(recallDb)) {
+      const destDb = join(workdir, "recall.sqlite3");
+      cpSync(recallDb, destDb);
+      process.env.RECALL_DB = destDb;
+    }
   }
   return workdir;
 }
 
 // Deploy skills to workspace
 function deploySkills(workdir, skills) {
+  const projectDir = join(workdir, "project");
+  const agentsMd = join(projectDir, "AGENTS.md");
+
   for (const skill of skills) {
     const src = join(ATOMICS_DIR, skill, "SKILL.md");
-    const dest = join(workdir, ".agents", "skills", skill, "SKILL.md");
-    mkdirSync(dirname(dest), { recursive: true });
-    cpSync(src, dest);
+    if (!existsSync(src)) continue;
+
+    const content = readFileSync(src, "utf8");
+    // Check if this is a steering-type skill (agent-only invocation)
+    const isSteeringSkill = content.includes("invocation: agent-only");
+
+    if (isSteeringSkill) {
+      // Append to AGENTS.md (always-on for Codex)
+      const body = content.replace(/^---[\s\S]*?---\n*/m, "");
+      const existing = existsSync(agentsMd) ? readFileSync(agentsMd, "utf8") : "";
+      writeFileSync(agentsMd, existing + "\n" + body + "\n");
+    } else {
+      // Deploy as on-demand skill
+      const dest = join(projectDir, ".agents", "skills", skill, "SKILL.md");
+      mkdirSync(dirname(dest), { recursive: true });
+      cpSync(src, dest);
+    }
   }
 }
 

@@ -1,0 +1,44 @@
+# Fixture for recall multi-turn eval: workspace with pre-seeded recall DB + steering
+repo: ""
+install: "true"
+
+# Workspace files injected into eval workspace
+files:
+  AGENTS.md: |
+    # Agent Instructions
+
+    ## Recall — Check Before Answering
+
+    When the user asks about past decisions, prior sessions, or project history, run `recall search "query"` BEFORE answering. Do not guess or fabricate past decisions.
+
+    Trigger patterns:
+    - "what did we decide about..."
+    - "last session...", "previously...", "remind me..."
+    - "what was the decision on..."
+    - "have we discussed...", "did we already..."
+
+    Command: `recall search "relevant query" --results 5`
+
+    If results are relevant, cite them. If not, say you don't have that information.
+
+    When a decision is made during the session:
+    `recall add "We decided X because Y" --type decision`
+
+  .scratch/HANDOFF.md: |
+    ---
+    created_at: 2026-07-01
+    handoff_key: practice-execution-rebuild
+    ---
+    # Handoff
+    ## Objective
+    Ground-up rebuild of practice execution path.
+    ## Prior Decisions
+    - Field-relative yards as coordinate system for play data
+    - Zero new autoloads — PracticeFlowCoordinator owns app-flow deps
+    - Mirroring is a non-destructive transform against the base play
+    ## Current State
+    - PracticeExecution surface defined
+    - Fielder controller split in progress (FielderBody3D + FielderController)
+    ## Next Steps
+    1. Implement FielderDecision component
+    2. Wire up BallStateManager signals
