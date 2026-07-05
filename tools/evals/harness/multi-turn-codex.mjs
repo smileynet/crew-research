@@ -104,7 +104,7 @@ async function runMultiTurn(workdir, turns) {
   const codex = new Codex();
   const thread = codex.startThread({
     workingDirectory: workdir,
-    sandboxMode: "workspace-write",
+    sandboxMode: "danger-full-access",
     approvalPolicy: "never",
     skipGitRepoCheck: true,
     ...(model && { model }),

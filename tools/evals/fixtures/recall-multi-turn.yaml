@@ -7,22 +7,24 @@ files:
   AGENTS.md: |
     # Agent Instructions
 
-    ## Recall — Check Before Answering
+    ## MANDATORY: Check recall before answering about past decisions
 
-    When the user asks about past decisions, prior sessions, or project history, run `recall search "query"` BEFORE answering. Do not guess or fabricate past decisions.
+    When the user asks about past decisions, prior sessions, or project history, you MUST run this command BEFORE answering:
 
-    Trigger patterns:
-    - "what did we decide about..."
-    - "last session...", "previously...", "remind me..."
-    - "what was the decision on..."
-    - "have we discussed...", "did we already..."
+    ```
+    recall search "relevant query" --results 5
+    ```
 
-    Command: `recall search "relevant query" --results 5`
+    Do not guess or fabricate past decisions. Search first, then answer based on what recall returns.
 
-    If results are relevant, cite them. If not, say you don't have that information.
+    Trigger phrases: "what did we decide", "remind me", "last session", "previously", "what was the decision", "what approach did we choose"
+
+    ## Persist decisions
 
     When a decision is made during the session:
-    `recall add "We decided X because Y" --type decision`
+    ```
+    recall add "We decided X because Y" --type decision
+    ```
 
   .scratch/HANDOFF.md: |
     ---
