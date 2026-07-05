@@ -114,6 +114,22 @@ else
   warnings=$((warnings + 1))
 fi
 
+# Check recall import status
+if command -v recall &>/dev/null && [[ -d "$PROJECT/.memory" ]]; then
+  mem_files=$(find "$PROJECT/.memory" -name "*.md" | wc -l)
+  if [[ $mem_files -gt 0 ]]; then
+    imported=$(recall status 2>/dev/null | grep -c "import:" || true)
+    wing_name=$(basename "$PROJECT" | tr '-' '_')
+    wing_count=$(recall status 2>/dev/null | grep "$wing_name" | grep -oP '\(\K[0-9]+' || echo "0")
+    if [[ ${wing_count:-0} -gt 0 ]]; then
+      echo "  ✅ recall: $wing_name wing has ${wing_count} chunks"
+    else
+      echo "  ⚠️  recall: .memory/ has $mem_files files but not imported (run: recall import .memory/ --wing $wing_name)"
+      warnings=$((warnings + 1))
+    fi
+  fi
+fi
+
 # Check for project-level overrides
 if [[ -d "$PROJECT/.kiro/steering" ]]; then
   local_steering=$(ls "$PROJECT/.kiro/steering/"*.md 2>/dev/null | wc -l || true)

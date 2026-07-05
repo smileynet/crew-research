@@ -166,6 +166,23 @@ json.dump(state, open('$PLUGINS_STATE', 'w'), indent=2)
     fi
     echo ""
     echo "Plugin '$PLUGIN' installed."
+
+    # Auto-import .memory/ for recall plugin if it exists
+    if [[ "$PLUGIN" == "recall" ]] && command -v recall &>/dev/null; then
+      local mem_dir=""
+      if [[ -n "$PROJECT_DIR" && -d "$PROJECT_DIR/.memory" ]]; then
+        mem_dir="$PROJECT_DIR/.memory"
+        local wing_name=$(basename "$PROJECT_DIR" | tr '-' '_')
+      elif [[ -d ".memory" ]]; then
+        mem_dir=".memory"
+        local wing_name=$(basename "$(pwd)" | tr '-' '_')
+      fi
+      if [[ -n "$mem_dir" ]]; then
+        echo "  Auto-importing $mem_dir..."
+        recall import "$mem_dir" --wing "$wing_name" 2>&1 | grep -E "Done:|chunks"
+      fi
+    fi
+
     exit 0
   fi
 
