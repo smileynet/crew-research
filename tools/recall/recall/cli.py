@@ -352,7 +352,12 @@ def main():
     sub = parser.add_subparsers(dest="command")
 
     # search
-    p = sub.add_parser("search", help="Semantic search")
+    p = sub.add_parser("search", help="Semantic search",
+                       epilog="Examples:\n"
+                              "  recall search \"what did we decide about auth\"\n"
+                              "  recall search \"deployment\" --wing my_project\n"
+                              "  recall search \"architecture\" --type decision\n",
+                       formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("query")
     p.add_argument("--wing", default=None)
     p.add_argument("--room", default=None)
@@ -372,7 +377,13 @@ def main():
     p.add_argument("--project", default=None, help="Filter to sessions from this project path")
 
     # import
-    p = sub.add_parser("import", help="Import markdown files into recall")
+    p = sub.add_parser("import", help="Import markdown files into recall",
+                       epilog="Examples:\n"
+                              "  recall import .memory/                     # import project knowledge\n"
+                              "  recall import .memory/ --wing my_project   # explicit wing name\n"
+                              "  recall import .memory/ --force             # reimport after changes\n"
+                              "  recall import ~/other/.memory/ --wing other  # import external project\n",
+                       formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("path", help="Directory containing .md files")
     p.add_argument("--wing", default=None, help="Override wing (default: directory name)")
     p.add_argument("--force", action="store_true", help="Delete existing imports and reimport")

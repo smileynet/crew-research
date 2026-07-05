@@ -74,6 +74,18 @@ mise run add-skill -- <name>
 
 | Plugin | Commands | What it does |
 |--------|----------|-------------|
-| `recall` | `recall search "query"`, `recall add "fact" --type decision` | Cross-session memory — past decisions, prior work. Auto-primes at session start. |
+| `recall` | `recall search "query"`, `recall add "fact" --type decision`, `recall import .memory/ --wing name` | Cross-session memory — past decisions, prior work, project knowledge. Auto-primes at session start. |
 
 Install: `mise run init -- --plugin recall` (requires `recall` CLI on PATH)
+
+### Recall quick reference
+
+```bash
+recall search "what did we decide about X"     # find past decisions
+recall search "query" --type decision           # filter by type
+recall add "We chose Y because Z" --type decision  # persist a decision
+recall import .memory/ --wing project_name      # index project knowledge
+recall import .memory/ --force --wing name      # reimport after changes
+recall status                                   # see what's indexed
+recall prime                                    # session-start context
+```
