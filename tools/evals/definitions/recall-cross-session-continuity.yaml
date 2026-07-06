@@ -3,6 +3,9 @@ description: "Does recall enable the agent to answer questions about decisions f
 mode: multi-turn
 skill: recall
 
+# NOTE: Requires danger-full-access sandbox. The recall CLI needs loopback
+# network for the embedding model. bubblewrap (workspace-write) blocks this.
+
 conditions:
   with-recall:
     skills: [recall, recall-check]

@@ -34,13 +34,10 @@ files:
     # Handoff
     ## Objective
     Ground-up rebuild of practice execution path.
-    ## Prior Decisions
-    - Field-relative yards as coordinate system for play data
-    - Zero new autoloads — PracticeFlowCoordinator owns app-flow deps
-    - Mirroring is a non-destructive transform against the base play
     ## Current State
     - PracticeExecution surface defined
-    - Fielder controller split in progress (FielderBody3D + FielderController)
+    - Fielder controller split in progress
     ## Next Steps
     1. Implement FielderDecision component
     2. Wire up BallStateManager signals
+    3. Add unit tests for new split

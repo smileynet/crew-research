@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 // tools/evals/harness/multi-turn-codex.mjs
 // Multi-turn eval runner using Codex SDK threads
-// Usage: node multi-turn-codex.mjs --definition <name> [--trials 3]
+// Usage: node multi-turn-codex.mjs --definition <name> [--trials 3] [--model gpt-5.5]
+//
+// Key findings (2026-07-04):
+// - danger-full-access sandbox required for skills that invoke CLI tools (recall, etc.)
+// - workspace-write sandbox blocks loopback network needed by embedding models
+// - AGENTS.md in workspace IS loaded by Codex (confirmed) — use MANDATORY/MUST wording
+// - agent-only skills should be appended to AGENTS.md, not placed in .agents/skills/
 
 import { Codex } from "@openai/codex-sdk";
 import { readFileSync, mkdtempSync, cpSync, mkdirSync, writeFileSync, rmSync, existsSync } from "fs";
@@ -101,6 +107,9 @@ function deploySkills(workdir, skills) {
 
 // Run multi-turn conversation
 async function runMultiTurn(workdir, turns) {
+  // Ensure workspace is a git repo (Codex requires it unless skipGitRepoCheck)
+  try { execSync("git init -q && git add -A && git commit -qm init --allow-empty", { cwd: workdir, stdio: "pipe" }); } catch {}
+
   const codex = new Codex();
   const thread = codex.startThread({
     workingDirectory: workdir,
