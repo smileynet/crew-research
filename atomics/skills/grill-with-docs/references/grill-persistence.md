@@ -4,7 +4,7 @@
 
 At session start, create:
 ```
-.scratch/grill-{topic-slug}/
+.memory/grill/{topic-slug}/
 ├── INDEX.md
 └── (question files added as session progresses)
 ```
@@ -74,5 +74,6 @@ Each Qnn file is self-contained context for the decision it covers.
 
 - Grill sessions often run 10-20 questions across 30+ messages
 - By question 15, the agent has lost context from question 3
-- Persisted files survive context compaction and session restarts
+- Persisted files in `.memory/grill/` survive context compaction, session restarts, AND are git-tracked
 - The INDEX links everything together for downstream consumers (plan, spec, ADR authoring)
+- Future sessions can reference prior grill decisions via `recall import .memory/` or direct file reads

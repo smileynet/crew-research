@@ -139,10 +139,10 @@ Cost: ~50 chars always-loaded. Global skill runs unmodified.
 
 ## Context Persistence (mandatory)
 
-**At session start:** create `.scratch/grill-{topic-slug}/INDEX.md` with the session header and empty questions table.
+**At session start:** create `.memory/grill/{topic-slug}/INDEX.md` with the session header and empty questions table.
 
 **After each question is resolved:**
-1. Write `.scratch/grill-{topic-slug}/Q{nn}-{slug}.md` with question, research, options, decision, and implications
+1. Write `.memory/grill/{topic-slug}/Q{nn}-{slug}.md` with question, research, options, decision, and implications
 2. Update INDEX.md — add a row linking to the new question file
 
 **This is not optional.** Every resolved question gets its own file. INDEX.md stays current after every entry. See [references/grill-persistence.md](references/grill-persistence.md) for full format.
