@@ -299,6 +299,11 @@ if [[ "$GLOBAL" == true ]]; then
     for skill in "${STEERING[@]}"; do
       src="$SKILLS_DIR/$skill/SKILL.md"
       if [[ -f "$src" ]]; then
+        # Skip if skill is scoped to a different tool
+        local skill_tool=$(yq -r '.metadata.tool // ""' "$src" 2>/dev/null)
+        if [[ -n "$skill_tool" && "$skill_tool" != "kiro-cli" ]]; then
+          continue
+        fi
         dest="$DEST/steering/$skill.md"
         content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
         deploy_content "$content" "$dest"
@@ -411,6 +416,12 @@ if [[ "$GLOBAL" == true ]]; then
     for skill in "${STEERING[@]}"; do
       src="$SKILLS_DIR/$skill/SKILL.md"
       if [[ -f "$src" ]]; then
+        # Skip if skill is scoped to a different tool
+        local skill_tool
+        skill_tool=$(yq -r '.metadata.tool // ""' "$src" 2>/dev/null)
+        if [[ -n "$skill_tool" && "$skill_tool" != "$tool_label" ]]; then
+          continue
+        fi
         local body
         body=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
         body=$(echo "$body" | sed \

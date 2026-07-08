@@ -4,6 +4,7 @@ description: How to process images in kiro-cli sessions (workaround for context 
 metadata:
   type: reference
   invocation: agent-only
+  tool: kiro-cli
 ---
 
 # Image Handling (kiro-cli)
