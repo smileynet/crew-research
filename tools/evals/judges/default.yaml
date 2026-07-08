@@ -1,6 +1,6 @@
 # Default judge configuration
 # Judge runs via kiro-cli in an isolated temp dir (no skills, no context)
-model: claude-sonnet-4.6
+model: claude-opus-4.6
 temperature: 0
 scoring: reasoning-before-score
 rubric: 5-point-likert
