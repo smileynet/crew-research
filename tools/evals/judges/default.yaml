@@ -1,7 +1,17 @@
-# Default judge configuration
-# Judge runs via kiro-cli in an isolated temp dir (no skills, no context)
-model: claude-opus-4.6
+# Judge configuration — multi-model consensus scoring
+# All 4 models judge each output; final score = median of all judges
+mode: consensus
 temperature: 0
 scoring: reasoning-before-score
 rubric: 5-point-likert
 trials: 1
+
+judges:
+  - tool: kiro-cli
+    model: claude-opus-4.6
+  - tool: codex
+    model: gpt-5.5
+  - tool: crush
+    model: glm/glm-5.2
+  - tool: agy
+    model: null  # uses default model

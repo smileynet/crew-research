@@ -66,7 +66,8 @@ DEFAULT_TIMEOUT=$(yq '.invoke.timeout // 90' "$ADAPTER_FILE")
 SKILL_LOCATION=$(yq '.skill.location' "$ADAPTER_FILE")
 
 # Load judge config
-JUDGE_MODEL=$(yq '.model' "$JUDGE_CONFIG")
+JUDGE_MODEL=$(yq '.judges[0].model // .model // "claude-opus-4.6"' "$JUDGE_CONFIG")
+JUDGE_MODE=$(yq '.mode // "single"' "$JUDGE_CONFIG")
 JUDGE_TEMP=$(yq '.temperature' "$JUDGE_CONFIG")
 
 # Metadata
@@ -75,7 +76,7 @@ TIMESTAMP=$(date -u +%Y-%m-%dT%H-%M-%SZ)
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 echo "Eval harness: $TOOL_NAME ($TOOL_VERSION)"
-echo "Judge: $JUDGE_MODEL | Trials: $TRIALS | Dry-run: $DRY_RUN"
+echo "Judge: $JUDGE_MODE (${JUDGE_MODEL}+codex+crush+agy) | Trials: $TRIALS | Dry-run: $DRY_RUN"
 echo "Timestamp: $TIMESTAMP"
 echo ""
 
@@ -236,37 +237,75 @@ REASON: <one sentence>"
     return
   fi
 
-  # Judge runs in isolated empty dir (no skills, no context contamination)
-  # Try available tools as judge — fail gracefully if one is unavailable
+  # Multi-model consensus judging
+  # Run all available judge models in parallel, take median score
   local judge_dir=$(mktemp -d -t "judge-XXXX")
-  local judge_result=""
-  local judge_tool_used=""
+  local scores=()
+  local reasons=()
 
-  # Try kiro-cli first (primary), then codex, then crush, then agy
+  # Write prompt to file (avoids shell quoting issues with large prompts)
+  local prompt_file="$judge_dir/prompt.txt"
+  printf '%s' "$judge_prompt" > "$prompt_file"
+
+  # Run judges in parallel
+  local pids=()
+
   if command -v kiro-cli &>/dev/null; then
-    judge_result=$(cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="kiro-cli"
+    (cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-kiro.txt") &
+    pids+=($!)
   fi
 
-  if [[ -z "$judge_tool_used" ]] && command -v codex &>/dev/null; then
-    judge_result=$(cd "$judge_dir" && codex exec --skip-git-repo-check "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="codex"
+  if command -v codex &>/dev/null; then
+    (cd "$judge_dir" && timeout 60 codex exec -s read-only "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-codex.txt") &
+    pids+=($!)
   fi
 
-  if [[ -z "$judge_tool_used" ]] && command -v crush &>/dev/null; then
-    judge_result=$(cd "$judge_dir" && crush run --quiet --model glm/glm-5.2 "$judge_prompt" 2>/dev/null) && judge_tool_used="crush"
+  if command -v crush &>/dev/null; then
+    (cd "$judge_dir" && timeout 60 crush run --quiet --model glm/glm-5.2 "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
+    pids+=($!)
   fi
 
-  if [[ -z "$judge_tool_used" ]] && command -v agy &>/dev/null; then
-    judge_result=$(cd "$judge_dir" && agy --print "$judge_prompt" 2>/dev/null | strip_ansi) && judge_tool_used="agy"
+  if command -v agy &>/dev/null; then
+    (cd "$judge_dir" && timeout 60 agy --print "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-agy.txt") &
+    pids+=($!)
   fi
 
-  if [[ -z "$judge_tool_used" ]]; then
-    echo "[warn] No judge tool available (tried: kiro-cli, codex, crush, agy)" >&2
-    judge_result="SCORE: 0
-REASON: no judge tool available"
-  fi
+  # Wait for all judges
+  for pid in "${pids[@]}"; do
+    wait "$pid" 2>/dev/null || true
+  done
+
+  # Collect scores from all judges
+  local all_scores=""
+  local all_reasons=""
+  for result_file in "$judge_dir"/result-*.txt; do
+    [[ -f "$result_file" ]] || continue
+    local s=$(grep -o 'SCORE: *[0-9]*' "$result_file" | grep -o '[0-9]*$' | tail -1)
+    local r=$(grep -o 'REASON: .*' "$result_file" | sed 's/^REASON: //' | tail -1)
+    local judge_name=$(basename "$result_file" .txt | sed 's/result-//')
+    if [[ -n "$s" && "$s" -ge 1 && "$s" -le 5 ]]; then
+      scores+=("$s")
+      reasons+=("[$judge_name:$s] ${r:-no reason}")
+    fi
+  done
 
   rm -rf "$judge_dir"
-  echo "$judge_result"
+
+  # Compute median score
+  if [[ ${#scores[@]} -eq 0 ]]; then
+    echo "SCORE: 0"
+    echo "REASON: no judge produced a valid score"
+    return
+  fi
+
+  local sorted_scores=($(printf '%s\n' "${scores[@]}" | sort -n))
+  local n=${#sorted_scores[@]}
+  local median_idx=$(( (n - 1) / 2 ))
+  local median_score=${sorted_scores[$median_idx]}
+
+  # Return median score with all judge reasons
+  echo "SCORE: $median_score"
+  echo "REASON: median of $n judges [${scores[*]}] — ${reasons[0]}"
 }
 
 # Parse score from judge output
