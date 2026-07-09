@@ -1,0 +1,44 @@
+name: prototype-branch-picking-effectiveness
+description: "Does the prototype skill correctly identify and fork between Logic (state/data) vs UI (visual) vs Spike (feasibility) branches?"
+skill: prototype-protocol
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [prototype-protocol]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      I'm building a shopping cart and I'm not sure if the state machine handles all the edge cases — empty cart, partial checkout, coupon expiry mid-session, payment failure rollback. Can you prototype this?
+    criteria: |
+      PRIMARY: Agent identifies this as a LOGIC branch — a state model question — and produces an interactive prototype that pushes the state through edge cases.
+      AUTOMATIC FAIL (score 1): Produces a full-stack shopping cart with UI, or writes a spec instead of code.
+      Score 3: Identifies it's about state but produces a static diagram or written analysis rather than runnable code.
+      Score 4: Correctly picks the LOGIC branch. Produces or proposes a minimal interactive program (CLI, REPL, or test harness) that exercises the specific edge cases listed. State transitions are visible in output.
+      BONUS (score 5): Explicit branch identification ("this is a Logic question — does the state model handle edges?"). Proposes a throwaway CLI/script that walks through each scenario, prints state at each step, and the user can see whether transitions are correct. Notes it's throwaway — keep the answer, delete the code.
+
+  - input: |
+      We need a settings page but I don't know if it should be a sidebar, a modal, tabs within the page, or a full separate page. Can you prototype some options?
+    criteria: |
+      PRIMARY: Agent identifies this as a UI branch — a "what should this look like?" question — and proposes multiple visual variants.
+      AUTOMATIC FAIL (score 1): Picks one design and implements it fully, or produces only a written comparison.
+      Score 3: Discusses the options in text but doesn't propose a visual/interactive prototype.
+      Score 4: Correctly picks the UI branch. Proposes multiple variants (2-4) that are visually comparable — either as separate HTML files, or switchable via URL param/toggle. Emphasis on seeing them, not reading about them.
+      BONUS (score 5): Explicit branch identification ("this is a UI question — you need to see the options"). Proposes a multi-variant prototype with a switching mechanism. Notes that the ANSWER is which variant works, the code is throwaway.
+
+  - input: |
+      I want to use SQLite with full-text search for a 500K document corpus. Will it handle the load? I've never used FTS5 at this scale.
+    criteria: |
+      PRIMARY: Agent identifies this as a feasibility question (Spike branch) and proposes a minimal proof that answers "does the path work?"
+      AUTOMATIC FAIL (score 1): Says "yes it'll work, SQLite handles millions of rows" without proposing to prove it.
+      Score 3: Suggests trying it but doesn't structure the prototype as a spike with clear pass/fail.
+      Score 4: Identifies as a SPIKE (feasibility). Proposes a throwaway harness: generate 500K synthetic docs, insert with FTS5, benchmark query latency, report pass/fail against acceptable threshold. Time-boxed.
+      BONUS (score 5): Explicit branch identification ("this is a feasibility question — we need a spike"). Proposes specific metrics (insert time, query latency at p50/p95, index size), clear pass/fail threshold, states that findings are kept (commit message or ADR) but code is deleted.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 120
+tags: [skill-effectiveness, prototype, branch-picking]

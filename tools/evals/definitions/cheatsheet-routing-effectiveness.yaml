@@ -1,0 +1,41 @@
+name: cheatsheet-routing-effectiveness
+description: "Does the cheatsheet skill route users to the correct workflow based on their situation?"
+skill: cheatsheet
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [cheatsheet]
+  baseline:
+    skills: []
+
+tasks:
+  - input: "I have a vague idea for a feature but I'm not sure where to start. What should I do first?"
+    criteria: |
+      PRIMARY: Agent names a specific workflow entry point (grill-with-docs, planning-cycles, or plan-prereqs) and explains the flow from idea to implementation.
+      AUTOMATIC FAIL (score 1): Generic advice like "just start coding" or "think about it" without naming a structured workflow.
+      Score 3: Names a relevant skill but doesn't describe the flow or next steps after it.
+      Score 4: Names the correct entry point (planning or grill), explains what happens next in the flow (plan → spec → build), and mentions how to invoke it.
+      BONUS (score 5): Maps the full path (idea → grill → spec → implement → review), mentions branching points (need research first?), and connects skills as a chain.
+
+  - input: "Something is broken in production and I need to debug it. What's the best approach?"
+    criteria: |
+      PRIMARY: Agent routes to the debugging workflow (feedback-loop-debugging or troubleshooting-protocol) and emphasizes building a feedback loop BEFORE fixing.
+      AUTOMATIC FAIL (score 1): Jumps straight to "check the logs" or debugging steps without referencing a structured approach.
+      Score 3: Mentions debugging but doesn't emphasize the feedback-loop-first discipline.
+      Score 4: Routes to debugging skill, explains the feedback-loop-first principle, mentions specific techniques (failing test, curl, bisection).
+      BONUS (score 5): Routes correctly, explains WHY loop-first matters, mentions that if loop can't be built → stop and ask for access/artifacts.
+
+  - input: "I finished a session and need to hand off to tomorrow. Also I want to know what's available."
+    criteria: |
+      PRIMARY: Agent names both /handoff (for ending) and /read-handoff (for starting tomorrow), plus shows awareness of the full command catalog.
+      AUTOMATIC FAIL (score 1): Doesn't mention handoff or any session continuity mechanism.
+      Score 3: Mentions handoff but doesn't distinguish start-of-session vs end-of-session workflows.
+      Score 4: Names both /handoff and /read-handoff with correct usage, mentions /cheatsheet or lists other available commands.
+      BONUS (score 5): Explains the full session lifecycle (read-handoff → work → handoff), mentions recall for cross-session memory, provides a concise command reference.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 120
+tags: [skill-effectiveness, routing, cheatsheet]

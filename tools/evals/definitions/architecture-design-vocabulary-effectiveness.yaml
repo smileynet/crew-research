@@ -1,0 +1,35 @@
+name: architecture-design-vocabulary-effectiveness
+description: "Does the architecture-deepening skill use consistent deep-module vocabulary (module, interface, depth, seam, adapter, leverage, locality)?"
+skill: architecture-deepening
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [architecture-deepening]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      I have a UserService class that handles registration, authentication, password reset, profile updates, and notification preferences. It's 800 lines long. Every controller calls it for different things. How should I restructure it?
+    criteria: |
+      PRIMARY: Agent uses deep-module vocabulary (depth, interface, seam, shallow/deep) to diagnose the problem and propose a restructuring.
+      AUTOMATIC FAIL (score 1): Generic advice ("split it up") without architectural reasoning or consistent terminology.
+      Score 3: Identifies the class is too large and proposes splitting, but uses ad-hoc language ("too many responsibilities", "SRP violation") without the deeper design reasoning.
+      Score 4: Diagnoses as a SHALLOW module (large interface, callers must know too much), proposes DEEPENING by finding natural SEAMS (auth vs profile vs notifications), discusses LEVERAGE (fewer things callers need to know per module).
+      BONUS (score 5): Uses vocabulary consistently throughout: identifies current INTERFACE size, proposes specific SEAMS with rationale, evaluates DEPTH of proposed modules, applies DELETION TEST to validate the split concentrates complexity.
+
+  - input: |
+      We have an EventEmitter that 15 different modules subscribe to. Any module can emit any event. It's impossible to trace what happens when an event fires. Should we refactor this?
+    criteria: |
+      PRIMARY: Agent identifies the architectural problem using seam/interface vocabulary and proposes a solution that increases locality.
+      AUTOMATIC FAIL (score 1): Says "event emitters are fine" or "just add TypeScript types" without analyzing the architectural issue.
+      Score 3: Identifies coupling problem but uses generic language ("too coupled", "spaghetti").
+      Score 4: Diagnoses: the EventEmitter is a SHALLOW seam (interface is "any string" → no depth). Proposes: explicit interfaces at each SEAM so consumers know exactly what they can emit/receive. Mentions LOCALITY (when something breaks, you know where to look).
+      BONUS (score 5): Full vocabulary applied. Notes the current "interface" is infinitely wide (any event). Proposes typed channels or domain events that create DEEP modules (rich behavior behind narrow, typed interface). Applies "one adapter = hypothetical, two = real" to decide which seams deserve extraction.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 120
+tags: [skill-effectiveness, architecture, vocabulary]

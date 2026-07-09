@@ -1,0 +1,35 @@
+name: skill-authoring-leading-words-effectiveness
+description: "Does the skill-authoring skill guide authors to use leading words — compact pretrained concepts that anchor agent behavior?"
+skill: skill-authoring
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [skill-authoring]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      I'm writing a skill for code cleanup. My description currently says: "Use when code needs to be made shorter, simpler, more readable, better organized, less redundant, and easier to understand." How can I improve this?
+    criteria: |
+      PRIMARY: Agent identifies the description is verbose/redundant and proposes collapsing to compact trigger words that recruit pretrained concepts.
+      AUTOMATIC FAIL (score 1): Says the description is fine, or only suggests minor word changes without addressing the core issue.
+      Score 3: Suggests shortening but without explaining WHY compact triggers are better (activation, context budget).
+      Score 4: Identifies redundancy (shorter/simpler/readable/easier-to-understand are all restating one concept), proposes collapsing to 1-2 leading words (e.g., "refactor", "hygiene", "cleanup"), explains that distinctive keywords activate more reliably.
+      BONUS (score 5): Explicitly discusses the concept of "leading words" — pretrained concepts that compress behavior into tokens the model already knows. Proposes specific collapses with rationale. Mentions context budget cost of verbose descriptions.
+
+  - input: |
+      I'm writing a debugging skill body and I keep writing "the loop should be fast, deterministic, and produce a clear binary signal with low overhead." This phrase appears 3 times. What should I do?
+    criteria: |
+      PRIMARY: Agent identifies the repetition and proposes a leading word that collapses the phrase into a single pretrained concept.
+      AUTOMATIC FAIL (score 1): Says "just remove the duplicates" without proposing a replacement concept.
+      Score 3: Identifies duplication, suggests picking one canonical version and referencing it.
+      Score 4: Proposes a LEADING WORD (e.g., "tight" — as in "tight feedback loop") that collapses "fast, deterministic, clear binary signal, low overhead" into one pretrained word the model already knows. Explains the word should appear once to define, then be used as shorthand.
+      BONUS (score 5): Explains the concept fully: leading words recruit priors from pretraining, reducing tokens while increasing behavioral reliability. Notes anti-pattern of invented jargon (neologisms don't recruit anything). Proposes the specific word with evidence it's pretrained.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 120
+tags: [skill-effectiveness, skill-authoring, leading-words]

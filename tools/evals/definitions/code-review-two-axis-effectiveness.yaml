@@ -1,0 +1,74 @@
+name: code-review-two-axis-effectiveness
+description: "Does the code-review skill evaluate against BOTH coding standards AND the originating spec?"
+skill: code-review
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [code-review]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      Review this diff. The spec says: "Add a rate limiter that returns 429 after 100 requests per minute per IP."
+
+      ```diff
+      +app.use((req, res, next) => {
+      +  const ip = req.ip;
+      +  const now = Date.now();
+      +  if (!rateLimits[ip]) rateLimits[ip] = [];
+      +  rateLimits[ip] = rateLimits[ip].filter(t => now - t < 60000);
+      +  if (rateLimits[ip].length >= 100) {
+      +    return res.status(429).json({ error: 'Too many requests' });
+      +  }
+      +  rateLimits[ip].push(now);
+      +  next();
+      +});
+      ```
+    criteria: |
+      PRIMARY: Review evaluates BOTH standards (code quality issues) AND spec compliance (does it implement rate limiting correctly?).
+      AUTOMATIC FAIL (score 1): Only checks one axis — either says "looks fine, matches spec" without quality review, or only flags code issues without checking spec.
+      Score 3: Addresses both axes but superficially (e.g., "code looks ok, matches spec" without specifics).
+      Score 4: Standards axis flags real issues (memory leak from unbounded rateLimits object, no cleanup mechanism, trusts req.ip behind proxy). Spec axis confirms it implements 100/min/IP correctly.
+      BONUS (score 5): Both axes fully developed. Standards: memory leak, proxy trust (X-Forwarded-For), no persistence (restart clears limits). Spec: implements the requirement but missing edge cases spec implies (what about distributed deployments?). Ends with verdict.
+
+  - input: |
+      Review this change. There is no spec or issue for this code — it was a quick fix.
+
+      ```diff
+      -function getUser(id) {
+      -  return db.query('SELECT * FROM users WHERE id = ' + id);
+      +function getUser(id) {
+      +  if (!id) throw new Error('id required');
+      +  return db.query('SELECT * FROM users WHERE id = ?', [id]);
+       }
+      ```
+    criteria: |
+      PRIMARY: When no spec exists, the review should note "no spec available" and focus entirely on the standards axis. Should NOT fabricate a spec or skip the review.
+      AUTOMATIC FAIL (score 1): Skips review because there's no spec, or fabricates spec requirements.
+      Score 3: Reviews the code but doesn't explicitly acknowledge the missing spec axis.
+      Score 4: Explicitly notes "no spec available — reviewing against standards only." Standards review catches: good fix (SQL injection → parameterized), validates the null check is appropriate.
+      BONUS (score 5): Notes spec gap, thorough standards review (security improvement, input validation), identifies potential Fowler smell (is getUser doing too much? Should validation be at a higher layer?). Clear verdict.
+
+  - input: |
+      Review this diff. The spec says: "Users should be able to delete their account and all associated data within 30 days per GDPR requirements."
+
+      ```diff
+      +router.delete('/account', auth, async (req, res) => {
+      +  await User.findByIdAndDelete(req.user.id);
+      +  res.json({ message: 'Account deleted' });
+      +});
+      ```
+    criteria: |
+      PRIMARY: Spec axis catches that the implementation is INCOMPLETE — it deletes the user but not "all associated data" and has no 30-day mechanism.
+      AUTOMATIC FAIL (score 1): Says "implements the spec" without noticing the gaps.
+      Score 3: Notices the code works but doesn't cross-reference against the spec requirements.
+      Score 4: Spec axis flags: missing "all associated data" deletion (orders, comments, uploads?), missing 30-day soft-delete mechanism (this is immediate hard delete), no audit trail for GDPR compliance. Standards axis flags: no error handling, no transaction.
+      BONUS (score 5): Both axes fully developed. Spec gaps are specific (lists data types to delete). Standards issues concrete. Notes this should be NEEDS DISCUSSION not just CHANGES REQUESTED (architectural concern about soft-delete approach).
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 180
+tags: [skill-effectiveness, code-review, two-axis]

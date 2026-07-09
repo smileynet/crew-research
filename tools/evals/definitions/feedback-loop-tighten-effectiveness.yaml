@@ -1,0 +1,44 @@
+name: feedback-loop-tighten-effectiveness
+description: "Does the feedback-loop skill produce tight, optimized debugging loops — not just any loop?"
+skill: feedback-loop-debugging
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [feedback-loop-debugging]
+  baseline:
+    skills: []
+
+tasks:
+  - input: |
+      I have a flaky test that fails about 10% of the time. It's a race condition in the WebSocket handler — sometimes messages arrive out of order. How do I debug this?
+    criteria: |
+      PRIMARY: Agent addresses non-determinism specifically — strategies to RAISE reproduction rate before attempting a fix.
+      AUTOMATIC FAIL (score 1): Suggests a fix without addressing the flakiness ("just add a lock") or says "run it a few times."
+      Score 3: Suggests running the test multiple times but doesn't describe systematic approaches to increase flake rate.
+      Score 4: Proposes specific non-determinism strategies: loop 100×, add stress/concurrency, narrow timing windows, inject sleeps. Mentions target repro rate ("50% is debuggable, 1% is not").
+      BONUS (score 5): All of score 4, plus suggests determinism techniques (pin time, seed RNG, recorded fixtures) and evaluates whether the loop is TIGHT (fast + sharp + deterministic).
+
+  - input: |
+      I'm debugging a memory leak in a Node.js service. It grows by ~50MB per hour. The service handles HTTP requests and writes to PostgreSQL. Where do I start?
+    criteria: |
+      PRIMARY: Agent constructs a feedback loop with a measurable signal (memory growth metric) BEFORE proposing a fix.
+      AUTOMATIC FAIL (score 1): Jumps to "check for event listener leaks" without establishing a measurement loop.
+      Score 3: Mentions measuring memory but doesn't describe a loop structure (run → measure → change → re-measure).
+      Score 4: Constructs a specific loop: load test script → measure heap at intervals → establish baseline growth rate → make ONE change → re-measure. Mentions tightening (faster load, narrower measurement window).
+      BONUS (score 5): All of score 4, plus considers loop speed ("can I isolate to one request type?"), differential approach (compare with/without PG writes), and states the PASS/FAIL criterion explicitly (growth rate < X MB/hr).
+
+  - input: |
+      A user reports that clicking "Save" sometimes doesn't persist their data. We can't reproduce it locally. What should we do?
+    criteria: |
+      PRIMARY: Agent acknowledges it CANNOT build a local loop, states what to ask for (artifacts, environment access, instrumentation permission), and does NOT proceed to hypothesize.
+      AUTOMATIC FAIL (score 1): Guesses at a cause ("probably a race condition") without addressing the inability to reproduce.
+      Score 3: Says "we need more info" generically without specifying WHAT artifacts would enable a loop.
+      Score 4: Explicitly states "cannot build a loop locally," lists specific asks: HAR file, network logs, error logs with timestamps, permission to add production instrumentation, screen recording. Does NOT hypothesize.
+      BONUS (score 5): All of score 4, plus suggests intermediate strategies (add logging to narrow the window, A/B between browser versions), and explicitly refuses to fix without a loop.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 120
+tags: [skill-effectiveness, debugging, feedback-loop]
