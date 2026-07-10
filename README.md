@@ -59,25 +59,28 @@ Start with **basic**. Everything you need in every project, nothing you don't.
 mise run catalog    # browse all available skills
 ```
 
-## Plugins
+## Extensions
 
-Plugins add capabilities with external tool dependencies:
+Extensions add capabilities with external tool dependencies. They auto-deploy when prerequisites are met:
 
 ```bash
-# Install cross-session memory
-uv tool install recall                    # prerequisite
-mise run init -- --plugin recall          # deploys skill + steering
+# Install cross-session memory (the prerequisite)
+uv tool install recall
+
+# Deploy tier — recall extension activates automatically
+mise run init -- --global --tier basic --tool kiro-cli
+# Extensions: recall ✅
 
 # Now the agent remembers past decisions
 recall import .memory/ --wing my_project  # index project knowledge
 recall search "what did we decide about X"
 ```
 
-| Plugin | What it adds | Prerequisite |
-|--------|-------------|--------------|
-| `recall` | Cross-session memory — searches past decisions, imports project knowledge | `recall` CLI |
+| Extension | What it adds | Prerequisite |
+|-----------|-------------|--------------|
+| `recall` | Cross-session memory — searches past decisions, imports project knowledge | `recall` CLI on PATH |
 
-The agent suggests plugins when it detects matching work patterns.
+Extensions auto-detect. To skip: `--skip-extension recall`.
 
 ## What You Can Do
 
@@ -101,7 +104,7 @@ After setup, these workflows are available in any kiro-cli session:
 - Asks clarifying questions before building (planning skills)
 - Verifies its work before reporting done (verification protocol)
 - Produces concise code (code hygiene steering)
-- Recalls past decisions when asked (recall plugin)
+- Recalls past decisions when asked (recall extension)
 - Captures state at session end (handoff)
 
 None of this requires you to change how you work. You just chat normally.
@@ -114,7 +117,7 @@ None of this requires you to change how you work. You just chat normally.
 │  "How to act" — protocols, reasoning modes, gates   │
 │  Format: SKILL.md (markdown + YAML frontmatter)     │
 ├─────────────────────────────────────────────────────┤
-│  Memory Layer (recall plugin)                       │
+│  Memory Layer (recall extension)                    │
 │  "What happened" — decisions, lessons, preferences  │
 │  Hybrid BM25 + vector search over sessions + docs   │
 ├─────────────────────────────────────────────────────┤
@@ -150,7 +153,7 @@ mise run doctor -- --project ~/your-project
 
 ## Adapted From
 
-**[MemPalace](https://github.com/MemPalace/mempalace)** — The recall plugin adapts MemPalace's architecture (wings/rooms/drawers) as a purpose-built 673-line implementation. SQLite + FTS5 + local embeddings, no server dependencies. See [ADR 0007](.memory/adr/0007-purpose-built-recall-tool.md).
+**[MemPalace](https://github.com/MemPalace/mempalace)** — The recall extension adapts MemPalace's architecture (wings/rooms/drawers) as a purpose-built 673-line implementation. SQLite + FTS5 + local embeddings, no server dependencies. See [ADR 0007](.memory/adr/0007-purpose-built-recall-tool.md).
 
 **[Google OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)** — OKF's "nouns, not verbs" insight shapes how `.memory/` (knowledge) stays separate from skills (behavior). All `.memory/` files use OKF-compatible frontmatter (`type` + `title`), importable via `recall import`.
 

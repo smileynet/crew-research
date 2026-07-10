@@ -100,13 +100,13 @@ mise run add-skill -- <name>
 
 **When to suggest:** during init, adopt-project, read-handoff, or when a plan includes matching work.
 
-## Plugins (if installed)
+## Extensions (auto-deploy when prerequisite met)
 
-| Plugin | Commands | What it does |
-|--------|----------|-------------|
+| Extension | Commands | What it does |
+|-----------|----------|-------------|
 | `recall` | `recall search "query"`, `recall add "fact" --type decision`, `recall import .memory/ --wing name` | Cross-session memory — past decisions, prior work, project knowledge. Auto-primes at session start. |
 
-Install: `mise run init -- --plugin recall` (requires `recall` CLI on PATH)
+Prerequisites: `uv tool install recall`. Then re-run tier deploy — recall activates automatically.
 
 ### Recall quick reference
 
