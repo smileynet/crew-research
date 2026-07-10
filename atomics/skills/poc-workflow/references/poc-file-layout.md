@@ -4,36 +4,67 @@
 
 ```
 project/
+├── proposal-plan.md             # THE MAP — living index (destination, decisions, fog, scope)
 ├── README.md                    # Usage instructions (created last)
-├── context.md                   # Quick-reference for any session
-├── proposal-plan.md             # Active implementation plan (living doc)
 ├── .memory/                     # Durable reference (tracked)
+│   ├── CONTEXT.md               # Project glossary
 │   ├── decisions.md             # Architecture decisions with rationale
 │   ├── requirements.md          # Customer/project requirements
 │   ├── research-synthesis.md    # Synthesized research findings
 │   ├── spike-N-findings.md      # Per-spike results
-│   └── phase-N-findings.md      # Per-phase validation results
+│   ├── grill/                   # Grill session outputs
+│   │   └── {topic}/INDEX.md     # Per-topic grill with question files
+│   └── adr/                     # Hard-to-reverse decisions only
 ├── .scratch/                    # Ephemeral research (gitignored)
+│   └── research/                # Raw research before synthesis
 ├── docs/
-│   ├── adr/                     # Hard-to-reverse decisions only
-│   └── specs/                   # Feature specs
+│   └── specs/                   # Feature specs (if needed)
 ├── infra/                       # Infrastructure as code
 └── src/                         # Application code
 ```
+
+## The Map (proposal-plan.md)
+
+The map is the single orientation document. Load it at session start.
+
+```markdown
+## Destination
+<what "done" looks like — one or two lines>
+
+## Decisions so far
+- [Decision name] — one-line gist (detail: .memory/decisions.md or .memory/grill/{topic}/)
+
+## Active work
+- [ ] Current task/spike and what it resolves
+
+## Fog (not yet specified)
+- Suspected decisions not yet sharp enough to act on
+
+## Out of scope
+- What this PoC does NOT prove (and why)
+```
+
+**Rules:**
+- Map is an INDEX — it links, doesn't restate
+- Decisions live in `.memory/decisions.md` (one place only)
+- Update the map after every resolved decision
+- Fog graduates to active work when it's sharp enough to act on
+- Out of scope never graduates (unless destination changes)
 
 ## Placement Rules
 
 | Content | Location | Tracked? |
 |---------|----------|----------|
+| Living index/map | `proposal-plan.md` (root) | Yes |
 | Architecture decisions | `.memory/decisions.md` | Yes |
 | Requirements | `.memory/requirements.md` | Yes |
 | Research synthesis | `.memory/research-synthesis.md` | Yes |
-| Spike/phase findings | `.memory/spike-N-findings.md` | Yes |
-| Raw research output | `.scratch/` | No |
-| Hard-to-reverse decisions | `docs/adr/NNN-title.md` | Yes |
+| Spike findings | `.memory/spike-N-findings.md` | Yes |
+| Grill sessions | `.memory/grill/{topic}/` | Yes |
+| Raw research output | `.scratch/research/` | No |
+| Hard-to-reverse decisions | `.memory/adr/NNN-title.md` | Yes |
 | Feature specs | `docs/specs/` | Yes |
-| Implementation plan | `proposal-plan.md` (root) | Yes |
-| Quick reference | `context.md` (root) | Yes |
+| Glossary | `.memory/CONTEXT.md` | Yes |
 
 ## ADR Criteria
 
