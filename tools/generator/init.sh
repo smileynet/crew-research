@@ -343,6 +343,20 @@ if [[ "$GLOBAL" == true ]]; then
       fi
     done
 
+    # --- Preserve plugin-installed files from pruning ---
+    if [[ -f "$PLUGINS_STATE" ]]; then
+      for plugin in $(python3 -c "import json; d=json.load(open('$PLUGINS_STATE')); print(' '.join(d.get('installed',{}).keys()))" 2>/dev/null); do
+        local plugin_file="$PLUGINS_DIR/$plugin.yaml"
+        [[ -f "$plugin_file" ]] || continue
+        for item in $(yq -r '.deploys.steering[]' "$plugin_file" 2>/dev/null | grep -v '^null$'); do
+          DESIRED_FILES["$DEST/steering/$item.md"]=1
+        done
+        for item in $(yq -r '.deploys.skills[]' "$plugin_file" 2>/dev/null | grep -v '^null$'); do
+          DESIRED_FILES["$DEST/skills/$item/SKILL.md"]=1
+        done
+      done
+    fi
+
     # --- Prune stale files ---
     for f in "$DEST/steering/"*.md; do
       [[ -f "$f" ]] || continue
@@ -358,7 +372,7 @@ if [[ "$GLOBAL" == true ]]; then
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
       skill_name=$(basename "$d")
-      if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name"; then
+      if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" && [[ -z "${DESIRED_FILES["$DEST/skills/$skill_name/SKILL.md"]:-}" ]]; then
         rm -rf "$d"
         removed=$((removed + 1))
         echo "  pruned: skills/$skill_name/"
