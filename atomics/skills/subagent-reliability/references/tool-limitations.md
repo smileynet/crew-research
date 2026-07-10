@@ -6,13 +6,15 @@ Known concurrency limits and failure patterns per tool. Only validated observati
 
 | Property | Value | Source |
 |----------|-------|--------|
-| Max concurrent subagents | 4 | kiro.dev official docs |
-| DAG queuing | Yes — excess stages queue automatically | kiro.dev docs |
-| Empty response on large prompts | Confirmed | Observed: 11% success on synthesis, 93% on file-read |
-| Prompt size threshold | ~5-10K tokens inline causes failures | Inferred from file-read vs synthesis success rates |
+| Max concurrent subagents | 4 (queues beyond) | kiro.dev official docs |
+| DAG queuing | Yes — 6/6 stages completed when dispatched at once | Proof S1: PASS |
+| Empty response on large prompts | **Steering prevents** — agent refuses to inline large data | Proof S2: steering followed correctly |
+| Prompt size threshold | Not directly tested (agent avoids the pattern) | Proof S2: INCONCLUSIVE for raw threshold |
 | Subagent model | Inherits from agent config (or default) | kiro.dev docs |
 
-**Validated failure pattern:** 11-stage file-reading dispatch (100% success) followed by 5-stage synthesis dispatch (20% success) in same session. Root cause: synthesis prompts were 5-10K tokens inline.
+**S1 result:** Dispatched 6 parallel file-read stages → all 6 returned canary values. Queuing works transparently beyond the 4-concurrent limit.
+
+**S2 result:** Agent read the `subagent-reliability` steering and refused to dispatch inline synthesis, doing it directly instead. The steering prevents the failure pattern rather than the agent hitting it.
 
 ## codex
 
