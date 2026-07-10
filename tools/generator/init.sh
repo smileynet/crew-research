@@ -21,6 +21,7 @@ TEST_CMD=""
 LINT_CMD=""
 PLUGIN=""
 REMOVE_PLUGIN=""
+SKIP_EXTENSIONS=()
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -31,6 +32,7 @@ while [[ $# -gt 0 ]]; do
     --language) LANGUAGE="$2"; shift 2 ;;
     --plugin) PLUGIN="$2"; shift 2 ;;
     --remove-plugin) REMOVE_PLUGIN="$2"; shift 2 ;;
+    --skip-extension) SKIP_EXTENSIONS+=("$2"); shift 2 ;;
     *) echo "Unknown: $1" >&2; exit 1 ;;
   esac
 done
@@ -55,6 +57,11 @@ PLUGINS_DIR="$ROOT_DIR/compositions/plugins"
 PLUGINS_STATE="$HOME/.crew-research/plugins.json"
 
 if [[ -n "$PLUGIN" || -n "$REMOVE_PLUGIN" ]]; then
+  echo "⚠️  --plugin/--remove-plugin is deprecated."
+  echo "   Extensions now auto-deploy when prerequisites are met."
+  echo "   Just run: mise run init -- --global --tier $TIER"
+  echo "   To skip an extension: --skip-extension $PLUGIN"
+  echo ""
   mkdir -p "$HOME/.crew-research"
 
   if [[ -n "$PLUGIN" ]]; then
@@ -239,6 +246,38 @@ if [[ "$GLOBAL" == true ]]; then
   STEERING=($(yq -r '.steering[]' "$TIER_FILE"))
   SKILLS=($(yq -r '.skills[]' "$TIER_FILE"))
 
+  # Process extensions — deploy if prerequisite is met
+  EXTENSIONS_COUNT=$(yq -r '.extensions | length // 0' "$TIER_FILE")
+  EXTENSIONS_ACTIVE=()
+  EXTENSIONS_SKIPPED=()
+  if [[ "$EXTENSIONS_COUNT" -gt 0 ]]; then
+    for i in $(seq 0 $((EXTENSIONS_COUNT - 1))); do
+      ext_name=$(yq -r ".extensions[$i].name" "$TIER_FILE")
+      ext_cmd=$(yq -r ".extensions[$i].prerequisite.command" "$TIER_FILE")
+      ext_hint=$(yq -r ".extensions[$i].prerequisite.install_hint" "$TIER_FILE")
+
+      # Check if user explicitly skipped this extension
+      if printf '%s\n' "${SKIP_EXTENSIONS[@]}" 2>/dev/null | grep -qx "$ext_name" 2>/dev/null; then
+        EXTENSIONS_SKIPPED+=("$ext_name (user skipped)")
+        continue
+      fi
+
+      # Test prerequisite
+      if eval "$ext_cmd" &>/dev/null; then
+        EXTENSIONS_ACTIVE+=("$ext_name")
+        # Append extension steering and skills to main arrays
+        for item in $(yq -r ".extensions[$i].steering[]" "$TIER_FILE" 2>/dev/null | grep -v '^null$'); do
+          STEERING+=("$item")
+        done
+        for item in $(yq -r ".extensions[$i].skills[]" "$TIER_FILE" 2>/dev/null | grep -v '^null$'); do
+          SKILLS+=("$item")
+        done
+      else
+        EXTENSIONS_SKIPPED+=("$ext_name ($ext_hint)")
+      fi
+    done
+  fi
+
   # Helper: deploy a file only if content differs (resolves params)
   deploy_file() {
     local src="$1" dest="$2"
@@ -349,20 +388,6 @@ if [[ "$GLOBAL" == true ]]; then
       fi
     done
 
-    # --- Preserve plugin-installed files from pruning ---
-    if [[ -f "$PLUGINS_STATE" ]]; then
-      for plugin in $(python3 -c "import json; d=json.load(open('$PLUGINS_STATE')); print(' '.join(d.get('installed',{}).keys()))" 2>/dev/null); do
-        local plugin_file="$PLUGINS_DIR/$plugin.yaml"
-        [[ -f "$plugin_file" ]] || continue
-        for item in $(yq -r '.deploys.steering[]' "$plugin_file" 2>/dev/null | grep -v '^null$'); do
-          DESIRED_FILES["$DEST/steering/$item.md"]=1
-        done
-        for item in $(yq -r '.deploys.skills[]' "$plugin_file" 2>/dev/null | grep -v '^null$'); do
-          DESIRED_FILES["$DEST/skills/$item/SKILL.md"]=1
-        done
-      done
-    fi
-
     # --- Prune stale files ---
     for f in "$DEST/steering/"*.md; do
       [[ -f "$f" ]] || continue
@@ -378,7 +403,7 @@ if [[ "$GLOBAL" == true ]]; then
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
       skill_name=$(basename "$d")
-      if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" && [[ -z "${DESIRED_FILES["$DEST/skills/$skill_name/SKILL.md"]:-}" ]]; then
+      if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" 2>/dev/null; then
         rm -rf "$d"
         removed=$((removed + 1))
         echo "  pruned: skills/$skill_name/"
@@ -398,6 +423,14 @@ if [[ "$GLOBAL" == true ]]; then
 
     echo ""
     echo "  Steering: ${#STEERING[@]} | Skills: ${#SKILLS[@]}"
+    if [[ ${#EXTENSIONS_ACTIVE[@]} -gt 0 ]]; then
+      echo "  Extensions: ${EXTENSIONS_ACTIVE[*]}"
+    fi
+    if [[ ${#EXTENSIONS_SKIPPED[@]} -gt 0 ]]; then
+      for skip in "${EXTENSIONS_SKIPPED[@]}"; do
+        echo "  ⚠️  Extension skipped: $skip"
+      done
+    fi
     echo "  $updated updated, $removed pruned, $unchanged unchanged"
     echo ""
   }
@@ -413,24 +446,10 @@ if [[ "$GLOBAL" == true ]]; then
     updated=0; removed=0; unchanged=0
     declare -A DESIRED_SKILLS
 
-    # --- Deploy skills (tier + plugins) ---
+    # --- Deploy skills (tier + extensions already merged) ---
     mkdir -p "$skills_dest"
 
-    # Collect all skills: tier manifest + installed plugins
-    local all_skills=("${SKILLS[@]}")
-    if [[ -f "$PLUGINS_STATE" ]]; then
-      for plugin in $(python3 -c "import json; d=json.load(open('$PLUGINS_STATE')); print(' '.join(d.get('installed',{}).keys()))" 2>/dev/null); do
-        local plugin_file="$PLUGINS_DIR/$plugin.yaml"
-        [[ -f "$plugin_file" ]] || continue
-        for item in $(yq -r '.deploys.skills[]' "$plugin_file" 2>/dev/null | grep -v '^null$'); do
-          if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$item" 2>/dev/null; then
-            all_skills+=("$item")
-          fi
-        done
-      done
-    fi
-
-    for skill in "${all_skills[@]}"; do
+    for skill in "${SKILLS[@]}"; do
       src_dir="$SKILLS_DIR/$skill"
       if [[ -d "$src_dir" ]]; then
         dest="$skills_dest/$skill"
@@ -453,20 +472,8 @@ if [[ "$GLOBAL" == true ]]; then
     agents_content+=$'\n'"# Auto-generated by crew-research init.sh — do not edit manually"
     agents_content+=$'\n'
 
-    # Collect all steering: tier manifest + installed plugins
+    # Collect all steering (tier + extensions already merged)
     local all_steering=("${STEERING[@]}")
-    if [[ -f "$PLUGINS_STATE" ]]; then
-      for plugin in $(python3 -c "import json; d=json.load(open('$PLUGINS_STATE')); print(' '.join(d.get('installed',{}).keys()))" 2>/dev/null); do
-        local plugin_file="$PLUGINS_DIR/$plugin.yaml"
-        [[ -f "$plugin_file" ]] || continue
-        for item in $(yq -r '.deploys.steering[]' "$plugin_file" 2>/dev/null | grep -v '^null$'); do
-          # Add only if not already in the tier steering list
-          if ! printf '%s\n' "${STEERING[@]}" | grep -qx "$item" 2>/dev/null; then
-            all_steering+=("$item")
-          fi
-        done
-      done
-    fi
 
     for skill in "${all_steering[@]}"; do
       src="$SKILLS_DIR/$skill/SKILL.md"

@@ -33,3 +33,15 @@ skills:
   # Maintain
   - init-project
   - adopt-project
+
+extensions:
+  - name: recall
+    description: "Cross-session memory — recalls past decisions, imports project knowledge"
+    prerequisite:
+      command: "recall --version"
+      install_hint: "uv tool install recall"
+    steering:
+      - recall-session-start
+      - recall-check
+    skills:
+      - recall

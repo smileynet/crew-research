@@ -69,3 +69,15 @@ skills:
   - session-review-patterns
   - eval-criteria
   - enforcement-hierarchy
+
+extensions:
+  - name: recall
+    description: "Cross-session memory — recalls past decisions, imports project knowledge"
+    prerequisite:
+      command: "recall --version"
+      install_hint: "uv tool install recall"
+    steering:
+      - recall-session-start
+      - recall-check
+    skills:
+      - recall
