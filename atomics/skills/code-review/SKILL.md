@@ -27,10 +27,11 @@ git diff main          # or git diff HEAD~1, or the relevant range
 - Any project-specific linting not covered by tooling
 
 **Spec axis (find the originating requirement):**
+- **Inline in the user's prompt** — if the user says "The spec says: ..." use that directly
 - Commit messages for issue references (`#123`, `Closes #45`)
 - `.memory/specs/` — feature specs matching the branch/feature name
 - `.memory/grill/` — grill session findings related to this work
-- If no spec found: note "no spec available" and skip this axis
+- If no spec found anywhere: note "no spec available" and skip this axis
 
 ### 3. Dispatch review subagent(s)
 
