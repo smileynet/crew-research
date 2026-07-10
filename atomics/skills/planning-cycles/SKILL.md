@@ -21,8 +21,15 @@ Do NOT activate for: bug fixes, small well-defined tasks, tasks with clear specs
 ## The Five Phases
 
 ```
-Specify (anchor) → Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (commit)
+Destination → Specify (anchor) → Brainstorm (diverge) → Sample (validate) → Scope (converge) → Finalize (commit)
 ```
+
+### Destination (always first)
+
+Before any phase: name what "done" looks like in one sentence. This fixes scope.
+
+- "When this is done, [user can do X / system handles Y / we've proven Z]"
+- If you can't state the destination, you need `/grill-with-docs` first, not planning
 
 ### Phase 0: Specify
 - Describe the desired experience in the USER'S language (not implementation language)
@@ -60,7 +67,8 @@ Specify (anchor) → Brainstorm (diverge) → Sample (validate) → Scope (conve
 ### Phase 3: Scope
 - Structure work into hierarchy (epic → feature → task)
 - Add dependencies, priorities, acceptance criteria
-- **Output:** structured plan (YAML or markdown)
+- Identify **fog** — decisions you know are coming but can't specify yet. Don't fake-plan these; note them explicitly.
+- **Output:** structured plan (YAML or markdown) + fog list (what remains unclear)
 - **Review before proceeding**
 
 ### Phase 4: Finalize

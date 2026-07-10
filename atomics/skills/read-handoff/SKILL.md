@@ -21,17 +21,20 @@ Orient yourself to continue work from where the last session left off.
 1. Read `{{params.ephemeral_path}}/{{params.handoff_file}}`
 2. Read `{{params.glossary_path}}` (internalize key terms)
 3. Check staleness: `git log --oneline {base_commit}..HEAD`
-4. If task graph position is unclear, read `docs/plan.md`
+4. If `proposal-plan.md` exists, read it — this is the project map (destination, decisions, fog, scope)
+5. If task graph position is unclear, read `docs/plan.md`
 
 ## Report After Reading
 
 1. **Handoff key** and how stale it is (commits since base_commit)
 2. **Objective** in one sentence
 3. **Task graph position** — what's done, what's next
-4. **Constraints** — especially tool prerequisites
-5. **What was tried** — acknowledge dead ends
-6. **First 1-2 next steps** you would take
-7. **Non-obvious** — any gotchas, environmental quirks, or constraints not captured in the handoff itself
+4. **Frontier** — what's actionable now (from map or next steps)
+5. **Fog** — what's known-unknown (from handoff fog section or map)
+6. **Constraints** — especially tool prerequisites
+7. **What was tried** — acknowledge dead ends
+8. **First 1-2 next steps** you would take
+9. **Non-obvious** — any gotchas, environmental quirks, or constraints not captured in the handoff itself
 
 ## Verify Before Acting
 

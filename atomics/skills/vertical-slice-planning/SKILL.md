@@ -13,13 +13,19 @@ metadata:
 
 What's blocking progress?
 
-| Signal | Methodology | Output |
-|--------|-------------|--------|
-| "I don't understand how X works" | **Spike** | Throwaway code/notes, time-boxed |
-| "I don't know if the layers connect" | **Tracer Bullet** | Minimal end-to-end production code |
-| "Architecture works, need more features" | **Vertical Slice** | One complete feature through all layers |
+## Route by Fog Density
 
-If unsure: default to **tracer bullet**.
+How much can you see toward the destination?
+
+| What you can see | Fog density | Methodology | Output |
+|-----------------|-------------|-------------|--------|
+| Can't even see the first step | **Dense** | **Spike** | Throwaway code/notes, time-boxed |
+| See the first step, not the end | **Partial** | **Tracer Bullet** | Minimal end-to-end production code |
+| Path is clear, need to walk it | **Clear** | **Vertical Slice** | One complete feature through all layers |
+
+If unsure: default to **tracer bullet** — it proves the path while producing kept code.
+
+**The fog clears as you resolve:** Each spike clears fog for a tracer bullet. Each tracer bullet clears fog for vertical slices. Don't skip levels — dense fog needs a spike, not a slice.
 
 ---
 

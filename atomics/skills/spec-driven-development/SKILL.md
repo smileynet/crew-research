@@ -63,7 +63,32 @@ Never present a spec that fails these. Fix it silently, or if unfixable without 
 
 ## PLAN.md
 
-Intent (what/why), phases (goal + features + validates), task graph (`→` = dependency, `[P]` = parallel). See [references/spec-template.md](references/spec-template.md) for full templates.
+The plan is a living map, not a static document. Structure:
+
+```markdown
+## Destination
+<What "done" looks like — one sentence>
+
+## Phases
+| Phase | Goal | Features | Validates |
+|-------|------|----------|-----------|
+
+## Decisions so far
+- [Decision] — rationale (detail in spec or ADR if complex)
+
+## Task Graph
+feature-a → feature-b [P] feature-c → integration
+
+## Fog (not yet specified)
+- Decisions/features we know are coming but can't spec yet
+
+## Out of scope
+- What this project does NOT include
+```
+
+Update PLAN.md after each resolved decision. Fog graduates to phases when it sharpens.
+
+See [references/spec-template.md](references/spec-template.md) for full templates.
 
 ## Feature Specs (`.specs/{slug}.md`)
 

@@ -38,8 +38,11 @@ handoff_key: {workstream-slug}
 ## Prior Decisions
 ## Current State
 ## Next Steps
+## Fog (if applicable)
 ## Evidence
 ```
+
+**Fog section:** If the project has a map (proposal-plan.md) or unresolved questions from a grill session, note what CANNOT yet be planned — decisions that surfaced but remain unclear. This tells the next session where the frontier is vs what's still in fog.
 
 ## Rules
 

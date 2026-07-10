@@ -156,4 +156,8 @@ Complete when:
 - User confirms shared understanding
 - If `recall` is on PATH: persist each decision from the tracking table via `recall add "Q{n}: decided {X} because {Y}" --room decisions --type decision`
 
-Then: summarize decisions, offer ADRs if qualifying, propose first implementation step.
+Then:
+1. Summarize decisions
+2. Note **remaining fog** — questions that surfaced but couldn't be resolved (need research, spike, or external input). Record in the project's plan or map if one exists.
+3. Offer ADRs if qualifying
+4. Propose first implementation step
