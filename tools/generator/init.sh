@@ -299,9 +299,13 @@ if [[ "$GLOBAL" == true ]]; then
     for skill in "${STEERING[@]}"; do
       src="$SKILLS_DIR/$skill/SKILL.md"
       if [[ -f "$src" ]]; then
-        # Skip if skill is scoped to a different tool
+        # Skip if skill is scoped to tools that don't include this one
         local skill_tool=$(yq -r '.metadata.tool // ""' "$src" 2>/dev/null)
+        local skill_tools=$(yq -r '.metadata.tools // [] | join(",")' "$src" 2>/dev/null)
         if [[ -n "$skill_tool" && "$skill_tool" != "kiro-cli" ]]; then
+          continue
+        fi
+        if [[ -n "$skill_tools" && ! "$skill_tools" =~ "kiro-cli" ]]; then
           continue
         fi
         dest="$DEST/steering/$skill.md"
@@ -416,10 +420,14 @@ if [[ "$GLOBAL" == true ]]; then
     for skill in "${STEERING[@]}"; do
       src="$SKILLS_DIR/$skill/SKILL.md"
       if [[ -f "$src" ]]; then
-        # Skip if skill is scoped to a different tool
-        local skill_tool
+        # Skip if skill is scoped to tools that don't include this one
+        local skill_tool skill_tools
         skill_tool=$(yq -r '.metadata.tool // ""' "$src" 2>/dev/null)
+        skill_tools=$(yq -r '.metadata.tools // [] | join(",")' "$src" 2>/dev/null)
         if [[ -n "$skill_tool" && "$skill_tool" != "$tool_label" ]]; then
+          continue
+        fi
+        if [[ -n "$skill_tools" && ! "$skill_tools" =~ "$tool_label" ]]; then
           continue
         fi
         local body

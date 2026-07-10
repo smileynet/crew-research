@@ -30,13 +30,15 @@ Known concurrency limits and failure patterns per tool. Only validated observati
 
 | Property | Value | Source |
 |----------|-------|--------|
-| Max concurrent subagents | **UNTESTED** | No data |
-| Empty response pattern | **UNTESTED** | No data |
-| Prompt size sensitivity | **UNTESTED** | No data |
+| Subagent support in --print mode | **NO** — single-turn text completion only | Proof S1: agy ignores dispatch instructions |
+| Interactive subagents | Unknown — may work in interactive TUI mode | Not tested |
+
+**Proof finding:** `agy --print` mode doesn't support subagent dispatch. The tool treats all prompts as single-turn completions. Subagent reliability guidance does NOT apply to agy in non-interactive mode.
 
 ## crush
 
 | Property | Value | Source |
 |----------|-------|--------|
-| Subagent support | **UNTESTED** (unclear if native subagents exist) | No data |
-| Max concurrent | **UNTESTED** | No data |
+| Subagent support | **NO** — no native subagent mechanism | Proof S1: empty output on dispatch request |
+
+**Proof finding:** crush has no subagent dispatch capability. It's a single-agent tool. Subagent reliability guidance does NOT apply to crush.
