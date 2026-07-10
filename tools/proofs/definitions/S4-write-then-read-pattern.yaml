@@ -1,0 +1,64 @@
+id: S4-write-then-read-pattern
+assumption: "Writing data to a file then having the subagent read it succeeds where inlining the same data in the prompt fails"
+category: subagent-reliability
+adapter: all
+
+setup:
+  create:
+    /tmp/proof-s4/input.md: |
+      # Force Inventory
+      ## Area: Player Movement
+      - Desire: Players feel responsive controls (< 100ms input-to-visual)
+      - Constraint: Network latency 50-150ms for remote players
+      - Desire: Movement looks smooth to spectators
+      - Constraint: Server tick rate capped at 30Hz for cost
+      - Desire: Collision feels fair to both players
+      ## Area: Game Economy
+      - Desire: Progression feels rewarding each session
+      - Constraint: Cannot sell gameplay advantages (cosmetics only)
+      - Desire: Long-term players stay engaged
+      - Constraint: New players cannot feel permanently behind
+      ## Area: Matchmaking
+      - Desire: Queue times under 60 seconds
+      - Constraint: Player pool is small (< 5000 concurrent)
+      - Desire: Matches feel fair (balanced teams)
+      - Constraint: Party queues with mixed skill levels
+      
+      Produce a tension table: for each pair of conflicting forces, name the tension in 3 words.
+
+query_inline: |
+  Dispatch a subagent: "Analyze this force inventory and produce a tension table showing conflicting force pairs:
+  [FULL CONTENT OF input.md PASTED INLINE]"
+
+query_write_then_read: |
+  Dispatch a subagent: "Read /tmp/proof-s4/input.md and produce a tension table showing conflicting force pairs."
+
+expect:
+  inline: "may fail (empty) or produce thin output"
+  write_then_read: "should succeed with complete tension table"
+
+pass_criteria: |
+  CONFIRMED if: write-then-read succeeds where inline fails (or inline produces thinner output)
+  DISPROVED if: both succeed equally well (prompt size not the issue for this tool)
+  INCONCLUSIVE if: both fail (tool has other problems)
+
+per_tool_results:
+  kiro-cli: "UNTESTED"
+  codex: "UNTESTED"
+  agy: "UNTESTED"
+  crush: "UNTESTED"
+
+teardown:
+  remove:
+    - /tmp/proof-s4/
+
+timeout: 120
+
+manual_steps: |
+  For each tool:
+  1. Create /tmp/proof-s4/input.md with the force inventory content
+  2. Attempt 1: dispatch subagent with full content inlined in the prompt
+  3. Attempt 2: dispatch subagent with "read the file" instruction
+  4. Compare output quality/completeness between attempts
+  5. Run each attempt 3 times to account for variance
+  6. Record: inline success rate vs file-read success rate

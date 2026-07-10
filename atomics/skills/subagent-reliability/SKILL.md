@@ -94,11 +94,21 @@ The final artifact must declare its own completeness:
 
 **The rule:** Never put large data inline in a subagent prompt. If the subagent needs data, write it to a file and have the subagent read it.
 
-## Parallelism
+## Batching Strategy
 
-- **Hard limit: 4 concurrent subagents** (kiro-cli official docs). The DAG system queues beyond this.
-- Dispatching more than 4 stages works (the system queues them), but plan for the wall clock time of `ceil(stages / 4)` sequential batches.
-- Large parallel dispatches (11 stages) succeed when each stage has a small prompt and reads from disk.
+Plan subagent dispatches in batches sized by the tool's concurrency limit. Each batch completes before the next starts.
+
+```
+Batch 1: [stage-A, stage-B, stage-C, stage-D]  → wait for all
+Batch 2: [stage-E, stage-F, stage-G]           → wait for all
+Validate: check success count before proceeding
+```
+
+**Rules:**
+- Never exceed the tool's concurrency limit per batch
+- Validate each batch's results before dispatching the next
+- If a batch has 2+ failures, STOP — don't dispatch the next batch
+- Order batches by dependency: independent stages first, dependent stages after
 
 ## Write-Then-Read Pattern
 
@@ -113,7 +123,7 @@ This converts a "synthesis with inline data" (fails ~90%) into a "file reading" 
 ## Preserving Subagent Output
 
 When a subagent phase produces raw extraction that a later phase will consume:
-- Save raw results to `.scratch/archwright-raw/` (ephemeral but session-durable)
+- Save raw results to `.scratch/subagent-raw/` (ephemeral but session-durable)
 - Later phases read the saved output rather than re-dispatching
 - This avoids: double extraction cost and re-read failures
 

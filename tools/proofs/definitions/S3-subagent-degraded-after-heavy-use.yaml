@@ -1,0 +1,70 @@
+id: S3-subagent-degraded-after-heavy-use
+assumption: "Subagent reliability degrades within a session after heavy prior subagent use (early dispatches succeed, later ones fail at higher rates)"
+category: subagent-reliability
+adapter: all
+
+setup:
+  create:
+    /tmp/proof-s3/batch1-a.md: "CANARY_B1A"
+    /tmp/proof-s3/batch1-b.md: "CANARY_B1B"
+    /tmp/proof-s3/batch1-c.md: "CANARY_B1C"
+    /tmp/proof-s3/batch1-d.md: "CANARY_B1D"
+    /tmp/proof-s3/batch2-a.md: "CANARY_B2A"
+    /tmp/proof-s3/batch2-b.md: "CANARY_B2B"
+    /tmp/proof-s3/batch2-c.md: "CANARY_B2C"
+    /tmp/proof-s3/batch2-d.md: "CANARY_B2D"
+    /tmp/proof-s3/batch3-a.md: "CANARY_B3A"
+    /tmp/proof-s3/batch3-b.md: "CANARY_B3B"
+    /tmp/proof-s3/batch3-c.md: "CANARY_B3C"
+    /tmp/proof-s3/batch3-d.md: "CANARY_B3D"
+
+query: |
+  Run three sequential batches of subagent dispatches. Each batch reads 4 files and returns canary values.
+  
+  Batch 1 (dispatch first, wait for results):
+  - Read /tmp/proof-s3/batch1-a.md through batch1-d.md
+  
+  Batch 2 (dispatch after batch 1 completes):
+  - Read /tmp/proof-s3/batch2-a.md through batch2-d.md
+  
+  Batch 3 (dispatch after batch 2 completes):
+  - Read /tmp/proof-s3/batch3-a.md through batch3-d.md
+  
+  Report success count per batch.
+
+expect:
+  present: ["CANARY_B1A", "CANARY_B1B", "CANARY_B1C", "CANARY_B1D"]
+  # Later batches may have lower success rates
+
+pass_criteria: |
+  CONFIRMED if: Batch 1 success rate > Batch 3 success rate (reliability degrades over session)
+  DISPROVED if: All 3 batches have equal success rates (no degradation pattern)
+  INCONCLUSIVE if: Any batch has 0% success (tool is broken, not degraded)
+
+observations:
+  - batch1_success: "N/4"
+  - batch2_success: "N/4"
+  - batch3_success: "N/4"
+  - degradation_pattern: "yes/no"
+
+per_tool_results:
+  kiro-cli: "UNTESTED"
+  codex: "UNTESTED"
+  agy: "UNTESTED"
+  crush: "UNTESTED"
+
+teardown:
+  remove:
+    - /tmp/proof-s3/
+
+timeout: 300
+
+manual_steps: |
+  For each tool:
+  1. Start a FRESH session (no prior subagent use)
+  2. Dispatch batch 1 (4 file-read subagents), record success count
+  3. Wait for batch 1 to complete
+  4. Dispatch batch 2 (4 file-read subagents), record success count
+  5. Wait for batch 2 to complete
+  6. Dispatch batch 3 (4 file-read subagents), record success count
+  7. Compare success rates: does batch 3 < batch 1?

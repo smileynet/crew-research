@@ -1,0 +1,64 @@
+id: S2-subagent-prompt-size-failure
+assumption: "Subagents fail (empty response) when dispatch prompt exceeds ~5K tokens inline, but succeed when same data is read from a file"
+category: subagent-reliability
+adapter: all
+
+setup:
+  create:
+    /tmp/proof-s2/large-data.md: |
+      <!-- Generate 3000 words of structured content (~4K tokens) -->
+      # Architecture Decision Records
+      ## ADR 001: Database Selection
+      Context: The system needs persistent storage for user data, session state, and analytics events. Expected volume is 10M events/day with 90-day retention. Read:write ratio is approximately 100:1 for analytics, 1:1 for user data.
+      Decision: PostgreSQL for user data (ACID, strong consistency, mature ecosystem). ClickHouse for analytics events (columnar, fast aggregation, good compression). Redis for session state (sub-ms reads, TTL-based expiry).
+      Consequences: Two database systems to maintain. Need connection pooling for PostgreSQL (pgbouncer). ClickHouse requires batch inserts (not row-by-row). Redis requires persistence config for session durability across restarts.
+      ## ADR 002: Authentication Architecture
+      Context: Multi-tenant SaaS with SSO requirements. Must support SAML, OIDC, and email/password. Enterprise customers require custom identity providers.
+      Decision: Auth0 as identity provider with custom rules for tenant isolation. JWT tokens with 15-minute expiry, refresh tokens with 7-day sliding window. API gateway validates tokens before routing to services.
+      Consequences: Auth0 costs scale with MAU. Custom rules add latency (~50ms). Need token revocation strategy for compromised sessions (short expiry helps but doesn't eliminate the window).
+      ## ADR 003: Event Streaming
+      Context: Microservices need to communicate state changes. Some consumers need real-time, others batch. Message ordering matters for some events (user actions within a session) but not others (analytics).
+      Decision: Kafka for inter-service events. Partitioned by tenant_id for ordering. Consumer groups for different processing needs. Dead-letter queue for failed processing. Schema registry for event format evolution.
+      Consequences: Kafka operational overhead (ZooKeeper, broker management). Need monitoring for consumer lag. Schema evolution requires backward compatibility discipline. Partition count decisions are hard to change later.
+      ## ADR 004-020: [Additional ADRs with similar detail level to reach ~3000 words total]
+      [... content continues with sufficient volume to exceed 4K tokens ...]
+
+query_inline: |
+  Dispatch a subagent with this task:
+  "Analyze the following architecture decisions and produce a summary table with columns: ADR#, Decision, Key Risk.
+  
+  [PASTE FULL CONTENT OF /tmp/proof-s2/large-data.md INLINE HERE]"
+
+query_file_read: |
+  Dispatch a subagent with this task:
+  "Read /tmp/proof-s2/large-data.md and produce a summary table with columns: ADR#, Decision, Key Risk."
+
+expect:
+  inline_attempt: "empty response or degraded output (< 3 ADRs summarized)"
+  file_read_attempt: "complete output (all ADRs summarized)"
+
+pass_criteria: |
+  PASS if: file-read subagent succeeds AND inline subagent fails or produces thin output
+  This confirms prompt size (not task complexity) is the failure variable.
+  INCONCLUSIVE if: both succeed (tool handles large inline prompts fine)
+  FAIL if: both fail (something else is wrong)
+
+per_tool_results:
+  kiro-cli: "UNTESTED"
+  codex: "UNTESTED"
+  agy: "UNTESTED"
+  crush: "UNTESTED"
+
+teardown:
+  remove:
+    - /tmp/proof-s2/
+
+timeout: 120
+
+manual_steps: |
+  For each tool:
+  1. Create /tmp/proof-s2/large-data.md with ~3000 words of structured content
+  2. Attempt 1 (inline): dispatch subagent with full content pasted in the prompt
+  3. Attempt 2 (file-read): dispatch subagent with "read the file" instruction only
+  4. Compare: does attempt 1 fail/thin while attempt 2 succeeds?
+  5. Record results per tool in per_tool_results

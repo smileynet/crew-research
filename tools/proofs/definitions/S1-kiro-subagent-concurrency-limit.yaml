@@ -1,0 +1,49 @@
+id: S1-kiro-subagent-concurrency-limit
+assumption: "kiro-cli enforces a maximum of 4 concurrent subagents, queuing excess stages"
+category: subagent-reliability
+adapter: kiro-cli
+
+setup:
+  create:
+    /tmp/proof-s1/file1.md: "Content for stage 1: CANARY_S1_FILE1"
+    /tmp/proof-s1/file2.md: "Content for stage 2: CANARY_S1_FILE2"
+    /tmp/proof-s1/file3.md: "Content for stage 3: CANARY_S1_FILE3"
+    /tmp/proof-s1/file4.md: "Content for stage 4: CANARY_S1_FILE4"
+    /tmp/proof-s1/file5.md: "Content for stage 5: CANARY_S1_FILE5"
+    /tmp/proof-s1/file6.md: "Content for stage 6: CANARY_S1_FILE6"
+
+query: |
+  Dispatch 6 subagents in parallel. Each one reads a single file and returns the CANARY value it contains:
+  - Stage 1: read /tmp/proof-s1/file1.md
+  - Stage 2: read /tmp/proof-s1/file2.md
+  - Stage 3: read /tmp/proof-s1/file3.md
+  - Stage 4: read /tmp/proof-s1/file4.md
+  - Stage 5: read /tmp/proof-s1/file5.md
+  - Stage 6: read /tmp/proof-s1/file6.md
+  Report all 6 canary values.
+
+expect:
+  present: ["CANARY_S1_FILE1", "CANARY_S1_FILE2", "CANARY_S1_FILE3", "CANARY_S1_FILE4", "CANARY_S1_FILE5", "CANARY_S1_FILE6"]
+  absent: []
+
+pass_criteria: |
+  PASS if: all 6 canary values returned (proving queuing works beyond 4 concurrent)
+  PARTIAL: 4-5 returned (concurrency limit hit, some queued stages failed)
+  FAIL: fewer than 4 returned (dispatch mechanism broken)
+
+observations:
+  - max_concurrent_observed: "count how many subagents ran simultaneously (from Ctrl+G or timing)"
+  - total_wall_clock: "time from dispatch to all results — longer than 1 batch = queuing confirmed"
+
+teardown:
+  remove:
+    - /tmp/proof-s1/
+
+timeout: 180
+
+manual_steps: |
+  1. Create 6 files in /tmp/proof-s1/ with unique canary values
+  2. Run kiro-cli and prompt the 6-stage dispatch
+  3. Observe with Ctrl+G: at most 4 should run simultaneously
+  4. Verify all 6 canary values appear in final output
+  5. Record wall clock time (expect ~2x a single stage if truly queued in batches of 4)
