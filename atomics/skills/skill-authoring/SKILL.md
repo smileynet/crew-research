@@ -57,6 +57,10 @@ Bad: `"Helps with code quality"` — matches everything, activates on nothing.
 
 Good: `"Code review standards and checklist. Use when reviewing code, PRs, or implementations for correctness, security, and quality."` — clear situations, specific terms.
 
+### Leading Words
+
+Use compact pretrained concepts to anchor behavior in few tokens. "tight" recruits more behavior than "fast, deterministic, low-overhead, clear signal" — in 1 token instead of 8. For the full pattern, read [references/leading-words.md](references/leading-words.md).
+
 ## Anti-Patterns
 
 | Problem | Symptom | Fix |

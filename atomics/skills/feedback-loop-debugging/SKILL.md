@@ -33,6 +33,8 @@ Try each until one works:
 
 ## Using the Loop
 
+Once you have a loop, **tighten it** — make it faster, sharper, more deterministic. A tight loop is a debugging superpower. For optimization strategies, read [references/tighten.md](references/tighten.md).
+
 ```
 1. Run loop → FAIL (confirms bug exists)
 2. Make ONE change

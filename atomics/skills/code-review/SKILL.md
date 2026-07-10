@@ -11,7 +11,7 @@ metadata:
 
 ## Process
 
-Dispatch a subagent for the review. Subagents have clean context — no knowledge of why the code was written — which produces more neutral, thorough reviews.
+Two-axis review: **Standards** (is the code good?) and **Spec** (does it match intent?).
 
 ### 1. Gather the diff
 
@@ -19,18 +19,34 @@ Dispatch a subagent for the review. Subagents have clean context — no knowledg
 git diff main          # or git diff HEAD~1, or the relevant range
 ```
 
-### 2. Dispatch review subagent
+### 2. Identify sources for each axis
+
+**Standards axis:**
+- Project rules from `.kiro/steering/` or `CONTRIBUTING.md`
+- Fowler smell baseline — see [references/smells.md](references/smells.md)
+- Any project-specific linting not covered by tooling
+
+**Spec axis (find the originating requirement):**
+- Commit messages for issue references (`#123`, `Closes #45`)
+- `.memory/specs/` — feature specs matching the branch/feature name
+- `.memory/grill/` — grill session findings related to this work
+- If no spec found: note "no spec available" and skip this axis
+
+### 3. Dispatch review subagent(s)
 
 Provide the subagent with:
 - The diff (or file list + contents)
-- The review checklist below
-- Any project-specific rules from `.kiro/steering/`
+- The relevant axis sources (standards OR spec — not both to the same subagent)
+- Do NOT provide: task description, design rationale, or conversation history
 
-Do NOT provide: the task description, design rationale, or conversation history. The reviewer should evaluate the code on its own merits.
+**Standards subagent:** Reviews against coding standards + smell baseline.
+**Spec subagent:** Reviews against the spec — does it implement what was specified? Missing anything? Scope creep?
 
-### 3. Report findings
+If spec is unavailable, run standards-only.
 
-Summarize the subagent's findings. Group by severity, cap at 5 critical/important items.
+### 4. Report findings
+
+Merge findings from both axes. Group by severity, cap at 5 critical/important items.
 
 ## Review Checklist (for subagent)
 

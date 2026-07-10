@@ -1,6 +1,6 @@
 ---
 name: cheatsheet
-description: "Quick reference for all available skills and workflows. Use when you need a reminder of what's available."
+description: "Quick reference for all available skills and workflows. Use when you need a reminder of what's available, or when you don't know where to start."
 metadata:
   type: reference
   invocation: user-only
@@ -9,7 +9,37 @@ metadata:
 
 # Cheatsheet
 
-## Workflows
+## Where Do I Start?
+
+**I have an idea / feature to build:**
+1. Describe what you want → `planning-cycles` activates automatically
+2. Stress-test the design → `/grill-with-docs`
+3. Need research first? → `/plan-prereqs`
+4. Ready to spec → `spec-driven-development` structures it as PLAN.md + specs
+5. Build → just work (code-review, testing-guide, git-protocol all activate)
+6. End session → `/handoff`
+
+**Something is broken:**
+→ `feedback-loop-debugging` activates. Build a pass/fail signal BEFORE fixing. Read `references/tighten.md` for loop optimization.
+
+**Starting a new session:**
+→ `/read-handoff` — orients you, reports what's done and next.
+
+**"What did we decide about X?":**
+→ `recall search` runs automatically (via steering). Searches past decisions.
+
+**Architecture feels wrong:**
+→ `/architecture-deepening` — finds deepening opportunities (shallow → deep modules).
+
+**Big, foggy effort (too large for one session):**
+→ `/vertical-slice-planning` — routes between spikes, tracer bullets, and slices based on uncertainty.
+
+**Maintenance / cleanup:**
+→ `/project-cleanup` (weekly) or `/project-audit` (drift check).
+
+---
+
+## Commands
 
 | Command | When to use |
 |---------|-------------|

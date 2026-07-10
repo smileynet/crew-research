@@ -15,10 +15,13 @@ A prototype is **throwaway code that answers a question**. The question decides 
 
 Identify which question is being answered:
 
-- **"Does this logic/state model work?"** → Logic branch. Build a tiny interactive terminal app that pushes the state machine through cases hard to reason about on paper.
-- **"What should this look like?"** → UI branch. Generate several radically different UI variations on a single route, switchable via URL param.
+| Question type | Branch | Output |
+|--------------|--------|--------|
+| "Does this logic / state model feel right?" | **Logic** | Interactive terminal app that pushes state through edge cases |
+| "What should this look like?" | **UI** | Multiple visual variants, switchable, side-by-side |
+| "Is this technically feasible?" | **Spike** | Minimal proof the path works. Findings captured, code deleted. |
 
-If ambiguous: backend module → logic; page/component → UI. State the assumption.
+If ambiguous: backend/data → Logic. Frontend/design → UI. Unknown territory → Spike.
 
 ## Rules (Both Branches)
 
