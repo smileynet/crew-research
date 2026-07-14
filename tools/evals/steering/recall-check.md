@@ -1,10 +1,3 @@
----
-name: recall-check
-description: When to search cross-session memory before answering.
-metadata:
-  type: protocol
-  invocation: agent-only
----
 
 # Recall — Check Before Answering
 

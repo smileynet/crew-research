@@ -1,0 +1,45 @@
+name: recall-exclusion-clause
+description: "Does the 'when NOT to search' clause reduce false-positive recall searches without regressing true-positive triggers?"
+type: qualitative
+
+conditions:
+  baseline:
+    note: "recall-check WITHOUT the exclusion clause (prior version)"
+    steering_override: |
+      # Recall — Check Before Answering
+      When the user asks about past decisions, prior sessions, or project history, run `recall search "query"` BEFORE answering. Do not guess or fabricate past decisions.
+      ## Trigger patterns
+      - "what did we decide about..."
+      - "last session...", "previously...", "remind me..."
+      - "continue from where we left off"
+      - "what was the decision on..."
+      - "have we discussed...", "did we already..."
+      - "what approach did we choose for..."
+      ## Command
+      ```bash
+      recall search "relevant query" --results 5
+      ```
+      If results are relevant, cite them. If not, say you don't have that information.
+  treatment:
+    note: "recall-check WITH the exclusion clause (current version)"
+    steering: [recall-check]
+
+prompts:
+  # True positives (should search in both conditions)
+  - "What did we decide about the caching strategy?"
+  - "Last session we were working on the API — where did we leave off?"
+  # True negatives (should NOT search — treatment should improve here)
+  - "What's in the terraform.tfvars file?"
+  - "You mentioned using Step Functions two messages ago — show me the code"
+  - "Grep for all TODO comments in the src directory"
+  - "What function validates the JWT token?"
+
+keywords:
+  recall_fired: ["recall search", "recall_search"]
+  file_read: ["read", "grep", "cat", "find"]
+
+success_criteria: |
+  Treatment PASSES if:
+  1. True-positive prompts still trigger recall search (no regression)
+  2. At least 3/4 true-negative prompts do NOT trigger recall search (improvement over baseline)
+  Baseline expected behavior: searches recall for everything (4/4 false positives on true-negative prompts)

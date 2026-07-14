@@ -1,0 +1,40 @@
+name: recall-search-precision
+description: "Tests that recall-check steering correctly routes: searches recall for history questions, does NOT search for code/file/current-session questions"
+category: recall-routing
+fixture: defu
+
+conditions:
+  with-skill:
+    steering:
+      - recall-check.md
+    skills: [recall]
+  baseline:
+    steering: []
+    skills: []
+
+tasks:
+  - name: history-question-should-search
+    input: "What did we decide about the database schema last week? Also, remind me what approach we chose for authentication. And previously we discussed caching — what was the conclusion?"
+    criteria: |
+      PRIMARY: Agent runs `recall search` (or equivalent memory lookup) for EACH of these three past-decision questions.
+      AUTOMATIC FAIL (score 1): Agent answers all three from assumption without any recall search, or says "I don't remember" without searching.
+      Score 2: Searches for one question but guesses the other two.
+      Score 3: Searches for two of three.
+      Score 4: Searches for all three past-decision questions via recall.
+      BONUS (score 5): Searches all three with well-formed queries, cites results or explicitly says recall returned nothing.
+
+  - name: code-questions-should-not-search
+    input: "What's in the package.json file? Also, what function handles the webhook parsing? And can you add a retry with exponential backoff to the API client?"
+    criteria: |
+      PRIMARY: Agent does NOT run `recall search` for any of these three questions. Instead uses file reads, code search, or direct implementation.
+      AUTOMATIC FAIL (score 1): Agent runs `recall search` for all three (treats them as history questions).
+      Score 2: Runs recall search for two of the three.
+      Score 3: Runs recall search for one but correctly handles the other two with file reads/code.
+      Score 4: Does not search recall for any. Reads files, searches code, or begins implementation directly.
+      BONUS (score 5): Perfect routing — reads package.json, greps/searches for webhook function, starts implementing retry — zero recall searches.
+
+trials: 3
+threshold: 4
+delta_threshold: 0
+timeout: 180
+tags: [recall, routing, precision]
