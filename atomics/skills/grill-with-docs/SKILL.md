@@ -162,4 +162,5 @@ Then:
 1. Summarize decisions
 2. Note **remaining fog** — questions that surfaced but couldn't be resolved (need research, spike, or external input). Record in the project's plan or map if one exists.
 3. Offer ADRs if qualifying
-4. Propose first implementation step
+4. Apply decisions to specs — for each spec file with "Unresolved Questions", cross-reference with grill decisions, mark resolved ones with the decision, remove stale items
+5. Propose first implementation step
