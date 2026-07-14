@@ -1,0 +1,37 @@
+name: consolidation-changelog-discipline
+description: "Does changelog quality discipline survive consolidation into writing-style/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [writing-style]
+  baseline:
+    skills: [changelog-discipline]
+
+tasks:
+  - name: write-changelog-entry
+    input: "Write a changelog entry for this change: refactored the internal _merge function to use a WeakMap for tracking visited objects, which fixes the infinite loop on circular references that users reported in #42."
+    criteria: |
+      PRIMARY: Entry describes user-facing impact (fixed infinite loop on circular refs) not mechanism (WeakMap refactor).
+      AUTOMATIC FAIL (score 1): Entry says "Refactored _merge to use WeakMap" (mechanism, not impact).
+      Score 2: Mentions the fix but also includes implementation details.
+      Score 3: Good impact focus but wrong category or format.
+      Score 4: "Fixed: Resolved infinite loop when merging objects with circular references (#42)" — user-facing, active voice, references issue.
+      BONUS (score 5): Also applies technology-replacement test ("would this entry still be true if we used a different approach?"), uses correct Keep-a-Changelog category.
+
+  - name: reject-bad-changelog
+    input: "Review this changelog entry and tell me if it's good: 'Changed: Updated defu.ts to export createDefu function and modified the type definitions in types.d.ts to support generics.'"
+    criteria: |
+      PRIMARY: Agent rejects entry because it names files/internals instead of describing user-facing value.
+      AUTOMATIC FAIL (score 1): Says the entry is fine.
+      Score 2: Suggests minor wording tweaks without identifying the core problem.
+      Score 3: Notes it could be better but doesn't identify the specific anti-pattern (naming files).
+      Score 4: Identifies "can't-name-a-file test" failure — rewrites to user impact: "Added: createDefu() factory for custom merge strategies with full TypeScript generic support."
+      BONUS (score 5): Cites both the technology-replacement and can't-name-a-file tests by name, provides the rewrite, explains why the original fails.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, writing, changelog]

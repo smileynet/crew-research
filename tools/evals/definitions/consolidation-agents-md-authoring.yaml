@@ -1,0 +1,37 @@
+name: consolidation-agents-md-authoring
+description: "Does AGENTS.md authoring behavior survive consolidation into skill-authoring/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [skill-authoring]
+  baseline:
+    skills: [agents-md-authoring]
+
+tasks:
+  - name: write-agents-md
+    input: "Write an AGENTS.md for the defu project. It's a TypeScript deep merge utility using vitest for tests and unbuild for building."
+    criteria: |
+      PRIMARY: Produced AGENTS.md is ≤150 lines, includes verifiable done criteria for commands, and has escalation rules.
+      AUTOMATIC FAIL (score 1): Over 200 lines or just a copy of README content.
+      Score 2: Under 200 lines but missing structure (no commands section, no layout).
+      Score 3: Under 150 lines but missing escalation rules or verifiable done criteria for commands.
+      Score 4: Under 150 lines, includes "When Blocked" section, has commands with verifiable done criteria (expected output or exit code), uses tables or lists over prose paragraphs.
+      BONUS (score 5): Includes decision tables, pairs "don'ts" with "dos", uses progressive disclosure (links to docs/), no prose paragraphs longer than 3 lines.
+
+  - name: trim-bloated-agents
+    input: "This AGENTS.md is 300 lines and the agent seems to be spending too much time on instructions instead of working. Help me fix it."
+    criteria: |
+      PRIMARY: Reduces to ≤150 lines while preserving essential information via progressive disclosure.
+      AUTOMATIC FAIL (score 1): Keeps it over 150 lines or just deletes content without extracting.
+      Score 2: Removes content but doesn't restructure or link extracted detail.
+      Score 3: Reduces length but loses important information without extraction.
+      Score 4: Extracts detail to referenced docs, keeps core under 150 lines, maintains routing to extracted content.
+      BONUS (score 5): Explains the reasoning token argument for brevity, identifies specific anti-patterns, restructures prose to tables.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, documentation, agents-md]

@@ -1,0 +1,44 @@
+name: consolidation-five-whys
+description: "Does five-whys behavior survive consolidation into troubleshooting-protocol/references/?"
+category: consolidation-impact
+fixture: defu
+
+# Consolidation regression test:
+# Primary (with-skill): troubleshooting-protocol (the parent skill after consolidation)
+# Baseline: five-whys (the standalone skill before consolidation)
+#
+# PASS criteria: parent must score >= threshold AND delta (parent - standalone) >= -0.5
+# A small negative delta is acceptable (content is now accessed via progressive loading).
+# A large negative delta means consolidation broke the behavior.
+conditions:
+  with-skill:
+    skills: [troubleshooting-protocol]
+  baseline:
+    skills: [five-whys]
+
+tasks:
+  - name: recurring-failure-rca
+    input: "Our production API went down for 2 hours last Tuesday. The immediate cause was a database connection pool exhaustion. We restarted the service and it recovered. But this is the third time this quarter. Do a root cause analysis — why does this keep happening?"
+    criteria: |
+      PRIMARY: Agent produces a causal chain (not a parallel list) chaining past the immediate cause to ask WHY it recurs.
+      AUTOMATIC FAIL (score 1): Says "increase pool size" or "add monitoring" without analyzing recurrence pattern.
+      Score 2: Identifies immediate cause only, no chaining.
+      Score 3: Lists possible causes but doesn't chain them (parallel, not sequential whys).
+      Score 4: Chains 4+ whys: pool exhaustion → connections not released → leak or slow queries → but why does it recur? → restart is band-aid → nobody investigated the leak → root cause is process/structural.
+      BONUS (score 5): Full chain reaching a systemic root cause, explicitly distinguishes "why it happened" from "why it keeps happening", produces actionable structural fix.
+
+  - name: non-obvious-user-confusion
+    input: "In the defu project (project/ directory), a user reports: 'When I do defu({items: [1,2,3]}, {items: [4,5,6]}), I get {items: [1,2,3,4,5,6]} but I expected {items: [1,2,3]}. My base object should win.' They filed a bug. Diagnose whether this is actually a bug or expected behavior, and explain the root cause of the user's confusion."
+    criteria: |
+      PRIMARY: Agent produces a causal chain explaining WHY the user is confused (not just what the code does).
+      AUTOMATIC FAIL (score 1): Just says "arrays concatenate" without explaining why the user's mental model is wrong.
+      Score 2: States the behavior but doesn't trace the reasoning chain.
+      Score 3: Identifies the array behavior but doesn't chain through the user's mental model.
+      Score 4: Chains: user expects "base wins" → defu's design is "merge, not override" → arrays merge by concatenation → user's mental model assumes replacement semantics → root cause is documentation/naming confusion.
+      BONUS (score 5): Full causal chain, identifies root cause as design communication problem (not a code bug), suggests what would fix the confusion.
+
+trials: 3
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 180
+tags: [consolidation-impact, reasoning, five-whys]

@@ -3,11 +3,10 @@ description: Investigates topics thoroughly, gathers evidence, and reports findi
 archetype: worker
 
 skills:
-  - five-whys
   - troubleshooting-protocol
   - research-methodology
   - research-output
-  - reference-exploration
+  - study-reference
 
 tools:
   - read

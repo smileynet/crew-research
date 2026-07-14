@@ -1,0 +1,27 @@
+name: consolidation-ux-walkthrough
+description: "Does UX walkthrough behavior survive consolidation into code-review/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [code-review]
+  baseline:
+    skills: [ux-walkthrough]
+
+tasks:
+  - name: walkthrough-user-flow
+    input: "Walk through the user experience of defu's API: a developer wants to merge their default config with user-provided overrides. What does each step of their experience look like?"
+    criteria: |
+      PRIMARY: Agent walks through the experience step-by-step answering See/Think/Do/Happen at each step (or equivalent structured analysis).
+      AUTOMATIC FAIL (score 1): Just describes the API without walking through the user experience.
+      Score 2: Describes the workflow but from the code's perspective, not the user's.
+      Score 3: Walks through steps from user perspective but without structured questions at each step.
+      Score 4: Step-by-step walkthrough with user mental model at each point (what they expect, what they see, what they do, what happens), identifies friction points.
+      BONUS (score 5): Full 4-question walkthrough (See/Think/Do/Happen) at each step, surfaces non-obvious usability issues, produces an issues table with severity.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, ux, code-review]

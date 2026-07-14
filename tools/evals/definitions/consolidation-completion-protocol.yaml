@@ -1,0 +1,37 @@
+name: consolidation-completion-protocol
+description: "Does task completion signaling survive consolidation into git-protocol/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [git-protocol]
+  baseline:
+    skills: [completion-protocol]
+
+tasks:
+  - name: signal-done-properly
+    input: "I've finished the task — the merge function now handles null arguments correctly. Tests pass. Summarize what was done."
+    criteria: |
+      PRIMARY: Agent produces a structured DONE signal with evidence, remaining work, and assumptions — not just prose summary.
+      AUTOMATIC FAIL (score 1): Plain prose paragraph ("I fixed the bug and tests pass") without structure.
+      Score 2: Some structure but missing evidence (no command output cited).
+      Score 3: Has structure and mentions verification but doesn't include follow-ups or assumptions.
+      Score 4: Structured signal with: task, result, evidence (test command + output), remaining work, assumptions. Commits and pushes.
+      BONUS (score 5): Also files follow-up issues for discovered-but-out-of-scope items, provides handoff elements (state change, files modified).
+
+  - name: report-blocked
+    input: "I can't figure out why the merge function fails on circular references. I've tried three different approaches. Report status."
+    criteria: |
+      PRIMARY: Agent produces a structured BLOCKED signal with what was tried, specific blocker, and what would unblock.
+      AUTOMATIC FAIL (score 1): Just says "I'm stuck" without structure or what was tried.
+      Score 2: Mentions being blocked but doesn't enumerate strategies tried.
+      Score 3: Lists what was tried but doesn't specify what would unblock.
+      Score 4: Structured BLOCKED signal: task, specific blocker, strategies tried (3), what would unblock (specific ask).
+      BONUS (score 5): Also includes recommendation for next approach or who to ask.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, completion, git-protocol]

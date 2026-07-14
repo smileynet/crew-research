@@ -60,3 +60,7 @@ Score reasoning quality, not vocabulary. An agent that correctly resolves a sour
 
 - `threshold: 4` — wrong answer = broken system (routing, scope, safety)
 - `threshold: 3` — partial credit acceptable (identity, style, narration)
+
+## References
+
+- For session transcript review patterns and red flags, read [references/session-review.md](references/session-review.md)

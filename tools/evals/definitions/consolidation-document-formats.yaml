@@ -1,0 +1,27 @@
+name: consolidation-document-formats
+description: "Does markup format selection guidance survive consolidation into writing-style/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [writing-style]
+  baseline:
+    skills: [document-formats]
+
+tasks:
+  - name: recommend-format
+    input: "I need to produce documentation that outputs both a PDF manual and an HTML site from the same source, with cross-file includes and numbered cross-references. What format should I use?"
+    criteria: |
+      PRIMARY: Agent recommends AsciiDoc (or equivalent multi-output format) with specific rationale tied to the requirements.
+      AUTOMATIC FAIL (score 1): Recommends Markdown without addressing the PDF/cross-ref requirements.
+      Score 2: Recommends the right format but without explaining why it fits these specific needs.
+      Score 3: Good recommendation with rationale but doesn't mention alternatives or when to use them.
+      Score 4: Recommends AsciiDoc, explains why (multi-output, includes, xrefs), mentions when Markdown suffices vs when to upgrade.
+      BONUS (score 5): Decision framework covering the user's full needs, mentions toolchain (asciidoctor), and notes the "when to leave Markdown" criteria.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, writing, document-formats]

@@ -45,40 +45,30 @@ Provide the subagent with:
 
 If spec is unavailable, run standards-only.
 
-### 4. Report findings
+### 4. Report findings — axes separate
 
-Merge findings from both axes. Group by severity, cap at 5 critical/important items.
-
-## Review Checklist (for subagent)
-
-**Priority order:**
-
-1. **Correctness** — Does it work? Edge cases? Error paths explicit?
-2. **Security** — Hardcoded secrets? Input validation? Injection vectors?
-3. **Design** — Single responsibility? Focused functions? No implicit coupling?
-4. **Testing** — New code has tests? Covers happy path + at least one error path?
-
-## Feedback Format
+Present each axis as its own section. Do NOT merge findings across axes.
 
 ```
-[SEVERITY] file:line — Issue summary.
-  Request: What to change.
-  Reason: Why it matters.
+## Standards
+[findings from standards review, grouped by severity]
+
+## Spec
+[findings from spec review — missing requirements, scope creep, misimplementation]
 ```
 
-**Severities:**
-- **CRITICAL**: Must fix. Security, data loss, broken functionality.
-- **IMPORTANT**: Should fix. Bug, missing error handling.
-- **NIT**: Nice to fix. Style, naming. Don't block on these.
+**If no spec was found:** replace the Spec section with:
+```
+## Spec: N/A
+No originating spec found (checked: prompt, commit messages, .memory/specs/, .memory/grill/).
+Review is standards-only.
+```
 
-## Signals to Flag
+This separation prevents one axis from masking the other. A change can pass Standards but miss the Spec, or implement the Spec perfectly while violating conventions.
 
-| Signal | Issue |
-|--------|-------|
-| Function > 20 lines or needs "and" to describe | Too broad |
-| Empty catch blocks | Silent error swallowing |
-| Signature doesn't match behavior | Functions that lie |
-| Module reaches into another's internals | Implicit coupling |
+Cap at 5 findings per axis. End with a verdict that considers both.
+
+For the subagent review checklist and signal patterns, see [references/checklist.md](references/checklist.md).
 
 ## Rules
 

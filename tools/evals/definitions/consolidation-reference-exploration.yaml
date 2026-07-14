@@ -1,0 +1,27 @@
+name: consolidation-reference-exploration
+description: "Does reference exploration behavior survive consolidation into study-reference?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [study-reference]
+  baseline:
+    skills: [reference-exploration]
+
+tasks:
+  - name: explore-reference-repo
+    input: "Explore the defu project in the project/ directory and produce a structured analysis of what it does, its key patterns, and what's non-obvious about it."
+    criteria: |
+      PRIMARY: Agent produces a structured analysis with JTBD, decisions/tradeoffs, non-obvious findings, and interface surfaces — with file path citations.
+      AUTOMATIC FAIL (score 1): Unstructured prose summary of the README without reading source code.
+      Score 2: Reads some code but produces unstructured notes.
+      Score 3: Has some structure but missing key sections (no non-obvious findings or no file citations).
+      Score 4: Structured output covering JTBD, decisions, non-obvious, and interfaces — with file path citations for claims.
+      BONUS (score 5): Writes to a file for reuse, includes recommendations (research topics, adoption considerations), non-obvious section is genuinely insightful.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 180
+tags: [consolidation-impact, research, reference-exploration]

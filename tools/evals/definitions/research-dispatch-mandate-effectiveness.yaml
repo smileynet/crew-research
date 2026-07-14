@@ -1,0 +1,45 @@
+name: research-dispatch-mandate-effectiveness
+description: "Does the steering cause the agent to dispatch subagents for multi-topic research instead of researching inline?"
+category: steering-effectiveness
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: []
+    steering:
+      - research-dispatch-mandate.md
+  baseline:
+    skills: []
+
+tasks:
+  - name: four-topic-research
+    input: "I need to understand four things about defu before choosing it: (1) how it handles circular references, (2) performance compared to lodash.merge, (3) whether it supports custom merge strategies, (4) what TypeScript generics support it has. Research all four and give me a recommendation."
+    criteria: |
+      PRIMARY: Agent dispatches subagents (one per topic) rather than researching all four topics sequentially in main context.
+      AUTOMATIC FAIL (score 1): Agent researches all topics inline — reads files, does web searches, produces findings — all in main context without any subagent dispatch.
+      Score 2: Agent acknowledges it should dispatch but then researches inline anyway ("I would normally dispatch but...").
+      Score 3: Agent dispatches some subagents but not one-per-topic (e.g., dispatches one subagent for all 4 topics, or does 2 inline and 2 dispatched).
+      Score 4: Agent dispatches 4 subagents (one per topic), each with a focused prompt, validates results, then synthesizes in main context.
+      BONUS (score 5): Dispatches 4 subagents in a single batch, uses small focused prompts (<100 words each), specifies output paths (.scratch/research/{slug}.md), synthesizes with cross-cutting themes and gaps after return.
+
+  - name: six-topic-research
+    input: "Research these aspects of the defu ecosystem for me: (1) array merge strategies, (2) nested object depth limits, (3) bundle size and tree-shaking, (4) comparison with deepmerge, (5) comparison with merge-deep, (6) how unjs projects typically handle breaking changes. Summarize findings."
+    criteria: |
+      PRIMARY: Agent dispatches subagents in batches (4 per call, then remainder) rather than researching sequentially.
+      AUTOMATIC FAIL (score 1): Agent researches all 6 topics inline without dispatching.
+      Score 2: Agent dispatches fewer than 4 subagents, researching some topics inline.
+      Score 3: Agent dispatches subagents but uses wrong batch size or agent name, requiring error recovery.
+      Score 4: Agent dispatches batch 1 (4 topics), validates, dispatches batch 2 (2 topics), synthesizes after all return.
+      BONUS (score 5): Correct batching (4+2), uses kiro_default role, small focused prompts with search queries, reads output files before synthesizing, produces cross-cutting themes and gaps.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 1.0
+timeout: 300
+tags: [steering-effectiveness, research-dispatch, subagent]
+
+log_analysis:
+  include_in_judge: true
+  penalties:
+    max_tool_calls: 0
+    max_retries: 0

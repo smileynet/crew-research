@@ -110,3 +110,7 @@ Draft → Accepted → Implemented → Reconciled → Validated
 - Non-Goals mandatory for complexity 3+
 - Reconcile after implementation — lying specs are worse than no specs
 - `[P]` = parallelizable, `→` = dependency
+
+## References
+
+- For reviewing/validating specs before implementation, read [references/review-checklist.md](references/review-checklist.md)

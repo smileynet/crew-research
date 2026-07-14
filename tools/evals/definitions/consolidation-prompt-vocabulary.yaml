@@ -1,0 +1,42 @@
+name: consolidation-prompt-vocabulary
+description: "Does reasoning technique selection survive consolidation into planning-cycles/references/?"
+category: consolidation-impact
+fixture: defu
+
+# Consolidation regression test:
+# Primary (with-skill): planning-cycles (parent skill, will contain references/reasoning-modes.md)
+# Baseline: prompt-vocabulary (standalone skill before consolidation)
+#
+# PASS: parent >= threshold AND delta (parent - standalone) >= -0.5
+conditions:
+  with-skill:
+    skills: [planning-cycles]
+  baseline:
+    skills: [prompt-vocabulary]
+
+tasks:
+  - name: technique-recommendation
+    input: "I'm about to review a plan for migrating our database from PostgreSQL to DynamoDB. I want to find potential failures before we commit. What's the best approach to think about this?"
+    criteria: |
+      PRIMARY: Recommends a specific named technique (pre-mortem, inversion, red-team) with rationale for why it fits this specific situation.
+      AUTOMATIC FAIL (score 1): Generic advice ("think carefully", "consider risks", "make a list of pros and cons") without naming a technique.
+      Score 2: Mentions thinking about risks but doesn't name a specific technique.
+      Score 3: Mentions a technique but doesn't explain why it fits this specific situation over alternatives.
+      Score 4: Names the technique, explains why it fits (e.g., pre-mortem for "find failures before committing"), distinguishes from alternatives.
+      BONUS (score 5): Offers a decision tree or comparison (pre-mortem for future failures vs inversion for design flaws vs red-team for adversarial), recommends one with clear rationale.
+
+  - name: technique-sequencing
+    input: "I want to both challenge my architectural assumptions about this new microservices design AND produce a concrete implementation plan. How should I structure this thinking?"
+    criteria: |
+      PRIMARY: Identifies that this needs two sequential modes (divergent/critical THEN convergent/building) and recommends specific techniques for each phase.
+      AUTOMATIC FAIL (score 1): Suggests doing both simultaneously without phase separation, or gives generic advice.
+      Score 2: Suggests thinking about it in stages but doesn't name techniques.
+      Score 3: Suggests phasing but doesn't name specific techniques for each phase.
+      Score 4: Names techniques for each phase (e.g., inversion/steel-man for challenge, then decomposition/tracer-bullet for plan), explains sequencing.
+      BONUS (score 5): Warns about conflicting modes, provides a workflow template with named transitions, explains why that order matters.
+
+trials: 3
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, reasoning-modes, prompt-vocabulary]

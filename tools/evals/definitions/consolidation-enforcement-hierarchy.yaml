@@ -1,0 +1,37 @@
+name: consolidation-enforcement-hierarchy
+description: "Does enforcement level selection survive consolidation into skill-authoring/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [skill-authoring]
+  baseline:
+    skills: [enforcement-hierarchy]
+
+tasks:
+  - name: select-enforcement-level
+    input: "I want to prevent agents from ever pushing directly to the main branch. What's the right way to enforce this?"
+    criteria: |
+      PRIMARY: Agent recommends the strongest available mechanism (Level 1: deniedCommands/tool permissions) rather than prose guidance.
+      AUTOMATIC FAIL (score 1): Suggests writing "never push to main" in AGENTS.md or steering without mentioning tool-level enforcement.
+      Score 2: Mentions multiple options but doesn't prioritize by enforcement strength.
+      Score 3: Recommends a strong mechanism (CI check, pre-push hook) but not the strongest (tool permissions).
+      Score 4: Recommends Level 1 enforcement (deniedCommands for git push to main, or equivalent tool permission), explains why prose guidance is insufficient for critical rules.
+      BONUS (score 5): Names the enforcement hierarchy explicitly, explains why this is Level 1 (catastrophic consequence, physically prevent), suggests layering (L1 tool block + L2 CI check as backup).
+
+  - name: distinguish-levels
+    input: "I have three rules to enforce: (1) never delete the production database, (2) all TypeScript must pass type-check, (3) prefer composition over inheritance. How should I enforce each?"
+    criteria: |
+      PRIMARY: Agent correctly assigns different enforcement levels to each rule based on consequence and nature.
+      AUTOMATIC FAIL (score 1): Puts all three in AGENTS.md/steering as prose rules.
+      Score 2: Distinguishes "important" from "less important" but doesn't map to specific mechanisms.
+      Score 3: Gets 2 of 3 right but misclassifies one (e.g., puts type-check as steering).
+      Score 4: Correctly maps: (1) deniedCommands/tool permission (catastrophic), (2) CI/pre-commit type-check (programmatic), (3) steering/AGENTS.md (preference). Explains each choice.
+      BONUS (score 5): Names all four levels, correctly assigns each rule, explains the "never rely on weaker mechanism" principle, suggests layering where appropriate.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, meta, enforcement]

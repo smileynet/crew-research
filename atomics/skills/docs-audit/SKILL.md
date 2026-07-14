@@ -64,3 +64,7 @@ Target: Level 4 for internal projects, Level 5 for public/OSS.
 ## Scope
 
 Audit documentation artifacts ONLY. Not code quality, test coverage, or dependencies.
+
+## References
+
+- For documentation classification by audience and content type, read [references/diataxis.md](references/diataxis.md)

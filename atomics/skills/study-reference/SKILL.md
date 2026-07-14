@@ -61,3 +61,7 @@ For each approved candidate:
 - Only create steering for patterns that apply every turn
 - Only create skills for knowledge needed during specific tasks
 - If the repo is large, focus on the parts relevant to our project
+
+## References
+
+- For the structured exploration output template, read [references/exploration-template.md](references/exploration-template.md)

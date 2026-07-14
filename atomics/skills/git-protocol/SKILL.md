@@ -51,3 +51,8 @@ Skipping this risks data loss. No exceptions.
   2. Make the fix as a new commit: `fix(scope): description`
   3. Push normally
 - The only exception: user explicitly says "amend and force push"
+
+## References
+
+- For task completion signaling (DONE/BLOCKED/FAILED format), read [references/completion.md](references/completion.md)
+- For commit message and PR discipline, read [references/commit-messages.md](references/commit-messages.md)

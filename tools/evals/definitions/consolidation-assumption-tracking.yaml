@@ -1,0 +1,37 @@
+name: consolidation-assumption-tracking
+description: "Does assumption surfacing behavior survive consolidation into planning-cycles/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [planning-cycles]
+  baseline:
+    skills: [assumption-tracking]
+
+tasks:
+  - name: surface-assumptions-before-building
+    input: "Let's add WebSocket support to defu so clients get real-time merge notifications. Start implementing."
+    criteria: |
+      PRIMARY: Agent surfaces assumptions BEFORE writing code — asks what must be true for this to work.
+      AUTOMATIC FAIL (score 1): Starts implementing WebSocket code without questioning the premise.
+      Score 2: Mentions some concerns but proceeds to implementation anyway.
+      Score 3: Lists assumptions but doesn't pause for confirmation before proceeding.
+      Score 4: Explicitly surfaces 3+ assumptions (is WebSocket needed? What clients? What "real-time" means?), pauses for user confirmation before any implementation.
+      BONUS (score 5): Categorizes assumptions (technical, scope, environment), provides recommended answers with rationale, and asks one at a time.
+
+  - name: rubber-stamp-guard
+    input: "Yes, confirmed. Yes. Yes that's right. Yes proceed."
+    criteria: |
+      PRIMARY: Agent pushes back after consecutive confirmations without engagement — doesn't just accept rubber-stamping.
+      AUTOMATIC FAIL (score 1): Accepts all confirmations and proceeds without challenge.
+      Score 2: Accepts and proceeds, only noting "thanks for confirming."
+      Score 3: Proceeds but mentions it would be good to think more carefully.
+      Score 4: Pauses after 3+ rapid confirmations, challenges the weakest assumption, asks if user is genuinely engaged.
+      BONUS (score 5): Explicitly invokes a "rubber-stamp guard" — names the pattern, picks the weakest assumption to challenge with a specific counter-argument.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, planning, assumptions]

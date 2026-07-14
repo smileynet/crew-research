@@ -8,6 +8,7 @@ steering:
   - context-budget-awareness
   - image-handling
   - subagent-reliability
+  - research-dispatch-mandate
 
 skills:
   # Session
@@ -19,16 +20,10 @@ skills:
   - planning-cycles
   - spec-driven-development
   - vertical-slice-planning
-  - five-whys
-  - assumption-tracking
   - grill-with-docs
   - plan-prereqs
-  - prompt-vocabulary
   - research-methodology
   - research-output
-  - research-dispatch
-  - research-topics
-  - reference-exploration
   - study-reference
   - study-all-references
 
@@ -46,18 +41,12 @@ skills:
   - readme-writing
   - agents-md-authoring
   - changelog-discipline
-  - commit-pr-discipline
   - docs-audit
-  - diataxis-classification
-  - document-formats
 
   # Verify & Ship
-  - completion-protocol
   - deployment-safety
   - git-protocol
-  - situation-routing
   - adr-authoring
-  - spec-review
 
   # Maintain
   - init-project
@@ -66,7 +55,6 @@ skills:
   - project-audit
   - project-winddown
   - skill-authoring
-  - session-review-patterns
   - eval-criteria
   - enforcement-hierarchy
 

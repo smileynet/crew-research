@@ -70,3 +70,7 @@ When assessing an unfamiliar source, apply these criteria to place it in the aut
 - Presenting "likely" as "confirmed"
 - Stopping at the first result that seems right
 - Mixing findings with recommendations without separating them
+
+## References
+
+- For parallel research dispatch pattern (subagent per topic), read [references/dispatch-pattern.md](references/dispatch-pattern.md)

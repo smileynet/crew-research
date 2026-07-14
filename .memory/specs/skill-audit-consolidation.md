@@ -170,6 +170,54 @@ For each merge:
 
 ---
 
+## Phase 3 Results (2026-07-11)
+
+### Executed Merges (11 total, eval-verified)
+
+| # | Merge | Parent Score | Standalone Score | Delta | Rationale |
+|---|-------|:-----------:|:---------------:|:-----:|-----------|
+| 1 | prompt-vocabulary → planning-cycles/references/reasoning-modes.md | 4.83 | 4.83 | 0.00 | Perfect parity |
+| 2 | five-whys → troubleshooting-protocol/references/five-whys.md | 3.66 | 4.00 | -0.34 | Within tolerance |
+| 3 | spec-review → spec-driven-development/references/review-checklist.md | 5.00 | 4.83 | +0.17 | Parent better |
+| 4 | assumption-tracking → planning-cycles/references/assumptions.md | 3.50 | 3.50 | 0.00 | Perfect parity |
+| 5 | completion-protocol → git-protocol/references/completion.md | 2.50 | 1.00 | +1.50 | Parent better |
+| 6 | commit-pr-discipline → git-protocol/references/commit-messages.md | 1.00 | 1.00 | 0.00 | No regression |
+| 7 | reference-exploration → study-reference/references/exploration-template.md | 4.00 | 3.00 | +1.00 | Parent better |
+| 8 | document-formats → writing-style/references/formats.md | 5.00 | 3.00 | +2.00 | Parent better |
+| 9 | session-review-patterns → eval-criteria/references/session-review.md | 4.00 | 3.00 | +1.00 | Parent better |
+| 10 | research-dispatch → research-methodology/references/dispatch-pattern.md | 3.00 | 3.00 | 0.00 | No regression |
+| 11 | diataxis-classification → docs-audit/references/diataxis.md | 2.00 | 2.50 | -0.50 | Borderline, both weak |
+
+### Trivial Removals (1, eval-justified)
+
+| Skill | Reason |
+|-------|--------|
+| situation-routing | Δ=0 in effectiveness eval — model does this naturally |
+
+(image-analysis was already removed in a prior session.)
+
+### Blocked Merges (eval-blocked, keep standalone)
+
+| Merge | Parent Score | Standalone Score | Delta | Reason |
+|-------|:-----------:|:---------------:|:-----:|--------|
+| feedback-loop → troubleshooting-protocol | 1.66 | 2.50 | -0.84 | Parent doesn't trigger feedback-loop behavior |
+| research-output → research-methodology | 3.00 | 4.00 | -1.00 | Parent doesn't produce structured output format |
+| agents-md-authoring → skill-authoring | 2.00 | 2.50 | -0.50 | Borderline; parent scope mismatch |
+| changelog-discipline → writing-style | 4.00 | 5.00 | -1.00 | Standalone excels; parent loses specificity |
+| ux-walkthrough → code-review | 2.00 | 4.00 | -2.00 | Major regression; domains too different |
+
+### Current State After Phase 3
+
+| Metric | Before | After | Target |
+|--------|--------|-------|--------|
+| Total skill dirs | 64 | 53 | ≤45 |
+| Skills in basic tier | 14 | 12 | ≤12 ✅ |
+| Skills in full tier | 52 | 36 | ≤38 ✅ |
+| `mise run validate` | PASS | PASS ✅ | PASS |
+| Compositions references | 20 | 20 | All resolve ✅ |
+
+---
+
 ## Phase 4: Re-baseline
 
 After consolidation:

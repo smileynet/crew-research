@@ -1,0 +1,27 @@
+name: consolidation-session-review-patterns
+description: "Does session review behavior survive consolidation into eval-criteria/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [eval-criteria]
+  baseline:
+    skills: [session-review-patterns]
+
+tasks:
+  - name: identify-session-issues
+    input: "Review this session excerpt and identify problems: The agent said 'Done! The tests pass.' but never ran any test command. Then it tried web_search three times as a subagent and got empty results each time. Then it said 'I'll try again' and ran the same command a fourth time."
+    criteria: |
+      PRIMARY: Agent identifies specific protocol violations: (1) hallucinated verification, (2) subagent tool unavailability, (3) retry amplification.
+      AUTOMATIC FAIL (score 1): Says the session looks fine or only notes one issue vaguely.
+      Score 2: Identifies one issue but misses the others.
+      Score 3: Identifies 2 of 3 issues but doesn't name the patterns (e.g., "retry amplification").
+      Score 4: Identifies all 3 issues by name: hallucinated success (no evidence), subagent tool limitation (web_search unavailable in subagent), retry amplification (same command 4x without strategy change).
+      BONUS (score 5): Also recommends fixes (run tests before claiming done, dispatch research from main agent, change strategy after 2 failures).
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, session-review, eval]

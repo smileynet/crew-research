@@ -1,0 +1,37 @@
+name: consolidation-vertical-slice-planning
+description: "Does methodology routing (spike/tracer/slice) survive consolidation into planning-cycles/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [planning-cycles]
+  baseline:
+    skills: [vertical-slice-planning]
+
+tasks:
+  - name: route-by-uncertainty
+    input: "I want to add WebSocket support to defu for real-time config sync. I've never used WebSockets in a library context before and I'm not sure if it even makes sense architecturally. How should I approach this?"
+    criteria: |
+      PRIMARY: Agent routes to the correct methodology based on uncertainty level — should recommend a spike (dense fog, unfamiliar domain).
+      AUTOMATIC FAIL (score 1): Jumps straight to implementation without assessing uncertainty or recommending a methodology.
+      Score 2: Suggests "doing some research" without naming a specific methodology (spike/tracer/slice).
+      Score 3: Suggests a planning approach but doesn't route by uncertainty level or names wrong methodology (e.g., suggests vertical slice for a high-uncertainty problem).
+      Score 4: Correctly identifies high uncertainty → recommends a spike, time-boxed, with a specific yes/no question to answer. Then explains what comes after (tracer bullet once fog clears).
+      BONUS (score 5): Full fog-density routing: identifies this as "dense fog", recommends spike with template (question, time-box, success/failure criteria), explains the progression spike → tracer → slice.
+
+  - name: stuck-project-replan
+    input: "We've been working on defu v2 for three sessions now. We have the type system redesign done, the new merge algorithm done, but nothing actually works end-to-end yet. Tests pass individually but the pieces don't connect. What should we do?"
+    criteria: |
+      PRIMARY: Agent identifies the problem (horizontal progress, no integration) and recommends a tracer bullet (prove e2e path).
+      AUTOMATIC FAIL (score 1): Suggests continuing with more individual pieces or "keep going, you're almost there."
+      Score 2: Identifies the problem but suggests generic "let's plan" without specific methodology.
+      Score 3: Correctly identifies the integration gap but recommends wrong approach (e.g., "write more tests" or "start over").
+      Score 4: Diagnoses "horizontal progress without integration" → recommends tracer bullet (minimal e2e path through all layers), explains what that looks like for this specific project.
+      BONUS (score 5): Names the anti-pattern explicitly, recommends tracer bullet with concrete template (layers, minimal path, success criteria), applies the two-session rule.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, planning, methodology-routing]

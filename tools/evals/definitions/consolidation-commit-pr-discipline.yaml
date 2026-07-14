@@ -1,0 +1,37 @@
+name: consolidation-commit-pr-discipline
+description: "Does commit message discipline survive consolidation into git-protocol/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [git-protocol]
+  baseline:
+    skills: [commit-pr-discipline]
+
+tasks:
+  - name: commit-message-quality
+    input: "I just fixed the null handling bug and also cleaned up some imports. Stage and commit this."
+    criteria: |
+      PRIMARY: Agent splits into two commits (fix + cleanup) with proper conventional commit format.
+      AUTOMATIC FAIL (score 1): Single commit "fix stuff" or "updates".
+      Score 2: Single commit but with a descriptive message.
+      Score 3: Suggests splitting but uses poor commit message format (no type prefix, no scope).
+      Score 4: Splits into two commits, each with conventional format (fix(merge): handle null args, chore: remove unused imports), stages specific files for each.
+      BONUS (score 5): Also runs pre-commit checks, explains grouping rationale (fix+test together, cleanup separate), and includes body explaining WHY.
+
+  - name: pr-structure
+    input: "Create a PR for the changes we made to add null argument handling to defu."
+    criteria: |
+      PRIMARY: PR has structured body with What/Why/How-to-test/Scope sections, proper title format.
+      AUTOMATIC FAIL (score 1): PR with only a title and no body.
+      Score 2: Has some description but unstructured prose.
+      Score 3: Has structure but missing one key section (no test instructions or no scope).
+      Score 4: Title in type(scope): format, body with What (one sentence), Why (context), How to test (steps), Scope (what's NOT included).
+      BONUS (score 5): Also checks for PR template (.github/PULL_REQUEST_TEMPLATE.md), keeps under size targets, mentions related issues.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, git, commit-messages]

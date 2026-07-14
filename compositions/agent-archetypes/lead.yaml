@@ -3,7 +3,6 @@ description: Orchestrates a crew of workers. Delegates tasks, tracks progress, v
 archetype: orchestrator
 
 skills:
-  - situation-routing
   - verification-protocol
 
 eager-context:

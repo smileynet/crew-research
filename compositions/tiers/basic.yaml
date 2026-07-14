@@ -19,7 +19,6 @@ skills:
   - planning-cycles
   - spec-driven-development
   - grill-with-docs
-  - prompt-vocabulary
 
   # Build
   - feedback-loop-debugging
@@ -28,7 +27,6 @@ skills:
 
   # Ship
   - git-protocol
-  - completion-protocol
 
   # Maintain
   - init-project

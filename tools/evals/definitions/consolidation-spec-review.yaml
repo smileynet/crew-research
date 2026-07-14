@@ -1,0 +1,70 @@
+name: consolidation-spec-review
+description: "Does spec-review gate behavior survive consolidation into spec-driven-development/references/?"
+category: consolidation-impact
+fixture: defu
+
+# Consolidation regression test:
+# Primary (with-skill): spec-driven-development (parent, with references/review-checklist.md)
+# Baseline: spec-review (standalone skill before consolidation)
+#
+# PASS: parent >= threshold AND delta (parent - standalone) >= -0.5
+conditions:
+  with-skill:
+    skills: [spec-driven-development]
+  baseline:
+    skills: [spec-review]
+
+tasks:
+  - name: block-vague-spec
+    input: |
+      Review this spec and tell me if it's ready to implement:
+
+      # Feature: Data Export
+      ## What
+      Allow users to export their data in various formats as needed.
+      ## Requirements
+      - Export should be fast enough for typical use cases
+      - Support appropriate file formats
+      - Handle large datasets properly
+      - Provide a user-friendly experience
+      ## Validation
+      - Export works correctly
+      - Users can download their data
+    criteria: |
+      PRIMARY: Agent identifies vague language and BLOCKS the spec rather than approving with suggestions.
+      AUTOMATIC FAIL (score 1): Says the spec is ready to implement, or says "looks good with minor suggestions."
+      Score 2: Notes it's incomplete but still says "you could proceed with some assumptions."
+      Score 3: Lists problems but frames them as optional improvements rather than blockers.
+      Score 4: Explicitly BLOCKS — identifies "various", "as needed", "fast enough", "properly", "user-friendly" as unimplementable. Demands specific values.
+      BONUS (score 5): Provides concrete rewrites for each vague term (e.g., "fast enough" → "export 10k rows in <5s") and refuses to approve until replaced.
+
+  - name: block-untestable-validation
+    input: |
+      Is this spec ready for implementation?
+
+      # Feature: Notification System
+      ## What
+      Send notifications to users when relevant events occur.
+      ## Non-Goals
+      - Won't handle marketing emails
+      ## Requirements
+      - Send email notifications for important events
+      - Send push notifications for time-sensitive events
+      - Users can configure their preferences
+      ## Validation
+      - Notifications are sent correctly
+      - Users receive notifications in a timely manner
+      - The system feels responsive
+    criteria: |
+      PRIMARY: Agent identifies that validation criteria are completely untestable and demands concrete pass/fail conditions.
+      AUTOMATIC FAIL (score 1): Approves the spec or says validation section "could be more specific."
+      Score 2: Notes vagueness but provides its own assumptions rather than blocking.
+      Score 3: Identifies problems but frames as "nice to have improvements."
+      Score 4: BLOCKS explicitly. Points out: "correctly" is undefined, "timely" has no latency target, "feels responsive" is unmeasurable. Demands: specific events listed, latency SLA, concrete test.
+      BONUS (score 5): Rewrites validation as executable tests AND identifies that requirements are also vague.
+
+trials: 3
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, spec-review, gating]

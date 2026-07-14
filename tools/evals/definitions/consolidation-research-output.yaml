@@ -1,0 +1,37 @@
+name: consolidation-research-output
+description: "Does structured research output format survive consolidation into research-methodology/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [research-methodology]
+  baseline:
+    skills: [research-output]
+
+tasks:
+  - name: produce-structured-research
+    input: "Research how defu handles array merging compared to lodash.merge and deepmerge. Produce a report I can reference later."
+    criteria: |
+      PRIMARY: Output follows a structured format with: summary first, tagged sources, related topics, and open questions.
+      AUTOMATIC FAIL (score 1): Unstructured prose dump without sources or clear sections.
+      Score 2: Has some structure but missing source citations or open questions.
+      Score 3: Has sources and findings but no summary-first format or related topics.
+      Score 4: Structured output with: summary (2-3 sentences), cited sources with evaluation, findings, open questions.
+      BONUS (score 5): Also includes related topics/tools section, confidence level, source authority tags (L{n}), and would write to a file for reuse.
+
+  - name: write-to-file-for-reuse
+    input: "Investigate what TypeScript utilities exist for deep object comparison (not merging). I'll need these findings tomorrow."
+    criteria: |
+      PRIMARY: Agent writes findings to a file (not just inline) and returns a summary to the user.
+      AUTOMATIC FAIL (score 1): Dumps everything inline with no file output.
+      Score 2: Writes to file but no summary — user must read the full file.
+      Score 3: Returns findings inline with good structure but doesn't write to file.
+      Score 4: Writes structured findings to file AND returns summary + file path to user.
+      BONUS (score 5): File follows the full template (frontmatter, sources, related topics, open questions), response is concise summary + path.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, research, output-format]

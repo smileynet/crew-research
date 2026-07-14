@@ -42,3 +42,7 @@ Every sentence earns its place. Cut until cutting would lose meaning.
 2. Could any sentence be cut without losing meaning?
 3. Is every technical claim accurate?
 4. Would the reader feel their time was respected?
+
+## References
+
+- For markup format selection (Markdown vs AsciiDoc vs Typst), read [references/formats.md](references/formats.md)

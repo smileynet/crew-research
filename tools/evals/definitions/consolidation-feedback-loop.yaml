@@ -1,0 +1,42 @@
+name: consolidation-feedback-loop
+description: "Does feedback-loop debugging behavior survive consolidation into troubleshooting-protocol?"
+category: consolidation-impact
+fixture: defu
+
+# Consolidation regression test:
+# Primary (with-skill): troubleshooting-protocol (parent, with feedback-loop content merged)
+# Baseline: feedback-loop-debugging (standalone skill before consolidation)
+#
+# PASS: parent >= threshold AND delta (parent - standalone) >= -0.5
+conditions:
+  with-skill:
+    skills: [troubleshooting-protocol]
+  baseline:
+    skills: [feedback-loop-debugging]
+
+tasks:
+  - name: build-loop-before-fix
+    input: "The test 'should handle nested arrays' is failing with 'expected [1,2,3,4] to equal [1,2]'. Diagnose and fix."
+    criteria: |
+      PRIMARY: Agent constructs a feedback loop (reproduces the failure) BEFORE modifying source code.
+      AUTOMATIC FAIL (score 1): Modifies source code without first running the failing test or reproducing the error.
+      Score 2: Reads code and proposes a fix without running anything.
+      Score 3: Runs the test once but immediately starts fixing without using it as an iterative signal.
+      Score 4: Runs the failing test, reads output, identifies the specific assertion, THEN proposes a targeted fix and re-runs to confirm.
+      BONUS (score 5): Uses the test as an explicit iterate-until-green loop — makes one change, re-runs, checks signal.
+
+  - name: reproduce-before-fix
+    input: "Users report TypeError when calling defu with a null first argument. Fix it."
+    criteria: |
+      PRIMARY: Agent builds a failing reproduction BEFORE fixing the code.
+      AUTOMATIC FAIL (score 1): Adds a null check based on reading the code alone without ever triggering the error.
+      Score 2: Reads the code and reasons about where null would fail, no reproduction.
+      Score 3: Reproduces the error once but doesn't use it as an iterative feedback signal.
+      Score 4: Writes a test or one-liner that fails with the TypeError, fixes the code, confirms the reproduction now passes.
+      BONUS (score 5): Writes a test first (TDD-style), uses it as the loop, demonstrates red→green transition.
+
+trials: 3
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 180
+tags: [consolidation-impact, debugging, feedback-loop]

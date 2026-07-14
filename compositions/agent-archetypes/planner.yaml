@@ -3,8 +3,6 @@ description: Decomposes complex work into sequenced tasks with testable acceptan
 archetype: worker
 
 skills:
-  - situation-routing
-  - assumption-tracking
   - planning-cycles
 
 tools:

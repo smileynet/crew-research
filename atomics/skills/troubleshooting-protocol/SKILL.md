@@ -37,3 +37,7 @@ metadata:
 - "Try changing this, see if it works"
 - Proposing a fix before reading the error
 - Retrying the same command hoping for different results
+
+## References
+
+- For iterative root cause analysis on recurring failures, read [references/five-whys.md](references/five-whys.md)

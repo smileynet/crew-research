@@ -3,7 +3,6 @@ description: Routes requests to the appropriate crew lead. Does not do work itse
 archetype: dispatcher
 
 skills:
-  - situation-routing
 
 tools:
   - subagent

@@ -141,11 +141,18 @@ invoke_agent() {
 
   # Deploy skill if specified
   if [[ -n "$skill_name" ]]; then
-    local skill_src="$EVALS_DIR/../../atomics/skills/$skill_name/SKILL.md"
+    local skill_dir="$EVALS_DIR/../../atomics/skills/$skill_name"
+    local skill_src="$skill_dir/SKILL.md"
     if [[ -f "$skill_src" ]]; then
       local skill_dest="$workdir/$(echo "$SKILL_LOCATION" | sed "s/{name}/$skill_name/")"
       mkdir -p "$(dirname "$skill_dest")"
       cp "$skill_src" "$skill_dest"
+      # Also deploy references/ if present
+      if [[ -d "$skill_dir/references" ]]; then
+        local ref_dest="$(dirname "$skill_dest")/references"
+        mkdir -p "$ref_dest"
+        cp "$skill_dir/references/"* "$ref_dest/" 2>/dev/null || true
+      fi
     else
       echo "[warn] Skill not found: $skill_src" >&2
     fi
@@ -403,14 +410,21 @@ run_eval() {
         local workdir=$(mktemp -d -t "eval-${name}-${cond}-XXXX")
         [[ -n "$fixture" ]] && setup_fixture "$workdir" "$fixture"
 
-        # Deploy all skills for this condition
+        # Deploy all skills for this condition (SKILL.md + references/)
         for s in "${skills_arr[@]}"; do
           [[ -z "$s" ]] && continue
-          local skill_src="$EVALS_DIR/../../atomics/skills/$s/SKILL.md"
+          local skill_dir="$EVALS_DIR/../../atomics/skills/$s"
+          local skill_src="$skill_dir/SKILL.md"
           if [[ -f "$skill_src" ]]; then
             local skill_dest="$workdir/$(echo "$SKILL_LOCATION" | sed "s/{name}/$s/")"
             mkdir -p "$(dirname "$skill_dest")"
             cp "$skill_src" "$skill_dest"
+            # Also deploy references/ if present (progressive loading companions)
+            if [[ -d "$skill_dir/references" ]]; then
+              local ref_dest="$(dirname "$skill_dest")/references"
+              mkdir -p "$ref_dest"
+              cp "$skill_dir/references/"* "$ref_dest/" 2>/dev/null || true
+            fi
           fi
         done
 

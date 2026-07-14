@@ -1,0 +1,37 @@
+name: consolidation-diataxis-classification
+description: "Does documentation classification behavior survive consolidation into docs-audit/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [docs-audit]
+  baseline:
+    skills: [diataxis-classification]
+
+tasks:
+  - name: classify-doc-placement
+    input: "I have a document explaining why we chose event sourcing over CRUD. Where should it go — docs/, .memory/, .scratch/, or somewhere else?"
+    criteria: |
+      PRIMARY: Agent correctly classifies by audience and content type, recommending .memory/adr/ (decision with rationale).
+      AUTOMATIC FAIL (score 1): Says "put it in docs/" without considering audience or content type.
+      Score 2: Picks a location but doesn't explain the classification logic.
+      Score 3: Explains the reasoning but picks wrong location (e.g., .scratch/ for a lasting decision).
+      Score 4: Classifies as a decision record → .memory/adr/, explains audience (maintainers), content mode (understanding/explanation), and why not docs/ (not user-facing).
+      BONUS (score 5): Also applies the placement litmus tests from diataxis ("What did we decide and why?" → ADR), mentions that docs/ is only for explicitly user-facing publication.
+
+  - name: identify-audience-mixing
+    input: "Review this README and tell me if there are problems: it starts with a quick-start for users, then has a section explaining the internal architecture for contributors, then has an AGENTS.md-style commands section for AI assistants."
+    criteria: |
+      PRIMARY: Agent identifies audience mixing as the core problem — three audiences in one document.
+      AUTOMATIC FAIL (score 1): Says the README is fine or only suggests formatting changes.
+      Score 2: Notes it's long but doesn't identify the audience mixing pattern.
+      Score 3: Suggests splitting but doesn't identify the three distinct audiences.
+      Score 4: Identifies three audiences (users, contributors, agents), recommends splitting into README (users) + CONTRIBUTING.md (contributors) + AGENTS.md (agents).
+      BONUS (score 5): Applies the "one audience per document" rule explicitly, explains what goes where with litmus tests, notes README can route to others.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 120
+tags: [consolidation-impact, docs, classification]

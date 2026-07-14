@@ -103,6 +103,8 @@ Before any phase: name what "done" looks like in one sentence. This fixes scope.
 
 ## References
 
+- For reasoning technique selection and sequencing, read [references/reasoning-modes.md](references/reasoning-modes.md)
+- For surfacing and tracking assumptions before building, read [references/assumptions.md](references/assumptions.md)
 - Source practice: `docs/practices/planning-cycles.md` (in best_practices repo)
 - Origin: line-cook/docs/cycles/mise-cycle.md
 - Related: [prototype-protocol](../prototype-protocol/SKILL.md) for Phase 2b

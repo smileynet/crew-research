@@ -1,0 +1,27 @@
+name: consolidation-research-dispatch
+description: "Does parallel research dispatch pattern survive consolidation into research-methodology/references/?"
+category: consolidation-impact
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [research-methodology]
+  baseline:
+    skills: [research-dispatch]
+
+tasks:
+  - name: dispatch-parallel-research
+    input: "I need to understand three things about defu before making a decision: (1) how it handles circular references, (2) how it compares to lodash.merge performance, (3) whether it supports custom merge strategies. Research all three."
+    criteria: |
+      PRIMARY: Agent organizes research into parallel tracks (one per topic) rather than sequential prose, and writes findings to files.
+      AUTOMATIC FAIL (score 1): Answers all three inline in a single stream without any file output or parallel organization.
+      Score 2: Answers all three but in a single unstructured response.
+      Score 3: Organizes by topic but doesn't write to files or suggest parallel dispatch.
+      Score 4: Organizes by topic, writes findings to separate files or a structured document, synthesizes at the end.
+      BONUS (score 5): Explicitly dispatches subagents per topic (or suggests it), each writes to .scratch/research/{topic}.md, returns synthesis with file paths.
+
+trials: 1
+threshold: 3.5
+delta_threshold: -0.5
+timeout: 180
+tags: [consolidation-impact, research, dispatch]
