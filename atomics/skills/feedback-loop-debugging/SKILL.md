@@ -9,56 +9,64 @@ metadata:
 
 # Feedback Loop Debugging
 
-The #1 debugging technique: construct a reliable pass/fail signal, then iterate against it.
+**This is the skill.** A tight feedback loop that goes red on the bug is 90% of debugging. Everything else is mechanical.
 
-## Rule
+## The Gate (non-negotiable)
 
-**Do NOT modify source code until you have a feedback loop that fails.**
-A feedback loop = a command you can run that outputs PASS or FAIL for the specific bug.
+**You MUST have a running, failing command before you touch source code.**
 
-## Constructing the Loop (ordered by simplicity)
+If you catch yourself reading code to build a theory before a failing command exists — STOP. That impulse is the exact failure this skill prevents. No failing command, no fix attempt.
+
+## Phase 1: Build the Loop (spend disproportionate effort here)
 
 Try each until one works:
 
-1. **Existing failing test** — `npx vitest run path/to/test` — already have it? Use it.
-2. **Targeted new test** — write a test that exercises exactly the broken behavior.
-3. **CLI invocation** — `node -e "require('./src/mod').fn(badInput)"` or equivalent one-liner.
-4. **curl/HTTP** — `curl -s localhost:3000/endpoint | jq .field` for API bugs.
-5. **Script harness** — 5-line script that sets up state, calls the function, checks output.
-6. **REPL probe** — interactive session to isolate the behavior, then capture as script.
-7. **Bisection** — `git bisect run <test-command>` when you know it worked before.
-8. **Differential** — run same input on working version vs broken version, diff output.
-9. **Property/fuzz** — when the failure is non-deterministic, generate random inputs until it triggers.
-10. **HITL script** — when automated checking is impossible, script that prints state for human verdict.
+1. **Existing failing test** — `npx vitest run path/to/test` — already have it? Run it now.
+2. **Targeted new test** — write one that exercises exactly the broken behavior.
+3. **CLI one-liner** — `node -e "require('./src').fn(badInput)"` reproducing the symptom.
+4. **Script harness** — 5-line script: setup → call → assert → exit 0/1.
+5. **Bisection** — `git bisect run <test-command>` when you know it worked before.
 
-## Using the Loop
+Be aggressive. Be creative. Refuse to give up on getting a loop.
 
-Once you have a loop, **tighten it** — make it faster, sharper, more deterministic. A tight loop is a debugging superpower. For optimization strategies, read [references/tighten.md](references/tighten.md).
+### Phase 1 is DONE when:
+
+- [ ] You can name ONE command that goes red on this bug
+- [ ] You have ALREADY RUN IT and seen it fail (paste the output)
+- [ ] It asserts the user's EXACT symptom (not "didn't crash" — the specific error)
+- [ ] It runs in seconds, not minutes
+
+All four must be true. If any is missing, you're still in Phase 1.
+
+## Phase 2: Red → Green Loop
 
 ```
 1. Run loop → FAIL (confirms bug exists)
-2. Make ONE change
-3. Run loop → PASS or FAIL?
+2. Make ONE change (single variable)
+3. Run loop → check result
    - PASS → verify full test suite, done
-   - FAIL → revert change, try different approach
+   - FAIL → revert, try different hypothesis
 ```
+
+**One change at a time.** If you change two things and it passes, you don't know which fixed it.
+
+## Phase 3: Verify
+
+- Original symptom no longer reproduces
+- Full test suite passes (not just your loop)
+- No debug artifacts left behind
 
 ## Cannot Build a Loop?
 
-If after 3 attempts you cannot construct a feedback loop:
-1. STOP attempting fixes
-2. State what you tried and why it didn't produce a signal
-3. Ask for: access, reproduction steps, environment details, or logs
+After 3 genuine attempts: STOP. Do not guess at fixes. State:
+1. What you tried (specific commands)
+2. Why each didn't produce a signal
+3. What you need (access, repro steps, environment, logs)
 
-## Phase Gates
-
-- **Do not proceed to fixing** until the loop demonstrates FAIL
-- **Do not declare fixed** until the loop demonstrates PASS
-- **Do not modify multiple things** between loop runs
-
-## Anti-Patterns
+## Anti-Patterns (immediate score 1 in any review)
 
 - Reading code and guessing at a fix without reproducing
-- Running the full test suite as your loop (too slow, too noisy)
-- Modifying the code, then writing a test that passes (proves nothing)
-- Retrying the same fix hoping for a different result
+- Saying "I think the issue is..." without a failing command
+- Running full test suite as your loop (too slow, too noisy)
+- Modifying code then writing a passing test (proves nothing)
+- Changing multiple things between loop runs

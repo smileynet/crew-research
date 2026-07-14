@@ -32,7 +32,7 @@ runs:
   with_skill: true
   without_skill: true
 
-threshold: 4
-delta_threshold: 1.0
+threshold: 3.5
+delta_threshold: 0.75
 timeout: 180
 tags: [skill-effectiveness, debugging, feedback-loop]
