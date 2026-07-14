@@ -191,12 +191,16 @@ invoke_agent() {
       local engine_flag=""
       [[ -n "$ENGINE" ]] && engine_flag="--agent-engine $ENGINE"
       local env_prefix=""
-      [[ "$ISOLATED" == true ]] && env_prefix="KIRO_HOME=$workdir/.kiro-isolated"
+      # Always isolate kiro-cli to workdir .kiro — prevents global steering leaking into eval conditions
+      if [[ -d "$workdir/.kiro" ]]; then
+        env_prefix="KIRO_HOME=$workdir/.kiro"
+      elif [[ "$ISOLATED" == true ]]; then
+        mkdir -p "$workdir/.kiro-isolated"
+        [[ -d "$workdir/.kiro/skills" ]] && cp -r "$workdir/.kiro/skills" "$workdir/.kiro-isolated/"
+        env_prefix="KIRO_HOME=$workdir/.kiro-isolated"
+      fi
       local out_file=$(mktemp)
       if [[ -n "$env_prefix" ]]; then
-        mkdir -p "$workdir/.kiro-isolated"
-        # Copy skill into isolated home if deployed
-        [[ -d "$workdir/.kiro/skills" ]] && cp -r "$workdir/.kiro/skills" "$workdir/.kiro-isolated/"
         timeout "$timeout" bash -c "$env_prefix"' kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' '"$engine_flag"' "$(cat "$1")" > "$2" 2>&1' _ "$input_file" "$out_file" || true
       else
         timeout "$timeout" bash -c 'kiro-cli chat --no-interactive -a --wrap never '"$model_flag"' '"$engine_flag"' "$(cat "$1")" > "$2" 2>&1' _ "$input_file" "$out_file" || true
@@ -409,6 +413,7 @@ run_eval() {
       for trial in $(seq 1 "$run_trials"); do
         local workdir=$(mktemp -d -t "eval-${name}-${cond}-XXXX")
         [[ -n "$fixture" ]] && setup_fixture "$workdir" "$fixture"
+        mkdir -p "$workdir/.kiro/skills" "$workdir/.kiro/steering"
 
         # Deploy all skills for this condition (SKILL.md + references/)
         for s in "${skills_arr[@]}"; do
