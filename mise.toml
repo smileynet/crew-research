@@ -1,3 +1,7 @@
+[env]
+CREW_TIER = "full"
+CREW_TOOLS = "kiro-cli"
+
 [tasks.validate]
 description = "Validate all compositions and cross-links"
 run = """
