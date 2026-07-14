@@ -64,6 +64,8 @@ When a question requires empirical validation (not answerable by docs/research a
 
 **Subagent spike** (answerable in minutes): dispatch a subagent with the question, method, and expected return format. Incorporate results immediately.
 
+**Subagent research** (3+ competing options, user requests "research this"): dispatch parallel research tracks per option. See [references/research-dispatch.md](references/research-dispatch.md) for the full protocol.
+
 **Prototype dispatch** (needs its own session/context budget): see [references/prototype-dispatch.md](references/prototype-dispatch.md) for the full handoff template.
 
 ## Domain Awareness
