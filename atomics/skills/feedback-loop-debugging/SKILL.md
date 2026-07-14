@@ -38,6 +38,12 @@ Be aggressive. Be creative. Refuse to give up on getting a loop.
 
 All four must be true. If any is missing, you're still in Phase 1.
 
+## Tighten the Loop (once you have ANY loop)
+
+A loop that takes 30 seconds is barely useful. Target: < 5 seconds, deterministic, sharp assertion.
+
+For non-deterministic bugs (flaky tests, race conditions, environment-dependent): read `references/tighten.md` — it covers raising reproduction rate, pinning randomness, and making flakes debuggable.
+
 ## Phase 2: Red → Green Loop
 
 ```
@@ -58,10 +64,12 @@ All four must be true. If any is missing, you're still in Phase 1.
 
 ## Cannot Build a Loop?
 
-After 3 genuine attempts: STOP. Do not guess at fixes. State:
+If you cannot reproduce locally or after 3 genuine attempts: **STOP. Do not hypothesize. Do not suggest fixes.** State:
 1. What you tried (specific commands)
 2. Why each didn't produce a signal
-3. What you need (access, repro steps, environment, logs)
+3. What you need from the user (access, repro steps, environment, logs, artifacts)
+
+"Can't reproduce" is not a starting point for theorizing — it's a STOP signal. The next step is gathering artifacts, not guessing.
 
 ## Anti-Patterns (immediate score 1 in any review)
 
