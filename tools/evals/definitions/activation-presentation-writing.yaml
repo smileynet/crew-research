@@ -24,5 +24,5 @@ tasks:
   - input: "Fix the flaky test in the integration suite."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60

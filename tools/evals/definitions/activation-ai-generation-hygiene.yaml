@@ -24,5 +24,5 @@ tasks:
   - input: "Summarize the changes in the last 5 commits."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60

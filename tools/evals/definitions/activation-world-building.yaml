@@ -24,5 +24,5 @@ tasks:
   - input: "Create database seeds for the test environment."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60

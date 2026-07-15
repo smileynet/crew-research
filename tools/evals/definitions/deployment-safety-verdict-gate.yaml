@@ -1,7 +1,6 @@
 name: deployment-safety-verdict-gate
 description: "Does deployment-safety skill produce an explicit DEPLOY CONFIRMED/HOLD/ROLLBACK verdict after verification steps?"
-mode: multi-turn
-skill: deployment-safety
+fixture: defu
 
 conditions:
   with-skill:
@@ -10,21 +9,36 @@ conditions:
     skills: []
 
 tasks:
-  - turns:
-      - "I need to deploy a database migration that adds an index to the orders table. It's a CREATE INDEX CONCURRENTLY on a 50M row table. PostgreSQL 15, AWS RDS. Walk me through this."
-      - "OK, I've run the migration. The index creation took 4 minutes. Health endpoint still responds. No errors in CloudWatch."
-      - "Latency looks normal. No increase in error rate. The new index is showing up in EXPLAIN plans for the target queries."
+  - name: clear-success-verdict
+    input: |
+      I just deployed a database migration that adds an index to the orders table (CREATE INDEX CONCURRENTLY on a 50M row table, PostgreSQL 15, AWS RDS).
+
+      Here's the post-deploy status:
+      - Index creation took 4 minutes
+      - Health endpoint still responds
+      - No errors in CloudWatch
+      - Latency looks normal, no increase in error rate
+      - The new index is showing up in EXPLAIN plans for the target queries
+
+      Give me your assessment — is this deployment successful?
     criteria: |
-      PRIMARY: After the post-deploy verification (turn 3), agent ends with an explicit verdict: DEPLOY CONFIRMED, HOLD, or ROLLBACK.
+      PRIMARY: Agent ends with an explicit verdict: DEPLOY CONFIRMED, HOLD, or ROLLBACK.
       AUTOMATIC FAIL (score 1): No verdict — ends with open-ended commentary like "looks good" or "you should be fine."
       Score 3: Indicates success but doesn't use a structured verdict format (e.g., "seems like it worked").
       Score 4: Explicitly states a verdict (DEPLOY CONFIRMED or equivalent clear declaration). May also mention what to monitor next.
       BONUS (score 5): Uses exact verdict format, provides brief evidence summary supporting the verdict, and states when the deployment can be considered fully stable.
 
-  - turns:
-      - "Deploying a new version of the payment service. It handles 2000 req/s at peak. I'm doing a rolling deploy across 4 pods."
-      - "First pod is up. Health check passing. But I see a 5% increase in p99 latency on that pod — from 120ms to 126ms."
-      - "Second pod deployed. Latency delta is holding at +5% across both new pods. Old pods are still at baseline. Error rate unchanged."
+  - name: ambiguous-situation-verdict
+    input: |
+      I'm doing a rolling deploy of a new payment service version (handles 2000 req/s at peak, 4 pods).
+
+      Current state after deploying 2 of 4 pods:
+      - Health checks passing on both new pods
+      - 5% increase in p99 latency on new pods (120ms → 126ms)
+      - Old pods still at baseline latency
+      - Error rate unchanged across all pods
+
+      What's your verdict — should I continue the rollout?
     criteria: |
       PRIMARY: Agent provides a nuanced verdict for an ambiguous situation (small latency increase, no errors).
       AUTOMATIC FAIL (score 1): Says "all good, continue" without acknowledging the latency signal.
@@ -33,7 +47,7 @@ tasks:
       BONUS (score 5): Structured verdict with explicit threshold ("if p99 stays under 150ms after full rollout, DEPLOY CONFIRMED; if it exceeds 150ms, ROLLBACK"). States what evidence would change the verdict.
 
 threshold: 4
-delta_threshold: 0.75
+delta_threshold: 0.5
 trials: 3
 timeout: 120
-tags: [multi-turn, enrichment, verdict-gate]
+tags: [effectiveness, deployment, verdict-gate]

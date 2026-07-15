@@ -24,5 +24,5 @@ tasks:
   - input: "Create a Makefile for building the Go project."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60

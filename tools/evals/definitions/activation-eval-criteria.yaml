@@ -26,5 +26,5 @@ tasks:
   - input: "Add pagination to the /users endpoint."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60

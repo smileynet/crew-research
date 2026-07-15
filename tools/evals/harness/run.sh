@@ -85,7 +85,7 @@ DEFS=()
 if [[ -n "$DEFINITION" ]]; then
   DEFS=("$DEFINITIONS_DIR/$DEFINITION.yaml")
 elif [[ "$RUN_ALL" == true ]]; then
-  mapfile -t DEFS < <(find "$DEFINITIONS_DIR" -name "*.yaml" | sort)
+  mapfile -t DEFS < <(find "$DEFINITIONS_DIR" -name "*.yaml" -not -path "*/retired/*" | sort)
 else
   echo "Specify --definition <name> or --all" >&2; exit 1
 fi

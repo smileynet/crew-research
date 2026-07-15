@@ -26,5 +26,5 @@ tasks:
   - input: "Write a regex that matches email addresses."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60

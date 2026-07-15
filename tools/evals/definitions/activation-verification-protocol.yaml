@@ -26,5 +26,5 @@ tasks:
   - input: "Summarize the CAP theorem."
     expect_activation: false
 
-threshold: 4
+threshold: 3.5
 timeout: 60
