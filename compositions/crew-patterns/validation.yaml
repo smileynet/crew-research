@@ -1,0 +1,53 @@
+name: validation
+description: >
+  Multi-tool artifact validation with disagreement resolution.
+  Uses N independent validators (minimum 2) to catch issues that
+  single-perspective review misses. Any FAIL must be addressed.
+
+when_to_use:
+  - Visual output needing quality sign-off (renders, screenshots, designs)
+  - Code changes requiring multiple review angles (logic + security + arch)
+  - Subjective quality decisions where single-tool confidence is dangerous
+  - Before shipping anything where a missed defect is expensive
+
+roles:
+  primary:
+    description: Produces the artifact being validated
+    tools: [kiro, codex, agy, any]
+  visual_inspector:
+    description: Pure qualitative impression — "does this look right?"
+    tools: [codex, agy --sandbox]
+    invocation: |
+      codex exec -i <artifact> --sandbox read-only "<criteria>"
+      agy -p "Analyze <artifact> - <criteria>" --sandbox --print-timeout 2m
+  technical_auditor:
+    description: Quantitative measurement, code-aware diagnosis
+    tools: [agy, linters, static-analysis]
+    invocation: |
+      agy -p "Analyze <artifact> - <criteria>" --print-timeout 2m
+  contextual_judge:
+    description: Domain knowledge, intent awareness, breaks ties
+    tools: [kiro, domain-expert]
+
+flow:
+  - produce: Primary creates the artifact
+  - validate: Run all validators in parallel (independent assessments)
+  - compare: Collect verdicts, identify agreements and disagreements
+  - resolve: Apply disagreement resolution policy
+  - fix_or_proceed: If any FAIL → fix and re-validate; if all PASS → proceed
+
+disagreement_resolution:
+  all_pass: Proceed with high confidence
+  all_fail: Fix before proceeding
+  split_verdict:
+    measurable_criteria: Technical auditor wins (actual values > impression)
+    subjective_quality: Visual inspector wins (human perception matters)
+    ties: Contextual judge decides using domain knowledge and intent
+  auditor_finds_bug: Verify against authoritative docs before acting
+
+anti_patterns:
+  - Running only one validator and calling it "validated"
+  - Accepting a PASS from a biased tool (the one that produced the artifact)
+  - Ignoring a FAIL because "I know what it should look like"
+  - Acting on a code diagnosis without verifying against official documentation
+  - Skipping validation because "it's a small change"
