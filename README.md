@@ -137,6 +137,32 @@ None of this requires you to change how you work. You just chat normally.
 
 Most people deploy globally once, then scaffold per-project workspace conventions as needed.
 
+### Multi-Tool Deployment
+
+Skills are tool-agnostic. The `--tool` flag controls WHERE files are placed:
+
+```bash
+# kiro-cli (default)
+mise run init -- --global --tier basic --tool kiro-cli
+# Skills → ~/.kiro/skills/    Steering → ~/.kiro/steering/
+
+# Codex (OpenAI)
+mise run init -- --global --tier basic --tool codex
+# Skills → ~/.agents/skills/  Steering → ~/.codex/AGENTS.md
+
+# Antigravity (Google)
+mise run init -- --global --tier basic --tool agy
+# Skills → ~/.gemini/antigravity-cli/skills/  Steering → ~/.gemini/AGENTS.md
+```
+
+| Tool | Skills Path | Steering Path | Verify |
+|------|-------------|---------------|--------|
+| kiro-cli | `~/.kiro/skills/{name}/SKILL.md` | `~/.kiro/steering/*.md` | `mise run doctor` |
+| codex | `~/.agents/skills/{name}/SKILL.md` | `~/.codex/AGENTS.md` (appended) | `codex --version` |
+| agy | `~/.gemini/antigravity-cli/skills/{name}/SKILL.md` | `~/.gemini/AGENTS.md` (appended) | `agy --version` |
+
+Same skill content, different delivery paths. Deploy to multiple tools simultaneously if you switch between them.
+
 ## Troubleshooting
 
 ```bash

@@ -4,6 +4,8 @@ version_command: "agy --version"
 invoke:
   command: 'agy --print "{query}" --dangerously-skip-permissions'
   timeout: 90
+  eval_harness_status: blocked
+  blocker: "Issue #76 — --print drops stdout in non-TTY contexts. Output unrecoverable via pipe/redirect."
   notes: |
     --print runs non-interactively, prints response to TUI (not capturable via stdout redirect).
     --dangerously-skip-permissions auto-approves tool calls.

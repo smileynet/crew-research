@@ -66,6 +66,37 @@ acceptance_criteria: |
 | skill-interference | Do multiple skills degrade each other? | 5 | 3 |
 | process-tracing | Does the skill change HOW the agent works? | 3 | 3 |
 
+## Adapters
+
+The harness supports multiple AI tools via `--adapter`:
+
+```bash
+tools/evals/harness/run.sh --definition <name> --adapter kiro-cli   # default
+tools/evals/harness/run.sh --definition <name> --adapter codex
+tools/evals/harness/run.sh --definition <name> --adapter agy        # blocked (see below)
+tools/evals/harness/run.sh --definition <name> --adapter crush
+```
+
+| Adapter | Status | Invocation | Skill Path |
+|---------|--------|-----------|------------|
+| kiro-cli | ✅ Active | `kiro-cli chat --no-interactive` | `.kiro/skills/{name}/SKILL.md` |
+| codex | ✅ Active | `codex exec --dangerously-bypass-approvals-and-sandbox --ephemeral` | `.agents/skills/{name}/SKILL.md` |
+| crush | ✅ Active | `crush run --quiet --model glm-5.2` | `.agents/skills/{name}/SKILL.md` |
+| agy | ❌ Blocked | `agy --print` (Issue #76: stdout capture broken in non-TTY) | `.agents/skills/{name}/SKILL.md` |
+
+Adapter configs live in `tools/proofs/adapters/*.yaml`.
+
+## Multi-Model Judging
+
+The harness runs ALL available judge tools in parallel and takes the **median score**:
+
+1. kiro-cli (Claude) — primary judge
+2. codex (GPT-5.5+) — if `codex` on PATH
+3. crush (GLM-5.2) — if `crush` on PATH
+4. agy (Gemini) — if `agy` on PATH
+
+This produces consensus scores resistant to single-model bias. Configure via `--judge` flag or `tools/evals/judges/default.yaml`.
+
 ## Data Flow
 
 ```

@@ -2,7 +2,8 @@ tool: codex
 version_command: "codex --version"
 
 invoke:
-  command: 'codex --ask-for-approval never --cd {workdir} "{query}"'
+  command: 'codex exec --dangerously-bypass-approvals-and-sandbox --ephemeral -C {workdir} "{query}"'
+  command_no_agent: 'codex exec -s read-only "{query}"'
   timeout: 90
 
 skill:

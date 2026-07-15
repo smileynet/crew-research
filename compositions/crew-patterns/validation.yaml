@@ -4,6 +4,10 @@ description: >
   Uses N independent validators (minimum 2) to catch issues that
   single-perspective review misses. Any FAIL must be addressed.
 
+agents:
+  lead: lead
+  workers: []
+
 when_to_use:
   - Visual output needing quality sign-off (renders, screenshots, designs)
   - Code changes requiring multiple review angles (logic + security + arch)
