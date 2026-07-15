@@ -33,7 +33,7 @@ Orient yourself to continue work from where the last session left off.
 5. **Fog** — what's known-unknown (from handoff fog section or map)
 6. **Constraints** — especially tool prerequisites
 7. **What was tried** — acknowledge dead ends
-8. **First 1-2 next steps** you would take
+8. **Proposed next action** — state what you'd do first and offer to start. Be specific: "I'll [concrete action]. Want me to proceed?" Don't ask "what would you like to do?" — the user came back to continue, not to re-plan.
 9. **Non-obvious** — any gotchas, environmental quirks, or constraints not captured in the handoff itself
 
 ## Verify Before Acting
@@ -64,3 +64,4 @@ If the project has a test suite or validation script:
 - Treat the handoff as point-in-time state, not durable truth
 - When in doubt, verify against the actual repo
 - Do NOT start working until orientation is reported
+- End with a proposed action, not a question. The user resumed to make progress — propose the next step and offer to start.
