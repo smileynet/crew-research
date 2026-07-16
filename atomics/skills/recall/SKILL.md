@@ -9,6 +9,7 @@ description: >
 metadata:
   type: protocol
   invocation: both
+  practice: null
 ---
 
 # Recall — Cross-Session Memory

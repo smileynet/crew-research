@@ -20,7 +20,7 @@ Check whether the crew-research deployment still matches project reality.
 - If mismatched: update steering file with correct commands
 
 ### 2. AGENTS.md Accuracy
-- Do listed commands still work?
+- Do listed commands still work? Are any new commands missing?
 - Do referenced paths (`.memory/`, `.scratch/`, `.kiro/`) exist?
 - Are listed workflows still available as skills?
 - Is the project layout description current?
@@ -38,11 +38,7 @@ Check whether the crew-research deployment still matches project reality.
 - Any terms used in recent work but not yet defined?
 - Any stale definitions that should be removed?
 
-### 6. AGENTS.md Commands
-- Do build/test/lint commands still work?
-- Are any new commands missing?
-
-### 7. References Directory
+### 6. References Directory
 - Is `.references/` used consistently (not `resources/` or bare `references/`)?
 - If `resources/` or `references/` exists and is gitignored → flag for rename to `.references/`
 - Is `.references/` in `.gitignore`?

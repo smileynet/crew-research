@@ -4,6 +4,7 @@ description: Session-start memory priming via recall CLI.
 metadata:
   type: protocol
   invocation: agent-only
+  practice: null
 ---
 
 # Recall Session Start

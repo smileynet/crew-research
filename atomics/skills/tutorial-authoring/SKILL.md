@@ -4,6 +4,7 @@ description: "Author hands-on tutorials that take readers from zero to a working
 metadata:
   type: process
   invocation: both
+  practice: null
 ---
 
 # Tutorial Authoring
@@ -86,6 +87,13 @@ Two reader populations: first-time linear walker vs. broke-something-now-searchi
 
 | Tutorial | How-To Guide |
 |----------|-------------|
+| Learning-oriented — reader is a beginner | Task-oriented — reader knows the domain |
+| Author picks the path; one guaranteed route | Reader picks the goal; guide adapts |
+| Safe to follow blindly; every step verified | Assumes judgment; reader fills gaps |
+| Ends at a predetermined working result | Ends when the reader's problem is solved |
+
+For the full Diátaxis framework (tutorial / how-to / reference / explanation), see the docs-audit skill's `references/diataxis.md`.
+
 ## Self-Check
 
 1. Can the reader complete without opening a reference page?

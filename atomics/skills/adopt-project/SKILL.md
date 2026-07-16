@@ -25,6 +25,8 @@ Report what exists and what would be replaced or merged.
 
 ## Phase 2: Capture Special Instructions
 
+Record findings using the capture template at [references/project-notes.md](references/project-notes.md).
+
 For each existing file that crew-research would replace:
 1. Extract project-specific rules not covered by standard skills
 2. Capture custom verification commands, naming conventions, architectural constraints

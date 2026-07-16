@@ -1,7 +1,7 @@
 ---
 id: "01"
 title: "Broken skill content is repaired (P0 + one-line fixes)"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---
@@ -19,14 +19,14 @@ Skills with broken or contradictory content render correctly and follow repo con
 
 ## Acceptance criteria
 
-- [ ] tutorial-authoring: "Tutorial vs How-To" table has data rows (or links docs-audit's diataxis reference)
-- [ ] adr-authoring: storage path says `.memory/adr/NNNN-slug.md`; stale jargon ("warlock output", "BPAPPA survey") removed
-- [ ] adopt-project: references/project-notes.md linked from body
-- [ ] skill-authoring: declares its own scope boundary
-- [ ] project-audit: duplicate check 6 deleted
-- [ ] metadata.practice added where missing (presentation-writing, readme-writing, project-winddown, recall, spec-driven-development per batch1)
-- [ ] `bash tools/lint/check-crosslinks.sh` → 0 errors
-- [ ] Redeployed: `mise run init -- --global`
+- [x] tutorial-authoring: "Tutorial vs How-To" table has data rows (or links docs-audit's diataxis reference)
+- [x] adr-authoring: storage path says `.memory/adr/NNNN-slug.md`; stale jargon ("warlock output", "BPAPPA survey") removed
+- [x] adopt-project: references/project-notes.md linked from body
+- [x] skill-authoring: declares its own scope boundary
+- [x] project-audit: duplicate check 6 deleted
+- [x] metadata.practice added where missing (presentation-writing, readme-writing, project-winddown, recall, spec-driven-development per batch1)
+- [x] `bash tools/lint/check-crosslinks.sh` → 0 errors
+- [x] Redeployed: `mise run init -- --global`
 
 ## Out of scope
 

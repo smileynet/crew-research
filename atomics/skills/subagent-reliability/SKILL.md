@@ -4,6 +4,7 @@ description: Subagent dispatch reliability patterns. Expect failures, design aro
 metadata:
   type: reference
   invocation: agent-only
+  practice: null
   tools: [kiro-cli, codex]
 ---
 

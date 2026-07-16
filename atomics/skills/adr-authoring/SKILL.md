@@ -4,6 +4,7 @@ description: Write Architecture Decision Records when making significant technic
 metadata:
   type: process
   invocation: both
+  practice: null
 ---
 
 # ADR Authoring
@@ -69,16 +70,16 @@ What did we decide? State it clearly in one sentence, then elaborate.
 
 ## Storage
 
-- Path: `docs/adrs/NNNN-short-title.md`
+- Path: `.memory/adr/NNNN-slug.md`
 - Number sequentially (0001, 0002, ...)
-- Keep an index in `docs/adrs/README.md` or link from project README
+- Link from the project README or `.memory/CONTEXT.md` if discoverability matters
 
 ## Linking to research
 
-If a research artifact (warlock output, BPAPPA survey) informed this decision, link it:
+If a research artifact (grill session, research report, spike result) informed this decision, link it:
 ```
 ## References
-- [Research: JWT vs Session Auth](../research/bpappa-auth-patterns.md) — informed this decision
+- [Research: JWT vs Session Auth](../grill/auth/Q03-jwt-vs-session.md) — informed this decision
 ```
 
 The research artifact should back-link: `Consumed by: ADR-0003`

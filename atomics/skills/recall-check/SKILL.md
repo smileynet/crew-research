@@ -4,6 +4,7 @@ description: When to search cross-session memory before answering.
 metadata:
   type: protocol
   invocation: agent-only
+  practice: null
 ---
 
 # Recall — Check Before Answering

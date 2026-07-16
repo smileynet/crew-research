@@ -4,6 +4,7 @@ description: "Manage context as a finite resource. Compress between phases, rein
 metadata:
   type: steering
   invocation: passive
+  practice: null
 ---
 
 # Context Budget Awareness

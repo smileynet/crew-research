@@ -4,6 +4,7 @@ description: "Plan projects using PLAN.md and per-feature spec files. Use when s
 metadata:
   type: process
   invocation: both
+  practice: null
 ---
 
 # Spec-Driven Development

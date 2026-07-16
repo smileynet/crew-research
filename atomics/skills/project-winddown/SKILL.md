@@ -4,6 +4,7 @@ description: "Extract durable lessons from a project into a portable summary. Us
 metadata:
   type: process
   invocation: user-only
+  practice: null
 ---
 
 # Project Winddown

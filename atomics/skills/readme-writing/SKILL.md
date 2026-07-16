@@ -4,6 +4,7 @@ description: "Write and improve README files that orient readers and drive adopt
 metadata:
   type: reference
   invocation: both
+  practice: null
 ---
 
 # README Writing
@@ -74,7 +75,7 @@ Every claim has a runnable example. "Supports many output formats" teaches nothi
 |---------|--------------|
 | Agent instructions | AGENTS.md |
 | Detailed API reference | Generated docs (Rustdoc, JSDoc, Sphinx) |
-| Architecture decisions | docs/adrs/ |
+| Architecture decisions | .memory/adr/ |
 | Research notes | docs/research/ |
 | Tutorials | docs/tutorials/ |
 | Operational runbooks | docs/ or ops wiki |

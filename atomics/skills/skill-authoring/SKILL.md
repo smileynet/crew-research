@@ -93,3 +93,5 @@ When reviewing an existing skill:
 3. Body is process/steps, not reference material?
 4. Under 100 lines?
 5. Scope declared? (what it does NOT cover)
+
+Does NOT cover: writing steering files (see enforcement-hierarchy), eval design (see eval-criteria), or AGENTS.md authoring (see agents-md-authoring).

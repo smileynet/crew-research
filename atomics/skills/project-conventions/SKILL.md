@@ -4,6 +4,7 @@ description: "Project behavioral rules enforced every turn."
 metadata:
   type: reference
   invocation: agent-only
+  practice: null
 ---
 
 # Project Conventions (Always Enforce)
