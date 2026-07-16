@@ -179,14 +179,14 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 02 | Cross-skill contradictions resolved | ✅ done (5cd6bb5 — troubleshooting-protocol merged into feedback-loop-debugging) |
 | 03 | Over-budget skills fit 100-line limit | — (unblocked) |
 | 04 | Always-on steering slimmed 812→~450 lines | — |
-| 05 | 7 flagged eval definitions run as designed | — (1/7 already done: context-neutrality retired) |
+| 05 | 7 flagged eval definitions run as designed | ✅ done (815fbe2 + validation runs: 4✅/1❌, the ❌ is genuine skill signal) |
 | 06 | doctor.sh + catalog.sh report current reality | — |
 | 07 | Installed recall CLI matches source and docs | — |
 | 08 | Dead/broken tooling pruned or repaired | — |
-| 09 | Clean post-review eval baseline | 01-05, 11 |
+| 09 | Clean post-review eval baseline | 03, 04 (01/02/05/11 done) |
 | 10 | Session logs reveal actual skill/tool usage | — |
-| 11 | Eval sessions cannot write outside their workdir | — |
-| 12 | Re-run full suite to validate threshold calibration | 05, 11 |
+| 11 | Eval sessions cannot write outside their workdir | ✅ done (2b699cc — run-model-comparison.sh was the leaker, not run.sh) |
+| 12 | Re-run full suite to validate threshold calibration | unblocked (05, 11 done) |
 
 **Frontier (2026-07-16 19:20):** 02, 04, 05, 06, 07, 08, 10, 11. Ticket 12 (was numbered 01, renamed to fix ID collision; spec eval-improvements-2026-07-16) gained blockers 05+11 — running the suite with 6 known-broken definitions and an uncontained workdir leak would waste a 5-6h run. If 01-04 land before 12 runs, consider merging 12 into 09 (one clean run satisfies both).
 

@@ -1,7 +1,7 @@
 ---
 id: "05"
 title: "The 7 flagged eval definitions run as designed"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---
@@ -19,14 +19,14 @@ Every active eval definition executes with real inputs (no null-input tasks, no 
 
 ## Acceptance criteria
 
-- [ ] architecture-deepening-rubber-stamp: single-turn (transcript embedded in input), runs without null input
-- [ ] agents-md-authoring-effectiveness: 300-line AGENTS.md embedded or added to fixture
-- [ ] context-budget-effectiveness: referenced .scratch file added to fixture or task rewritten
+- [x] architecture-deepening-rubber-stamp: single-turn (transcript embedded in input), runs without null input
+- [x] agents-md-authoring-effectiveness: 300-line AGENTS.md embedded or added to fixture
+- [x] context-budget-effectiveness: referenced .scratch file added to fixture or task rewritten
 - [x] context-neutrality-effectiveness: conditions actually differ (encode the dispatch contrast) or eval retired — **retired** (moved to `definitions/retired/`, verified 2026-07-16)
-- [ ] handoff-improves-continuity: merged with handoff-decaying-resolution or differentiated
-- [ ] spec-validator-agent-effectiveness: conditions match the description (subagent dispatch) or description corrected
-- [ ] verification-protocol-improves-completion: task has headroom (not hello-world ceiling)
-- [ ] Each fixed eval runs once (`mise run eval:one`) without harness warnings
+- [x] handoff-improves-continuity: merged with handoff-decaying-resolution or differentiated
+- [x] spec-validator-agent-effectiveness: conditions match the description (subagent dispatch) or description corrected
+- [x] verification-protocol-improves-completion: task has headroom (not hello-world ceiling)
+- [x] Each fixed eval runs once (`mise run eval:one`) without harness warnings
 
 ## Out of scope
 
