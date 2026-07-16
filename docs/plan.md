@@ -7,20 +7,20 @@
 
 | Area | Contents | Review status |
 |------|----------|:-------------:|
-| `atomics/skills/` | 53 skills | ⬜ Ticket R1 |
-| `atomics/eager-context/` | 7 always-on modules | ⬜ Ticket R2 |
-| `compositions/tiers/` | basic, full | ⬜ Ticket R3 |
-| `compositions/agent-archetypes/` | 9 archetypes | ⬜ Ticket R3 |
-| `compositions/crew-patterns/` | 9 patterns | ⬜ Ticket R3 |
-| `tools/evals/` | 75 active definitions + harness | ⬜ Ticket R4, R5 |
-| `tools/generator/` | init, doctor, catalog, generate | ⬜ Ticket R6 |
-| `tools/proofs/` | Platform assumption tests | ⬜ Ticket R6 |
-| `tools/lint/` | Cross-link validation | ⬜ Ticket R6 |
-| `tools/recall/` | Extension CLI | ⬜ Ticket R6 |
-| `tools/session-analyzer/` | Transcript parsing | ⬜ Ticket R6 |
-| `tools/okf-bundle/` | OKF bundle generation | ⬜ Ticket R6 |
-| `docs/development/` | 25 research docs | ⬜ Ticket R7 |
-| `.memory/` | 8 ADRs, 19 specs | ⬜ Ticket R7 |
+| `atomics/skills/` | 53 skills | ✅ Ticket R1 |
+| `atomics/eager-context/` | 7 always-on modules | ✅ Ticket R2 |
+| `compositions/tiers/` | basic, full | ✅ Ticket R3 |
+| `compositions/agent-archetypes/` | 9 archetypes | ✅ Ticket R3 |
+| `compositions/crew-patterns/` | 9 patterns | ✅ Ticket R3 |
+| `tools/evals/` | 75 active definitions + harness | ✅ Ticket R4, R5 |
+| `tools/generator/` | init, doctor, catalog, generate | ✅ Ticket R6 |
+| `tools/proofs/` | Platform assumption tests | ✅ Ticket R6 |
+| `tools/lint/` | Cross-link validation | ✅ Ticket R6 |
+| `tools/recall/` | Extension CLI | ✅ Ticket R6 |
+| `tools/session-analyzer/` | Transcript parsing | ✅ Ticket R6 |
+| `tools/okf-bundle/` | OKF bundle generation | ✅ Ticket R6 |
+| `docs/development/` | 25 research docs | ✅ Ticket R7 |
+| `.memory/` | 8 ADRs, 19 specs | ✅ Ticket R7 |
 
 ---
 
@@ -158,10 +158,24 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 
 ## Current Status Snapshot (2026-07-16)
 
-- Full eval suite running since 2026-07-15 12:56 UTC: 83/105 complete, 27 pass / 57 fail
-  - Failure count inflated by: 28 retired evals included (fixed), activation threshold 4.0 (fixed → 3.5), 2 broken multi-turn evals (fixed/retired)
-  - Post-fix estimate: ~36 pass / ~39 fail equivalent on the new 75-eval suite
-- Harness isolation fix shipped (baselines now clean)
-- Skill consolidation complete (64 → 53 dirs)
-- Extensions model shipped (ADR 0008)
-- README.md is wrong (describes a debounce utility, not this project)
+**ALL 8 TICKETS EXECUTED 2026-07-16.** Deliverables:
+
+| Ticket | Outcome | Evidence |
+|--------|---------|----------|
+| R1 | 53 skills reviewed: 32 KEEP / 20 FIX / 1 MERGE / 0 RETIRE | `.scratch/skill-review/verdicts.md` + batch1-8.md |
+| R2 | Deployment bug found+fixed: research-dispatch-mandate never deployed | `.scratch/r2-r3-audit.md`; commit e34b30f |
+| R3 | All 21 compositions validate; archetypes/patterns confirmed in use | same |
+| R4 | 75 evals: 47 KEEP / 7 FIX / 21 retired (→54 active) | `.scratch/eval-review/summary.md`; commit a374699 |
+| R5 | Activation-leak + output-collision fixed; schema documented | `tools/evals/README.md`; commit bb29613 |
+| R6 | generate.sh crash fixed; dead lint rewritten (catches frontmatter gaps); multi-agent-validation repaired+deployed | commit 0b1875a |
+| R7 | ADR 0008 Accepted; 19 specs statused; glossary updated; docs indexed | commit d2b3c00 |
+| R8 | 30 leaked eval files removed; README restored from HEAD | commits in range |
+
+**Remaining follow-up work (from review findings, not yet executed):**
+- R1 FIX list: 20 skills need edits (P0: tutorial-authoring empty table, adr-authoring path convention; P2: 7 line-budget violations; steering slimming 812→~450 lines)
+- R4 FIX list: 7 evals with fixture gaps / identical conditions
+- R6: doctor.sh gaps, catalog.sh dead logic, proofs inspect-session.sh, recall CLI staleness + PyPI name squat, okf-bundle deletion decision
+- Orphaned hooks/session-start-prime.json decision
+- Harness cwd leakage (evals write to repo root — root cause of README corruption; mitigate via KIRO_HOME + workdir enforcement, partially addressed by isolation)
+
+**Overnight full-suite run (2026-07-15→16):** 102/105 completed, 32✅/70❌ — failure count dominated by since-retired evals and pre-calibration activation thresholds. Run wedged at 102 after run.sh was edited mid-execution (lesson recorded: never edit a script bash is executing); terminated, scores preserved in `/tmp/full-eval-run.log` and `tools/evals/results/2026-07-15T12-56-23Z/`.
