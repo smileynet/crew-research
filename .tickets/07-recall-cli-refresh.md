@@ -14,7 +14,7 @@ The recall CLI a user (or the steering) invokes has every command the documentat
 
 ## Context
 
-- **Relevant files:** `.scratch/tooling-audit/recall-analyzer-okf.md` (diff evidence of missing commands)
+- **Relevant files:** `.memory/review-2026-07/tooling-audit.md` (diff evidence of missing commands)
 - **Problem:** installed 0.1.0 predates repo source; `uv tool install recall` from PyPI installs an unrelated protobuf RPC package
 - **Affected docs:** README.md, cheatsheet, user-setup-guide steering, tier extension install_hint
 

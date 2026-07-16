@@ -14,7 +14,7 @@ Skills with broken or contradictory content render correctly and follow repo con
 
 ## Context
 
-- **Relevant files:** `.scratch/skill-review/verdicts.md` (P0 + P3 sections), batch4.md, batch8.md, batch6.md
+- **Relevant files:** `.memory/review-2026-07/skill-verdicts.md` (P0 + P3 sections), batch4.md, batch8.md, batch6.md
 - **Relevant decisions:** `.memory/adr/` path convention (`.memory/adr/NNNN-slug.md`)
 
 ## Acceptance criteria

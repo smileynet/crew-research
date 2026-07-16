@@ -14,7 +14,7 @@ Every active eval definition executes with real inputs (no null-input tasks, no 
 
 ## Context
 
-- **Relevant files:** `.scratch/eval-review/summary.md` (FIX table), effectiveness1/2.md
+- **Relevant files:** `.memory/review-2026-07/eval-verdicts.md` (FIX table), effectiveness1/2.md
 - **Schema:** `tools/evals/README.md`
 
 ## Acceptance criteria

@@ -14,7 +14,7 @@ Every tier skill is under 100 lines (or carries a documented justification), wit
 
 ## Context
 
-- **Relevant files:** `.scratch/skill-review/verdicts.md` (P2 section)
+- **Relevant files:** `.memory/review-2026-07/skill-verdicts.md` (P2 section)
 - **Blocked by 02** because dedup changes line counts — trim after content settles
 - **Offenders:** grill-with-docs (166), multi-agent-validation (142), planning-cycles (125), script-authoring (121), project-cleanup (116), spec-driven-development (116), vertical-slice-planning (111)
 

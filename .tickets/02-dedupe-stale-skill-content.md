@@ -14,7 +14,7 @@ Skills that reference each other or share domains agree with each other. No skil
 
 ## Context
 
-- **Relevant files:** `.scratch/skill-review/verdicts.md` (P1 section), batch1-3.md
+- **Relevant files:** `.memory/review-2026-07/skill-verdicts.md` (P1 section), batch1-3.md
 - **Key conflicts:** troubleshooting-protocol vs feedback-loop-debugging Phase 1 protocols conflict; study-reference vs study-all-references write incompatible schemas to the same artifact; research-methodology has 3 competing output formats
 
 ## Acceptance criteria

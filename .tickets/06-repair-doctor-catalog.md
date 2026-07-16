@@ -14,7 +14,7 @@ spec: "project-review-followup"
 
 ## Context
 
-- **Relevant files:** `.scratch/tooling-audit/generator-lint-proofs.md` (doctor.sh + catalog.sh sections with line refs)
+- **Relevant files:** `.memory/review-2026-07/tooling-audit.md` (doctor.sh + catalog.sh sections with line refs)
 
 ## Acceptance criteria
 

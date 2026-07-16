@@ -14,7 +14,7 @@ Every line of always-on steering earns its place on every turn. Duplicated rules
 
 ## Context
 
-- **Relevant files:** `.scratch/skill-review/batch5.md` (full analysis with line targets)
+- **Relevant files:** `.memory/review-2026-07/batch5.md` (full analysis with line targets)
 - **Targets:** ai-generation-hygiene 93→~40 (same 9 rules stated 3×); project-conventions ~318 effective→cut system-prompt dups, demote tool-installation.md to project-level, OS-gate windows.md; subagent-reliability 137→≤95 ("never inline" stated 3×); context-budget-awareness drop "When to Restart" (conflicts with system prompt)
 
 ## Acceptance criteria

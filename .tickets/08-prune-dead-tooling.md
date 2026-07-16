@@ -14,7 +14,7 @@ Every tool in tools/ either works when invoked or doesn't exist. Orphaned artifa
 
 ## Context
 
-- **Relevant files:** `.scratch/tooling-audit/` (both reports), `.scratch/r2-r3-audit.md`
+- **Relevant files:** `.memory/review-2026-07/tooling-audit.md ` (both reports), `.scratch/r2-r3-audit.md`
 
 ## Acceptance criteria
 
