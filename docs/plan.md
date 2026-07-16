@@ -171,11 +171,22 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | R7 | ADR 0008 Accepted; 19 specs statused; glossary updated; docs indexed | commit d2b3c00 |
 | R8 | 30 leaked eval files removed; README restored from HEAD | commits in range |
 
-**Remaining follow-up work (from review findings, not yet executed):**
-- R1 FIX list: 20 skills need edits (P0: tutorial-authoring empty table, adr-authoring path convention; P2: 7 line-budget violations; steering slimming 812→~450 lines)
-- R4 FIX list: 7 evals with fixture gaps / identical conditions
-- R6: doctor.sh gaps, catalog.sh dead logic, proofs inspect-session.sh, recall CLI staleness + PyPI name squat, okf-bundle deletion decision
-- Orphaned hooks/session-start-prime.json decision
-- Harness cwd leakage (evals write to repo root — root cause of README corruption; mitigate via KIRO_HOME + workdir enforcement, partially addressed by isolation)
+**Follow-up work: tracked as tickets in `.tickets/` (created 2026-07-16).**
+
+| Ticket | Title | Blocked by |
+|--------|-------|------------|
+| 01 | Broken skill content repaired (P0 + one-liners) | — |
+| 02 | Cross-skill contradictions resolved | — |
+| 03 | Over-budget skills fit 100-line limit | 02 |
+| 04 | Always-on steering slimmed 812→~450 lines | — |
+| 05 | 7 flagged eval definitions run as designed | — |
+| 06 | doctor.sh + catalog.sh report current reality | — |
+| 07 | Installed recall CLI matches source and docs | — |
+| 08 | Dead/broken tooling pruned or repaired | — |
+| 09 | Clean post-review eval baseline | 01-05, 11 |
+| 10 | Session logs reveal actual skill/tool usage | — |
+| 11 | Eval sessions cannot write outside their workdir | — |
+
+**Frontier:** 01, 02, 04, 05, 06, 07, 08, 10 (all unblocked). Suggested order: 01 → 02 → 04 → 05 (unblocks 09), with 06-08, 10 parallelizable.
 
 **Overnight full-suite run (2026-07-15→16):** 102/105 completed, 32✅/70❌ — failure count dominated by since-retired evals and pre-calibration activation thresholds. Run wedged at 102 after run.sh was edited mid-execution (lesson recorded: never edit a script bash is executing); terminated, scores preserved in `/tmp/full-eval-run.log` and `tools/evals/results/2026-07-15T12-56-23Z/`.
