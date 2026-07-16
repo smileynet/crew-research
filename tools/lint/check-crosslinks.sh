@@ -23,6 +23,15 @@ comp_skills=$(yq -r '.skills[]?, .["shared-skills"][]?' "$ROOT_DIR"/compositions
 
 echo "Linting skills..."
 
+# 0. Every tier steering/skill entry must resolve to atomics/skills/{slug}/SKILL.md
+#    (catches the eager-context misplacement bug — 2 occurrences: research-dispatch-mandate, frontier-work)
+for entry in $tier_skills; do
+  if [[ ! -f "$SKILLS_DIR/$entry/SKILL.md" ]]; then
+    echo "  ❌ tier references '$entry' but atomics/skills/$entry/SKILL.md does not exist (misplaced in eager-context/?)"
+    errors=$((errors + 1))
+  fi
+done
+
 for dir in "$SKILLS_DIR"/*/; do
   slug=$(basename "$dir")
   skill_md="$dir/SKILL.md"

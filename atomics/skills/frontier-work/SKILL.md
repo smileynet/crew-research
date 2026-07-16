@@ -1,3 +1,12 @@
+---
+name: frontier-work
+description: "Always-on: when a project has tickets, work the frontier (first unblocked open ticket), mark done, update plan status."
+metadata:
+  type: protocol
+  invocation: agent-only
+  practice: null
+---
+
 # Frontier Work
 
 When a project has tickets, work the frontier.
