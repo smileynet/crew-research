@@ -9,6 +9,7 @@ steering:
   - image-handling
   - subagent-reliability
   - research-dispatch-mandate
+  - frontier-work
 
 skills:
   # Session
@@ -20,6 +21,7 @@ skills:
   - planning-cycles
   - spec-driven-development
   - vertical-slice-planning
+  - ticket-planning
   - grill-with-docs
   - plan-prereqs
   - research-methodology

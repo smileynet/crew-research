@@ -42,6 +42,8 @@ handoff_key: {workstream-slug}
 ## Evidence
 ```
 
+**Current State:** Reference PLAN.md for work status rather than restating it. Capture only what the plan doesn't know: what you were mid-way through, what's in your head that isn't in a file yet. Never duplicate ticket status or task graph position — those live in the plan.
+
 **Fog section:** If the project has a map (proposal-plan.md) or unresolved questions from a grill session, note what CANNOT yet be planned — decisions that surfaced but remain unclear. This tells the next session where the frontier is vs what's still in fog.
 
 ## Rules

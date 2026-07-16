@@ -45,3 +45,4 @@ What we need to build first. For each:
 - Research answers "how should we?" — if the approach is clear, skip it
 - Tools are pre-work only if main implementation depends on them
 - If nothing blocks: say so and recommend starting immediately
+- Output feeds into `/ticket-planning` — research topics and spikes become ticket prereqs

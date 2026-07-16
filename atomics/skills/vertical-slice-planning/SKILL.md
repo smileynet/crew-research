@@ -109,3 +109,7 @@ Every session produces at least one of:
 - A new failing test (demonstrates a gap)
 - A previously-failing test now passing (demonstrates progress)
 - A plan rewrite (acknowledges reality changed)
+
+## After Choosing Methodology
+
+Once you've chosen spike, tracer bullet, or vertical slice — use `/ticket-planning` to break the work into individual tickets with blocking edges. Each ticket becomes one unit of work sized to a single session.

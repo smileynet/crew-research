@@ -100,8 +100,10 @@ Optional: Unresolved Questions, Alternatives Considered.
 ## Lifecycle
 
 ```
-Draft → Accepted → Implemented → Reconciled → Validated
+Draft → Accepted → Tickets Created → Implemented → Reconciled → Validated
 ```
+
+After a spec is **Accepted**, decompose it into tickets using `/ticket-planning`. Tickets become the workable units; the spec remains the authoritative requirements doc.
 
 ## Rules
 
