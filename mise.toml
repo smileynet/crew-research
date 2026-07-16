@@ -1,6 +1,7 @@
 [env]
 CREW_TIER = "full"
 CREW_TOOLS = "kiro-cli"
+CREW_TICKET_SOURCES = "local,github"
 
 [tasks.validate]
 description = "Validate all compositions and cross-links"

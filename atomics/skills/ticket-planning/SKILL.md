@@ -21,6 +21,15 @@ Decompose a spec into vertical-slice tickets with explicit blocking edges.
 6. **Attach to spec** — add Tickets section to the originating spec
 7. **Update PLAN.md** — task graph with ticket IDs and work order
 
+## Ticket Sources
+
+Tickets can originate from:
+- **This skill** — decomposing a spec into work units (primary flow)
+- **GitHub/GitLab issues** — labeled `ready-for-agent`, pulled into local context when working
+- **Manual creation** — user writes `.tickets/{NN}-{slug}.md` directly
+
+When working from a GitHub issue: read the issue body as the "What to build" source, create a local `.tickets/` file to track progress, and close the issue on completion if `CREW_TICKET_SYNC=true`.
+
 ## Ticket Sizing Rules
 
 - Each ticket fits in **one fresh context window** — if it wouldn't, split
@@ -77,17 +86,7 @@ For changes that touch many files (renames, retypes), use expand-contract sequen
 
 ## Tool Integration (optional)
 
-If `tk` (wedow/ticket) is on PATH, use it for state transitions:
-```bash
-tk new "title"              # create
-tk start <id>               # claim
-tk close <id>               # mark done
-tk ready                    # list frontier
-tk blocked                  # list blocked tickets
-tk dep tree                 # show dependency graph
-```
-
-Otherwise, manage status via frontmatter edits directly.
+If `tk` is on PATH, use it for state transitions and queries (`tk new`, `tk start`, `tk close`, `tk ready`, `tk dep tree`). Otherwise manage status via frontmatter edits directly.
 
 ## References
 

@@ -23,7 +23,7 @@ Orient yourself to continue work from where the last session left off.
 3. Check staleness: `git log --oneline {base_commit}..HEAD`
 4. If `proposal-plan.md` exists, read it — this is the project map (destination, decisions, fog, scope)
 5. If task graph position is unclear, read `docs/plan.md`
-6. If `.tickets/` exists, scan for frontier (open tickets with all blockers done)
+6. If `.tickets/` exists, scan for frontier (open tickets with all blockers done). If no local tickets, check GitHub issues labeled `ready-for-agent` (if `gh` available + GitHub upstream).
 
 ## Report After Reading
 

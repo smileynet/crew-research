@@ -239,3 +239,15 @@ _Avoid_: document (too big), row (implementation term)
 **Prime**:
 The `recall prime` output — a self-contained payload of usage instructions + recent agent-written facts + top retrieval results, injected at session start. Callable from skills, eager-context, or hooks.
 _Avoid_: wake-up (that's MemPalace's term), context dump (too vague)
+
+**Ticket**:
+A single unit of work sized to one context window, stored as `.tickets/{NN}-{slug}.md` with YAML frontmatter (status, blocked_by, spec). Describes WHAT to build behaviorally, not HOW. Managed by `tk` CLI or direct file edits.
+_Avoid_: issue (overloaded with GitHub), task (too generic), story (Agile-specific)
+
+**Frontier**:
+The set of tickets where `status: open` and all `blocked_by` are `done`. The agent works the frontier — picks the lowest-numbered available ticket. Determined by scanning `.tickets/` frontmatter or `tk ready`.
+_Avoid_: backlog (that's unordered), next (implies single item)
+
+**CREW_TICKET_SOURCES**:
+Env var (set in `mise.toml`) controlling ticket source priority. Comma-separated list: `local` (`.tickets/` files), `github` (issues labeled `ready-for-agent`), `gitlab`. Default: `local,github`. First source with results wins.
+_Avoid_: hardcoding source preference in skills/steering
