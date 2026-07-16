@@ -57,28 +57,44 @@ handoff_key: {workstream-slug}
 
 ## Quality Check
 
-Before writing, verify:
-- Could someone with NO context continue from this handoff?
-- Are next steps actionable (not "finish the work")?
-- Are file paths accurate (not guessed)?
+Verify: (1) someone with NO context can continue, (2) next steps are actionable, (3) file paths are accurate.
 
 ## Promotion Check
 
 Before finalizing, review the session for promotable artifacts:
 
-1. **CONTEXT.md** — were any terms resolved or clarified? Add them now.
-2. **ADRs** — were any hard-to-reverse decisions made? (tool choices, architecture, process changes) → write `.memory/adr/NNNN-slug.md`
-3. **`.memory/` promotion** — are there `.scratch/` artifacts that future sessions will need? (methodologies, baselines, specs) → move to `.memory/specs/`
-4. **Dead scratch** — any `.scratch/` files that are now obsolete? Note for cleanup.
+1. **CONTEXT.md** — terms resolved or clarified? Add now.
+2. **ADRs** — hard-to-reverse decisions made? → `.memory/adr/NNNN-slug.md`
+3. **Promote scratch** — `.scratch/` artifacts future sessions need? → `.memory/specs/`
+4. **Dead scratch** — obsolete `.scratch/` files? Note for cleanup.
 
-Don't batch these — capture before writing the handoff.
+## Artifact Update Nudge
+
+Scan the session for findings that should propagate. Nudge when:
+- A skill has a gap or stale instruction
+- AGENTS.md commands/conventions changed
+- A repeated manual process could be a tool script
+- Technical findings belong in `.memory/specs/`
+- New work surfaced → create a `.tickets/` entry
+- Terms were used inconsistently → glossary update
+
+Add a `## Recommended Updates` section (after Next Steps) if applicable:
+
+```markdown
+## Recommended Updates
+- [ ] skill(foo): add X — we hit this gap during Y
+- [ ] AGENTS.md: add `mise run bar` to Commands
+- [ ] .tickets/NN-slug.md: new ticket for Z (out of scope this session)
+```
+
+Skip if the session produced no artifact-worthy findings.
 
 ## Recall Write-Back (if available)
 
-If `recall` is on PATH, persist qualifying decisions from this session:
+If `recall` is on PATH, persist qualifying decisions:
 
 ```bash
 recall add "decided X because Y" --room decisions --type decision
 ```
 
-A decision qualifies if: hard-to-reverse OR will matter beyond the next session. Do NOT persist file paths, implementation details, or observations (those go in HANDOFF.md only).
+Qualifies if: hard-to-reverse OR matters beyond next session. Don't persist file paths or implementation details (those are in HANDOFF.md).
