@@ -1,3 +1,12 @@
+---
+name: research-dispatch-mandate
+description: "Always-on mandate: research tasks with 2+ topics must dispatch parallel subagents rather than researching inline."
+metadata:
+  type: protocol
+  invocation: agent-only
+  practice: null
+---
+
 # Research Dispatch Mandate
 
 When a task involves researching 2+ topics, **always dispatch subagents** — one per topic, batched appropriately.
