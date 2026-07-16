@@ -85,7 +85,8 @@ DEFS=()
 if [[ -n "$DEFINITION" ]]; then
   DEFS=("$DEFINITIONS_DIR/$DEFINITION.yaml")
 elif [[ "$RUN_ALL" == true ]]; then
-  mapfile -t DEFS < <(find "$DEFINITIONS_DIR" -name "*.yaml" -not -path "*/retired/*" | sort)
+  # Exclude retired/ and activation-* (activation defs lack criteria; run-activation.sh is their harness)
+  mapfile -t DEFS < <(find "$DEFINITIONS_DIR" -name "*.yaml" -not -path "*/retired/*" -not -name "activation-*" | sort)
 else
   echo "Specify --definition <name> or --all" >&2; exit 1
 fi
@@ -463,7 +464,7 @@ run_eval() {
         echo "$output" > "$workdir/.eval-output"
         if [[ -d "$RUN_DIR" ]]; then
           mkdir -p "$RUN_DIR/outputs"
-          echo "$output" > "$RUN_DIR/outputs/${cond}-task${task_idx}-trial${trial}.txt"
+          echo "$output" > "$RUN_DIR/outputs/${name}-${cond}-task${task_idx}-trial${trial}.txt"
         fi
 
         # Extract session behavioral summary for judge context

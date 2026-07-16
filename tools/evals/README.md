@@ -1,148 +1,104 @@
-# Eval Toolchain
+# Eval Harness
 
-## Quick Reference
+Behavioral evals for crew-research skills. Two harnesses:
+
+| Harness | Purpose | Definitions |
+|---------|---------|-------------|
+| `harness/run.sh` | Judged dual-run evals (skill vs baseline, LLM consensus scoring) | `definitions/*.yaml` with `tasks[].criteria` |
+| `harness/run-activation.sh` | Activation regression (does the skill load when triggered?) | `definitions/activation-*.yaml` with `tasks[].expect_activation` |
 
 ```bash
-# Validate compositions (always run first)
-tools/generator/generate.sh validate
-
-# Run a single dual-run eval (quality comparison)
-tools/evals/harness/run.sh --definition <name> --trials 3
-
-# Run all dual-run evals
-tools/evals/harness/run.sh --all --trials 3
-
-# Test skill activation reliability
-tools/evals/harness/run-activation.sh --all
-
-# Run a multi-condition experiment
-tools/evals/harness/run-experiment.sh --experiment <name> --trials 3 --fixture defu --timeout 120
-
-# Extract metrics from a past session
-tools/evals/harness/extract-metrics.sh /tmp/eval-workspace-path
-
-# Check activation for a specific workspace
-tools/evals/harness/check-activation.sh /tmp/workspace skill-name
-
-# Cross-link lint
-tools/lint/check-crosslinks.sh
+mise run eval                          # all dual-run evals, 3 trials
+mise run eval:one -- <definition>      # single eval by name (no .yaml)
+mise run eval:activation               # activation suite
 ```
 
-## Experiment Workflow
+Always run in background (see `.kiro/steering/eval-execution.md`): a full suite takes hours.
 
-1. Define experiment in `tools/evals/experiments/<name>.yaml`
-2. Run: `tools/evals/harness/run-experiment.sh --experiment <name> --trials 3 --fixture defu`
-3. Results land in `tools/evals/results/<name>-<timestamp>/`
-4. Review `summary.json` and `experiment.jsonl`
-
-## Experiment Definition Format
+## Dual-Run Definition Schema (run.sh)
 
 ```yaml
-question: "What are we trying to learn?"
-experiment: slug-name
-category: methodology
+name: my-skill-effectiveness          # required, matches filename
+description: "What this measures"     # required
+fixture: defu                          # optional — fixtures/{name}.yaml (git-clone workspace)
+skill: my-skill                        # legacy shorthand — prefer conditions:
 
-conditions:
-  - name: baseline
+conditions:                            # 2 conditions = comparison; 1 = threshold-only
+  with-skill:
+    skills: [my-skill]                 # deployed to workdir .kiro/skills/ (+references/)
+    steering:                          # optional — files FROM tools/evals/steering/
+      - my-steering.md                 #   MUST end .md and exist there
+  baseline:
     skills: []
-  - name: with-skill
-    skills: [skill-name]
+    steering: []
 
+tasks:                                 # 1+ tasks; each runs trials× per condition
+  - name: descriptive-slug             # optional
+    input: |                           # REQUIRED — the single prompt sent to the agent
+      Task text...
+    criteria: |                        # REQUIRED — judge rubric
+      PRIMARY: The one behavior being measured.
+      AUTOMATIC FAIL (score 1): ...
+      Score 3: ...
+      Score 4: ...
+      BONUS (score 5): ...
+    ideal: "optional reference answer"
+
+trials: 3                              # runs per task per condition
+threshold: 4                           # with-skill avg must reach this
+delta_threshold: 0.5                   # with-skill minus baseline must reach this
+                                       #   variance-reduction skills: use -0.5
+timeout: 120                           # seconds per session
+tags: [category, skill-name]
+```
+
+### Unsupported (will silently break — input resolves to null)
+
+- `turns:` arrays / `mode: multi-turn` — no multi-turn support; embed prior turns in a single `input`
+- `steering_override:` — inline steering text; put a file in `tools/evals/steering/` instead
+- `prompts:` — old field name; use `tasks:`
+
+### Isolation
+
+kiro-cli sessions run with `KIRO_HOME=$workdir/.kiro` — conditions see ONLY their declared
+skills/steering, never the global `~/.kiro/`. Every workdir gets empty `.kiro/{skills,steering}`
+so the baseline is truly bare. Consequence: evals needing external state (e.g. the real recall
+DB at `~/.recall/`) can't run isolated — see `definitions/retired/recall-cross-session-continuity.yaml`.
+
+### Judging
+
+4-model consensus (claude-opus + codex + crush + agy run in parallel; median score).
+Session behavior (tool calls, retries) is extracted and shown to the judge; definitions can add
+`log_analysis.penalties` (max_tool_calls, max_retries) for hard score deductions.
+
+## Activation Definition Schema (run-activation.sh)
+
+```yaml
+name: activation-my-skill
+skill: my-skill
 tasks:
-  - name: task-slug
-    input: "The prompt sent to the agent"
-
-metrics: [total_tokens, context_usage_pct, phase_coherence]
-
-acceptance_criteria: |
-  - What constitutes a meaningful finding
+  - input: "Prompt that SHOULD trigger the skill"
+    expect_activation: true
+  - input: "Prompt that should NOT trigger it"
+    expect_activation: false
 ```
 
-## Available Experiments
+Scored as TP/FP/TN/FN — no LLM judge, no threshold field (a `threshold:` key is ignored).
 
-| Experiment | Question | Conditions | Tasks |
-|-----------|----------|:----------:|:-----:|
-| token-efficiency | Is quality worth the token cost? | 4 | 3 |
-| skill-interference | Do multiple skills degrade each other? | 5 | 3 |
-| process-tracing | Does the skill change HOW the agent works? | 3 | 3 |
-
-## Adapters
-
-The harness supports multiple AI tools via `--adapter`:
-
-```bash
-tools/evals/harness/run.sh --definition <name> --adapter kiro-cli   # default
-tools/evals/harness/run.sh --definition <name> --adapter codex
-tools/evals/harness/run.sh --definition <name> --adapter agy        # blocked (see below)
-tools/evals/harness/run.sh --definition <name> --adapter crush
-```
-
-| Adapter | Status | Invocation | Skill Path |
-|---------|--------|-----------|------------|
-| kiro-cli | ✅ Active | `kiro-cli chat --no-interactive` | `.kiro/skills/{name}/SKILL.md` |
-| codex | ✅ Active | `codex exec --dangerously-bypass-approvals-and-sandbox --ephemeral` | `.agents/skills/{name}/SKILL.md` |
-| crush | ✅ Active | `crush run --quiet --model glm-5.2` | `.agents/skills/{name}/SKILL.md` |
-| agy | ❌ Blocked | `agy --print` (Issue #76: stdout capture broken in non-TTY) | `.agents/skills/{name}/SKILL.md` |
-
-Adapter configs live in `tools/proofs/adapters/*.yaml`.
-
-## Multi-Model Judging
-
-The harness runs ALL available judge tools in parallel and takes the **median score**:
-
-1. kiro-cli (Claude) — primary judge
-2. codex (GPT-5.5+) — if `codex` on PATH
-3. crush (GLM-5.2) — if `crush` on PATH
-4. agy (Gemini) — if `agy` on PATH
-
-This produces consensus scores resistant to single-model bias. Configure via `--judge` flag or `tools/evals/judges/default.yaml`.
-
-## Data Flow
+## Directory Layout
 
 ```
-Experiment Definition (YAML)
-    ↓
-run-experiment.sh (orchestrates conditions × tasks × trials)
-    ↓
-kiro-cli invocation (isolated temp dir with skills deployed)
-    ↓
-sqlite conversation data (stored by kiro-cli)
-    ↓
-extract-metrics.sh (pulls tokens, tool calls, phases)
-    ↓
-experiment.jsonl + summary.json (results)
+definitions/           # active eval definitions
+definitions/retired/   # kept for history; excluded from --all
+fixtures/              # workspace fixtures (git clone + install + injected files)
+steering/              # steering files referenced by definitions' conditions
+harness/               # run.sh, run-activation.sh, run-experiment.sh, judges
+results/               # timestamped run output (gitignored)
+experiments/           # multi-condition experiment configs
 ```
 
-## Results Format (scores.jsonl)
+## Writing Good Criteria
 
-Each eval run produces a JSONL line with:
-
-```json
-{
-  "name": "eval-name",
-  "status": "PASS|FAIL",
-  "score": 4.25,
-  "reason": "human-readable pass/fail reason",
-  "activated": 12,
-  "activation_total": 12,
-  "activation_rate": 1.00,
-  "with_score": 4.25,
-  "with_stddev": 0.43,
-  "with_min": 3,
-  "with_max": 5,
-  "without_score": 2.33,
-  "without_stddev": 0.47,
-  "without_min": 2,
-  "without_max": 3,
-  "delta": 1.92,
-  "task_scores": [
-    {"task": 0, "condition": "with-skill", "avg": 4.33, "scores": [4,5,4]},
-    {"task": 0, "condition": "baseline", "avg": 2.33, "scores": [2,3,2]}
-  ]
-}
-```
-
-**Key metrics:**
-- `delta` — behavioral difference (positive = skill helps)
-- `stddev` — consistency (low = reliable improvement)
-- `task_scores` — per-task breakdown (identifies which behaviors improve/regress)
+See the `eval-criteria` skill. Non-negotiables: a PRIMARY clause naming the single behavior
+measured, an AUTOMATIC FAIL clause, and anchored scores (what 3 vs 4 vs 5 looks like).
+One signal per eval — multi-purpose evals (see retired part-b-enrichments) can't attribute failures.
