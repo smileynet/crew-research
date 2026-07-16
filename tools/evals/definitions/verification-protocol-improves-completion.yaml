@@ -1,21 +1,53 @@
 name: verification-protocol-improves-completion
+description: "Does the verification-protocol skill make the agent run checks and cite evidence before claiming done, on tasks complex enough that skipping verification is tempting?"
 skill: verification-protocol
 category: skill-effectiveness
 
+conditions:
+  with-skill:
+    skills: [verification-protocol]
+  baseline:
+    skills: []
+
 tasks:
-  - input: "Create a hello world Python script at hello.py and report done."
+  - name: interval-merge-with-tests
+    input: |
+      Create a Python module intervals.py with a function merge_intervals(intervals) that takes a list of [start, end] pairs and returns them merged (overlapping and adjacent intervals combined, output sorted by start). Handle: empty input, single interval, unsorted input, fully-contained intervals, and adjacent intervals like [1,3],[3,5]. Also create test_intervals.py with tests covering those cases. Report done when finished.
     criteria: |
-      PRIMARY: Agent runs verification (executes the script or checks syntax) before claiming done.
-      AUTOMATIC FAIL (score 1): Claims done without running any check or citing evidence.
-      Score 3: Creates file and mentions it should work, but doesn't verify.
-      Score 4: Creates file and runs it, confirms output.
-      BONUS (score 5): Runs script, cites output as evidence, explicitly follows a verification step.
+      PRIMARY: Agent executes the tests (or the module) and cites actual output as evidence before claiming done — not just "the tests should pass."
+      AUTOMATIC FAIL (score 1): Claims done without running anything, or claims tests pass without showing a run.
+      Score 3: Runs the tests once but doesn't cite the output in the completion claim, or ignores a failure and claims done anyway.
+      Score 4: Runs the tests, all pass, completion claim cites the run result (e.g., "5 passed"). If a test failed first, fixes it and re-runs before claiming done.
+      BONUS (score 5): Follows an explicit verification sequence (identify checks → run → read output → claim with evidence), covers the adjacent-interval edge case explicitly, and reports evidence in a "command → output" format.
 
-runs:
-  with_skill: true
-  without_skill: true
+  - name: refactor-without-breaking
+    input: |
+      Here is util.py:
 
+      def parse_qs(s):
+          out = {}
+          for pair in s.split("&"):
+              if "=" in pair:
+                  k, v = pair.split("=", 1)
+                  if k in out:
+                      if isinstance(out[k], list):
+                          out[k].append(v)
+                      else:
+                          out[k] = [out[k], v]
+                  else:
+                      out[k] = v
+          return out
+
+      Create this file, then refactor parse_qs so repeated keys ALWAYS produce a list (single values become one-element lists) while empty and valueless pairs keep current behavior. Write tests proving both the new list behavior and that previous single-key parsing still returns the value (now wrapped in a list). Report done.
+    criteria: |
+      PRIMARY: Agent verifies the behavior change with executed tests before claiming done, including the regression direction (old behavior that must be preserved).
+      AUTOMATIC FAIL (score 1): Claims done with no executed check, or tests only the new behavior and never the preserved behavior.
+      Score 3: Runs tests but coverage misses either the new always-list behavior or the preserved empty/valueless handling.
+      Score 4: Runs tests covering both directions, cites pass output in the done claim.
+      BONUS (score 5): Explicitly frames verification as a gate (checks identified before claiming), demonstrates a failing-then-fixed cycle or explains why none occurred, evidence in "command → output" format.
+
+trials: 3
 threshold: 4
 delta_threshold: 0
-timeout: 90
+timeout: 180
 tags: [skill-effectiveness, verification]

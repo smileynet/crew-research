@@ -10,7 +10,8 @@ conditions:
     skills: []
 
 tasks:
-  - input: "Write an AGENTS.md for the defu project. It's a TypeScript deep merge utility using vitest for tests and unbuild for building."
+  - name: write-from-scratch
+    input: "Write an AGENTS.md for the defu project. It's a TypeScript deep merge utility using vitest for tests and unbuild for building."
     criteria: |
       PRIMARY: Produced AGENTS.md is ≤150 lines, includes verifiable done criteria for commands, and has escalation rules.
       AUTOMATIC FAIL (score 1): Over 200 lines or just a copy of README content.
@@ -18,13 +19,91 @@ tasks:
       Score 4: Under 150 lines, includes "When Blocked" section, has commands with verifiable done criteria (expected output or exit code), uses tables or lists over prose paragraphs.
       BONUS (score 5): Includes decision tables, pairs "don'ts" with "dos", uses progressive disclosure (links to docs/), no prose paragraphs longer than 3 lines, separates agent concerns from user concerns.
 
-  - input: "This AGENTS.md is 300 lines and the agent seems to be spending too much time on instructions instead of working. Help me fix it."
+  - name: trim-bloated-file
+    input: |
+      My AGENTS.md has gotten bloated and the agent seems to spend more time on instructions than working. Help me fix it. Here is the current file:
+
+      ---
+      # AGENTS.md — defu Project Agent Instructions
+
+      ## Introduction and Background
+
+      Welcome to the defu project! This document contains all of the instructions, guidelines, conventions, and background information that an AI agent will need in order to work effectively on this codebase. Please read this entire document carefully before beginning any work, as it contains important information that will help you avoid common mistakes and produce work that meets our standards.
+
+      defu is a deep merge utility library for JavaScript and TypeScript. It allows developers to assign default properties to objects recursively. The library is small but widely used across the unjs ecosystem and beyond, which means that any change we make has a large blast radius. It was originally created to solve the problem of merging user-provided configuration objects with default configuration objects, which is a very common need in library and framework development. Over time it has grown to support custom merge strategies, array handling, and type-safe merging with full TypeScript inference.
+
+      The library philosophy is minimalism. We prefer small, focused functions over large configurable ones. We prefer copying a few lines of code over adding a dependency. We prefer explicit behavior over magic. When in doubt, look at how existing code solves similar problems and follow the same approach. Consistency with the existing codebase is more important than following the latest best practices from the wider ecosystem.
+
+      ## Development Environment Setup
+
+      Before you can work on this project, you will need to set up your development environment. First, make sure you have Node.js installed. We recommend using the latest LTS version, although the library supports Node 14 and above. You will also need pnpm as the package manager — do not use npm or yarn, as the lockfile is in pnpm format and using a different package manager will cause inconsistencies.
+
+      To install dependencies, run pnpm install from the repository root. This should complete without errors. If you see peer dependency warnings, those are generally safe to ignore, but actual errors should be investigated before proceeding. After installation you should verify your environment by running the test suite once to make sure everything passes before you make any changes. This gives you a known-good baseline.
+
+      ## Building the Project
+
+      The project uses unbuild for building. To build, run npx unbuild from the repository root. The build output goes into the dist directory. The build produces both CommonJS and ES module outputs, along with TypeScript declaration files. You should run the build after making changes to verify that the build still succeeds, because sometimes TypeScript errors only surface during the declaration file generation step and not during testing.
+
+      Please note that the dist directory should never be committed to the repository. It is generated during the release process by CI. If you accidentally commit dist files, please remove them from the commit before pushing.
+
+      ## Running Tests
+
+      We use vitest for testing. To run the full test suite, run npx vitest run from the repository root. To run tests in watch mode during development, run npx vitest. The test files live in the test directory and follow the naming convention of *.test.ts.
+
+      All changes must be accompanied by tests. If you fix a bug, add a regression test that fails without your fix and passes with it. If you add a feature, add tests covering the happy path and at least the obvious edge cases: null inputs, undefined inputs, empty objects, empty arrays, and deeply nested structures. Our test coverage is high and we want to keep it that way.
+
+      When tests fail, read the failure output carefully. vitest provides detailed diffs for object comparisons. Do not modify a failing test to make it pass unless you are certain the test itself is wrong — the tests encode the library's behavioral contract and changing them changes the contract for every downstream consumer.
+
+      ## Code Style and Conventions
+
+      The project uses ESLint for linting. Run npx eslint . to check for lint errors. All code must pass linting before it can be merged. The lint configuration extends the unjs preset, which enforces consistent import ordering, no unused variables, and various stylistic rules.
+
+      We use TypeScript strictly. Avoid using the any type — if you find yourself reaching for any, there is usually a better way to express the type, such as unknown with type narrowing, or generics. The library's public API types are carefully crafted for inference, so be especially careful when modifying anything in the types file. A change that seems harmless can break type inference for downstream users in subtle ways.
+
+      Function names should be descriptive verbs. Variable names should be descriptive nouns. Avoid single-letter variable names except for loop indices. Avoid abbreviations unless they are widely understood. Comments should explain why, not what — the code itself should be readable enough to explain what it does.
+
+      ## Git Workflow and Commit Conventions
+
+      We follow conventional commits. Commit messages should be formatted as type(scope): description, where type is one of feat, fix, docs, chore, refactor, test, or perf. The description should be lowercase and should not end with a period. For example: fix(merge): handle null values in nested arrays.
+
+      Keep commits focused. One logical change per commit. If you find yourself writing "and" in a commit message, consider splitting the commit. Do not mix refactoring with behavior changes in the same commit, as this makes review much harder.
+
+      Never push directly to the main branch. All changes go through pull requests. Pull request titles follow the same conventional commit format. The PR description should explain the motivation for the change, summarize the approach, and list any trade-offs or alternatives considered.
+
+      ## Release Process
+
+      Releases are handled by the maintainers using changelogen. You should not need to touch the release process, bump versions, or edit the changelog manually. The changelog is generated from commit messages, which is another reason to follow the conventional commit format carefully. If your commit messages are well-formatted, the changelog entry for your change will be accurate automatically.
+
+      ## Performance Considerations
+
+      defu is used in hot paths in several frameworks, including during config resolution which can happen many times during a build. Performance matters. Avoid creating unnecessary intermediate objects. Avoid unnecessary iterations. When modifying the core merge function, consider running a quick benchmark comparing before and after — even a small regression can have a large aggregate impact across the ecosystem.
+
+      That said, do not sacrifice readability for micro-optimizations that don't show up in benchmarks. Measure first, optimize second. If you believe an optimization is worthwhile, include benchmark numbers in your PR description.
+
+      ## Compatibility and Breaking Changes
+
+      The library follows semantic versioning. Any change to observable behavior of the public API is potentially breaking and needs careful consideration. Even bug fixes can be breaking if users depend on the buggy behavior — this has happened before with array merging behavior. When in doubt about whether a change is breaking, ask the maintainers rather than guessing.
+
+      TypeScript type changes can also be breaking. Narrowing a type that used to be wide can break downstream compilation even if runtime behavior is unchanged. Treat type changes with the same care as runtime changes.
+
+      ## Documentation
+
+      The README is the primary documentation. If you change public API behavior, update the README in the same PR. Code examples in the README should be tested manually to make sure they actually work — nothing erodes trust faster than documentation examples that throw errors.
+
+      ## Common Pitfalls and Things to Avoid
+
+      Do not add dependencies without discussion. The library currently has zero runtime dependencies and we want to keep it that way. Do not add configuration options without strong justification — every option doubles the test matrix. Do not refactor code adjacent to your change just because you don't like the style; keep diffs minimal and focused. Do not use Object.prototype methods directly on merged objects, as inputs may have null prototypes. Do not assume inputs are well-formed; the merge function receives arbitrary user data and must not throw on weird inputs like functions, symbols, or circular references.
+
+      ## Getting Help
+
+      If you are unsure about anything, the best approach is to look at recent merged pull requests to see examples of changes that met the bar. Reading the test suite is also an excellent way to understand the intended behavior of every feature. The maintainers are responsive on GitHub issues for questions about intended behavior.
+      ---
     criteria: |
-      PRIMARY: Reduces to ≤150 lines while preserving essential information via progressive disclosure.
-      AUTOMATIC FAIL (score 1): Keeps it over 150 lines or just deletes content without extracting to linked docs.
-      Score 3: Reduces length but loses important information without extraction.
-      Score 4: Extracts detail to referenced docs, keeps core under 150 lines, maintains routing to extracted content.
-      BONUS (score 5): Explains the reasoning token argument for brevity, identifies specific anti-patterns in the original, restructures prose to tables, adds missing escalation rules.
+      PRIMARY: Reduces the file to ≤150 lines (at most half the original) while preserving essential information via progressive disclosure (extraction to linked docs), not deletion.
+      AUTOMATIC FAIL (score 1): Result is over 150 lines, or content is deleted wholesale without extraction to linked docs.
+      Score 3: Reduces length but loses important information (e.g., drops the null-prototype pitfall or pnpm-only rule) without extracting it anywhere.
+      Score 4: Extracts detail to referenced docs, keeps core ≤150 lines, maintains routing to extracted content, converts prose to tables/lists.
+      BONUS (score 5): Explains the reasoning-token argument for brevity, identifies specific anti-patterns in the original (README duplication, prose paragraphs, human-audience content), restructures prose to tables, adds missing escalation rules.
 
 trials: 3
 threshold: 4

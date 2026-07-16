@@ -1,5 +1,5 @@
 name: spec-validator-agent-effectiveness
-description: "Does dispatching a validator subagent catch spec quality issues that same-context review misses?"
+description: "Does adding the code-review skill alongside spec-driven-development catch spec quality issues (vague validation, scope creep) that spec-driven-development alone misses?"
 skill: spec-driven-development
 fixture: defu
 
@@ -68,4 +68,4 @@ trials: 3
 threshold: 4
 delta_threshold: 0
 timeout: 150
-tags: [context-neutrality, spec-validation, agent-dispatch]
+tags: [skill-effectiveness, spec-validation]

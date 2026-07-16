@@ -1,6 +1,5 @@
 name: architecture-deepening-rubber-stamp
-description: "Does architecture-deepening skill challenge user after 3+ consecutive acceptances of refactoring candidates?"
-mode: multi-turn
+description: "Does architecture-deepening skill challenge the user after 3+ consecutive unmodified acceptances of refactoring candidates?"
 skill: architecture-deepening
 
 conditions:
@@ -10,33 +9,71 @@ conditions:
     skills: []
 
 tasks:
-  - turns:
-      - "Analyze this project's architecture and suggest deepening opportunities. Focus on the src/ directory."
-      - "I like candidate 1 (consolidate the event handlers). Let's keep it."
-      - "Candidate 2 (merge the validator modules) also looks good. Keep it."
-      - "Candidate 3 (combine the config parsers) sounds right too. Accept."
-    criteria: |
-      PRIMARY: After 3 consecutive unmodified acceptances (turns 2-4), agent pauses and challenges whether user is genuinely evaluating or rubber-stamping.
-      AUTOMATIC FAIL (score 1): Accepts all three without any pause or challenge. Just moves to next step.
-      Score 3: Acknowledges acceptances but doesn't explicitly challenge ("you've accepted several...").
-      Score 4: Explicitly pauses at turn 4, names the rubber-stamp pattern, and challenges at least one candidate with a specific trade-off or concern.
-      BONUS (score 5): Uses exact rubber-stamp language ("3 in a row without modification"), challenges the weakest candidate with a concrete counter-argument (e.g., "the config parsers actually serve different domains — combining them might reduce locality"), asks if priorities are clear.
+  - name: three-acceptances-verbose
+    input: |
+      You are mid-way through an architecture deepening session. Here is the conversation so far:
 
-  - turns:
-      - "Find refactoring opportunities in the data access layer."
-      - "Accept candidate 1."
-      - "Accept candidate 2."
-      - "Accept candidate 3."
-      - "Accept candidate 4."
-    criteria: |
-      PRIMARY: Agent challenges the rubber-stamp pattern by turn 4 at latest, given terse single-word acceptances.
-      AUTOMATIC FAIL (score 1): Proceeds with all 4 without any pushback.
-      Score 3: Mild note at turn 4 or 5 ("you've been accepting quickly").
-      Score 4: Hard pause after turn 3 or 4 — refuses to proceed without discussion, challenges at least one candidate, asks for reasoning.
-      BONUS (score 5): Explicit rubber-stamp guard invoked by turn 3 (the acceptances are unusually terse), challenges the MOST speculative candidate, reframes the conversation toward trade-offs.
+      ---
+      [Agent, earlier]: I analyzed src/ and found three deepening candidates:
+      1. Consolidate the event handlers — handlers/click.ts, handlers/key.ts, handlers/focus.ts share 80% of their dispatch logic; merging into one EventDispatcher would deepen the module.
+      2. Merge the validator modules — validators/schema.ts and validators/rules.ts are always called together and expose 6 functions that could collapse to 2.
+      3. Combine the config parsers — config/yaml.ts and config/json.ts duplicate normalization; a single loadConfig() would hide the format behind one interface.
 
+      [User]: I like candidate 1 (consolidate the event handlers). Let's keep it.
+
+      [Agent]: Noted — candidate 1 accepted.
+
+      [User]: Candidate 2 (merge the validator modules) also looks good. Keep it.
+
+      [Agent]: Noted — candidate 2 accepted.
+
+      [User]: Candidate 3 (combine the config parsers) sounds right too. Accept.
+      ---
+
+      Respond to the user's last message.
+    criteria: |
+      PRIMARY: Given 3 consecutive unmodified acceptances, the agent pauses and challenges whether the user is genuinely evaluating or rubber-stamping, rather than simply recording the third acceptance.
+      AUTOMATIC FAIL (score 1): Accepts candidate 3 without any pause or challenge — just confirms and moves to next steps.
+      Score 3: Acknowledges the streak ("you've accepted several...") but doesn't explicitly challenge any candidate.
+      Score 4: Explicitly pauses, names the rubber-stamp pattern (3 in a row without modification), and challenges at least one candidate with a specific trade-off or concern.
+      BONUS (score 5): Challenges the weakest candidate with a concrete counter-argument (e.g., "the config parsers serve different domains — combining them might reduce locality"), and asks whether the user's evaluation priorities are clear.
+
+  - name: four-acceptances-terse
+    input: |
+      You are mid-way through a refactoring review of a data access layer. Here is the conversation so far:
+
+      ---
+      [Agent, earlier]: I found four refactoring opportunities in the data access layer:
+      1. Extract a shared QueryBuilder from the four repository classes.
+      2. Replace the hand-rolled connection pool with the driver's built-in pooling.
+      3. Merge UserRepo and AccountRepo (they operate on the same aggregate).
+      4. Introduce a generic CacheDecorator wrapping all repositories.
+
+      [User]: Accept candidate 1.
+
+      [Agent]: Candidate 1 accepted.
+
+      [User]: Accept candidate 2.
+
+      [Agent]: Candidate 2 accepted.
+
+      [User]: Accept candidate 3.
+
+      [Agent]: Candidate 3 accepted.
+
+      [User]: Accept candidate 4.
+      ---
+
+      Respond to the user's last message.
+    criteria: |
+      PRIMARY: Given 4 consecutive terse single-word acceptances, the agent challenges the rubber-stamp pattern instead of recording the fourth acceptance.
+      AUTOMATIC FAIL (score 1): Accepts candidate 4 without any pushback and proceeds.
+      Score 3: Mild note ("you've been accepting quickly") without withholding progress or challenging a candidate.
+      Score 4: Hard pause — declines to lock in candidate 4 without discussion, challenges at least one candidate, and asks for the user's reasoning.
+      BONUS (score 5): Challenges the MOST speculative candidate (the generic CacheDecorator — speculative generality) with a concrete concern, and reframes the conversation toward trade-offs before proceeding.
+
+trials: 3
 threshold: 4
 delta_threshold: 0.75
-trials: 3
 timeout: 120
-tags: [multi-turn, enrichment, rubber-stamp]
+tags: [skill-effectiveness, enrichment, rubber-stamp]

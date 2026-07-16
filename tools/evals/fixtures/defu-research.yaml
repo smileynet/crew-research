@@ -1,0 +1,64 @@
+repo: https://github.com/unjs/defu.git
+commit: main
+install: pnpm install
+test: npx vitest run
+build: npx unbuild
+language: typescript
+framework: vitest
+loc: 197
+test_count: 23
+description: >
+  defu workspace plus an injected research notes file at
+  .scratch/research/set-handling.md. Used by context-budget-effectiveness
+  task 3, which measures whether the agent compresses research findings
+  instead of carrying full file content through implementation.
+
+files:
+  .scratch/research/set-handling.md: |
+    # Research: Set Merging Patterns
+
+    ## Summary
+    Survey of how merge utilities handle Set objects. Most (lodash.merge,
+    deepmerge v4) treat Sets as opaque values and replace rather than merge.
+    deepmerge-ts and es-toolkit merge Sets by union.
+
+    ## Findings
+
+    ### Replacement semantics (lodash.merge, deepmerge v4)
+    Sets are not plain objects — `isPlainObject(new Set())` is false — so they
+    fall through to the leaf-value branch and the source Set replaces the
+    target Set entirely. Entries in the target are lost. Users report this as
+    surprising (lodash issue #4719).
+
+    ### Union semantics (deepmerge-ts, es-toolkit)
+    `new Set([...target, ...source])` — preserves both sides. Identity is
+    SameValueZero, so object entries dedupe by reference, not structure.
+    Two structurally-equal objects from different sides both survive.
+
+    ### Nested Sets
+    No surveyed library recurses into Set entries. A Set of objects is
+    unioned by reference; the objects themselves are never merged. Recursing
+    would require a matching key, which Sets don't have.
+
+    ### Ordering
+    Union preserves insertion order: target entries first, then novel source
+    entries. All surveyed union implementations behave this way because Set
+    iteration order is insertion order per spec.
+
+    ### Type inference considerations
+    For TypeScript, `Set<A>` merged with `Set<B>` should produce
+    `Set<A | B>`. deepmerge-ts models this with a dedicated
+    `DeepMergeSetsDefaultHKT` type. Without explicit modeling, inference
+    collapses to `Set<unknown>`.
+
+    ## Recommendation for defu
+    Union semantics matches defu's "defaults" philosophy: user values
+    (target) win, defaults (source) fill gaps. Target entries first,
+    source entries appended if not present. No recursion into entries.
+    Type: `Set<A | B>` via a conditional type in the merge type mapping.
+
+    ## Sources
+    - lodash issue #4719 (Set replacement surprise)
+    - deepmerge-ts docs: merging semantics table
+    - es-toolkit merge implementation (src/object/merge.ts)
+    - TC39 spec: Set iteration order is insertion order

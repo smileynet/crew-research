@@ -1,7 +1,13 @@
 name: context-budget-effectiveness
 skill: context-budget-awareness
 category: skill-effectiveness
-fixture: defu
+fixture: defu-research
+
+conditions:
+  with-skill:
+    skills: [context-budget-awareness]
+  baseline:
+    skills: []
 
 tasks:
   - input: "Research how defu handles circular references (read the source and tests), then plan a fix if it doesn't handle them, then implement it with tests."
@@ -27,10 +33,6 @@ tasks:
       Score 3: Reads the file and implements correctly but doesn't demonstrate compression (carries all detail forward).
       Score 4: Reads file, extracts relevant patterns, summarizes key points, then implements from the summary without re-reading.
       BONUS (score 5): Explicitly states what it's keeping and what's irrelevant, uses structured summary as implementation reference, produces clean implementation without research artifacts in reasoning.
-
-runs:
-  with_skill: true
-  without_skill: true
 
 threshold: 4
 delta_threshold: 0
