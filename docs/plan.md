@@ -176,8 +176,8 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | Ticket | Title | Blocked by |
 |--------|-------|------------|
 | 01 | Broken skill content repaired (P0 + one-liners) | ✅ done (e0fde71) |
-| 02 | Cross-skill contradictions resolved | — |
-| 03 | Over-budget skills fit 100-line limit | 02 |
+| 02 | Cross-skill contradictions resolved | ✅ done (5cd6bb5 — troubleshooting-protocol merged into feedback-loop-debugging) |
+| 03 | Over-budget skills fit 100-line limit | — (unblocked) |
 | 04 | Always-on steering slimmed 812→~450 lines | — |
 | 05 | 7 flagged eval definitions run as designed | — (1/7 already done: context-neutrality retired) |
 | 06 | doctor.sh + catalog.sh report current reality | — |
