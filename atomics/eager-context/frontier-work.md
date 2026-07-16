@@ -1,13 +1,13 @@
 # Frontier Work
 
-When a project has tickets (`.specs/tickets/`), work the frontier.
+When a project has tickets (`.tickets/`), work the frontier.
 
 ## The Rule
 
 The **frontier** = any ticket where `status: open` and all `blocked_by` are `done`.
 
 When tickets exist and no specific task is given:
-1. Identify the frontier (scan `.specs/tickets/` frontmatter)
+1. Identify the frontier (scan `.tickets/` frontmatter, or run `tk ready` if available)
 2. Pick the lowest-numbered frontier ticket
 3. Propose it: "Next on the frontier: {title}. Start?"
 

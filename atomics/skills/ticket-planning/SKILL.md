@@ -17,7 +17,7 @@ Decompose a spec into vertical-slice tickets with explicit blocking edges.
 2. **Identify prereqs** — research topics and spikes needed before building (see plan-prereqs)
 3. **Decompose into tickets** — each is a vertical slice through all layers
 4. **Declare blocking edges** — which tickets must complete before which can start
-5. **Write ticket files** — one file per ticket at `.specs/tickets/{NN}-{slug}.md`
+5. **Write ticket files** — one file per ticket at `.tickets/{NN}-{slug}.md`
 6. **Attach to spec** — add Tickets section to the originating spec
 7. **Update PLAN.md** — task graph with ticket IDs and work order
 
@@ -30,7 +30,7 @@ Decompose a spec into vertical-slice tickets with explicit blocking edges.
 
 ## Ticket File Format
 
-Write to `.specs/tickets/{NN}-{slug}.md`:
+Write to `.tickets/{NN}-{slug}.md`:
 
 ```markdown
 ---

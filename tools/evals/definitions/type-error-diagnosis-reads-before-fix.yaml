@@ -1,0 +1,51 @@
+name: type-error-diagnosis-reads-before-fix
+skill: feedback-loop-debugging
+category: skill-effectiveness
+fixture: defu
+
+tasks:
+  - name: read-types-before-changing-merge
+    input: |
+      I'm getting a TypeScript error: 'Type string is not assignable to type never' when calling
+      defu({ tags: ['a'] }, { tags: ['b'] }). The runtime works fine but tsc rejects it. Fix the types.
+    criteria: |
+      PRIMARY: Agent reads src/types.ts BEFORE proposing any type-level changes.
+      AUTOMATIC FAIL (score 1): Proposes changes to type definitions (MergeObjects, Merge, MergeArrays, Defu) without first reading src/types.ts.
+      Score 2: Reads src/types.ts but misidentifies the issue — proposes unrelated or overly broad changes (e.g. adds `as any` casts).
+      Score 3: Reads src/types.ts, correctly identifies the relevant type (MergeArrays or Merge), but proposes a fix without verifying it compiles.
+      Score 4: Reads src/types.ts, traces the error through the type chain (Defu → MergeObjects → Merge → MergeArrays), proposes a targeted fix, and runs tsc to confirm.
+      BONUS (score 5): Reads types, writes a minimal .ts reproduction that triggers the error, fixes the type, and shows the reproduction now compiles clean.
+
+  - name: read-types-before-fixing-nullish
+    input: |
+      TypeScript shows 'Property x does not exist on type nullish' when accessing the result of
+      defu({ x: 1 }, { y: 2 }).x — but the value is clearly there at runtime. Fix the type inference.
+    criteria: |
+      PRIMARY: Agent reads src/types.ts to understand the nullish type alias and MergeObjects conditional branches BEFORE modifying any type.
+      AUTOMATIC FAIL (score 1): Modifies type definitions without reading src/types.ts, OR suggests a non-null assertion (!) as the fix.
+      Score 2: Reads types.ts but proposes removing the nullish branch entirely without understanding when it's needed.
+      Score 3: Reads types.ts, identifies the MergeObjects conditional logic involving nullish, but doesn't verify the fix preserves existing behavior.
+      Score 4: Reads types.ts, identifies the specific branch where nullish leaks into the output type, proposes a fix that preserves null-handling for actually-nullable keys, verifies with tsc.
+      BONUS (score 5): Reads types, constructs multiple test cases (nullable key, non-nullable key, mixed), confirms the fix resolves the reported case without regressing others.
+
+  - name: read-types-before-fixing-recursive-depth
+    input: |
+      Getting 'Type instantiation is excessively deep and possibly infinite' from TypeScript
+      when merging deeply nested config objects with defu. The configs are only 4 levels deep.
+      Fix the recursive type issue.
+    criteria: |
+      PRIMARY: Agent reads src/types.ts to understand the recursive structure (Merge ↔ MergeObjects cycle) BEFORE proposing depth limits or simplifications.
+      AUTOMATIC FAIL (score 1): Proposes adding a depth counter or simplifying types without reading how the recursion is currently structured in types.ts.
+      Score 2: Reads types.ts but proposes @ts-ignore or type widening (using `any` at depth) instead of addressing the structural cause.
+      Score 3: Reads types.ts, identifies the Merge ↔ MergeObjects mutual recursion, proposes a reasonable bound but doesn't test it.
+      Score 4: Reads types.ts, understands the recursive chain, proposes a fix (depth limit type parameter, conditional bail-out, or tuple-length guard), and confirms it resolves the error on a 4-level-deep type.
+      BONUS (score 5): Reads types, reproduces with a minimal deeply-nested type, fixes the recursion, confirms both the deep case compiles AND shallow cases still infer correctly.
+
+runs:
+  with_skill: true
+  without_skill: true
+
+threshold: 3.5
+delta_threshold: 0.75
+timeout: 180
+tags: [skill-effectiveness, debugging, types, read-before-modify]

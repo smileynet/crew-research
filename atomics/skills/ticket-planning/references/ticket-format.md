@@ -2,7 +2,7 @@
 
 ## Location
 
-`.specs/tickets/{NN}-{slug}.md` — one file per ticket, numbered for ordering.
+`.tickets/{NN}-{slug}.md` — one file per ticket, numbered for ordering.
 
 ## Full Template
 
