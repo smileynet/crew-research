@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Tool Adapters Specification"
+status: active
 ---
 
 # Tool Adapters Specification

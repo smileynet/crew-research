@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "How Recall + OKF Fit Together"
+status: active
 ---
 
 # How Recall + OKF Fit Together

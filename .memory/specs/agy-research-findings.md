@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Antigravity CLI (agy) — Research Findings"
+status: done
 ---
 
 # Antigravity CLI (agy) — Research Findings

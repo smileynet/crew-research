@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Recall Maturity + Cross-Project Knowledge Spec"
+status: superseded
 ---
 
 # Spec: Recall Maturity + Cross-Project Knowledge

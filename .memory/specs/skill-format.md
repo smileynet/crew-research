@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Skill Format Specification"
+status: active
 ---
 
 # Skill Format Specification

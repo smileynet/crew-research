@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Per-Project Customization"
+status: active
 ---
 
 # Per-Project Customization

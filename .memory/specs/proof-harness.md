@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Proof Harness Specification (Phase 1)"
+status: active
 ---
 
 # Proof Harness Specification (Phase 1)

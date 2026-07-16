@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "SDD Reference Exploration — Recommendations"
+status: done
 ---
 
 # SDD Reference Exploration — Recommendations

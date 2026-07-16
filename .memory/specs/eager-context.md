@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Eager-Context Format Specification"
+status: active
 ---
 
 # Eager-Context Format Specification

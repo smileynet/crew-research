@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Spec: recall import + OKF Retrieval Evaluation"
+status: done
 ---
 
 # Spec: recall import + OKF Retrieval Evaluation

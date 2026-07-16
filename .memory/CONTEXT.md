@@ -114,11 +114,11 @@ Deprecated term. In the unified model, a "prompt" is just a skill with `invocati
 _Avoid_: duplicating skill content inside prompts, tight coupling between prompt and skill internals
 
 **Skill evaluation (dual-run comparison)**:
-The method for proving a skill adds value: run the same task WITH and WITHOUT the skill loaded, score both against criteria derived from the skill's instructions, and measure the delta. The delta is the skill's contribution. Without a baseline comparison, a score is meaningless.
+Also called effectiveness eval. The method for proving a skill adds value: run the same task WITH and WITHOUT the skill loaded, score both against criteria derived from the skill's instructions, and measure the delta. The delta is the skill's contribution. Without a baseline comparison, a score is meaningless.
 _Avoid_: testing only with skill loaded, leaking skill content into task descriptions, testing generic competence instead of skill-specific behavior
 
 **Activation test**:
-A secondary evaluation that checks whether an agent activates a skill when it's available but not forced. Tests description quality and trigger coverage. Expected activation rate without forcing is ~40-50%; with forced evaluation hooks ~84%.
+Also called activation eval. A secondary evaluation that checks whether an agent activates a skill when it's available but not forced. Tests description quality and trigger coverage. Expected activation rate without forcing is ~40-50%; with forced evaluation hooks ~84%. Distinct from effectiveness eval: activation asks "does it trigger?", effectiveness asks "does it help?"
 _Avoid_: conflating activation failure with skill quality (may be a description problem, not a content problem)
 
 **Skill focusing effect**:
@@ -190,6 +190,10 @@ _Avoid_: search limit (too generic)
 Moving an artifact from ephemeral (`.scratch/`) to durable (`.memory/`) when it has lasting value. Triggered during handoff. Opposite of "scratch stays scratch."
 _Avoid_: archiving (implies cold storage)
 
+**Consolidation (skill)**:
+Merging a skill that doesn't earn standalone status (no eval delta, overlaps another skill) into a related skill's `references/` companion files. The content survives via progressive loading; the standalone entry point is retired.
+_Avoid_: deletion (content is kept), composition (that's assembling atomics, not merging)
+
 
 **Project-level skill**:
 A specialist skill installed to a specific project's `.kiro/skills/` rather than globally. Suggested by the agent during init, adopt-project, or read-handoff when it detects matching work. Examples: fiction-craft, poc-workflow, skill-authoring. Avoids polluting global space with skills most projects don't need.
@@ -209,12 +213,28 @@ Purpose-built CLI tool (`tools/recall/`) providing cross-session semantic memory
 _Avoid_: MemPalace (that's the upstream project we chose not to wrap), memory system (too generic)
 
 **Plugin (crew-research)**:
-A named bundle of steering + skills + prerequisites that requires deliberate install/uninstall, declared in `compositions/plugins/<name>.yaml`. For capabilities with external tool dependencies. State tracked at `~/.crew-research/plugins.json`.
-_Avoid_: tier (that's the built-in selection mechanism), addon (informal)
+Superseded term — replaced by "extension" per ADR 0008. Plugins were separately-installed bundles with their own state file; extensions are declared inside tier manifests and auto-deploy when their prerequisite is met.
+_Avoid_: using "plugin" for current deployments (say extension)
+
+**Extension**:
+An optional steering + skills bundle declared in a tier manifest, gated on an external prerequisite (a CLI tool on PATH). Auto-deploys during tier deploy when the prerequisite check passes; skippable with `--skip-extension`. Replaced plugins (ADR 0008).
+_Avoid_: plugin (superseded), addon (informal)
+
+**Tier**:
+A named selection of steering + skills (plus extensions) deployed globally as a set. Two tiers exist: basic (everyday fundamentals) and full (complete lifecycle). Declared in `compositions/tiers/{name}.yaml`, which is the single source of truth for what deploys.
+_Avoid_: plugin (that was the separate mechanism), level, pack
 
 **Wing**:
 A project-scoped namespace within the recall database. Auto-derived from session `cwd` metadata during ingest. Enables scoped search without separate databases.
 _Avoid_: project (overloaded), namespace (too generic)
+
+**Room**:
+A category within a wing that groups related recall memories (defaults to "general"). The middle level of recall's wing/room/drawer hierarchy, adapted from MemPalace.
+_Avoid_: folder, tag (rooms are structural, not freeform)
+
+**Drawer**:
+A single stored memory record in recall — one chunk of content with its embedding, wing, room, and type. The unit of storage and retrieval.
+_Avoid_: document (too big), row (implementation term)
 
 **Prime**:
 The `recall prime` output — a self-contained payload of usage instructions + recent agent-written facts + top retrieval results, injected at session start. Callable from skills, eager-context, or hooks.

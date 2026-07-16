@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Skill Improvements from mattpocock Reference"
+status: done
 ---
 
 # Spec: Skill Improvements from mattpocock Reference

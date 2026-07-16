@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Recall Integration Proposal (v2)"
+status: superseded
 ---
 
 # Recall Integration Proposal (v2)

@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Skill Audit — Baseline, Consolidate, Prune"
+status: done
 ---
 
 # Spec: Skill Audit — Baseline, Consolidate, Prune

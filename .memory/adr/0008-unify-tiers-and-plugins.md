@@ -5,7 +5,7 @@ title: "ADR 0008: Unify Tiers and Plugins into Single Deployment Model"
 
 # ADR 0008: Unify Tiers and Plugins into Single Deployment Model
 
-**Status:** Proposed
+**Status:** Accepted (shipped 2026-07-14 — extensions model deployed, plugins/ removed)
 **Date:** 2026-07-10
 **Deciders:** smileynet
 

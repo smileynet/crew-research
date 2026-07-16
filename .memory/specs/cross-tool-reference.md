@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Cross-Tool Context Delivery Reference"
+status: active
 ---
 
 # Cross-Tool Context Delivery Reference

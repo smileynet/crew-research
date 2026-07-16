@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Eval Harness Specification (Phase 2)"
+status: active
 ---
 
 # Eval Harness Specification (Phase 2)

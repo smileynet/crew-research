@@ -1,6 +1,7 @@
 ---
 type: specification
 title: "Practice-Skill Cross-Linking Specification"
+status: active
 ---
 
 # Practice-Skill Cross-Linking Specification
