@@ -175,18 +175,23 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 
 | Ticket | Title | Blocked by |
 |--------|-------|------------|
-| 01 | Broken skill content repaired (P0 + one-liners) | — |
+| 01 | Broken skill content repaired (P0 + one-liners) | ✅ done (e0fde71) |
 | 02 | Cross-skill contradictions resolved | — |
 | 03 | Over-budget skills fit 100-line limit | 02 |
 | 04 | Always-on steering slimmed 812→~450 lines | — |
-| 05 | 7 flagged eval definitions run as designed | — |
+| 05 | 7 flagged eval definitions run as designed | — (1/7 already done: context-neutrality retired) |
 | 06 | doctor.sh + catalog.sh report current reality | — |
 | 07 | Installed recall CLI matches source and docs | — |
 | 08 | Dead/broken tooling pruned or repaired | — |
 | 09 | Clean post-review eval baseline | 01-05, 11 |
 | 10 | Session logs reveal actual skill/tool usage | — |
 | 11 | Eval sessions cannot write outside their workdir | — |
+| 12 | Re-run full suite to validate threshold calibration | 05, 11 |
 
-**Frontier:** 01, 02, 04, 05, 06, 07, 08, 10 (all unblocked). Suggested order: 01 → 02 → 04 → 05 (unblocks 09), with 06-08, 10 parallelizable.
+**Frontier (2026-07-16 19:20):** 02, 04, 05, 06, 07, 08, 10, 11. Ticket 12 (was numbered 01, renamed to fix ID collision; spec eval-improvements-2026-07-16) gained blockers 05+11 — running the suite with 6 known-broken definitions and an uncontained workdir leak would waste a 5-6h run. If 01-04 land before 12 runs, consider merging 12 into 09 (one clean run satisfies both).
+
+**Active order:** 05 → 11 → 12 (background) with 02 → 03 in foreground; 04, 06, 07, 08, 10 parallelizable; 09 last.
+
+**Open hygiene item (carried from R8):** untracked files still undecided — `docs/findings/`, `tools/evals/experiments/bedrock-model-family-comparison.yaml`, `tools/evals/harness/run-model-comparison.sh`, `tools/proofs/adapters/closecode.yaml`. Commit or delete during ticket 08.
 
 **Overnight full-suite run (2026-07-15→16):** 102/105 completed, 32✅/70❌ — failure count dominated by since-retired evals and pre-calibration activation thresholds. Run wedged at 102 after run.sh was edited mid-execution (lesson recorded: never edit a script bash is executing); terminated, scores preserved in `/tmp/full-eval-run.log` and `tools/evals/results/2026-07-15T12-56-23Z/`.

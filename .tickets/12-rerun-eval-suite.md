@@ -1,8 +1,8 @@
 ---
-id: "01"
+id: "12"
 title: "Re-run full eval suite after threshold calibration"
 status: open
-blocked_by: []
+blocked_by: ["05", "11"]
 spec: "eval-improvements-2026-07-16"
 ---
 
@@ -18,6 +18,9 @@ Run `mise run eval` (all active definitions, 3 trials) to validate that threshol
 - Changes applied: activation threshold 4→3.5 (21 evals), delta_threshold→0 (13 evals), 4 evals retired, 3 descriptions improved, feedback-loop tighten inlined
 - Expected new pass rate: ~35-40% (up from 9%)
 - Results dir for comparison: `tools/evals/results/2026-07-15T03-50-09Z/`
+- **Blocked by 05:** 6 known-broken definitions (null input, missing fixtures, ceiling effect — see `.memory/review-2026-07/eval-verdicts.md` FIX table) would produce harness-artifact scores and muddy the regression comparison
+- **Blocked by 11:** last full run leaked artifacts into the repo cwd; contain before another 5-6h run
+- Relationship to ticket 09 (re-baseline): 09 is the post-cleanup baseline (also blocked by 01-04). This ticket validates threshold calibration specifically. If 01-04 land before this runs, consider merging this into 09 — one clean run can satisfy both.
 
 ## Acceptance criteria
 

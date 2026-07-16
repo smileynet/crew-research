@@ -22,7 +22,7 @@ Every active eval definition executes with real inputs (no null-input tasks, no 
 - [ ] architecture-deepening-rubber-stamp: single-turn (transcript embedded in input), runs without null input
 - [ ] agents-md-authoring-effectiveness: 300-line AGENTS.md embedded or added to fixture
 - [ ] context-budget-effectiveness: referenced .scratch file added to fixture or task rewritten
-- [ ] context-neutrality-effectiveness: conditions actually differ (encode the dispatch contrast) or eval retired
+- [x] context-neutrality-effectiveness: conditions actually differ (encode the dispatch contrast) or eval retired — **retired** (moved to `definitions/retired/`, verified 2026-07-16)
 - [ ] handoff-improves-continuity: merged with handoff-decaying-resolution or differentiated
 - [ ] spec-validator-agent-effectiveness: conditions match the description (subagent dispatch) or description corrected
 - [ ] verification-protocol-improves-completion: task has headroom (not hello-world ceiling)

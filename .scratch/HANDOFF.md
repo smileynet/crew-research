@@ -22,13 +22,14 @@ Execute the project-review follow-up backlog: 11 tickets in `.tickets/` (from th
 - recall CLI: installed 0.1.0 is stale vs source AND PyPI name is squatted (ticket 07)
 
 ## Current State
-Ticket 01 done (commit e0fde71). Frontier per plan.md: 02, 04, 05, 06, 07, 08, 10, 11. Suggested next: ticket 02 (cross-skill contradictions — unblocks 03). Nothing mid-flight; review artifacts promoted from gitignored .scratch to `.memory/review-2026-07/` this session (ticket Context lines updated to match).
+Ticket 01 done (commit e0fde71). A parallel eval-improvements arc landed threshold calibration (6ee2d28) and a rerun ticket that collided with ticket 01's ID — renamed to `12-rerun-eval-suite.md` and given `blocked_by: ["05", "11"]` (running with 6 broken defs + uncontained workdir leak would waste 5-6h). Ticket 05 is 1/7 done (context-neutrality already retired). Frontier: 02, 04, 05, 06, 07, 08, 10, 11.
 
 ## Next Steps
-1. Ticket 02: resolve contradictions (troubleshooting-protocol vs feedback-loop-debugging merge/re-scope is the judgment call; rest is mechanical per `.memory/review-2026-07/skill-verdicts.md` P1 table)
-2. Then 03 (line budgets — re-run grill + sdd evals after trimming)
-3. Parallel-friendly: 06/07/08 (tooling), 10 (session-log usage analysis — has a 1h spike gate), 11 (eval workdir containment)
-4. 09 (re-baseline) last — blocked by 01-05 + 11
+1. Ticket 05: fix 6 remaining flagged eval defs (mechanical: embed fixtures for architecture-deepening-rubber-stamp/agents-md-authoring/context-budget; judgment: handoff-improves-continuity merge-vs-differentiate, spec-validator description-vs-conditions, verification-protocol task headroom)
+2. Ticket 11: contain eval workdir leak (hypothesis: judge or fixture-less sessions)
+3. Ticket 12: kick off full rerun in background (nohup pattern) once 05+11 land
+4. Foreground while 12 runs: ticket 02 (contradictions — the troubleshooting-protocol merge/re-scope is the judgment call), then 03
+5. Parallel-friendly: 04, 06, 07, 08, 10; 09 last (consider merging 12 into 09 if 01-04 all land first)
 
 ## Fog
 - Whether troubleshooting-protocol should merge into feedback-loop-debugging or re-scope (ticket 02 decision point — R1 batch2 leans merge, batch2 noted a conflicting-protocols hazard either way)
