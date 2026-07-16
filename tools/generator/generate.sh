@@ -27,10 +27,12 @@ done
 
 # Load project overlay if specified
 PROJECT_CREWS=""
+PROJECT_CONFIG=""
 if [[ -n "$PROJECT" ]]; then
   if [[ -f "$PROJECT/AGENTS.md" ]]; then
     echo "Project: $PROJECT (AGENTS.md found)"
   fi
+  [[ -f "$PROJECT/.crew-research.yaml" ]] && PROJECT_CONFIG="$PROJECT/.crew-research.yaml"
 fi
 
 # --- Validation ---

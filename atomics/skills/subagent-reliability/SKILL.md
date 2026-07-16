@@ -135,3 +135,7 @@ If 2+ stages in a batch return empty:
 2. Report: "N/M stages returned empty. Switching to direct reading."
 3. For remaining files < 500 lines total: read directly
 4. For larger corpora: use the write-then-read pattern with smaller batches (2 stages at a time)
+
+## Tool-Specific Limits
+
+For per-tool concurrency limits and validated failure patterns (kiro-cli, codex, agy, crush), read [references/tool-limitations.md](references/tool-limitations.md).

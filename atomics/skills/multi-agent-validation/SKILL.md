@@ -1,3 +1,12 @@
+---
+name: multi-agent-validation
+description: "Validate artifacts with multiple independent AI tools — images, code, documents, designs. Use when a single perspective has blind spots, for visual output validation, or when validators disagree. Trigger: multi-agent validation, independent validators, cross-check with another tool, second opinion, validation crew."
+metadata:
+  type: protocol
+  invocation: both
+  practice: null
+---
+
 # Multi-Agent Validation
 
 Validate artifacts (images, code, documents, designs) using multiple independent AI tools. Each tool brings different strengths; disagreement surfaces real issues.
@@ -50,51 +59,7 @@ Validate artifacts (images, code, documents, designs) using multiple independent
 
 ### Invocation Details
 
-#### Codex CLI
-
-```bash
-# Single image
-codex exec -i /path/to/render.png --sandbox read-only "Evaluate: 1. criteria 2. criteria. PASS/FAIL."
-
-# Multiple images (A/B comparison)
-codex exec -i image_a.png -i image_b.png --sandbox read-only "Compare: ..."
-
-# With specific model
-codex exec -i render.png --sandbox read-only -m gpt-5.5 "prompt"
-```
-
-**Key flags:** `-i` (image, repeatable), `--sandbox read-only` (no writes), `--skip-git-repo-check` (outside repos)
-
-**Output:** Plain text to stdout. Use `tail -15` to get clean response after metadata.
-
-#### agy (Antigravity CLI)
-
-```bash
-# Visual-only (sandbox mode - no code reading)
-agy -p "Analyze /path/to/render.png - <criteria prompt>" --sandbox --print-timeout 2m
-
-# Code-aware (full mode - reads source, runs scripts)
-agy -p "Analyze /path/to/render.png - <criteria prompt>" --print-timeout 2m
-
-# With specific model
-agy -p "Analyze /path/to/image.png - criteria" --model "Gemini 3.5 Flash (High)" --print-timeout 2m
-```
-
-**Key difference from codex:** Image path goes IN the prompt text (no `--image` flag). agy reads it via `view_file`.
-
-**Key flags:** `-p` (non-interactive), `--sandbox` (visual-only), `--print-timeout` (default 5m, use 2m for images)
-
-**Output:** Plain text to stdout. No JSON envelope.
-
-#### kiro (TUI - this agent)
-
-```
-# In conversation, read the image directly:
-[use the Image read tool on the file path]
-
-# Or dispatch a fresh session for large/many images:
-kiro-cli chat --no-interactive "Analyze /path/to/image.png - criteria"
-```
+For full command syntax, flags, and per-tool quirks (codex, agy, kiro), read [references/tool-invocation.md](references/tool-invocation.md).
 
 ### Prompt Engineering
 

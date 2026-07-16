@@ -65,3 +65,7 @@ If `recall` is not on PATH, exits non-zero, or returns "No results found":
 1. Tell the user: "I can't check past sessions right now"
 2. Answer from current context only
 3. Never fabricate past decisions — say you don't know
+
+## Full CLI Reference
+
+For install, ingest cron setup, and the complete command table, read [references/cli-reference.md](references/cli-reference.md).
