@@ -1,0 +1,131 @@
+name: small-model-commit-message
+description: "Compare small/fast models at generating conventional commit messages from diffs"
+category: small-model-comparison
+fixture: defu
+
+# Cross-model comparison: is GLM-5.2 (flat-rate) competitive on commit messages?
+# Run once per model under test:
+#   mise run eval:one -- --adapter crush --model zai/glm-5.2 --definition small-model-commit-message
+#   mise run eval:one -- --adapter kiro-cli --model claude-haiku-4-5-20250414 --definition small-model-commit-message
+#   mise run eval:one -- --adapter codex --model gpt-4.1-nano --definition small-model-commit-message
+#   mise run eval:one -- --adapter agy --model gemini-3.1-flash-lite --definition small-model-commit-message
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - name: simple-rename-diff
+    input: |
+      Generate a conventional commit message (type(scope): description) for this diff. Output ONLY the commit message, nothing else.
+
+      ```diff
+      diff --git a/src/utils.ts b/src/utils.ts
+      index 1a2b3c4..5d6e7f8 100644
+      --- a/src/utils.ts
+      +++ b/src/utils.ts
+      @@ -12,7 +12,7 @@ export function formatDate(date: Date): string {
+       }
+
+      -export function getUserName(user: User): string {
+      +export function getUsername(user: User): string {
+         return user.firstName + ' ' + user.lastName;
+       }
+
+      diff --git a/src/components/Profile.tsx b/src/components/Profile.tsx
+      index 8a9b0c1..2d3e4f5 100644
+      --- a/src/components/Profile.tsx
+      +++ b/src/components/Profile.tsx
+      @@ -5,7 +5,7 @@ import { User } from '../types';
+       export function Profile({ user }: { user: User }) {
+      -  const name = getUserName(user);
+      +  const name = getUsername(user);
+         return <h1>{name}</h1>;
+       }
+      ```
+    criteria: |
+      PRIMARY: Commit message follows conventional format (type(scope): description), is concise (<72 chars), and accurately describes the change.
+      AUTOMATIC FAIL (score 1): No output, or outputs multi-line explanation/conversation instead of just a commit message.
+      Score 2: Outputs a commit message but wrong type or missing scope, or overly verbose (>100 chars).
+      Score 3: Correct type and reasonable description, but scope is wrong or message is generic ("update code").
+      Score 4: Correct format like `refactor(utils): rename getUserName to getUsername` — accurate type, scope, and description in ≤72 chars. Minor extra text (trailing period, leading newline) acceptable.
+      Score 5: Meets all score-4 criteria AND response contains literally only the commit message — no preamble, no trailing explanation, no markdown formatting, no quotes.
+
+  - name: multi-file-feature-diff
+    input: |
+      Generate a conventional commit message (type(scope): description) for this diff. Output ONLY the commit message, nothing else.
+
+      ```diff
+      diff --git a/src/api/routes.ts b/src/api/routes.ts
+      index aaa1111..bbb2222 100644
+      --- a/src/api/routes.ts
+      +++ b/src/api/routes.ts
+      @@ -45,6 +45,12 @@ router.get('/users', async (req, res) => {
+       });
+
+      +router.get('/users/:id/preferences', async (req, res) => {
+      +  const prefs = await db.preferences.findByUserId(req.params.id);
+      +  if (!prefs) return res.status(404).json({ error: 'not found' });
+      +  res.json(prefs);
+      +});
+      +
+       router.post('/users', async (req, res) => {
+
+      diff --git a/src/db/preferences.ts b/src/db/preferences.ts
+      new file mode 100644
+      index 0000000..ccc3333
+      --- /dev/null
+      +++ b/src/db/preferences.ts
+      @@ -0,0 +1,15 @@
+      +import { db } from './connection';
+      +
+      +export interface UserPreferences {
+      +  userId: string;
+      +  theme: 'light' | 'dark';
+      +  notifications: boolean;
+      +}
+      +
+      +export async function findByUserId(userId: string): Promise<UserPreferences | null> {
+      +  return db.query('SELECT * FROM preferences WHERE user_id = $1', [userId]);
+      +}
+      ```
+    criteria: |
+      PRIMARY: Commit message correctly identifies this as a feature addition (type: feat), references the appropriate scope (api or preferences), and is concise.
+      AUTOMATIC FAIL (score 1): No output, or multi-paragraph explanation.
+      Score 2: Wrong type (e.g., "fix" or "chore") or completely generic message.
+      Score 3: Correct type (feat) but poor scope or vague description.
+      Score 4: Accurate: `feat(api): add user preferences endpoint` or similar — correct type, reasonable scope, clear description. Minor extra text acceptable.
+      Score 5: Meets all score-4 criteria AND response contains literally only the commit message — no preamble, no trailing explanation, no markdown formatting.
+
+  - name: bugfix-diff
+    input: |
+      Generate a conventional commit message (type(scope): description) for this diff. Output ONLY the commit message, nothing else.
+
+      ```diff
+      diff --git a/src/parser.ts b/src/parser.ts
+      index ddd4444..eee5555 100644
+      --- a/src/parser.ts
+      +++ b/src/parser.ts
+      @@ -23,7 +23,7 @@ export function parseConfig(raw: string): Config {
+         const lines = raw.split('\n');
+         for (const line of lines) {
+      -    const [key, value] = line.split('=');
+      +    const [key, ...rest] = line.split('=');
+      +    const value = rest.join('=');
+           if (key && value) {
+             config[key.trim()] = value.trim();
+           }
+      ```
+    criteria: |
+      PRIMARY: Correctly identifies as a bug fix, mentions handling values containing '=' signs or similar.
+      AUTOMATIC FAIL (score 1): No output or multi-paragraph explanation.
+      Score 2: Wrong type or generic "fix parser" with no indication of what was fixed.
+      Score 3: Correct type (fix) but vague description that doesn't capture the actual bug.
+      Score 4: Clear and accurate: `fix(parser): handle config values containing equals signs` or equivalent. Minor extra text acceptable.
+      Score 5: Meets all score-4 criteria AND literally only the commit message — captures root cause in ≤72 chars, zero surrounding text.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 0
+timeout: 60
+tags: [small-model, comparison, commit-message, speed]

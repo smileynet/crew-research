@@ -1,0 +1,86 @@
+name: small-model-code-edit
+description: "Compare small/fast models at targeted code edits — the inline completion / quick fix task"
+category: small-model-comparison
+fixture: defu
+
+# Tests surgical code edits — the primary use case for small_model in coding agents.
+# Small models do tab-completion, quick refactors, and simple transforms.
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - name: add-error-handling
+    input: |
+      Add a try/catch to this function that returns null on error. Output ONLY the modified function:
+
+      ```typescript
+      async function fetchUser(id: string): Promise<User | null> {
+        const response = await fetch(`/api/users/${id}`);
+        const data = await response.json();
+        return data;
+      }
+      ```
+    criteria: |
+      PRIMARY: Returns the function wrapped in try/catch that returns null on error, minimal changes, correct TypeScript.
+      AUTOMATIC FAIL (score 1): Explains what to do instead of providing code, or fundamentally changes the function signature.
+      Score 2: Adds try/catch but introduces unnecessary changes (logging, type guards, extra params, comments).
+      Score 3: Correct try/catch returning null, but includes markdown fences or explanatory text around the code.
+      Score 4: Clean modified function with try/catch returning null, preserves original logic, only the code output. Markdown fences without language tag or minor formatting acceptable.
+      Score 5: Meets all score-4 criteria AND minimal diff — only the try/catch wrapper added, exact same internal logic, no fences, no extra text whatsoever.
+
+  - name: extract-type
+    input: |
+      Extract a TypeScript type from this object literal. Output ONLY the type definition:
+
+      ```typescript
+      const config = {
+        host: "localhost",
+        port: 5432,
+        database: "myapp",
+        ssl: true,
+        pool: { min: 2, max: 10 },
+      };
+      ```
+    criteria: |
+      PRIMARY: Produces a correct TypeScript type/interface matching the object's shape, including nested pool type.
+      AUTOMATIC FAIL (score 1): Explains what types are, or produces JavaScript/invalid syntax.
+      Score 2: Type definition but misses the nested `pool` object or uses `any` for it.
+      Score 3: Correct type including pool, but wrapped in markdown fences or with extra explanation.
+      Score 4: Clean type definition with correct types for all fields including nested pool: { min: number; max: number }. Minor formatting differences acceptable.
+      Score 5: Meets all score-4 criteria AND uses `type` or `interface` keyword correctly, correct nesting, no fences, no surrounding text whatsoever.
+
+  - name: convert-callback-to-async
+    input: |
+      Convert this callback-based function to async/await. Output ONLY the converted function:
+
+      ```javascript
+      function readConfig(path, callback) {
+        fs.readFile(path, 'utf8', (err, data) => {
+          if (err) {
+            callback(err, null);
+            return;
+          }
+          try {
+            const config = JSON.parse(data);
+            callback(null, config);
+          } catch (parseErr) {
+            callback(parseErr, null);
+          }
+        });
+      }
+      ```
+    criteria: |
+      PRIMARY: Correctly converts to async/await, preserves error semantics (throws on read error or parse error), returns parsed config.
+      AUTOMATIC FAIL (score 1): Explains the conversion without providing code, or produces broken syntax.
+      Score 2: Async function but loses error handling (no try/catch for JSON.parse, or swallows errors).
+      Score 3: Correct conversion with proper error handling, but includes markdown fences or explanation text.
+      Score 4: Clean async function using fs.promises or equivalent, JSON.parse with error propagation, returns config. Minor formatting acceptable.
+      Score 5: Meets all score-4 criteria AND idiomatic async/await (uses fs/promises), proper error propagation, no fences, no extra text whatsoever.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 0
+timeout: 60
+tags: [small-model, comparison, code-edit, transform]

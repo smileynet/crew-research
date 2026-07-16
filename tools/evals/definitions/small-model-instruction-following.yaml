@@ -1,0 +1,81 @@
+name: small-model-instruction-following
+description: "Compare small/fast models at precise instruction following — output format compliance and constraint adherence"
+category: small-model-comparison
+fixture: defu
+
+# Tests the core small_model requirement: follow instructions exactly.
+# Small models often fail at format constraints (JSON only, no markdown, exact field names).
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - name: json-only-output
+    input: |
+      Convert this to JSON. Output ONLY valid JSON, no markdown fences, no explanation:
+
+      Name: Sarah Chen
+      Role: Senior Backend Engineer
+      Team: Platform
+      Start date: 2024-03-15
+      Languages: Python, Go, Rust
+    criteria: |
+      PRIMARY: Outputs valid JSON with correct fields and values, no surrounding text or markdown.
+      AUTOMATIC FAIL (score 1): Outputs markdown code fences (```json), or adds explanation text before/after the JSON.
+      Score 2: Valid JSON but wrapped in markdown fences or preceded by "Here's the JSON:".
+      Score 3: Raw JSON output (no fences) but field names are inconsistent with input labels, or missing fields.
+      Score 4: Valid raw JSON, reasonable field names derived from input, correct values, no markdown. Minor whitespace variations acceptable.
+      Score 5: Meets all score-4 criteria AND uses correct types (array for languages, string for date), field names directly match input labels, zero non-JSON characters in response.
+
+  - name: constrained-list-length
+    input: |
+      List exactly 3 advantages of TypeScript over JavaScript. Use this exact format:
+      1. [advantage]
+      2. [advantage]
+      3. [advantage]
+
+      No introduction, no conclusion, no elaboration. Just the 3 items.
+    criteria: |
+      PRIMARY: Outputs exactly 3 numbered items with no introduction, conclusion, or elaboration.
+      AUTOMATIC FAIL (score 1): Outputs more than 3 items, or adds paragraphs of explanation.
+      Score 2: Three items but with an introduction ("Here are...") or conclusion ("These are...").
+      Score 3: Exactly 3 items, no intro/conclusion, but each item has sub-explanation (more than one sentence per item).
+      Score 4: Exactly 3 numbered items, concise (one phrase/sentence each), no surrounding text. Minor formatting differences acceptable.
+      Score 5: Meets all score-4 criteria AND items are substantive (not trivial/overlapping), format exactly matches "1. ... 2. ... 3. ...", zero extra text.
+
+  - name: single-word-answer
+    input: |
+      What programming language is this file extension associated with? Answer with ONLY the language name, one word, nothing else.
+
+      .rs
+    criteria: |
+      PRIMARY: Outputs exactly "Rust" (one word, nothing else).
+      AUTOMATIC FAIL (score 1): Multi-sentence response explaining Rust's history or features.
+      Score 2: Correct answer but with extra text ("The .rs extension is for Rust" or "Answer: Rust").
+      Score 3: Just the word but with minor formatting issues ("Rust." with period, or "rust" lowercase, or wrapped in quotes).
+      Score 4: Exactly "Rust" — correct word, correct capitalization, only trivial whitespace (trailing newline).
+      Score 5: Literally just "Rust" with no period, no newline padding beyond what's standard, no quotes, no extra characters whatsoever.
+
+  - name: format-transform
+    input: |
+      Convert these environment variables to a TypeScript interface. Output ONLY the interface definition, nothing else:
+
+      DATABASE_URL=postgres://localhost:5432/mydb
+      REDIS_HOST=localhost
+      REDIS_PORT=6379
+      DEBUG=true
+      MAX_RETRIES=3
+    criteria: |
+      PRIMARY: Outputs a TypeScript interface with correct property names and types inferred from values.
+      AUTOMATIC FAIL (score 1): Outputs explanation, or wraps in markdown fences, or produces something other than a TS interface.
+      Score 2: Valid interface but all types are `string`, or wrapped in code fences with language tag.
+      Score 3: Interface with some type inference (number for PORT/RETRIES, boolean for DEBUG) but wrapped in markdown fences or has extra text.
+      Score 4: Clean interface with proper types (string for URL/HOST, number for PORT/MAX_RETRIES, boolean for DEBUG), no markdown fences. Minor naming choices acceptable.
+      Score 5: Meets all score-4 criteria AND correct types for all 5 fields, sensible property names (camelCase or UPPER_SNAKE matching input), zero non-TypeScript text in response.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 0
+timeout: 45
+tags: [small-model, comparison, instruction-following, format-compliance]

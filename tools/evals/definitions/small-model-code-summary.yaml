@@ -1,0 +1,125 @@
+name: small-model-code-summary
+description: "Compare small/fast models at concise code summarization — the 'what does this do?' task"
+category: small-model-comparison
+fixture: defu
+
+# Cross-model comparison: is GLM-5.2 (flat-rate) competitive on summarization?
+# Run with each model under test via --adapter and --model flags.
+# See small-model-commit-message.yaml for full invocation examples.
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - name: summarize-function
+    input: |
+      Summarize what this function does in ONE sentence (max 20 words):
+
+      ```typescript
+      export function debounce<T extends (...args: any[]) => any>(
+        fn: T,
+        delay: number,
+        options: { leading?: boolean; maxWait?: number } = {}
+      ): (...args: Parameters<T>) => void {
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+        let lastCallTime = 0;
+        let lastInvokeTime = 0;
+
+        return (...args: Parameters<T>) => {
+          const now = Date.now();
+          const timeSinceLastCall = now - lastCallTime;
+          lastCallTime = now;
+
+          if (options.leading && !timeoutId) {
+            fn(...args);
+            lastInvokeTime = now;
+          }
+
+          if (timeoutId) clearTimeout(timeoutId);
+
+          if (options.maxWait && now - lastInvokeTime >= options.maxWait) {
+            fn(...args);
+            lastInvokeTime = now;
+          } else {
+            timeoutId = setTimeout(() => {
+              if (!options.leading || timeSinceLastCall >= delay) {
+                fn(...args);
+                lastInvokeTime = Date.now();
+              }
+              timeoutId = null;
+            }, delay);
+          }
+        };
+      }
+      ```
+    criteria: |
+      PRIMARY: Provides a single, accurate sentence (≤20 words) that captures the core behavior.
+      AUTOMATIC FAIL (score 1): Multi-paragraph response, explains implementation details line-by-line, or completely wrong.
+      Score 2: Correct topic (debouncing) but verbose (>30 words) or includes unnecessary implementation details.
+      Score 3: Correct and concise but misses key nuance (leading/maxWait options) — e.g., just "Debounces a function."
+      Score 4: Accurate one-sentence summary mentioning debounce + at least one option (leading or maxWait). May have minor extra text (period, introductory phrase).
+      Score 5: Single sentence ≤20 words, captures debounce + leading + maxWait, and nothing else in the response — no preamble, no elaboration.
+
+  - name: summarize-class
+    input: |
+      Summarize what this class does in ONE sentence (max 20 words):
+
+      ```python
+      class CircuitBreaker:
+          def __init__(self, failure_threshold=5, recovery_timeout=30, half_open_max=3):
+              self.failure_threshold = failure_threshold
+              self.recovery_timeout = recovery_timeout
+              self.half_open_max = half_open_max
+              self.failure_count = 0
+              self.last_failure_time = None
+              self.state = "closed"
+
+          def call(self, func, *args, **kwargs):
+              if self.state == "open":
+                  if time.time() - self.last_failure_time >= self.recovery_timeout:
+                      self.state = "half_open"
+                  else:
+                      raise CircuitOpenError("Circuit is open")
+
+              try:
+                  result = func(*args, **kwargs)
+                  if self.state == "half_open":
+                      self.state = "closed"
+                      self.failure_count = 0
+                  return result
+              except Exception as e:
+                  self.failure_count += 1
+                  self.last_failure_time = time.time()
+                  if self.failure_count >= self.failure_threshold:
+                      self.state = "open"
+                  raise
+      ```
+    criteria: |
+      PRIMARY: Single accurate sentence (≤20 words) capturing the circuit breaker pattern.
+      AUTOMATIC FAIL (score 1): Multi-paragraph, explains state machine transitions in detail, or fundamentally wrong.
+      Score 2: Correct topic but verbose (>30 words) or includes state transition details.
+      Score 3: Mentions circuit breaker but misses the key value proposition (prevents cascading failures / stops calling after N failures).
+      Score 4: Clear one-sentence summary capturing failure detection + automatic recovery. May have minor extra text.
+      Score 5: ≤20 words, captures both failure threshold and recovery behavior, and nothing else in the response.
+
+  - name: summarize-regex
+    input: |
+      Summarize what this regex matches in ONE sentence (max 15 words):
+
+      ```python
+      pattern = r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+      ```
+    criteria: |
+      PRIMARY: Single accurate sentence (≤15 words) identifying this as an IPv4 address validator.
+      AUTOMATIC FAIL (score 1): Explains each regex group in detail, or completely wrong identification.
+      Score 2: Says "matches an IP address" — correct but doesn't specify IPv4 or mention validation of range.
+      Score 3: Says "validates IPv4 addresses" — correct and concise but no mention of octet range constraint.
+      Score 4: "Matches valid IPv4 addresses with octets in range 0-255" or similar — accurate and complete. May have minor extra text.
+      Score 5: ≤15 words, mentions IPv4 + validation/range constraint, and nothing else in the response.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 0
+timeout: 45
+tags: [small-model, comparison, summarization, conciseness]

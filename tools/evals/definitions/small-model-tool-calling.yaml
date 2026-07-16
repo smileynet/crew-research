@@ -1,0 +1,77 @@
+name: small-model-tool-calling
+description: "Compare small/fast models at tool call generation — correct function names, params, and ordering"
+category: small-model-comparison
+fixture: defu
+
+# Tests tool-calling precision — critical for small_model role in agents.
+# Uses text-based tool selection (not native function calling) to normalize across providers.
+
+conditions:
+  baseline:
+    skills: []
+
+tasks:
+  - name: select-correct-tool
+    input: |
+      You have these tools available:
+      - search_files(pattern: string, path?: string) — find files matching a glob
+      - read_file(path: string, lines?: {start: number, end: number}) — read file contents
+      - write_file(path: string, content: string) — create or overwrite a file
+      - run_command(cmd: string, cwd?: string) — execute a shell command
+      - list_directory(path: string, depth?: number) — list directory tree
+
+      The user says: "What's in the package.json?"
+
+      Which tool should you call and with what arguments? Output ONLY the tool call in this format:
+      tool_name(arg1="value1", arg2="value2")
+    criteria: |
+      PRIMARY: Selects read_file with path="package.json" (or "./package.json").
+      AUTOMATIC FAIL (score 1): Selects wrong tool (run_command with cat, or search_files), or explains the reasoning without making a call.
+      Score 2: Correct tool (read_file) but wrong argument format or significant extra explanation.
+      Score 3: Correct tool and argument but with surrounding explanation text ("I would call..." or "Here's the tool call:").
+      Score 4: Output like `read_file(path="package.json")` — correct tool, correct args, correct format. Minor variations (quotes, spacing) acceptable.
+      Score 5: Meets all score-4 criteria AND exactly matches the requested format with nothing else in the response.
+
+  - name: multi-step-tool-plan
+    input: |
+      You have these tools available:
+      - search_files(pattern: string, path?: string) — find files matching a glob
+      - read_file(path: string) — read file contents
+      - write_file(path: string, content: string) — create or overwrite a file
+      - run_command(cmd: string, cwd?: string) — execute a shell command
+
+      The user says: "Find all TypeScript test files and run the test suite"
+
+      What tool calls should you make, in order? Output ONLY the calls, one per line:
+      1. tool_name(args)
+      2. tool_name(args)
+    criteria: |
+      PRIMARY: Produces a reasonable 2-step plan: first search/find test files, then run tests.
+      AUTOMATIC FAIL (score 1): Single tool call only, or extensive explanation without any tool calls.
+      Score 2: Correct tools but wrong order, or unnecessarily many steps (>3 calls for a 2-step task).
+      Score 3: Reasonable 2-step plan but with extra explanation text or wrong argument syntax.
+      Score 4: Clean 2-step plan like "1. search_files(...) 2. run_command(cmd='npm test')" — sensible arguments, correct format. Minor variations acceptable.
+      Score 5: Meets all score-4 criteria AND exactly 2 calls in the requested numbered format, sensible arguments, zero extra text.
+
+  - name: parameter-inference
+    input: |
+      You have this tool:
+      - create_pr(title: string, body: string, base?: string, head?: string, draft?: boolean)
+
+      The user says: "Open a draft PR for the auth-refactor branch with title 'Refactor auth middleware'"
+
+      Output ONLY the tool call:
+      create_pr(...)
+    criteria: |
+      PRIMARY: Correct tool call with title, draft=true, and head="auth-refactor" inferred from context.
+      AUTOMATIC FAIL (score 1): Explains what a PR is, or outputs something other than the tool call.
+      Score 2: Has title but misses draft=true or head branch — incomplete parameter inference.
+      Score 3: Has title and draft=true but misses head="auth-refactor", or adds unnecessary parameters with wrong values.
+      Score 4: Complete call with title="Refactor auth middleware", head="auth-refactor", draft=true. Body content and extra params acceptable.
+      Score 5: Meets all score-4 criteria AND all required params correct, concise body, exactly the requested format, nothing else in response.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 0
+timeout: 45
+tags: [small-model, comparison, tool-calling, precision]
