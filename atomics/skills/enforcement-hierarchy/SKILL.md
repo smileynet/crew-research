@@ -9,8 +9,6 @@ description: Select the right enforcement mechanism for agent behavior rules. Us
 
 # Enforcement Hierarchy
 
-Source practice: `docs/practices/enforcement-hierarchy.md` (in best_practices repo)
-
 Never rely on a weaker mechanism when a stronger one is available.
 
 ## Trigger Conditions
@@ -73,8 +71,3 @@ Level 4: Steering Guidance      → shapes behavior, can be overridden
 | Shipping bad prose | Level 3: editor agent |
 | Using verbose variable names | Level 4: style skill |
 | Preferring composition | Level 4: AGENTS.md |
-
-## References
-
-- Source practice: `docs/practices/enforcement-hierarchy.md` (in best_practices repo)
-- Origin: `agent-crews/shared/steering/reliability.md`

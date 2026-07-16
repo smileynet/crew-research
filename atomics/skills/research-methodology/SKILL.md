@@ -46,22 +46,7 @@ When assessing an unfamiliar source, apply these criteria to place it in the aut
 
 ## Output Format
 
-```
-## Findings: [question]
-
-### Answer
-[Direct answer, 1-3 sentences]
-
-### Evidence
-- [Source 1]: [what it says]
-- [Source 2]: [what it says]
-
-### Gaps
-- [What couldn't be confirmed]
-
-### Recommendation
-[What to do based on findings]
-```
+Use the **research-output** skill's template — it is the canonical format for all research findings (frontmatter with topic/date/status/confidence; Summary, Findings, Sources with `[L{n}:{confidence}]` tags, Related Topics, Related Tools, Open Questions). Do not invent an inline structure; one format keeps findings reusable across sessions and consumable by other agents.
 
 ## Anti-Patterns
 

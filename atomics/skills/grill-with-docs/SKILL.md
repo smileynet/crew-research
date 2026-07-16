@@ -1,11 +1,13 @@
 ---
 name: grill-with-docs
-description: "Design interrogation with evidence-backed recommendations. Researches each question via web search before presenting options. Updates CONTEXT.md and offers ADRs inline. Dispatches spikes for empirical validation."
+description: "Design interrogation with evidence-backed recommendations. Researches each question via web search before presenting options. Updates CONTEXT.md and offers ADRs inline. Dispatches spikes for empirical validation. Trigger: grill, grill me, stress-test this plan, interrogate this design, poke holes, challenge my assumptions."
 metadata:
   type: process
   invocation: user-only
   practice: null
 ---
+
+# Grill With Docs
 
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
 

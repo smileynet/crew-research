@@ -46,22 +46,25 @@ For non-deterministic bugs (flaky tests, race conditions, environment-dependent)
 
 ## Phase 2: Red → Green Loop
 
-Once you have a loop, **tighten it** before iterating:
-- **Fast** — target <5 seconds. Cache setup, skip unrelated init, narrow scope.
-- **Sharp** — assert the SPECIFIC symptom, not "didn't crash."
-- **Deterministic** — pin time, seed RNG, isolate filesystem, freeze network.
-
-A 30-second loop is barely better than no loop. A 2-second loop is a debugging superpower.
-
 ```
 1. Run loop → FAIL (confirms bug exists)
-2. Make ONE change (single variable)
-3. Run loop → check result
+2. Form ONE hypothesis; predict the outcome BEFORE running
+3. Make ONE change (single variable)
+4. Run loop → check result
    - PASS → verify full test suite, done
    - FAIL → revert, try different hypothesis
+   - Prediction wrong → your model of the bug is wrong; re-read the failure, don't just re-guess
 ```
 
 **One change at a time.** If you change two things and it passes, you don't know which fixed it.
+
+### Escalation (hard caps)
+
+- Same approach fails 2x → STOP, change strategy entirely
+- 3 different strategies fail → ask the user
+- Never retry the same failing approach a third time
+
+For recurring failures where the immediate cause isn't the real cause, read [references/five-whys.md](references/five-whys.md) — iterative root cause analysis.
 
 ## Phase 3: Verify
 

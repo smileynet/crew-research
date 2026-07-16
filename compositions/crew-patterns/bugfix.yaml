@@ -27,5 +27,5 @@ delegation:
     - Implementer's fix must be minimal (no unrelated changes)
 
 shared-skills:
-  - troubleshooting-protocol
+  - feedback-loop-debugging
   - verification-protocol

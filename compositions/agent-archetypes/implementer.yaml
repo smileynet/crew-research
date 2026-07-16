@@ -5,7 +5,7 @@ archetype: worker
 skills:
   - verification-protocol
   - git-protocol
-  - troubleshooting-protocol
+  - feedback-loop-debugging
   - testing-guide
   - ai-generation-hygiene
   - script-authoring

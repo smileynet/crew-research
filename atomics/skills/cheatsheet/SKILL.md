@@ -68,8 +68,7 @@ Weekly → /project-cleanup
 | Skill | Triggers on |
 |-------|-------------|
 | planning-cycles | "plan this", "break this down", starting a feature |
-| five-whys | "why is this happening", "root cause", debugging |
-| troubleshooting-protocol | errors, failures, "help me debug" |
+| feedback-loop-debugging | errors, failing tests, "help me debug", "why is this happening", root cause |
 | code-review | "review this", "check for issues" |
 | testing-guide | "write tests", "what should I test" |
 | git-protocol | "commit", "push", "branch" |
@@ -93,7 +92,6 @@ mise run add-skill -- <name>
 | `tutorial-authoring` | Getting-started guides, onboarding docs |
 | `eval-criteria` | Scoring rubrics, LLM-judged evals |
 | `skill-authoring` | Writing or improving agent skills |
-| `session-review-patterns` | Reviewing session transcripts for quality |
 | `enforcement-hierarchy` | Deciding how to enforce agent behavior rules |
 | `project-conventions` | Project-specific behavioral rules |
 | `project-winddown` | Wrapping up a project, extracting lessons learned |

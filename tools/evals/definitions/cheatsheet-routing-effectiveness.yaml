@@ -20,7 +20,7 @@ tasks:
 
   - input: "Something is broken in production and I need to debug it. What's the best approach?"
     criteria: |
-      PRIMARY: Agent routes to the debugging workflow (feedback-loop-debugging or troubleshooting-protocol) and emphasizes building a feedback loop BEFORE fixing.
+      PRIMARY: Agent routes to the debugging workflow (feedback-loop-debugging) and emphasizes building a feedback loop BEFORE fixing.
       AUTOMATIC FAIL (score 1): Jumps straight to "check the logs" or debugging steps without referencing a structured approach.
       Score 3: Mentions debugging but doesn't emphasize the feedback-loop-first discipline.
       Score 4: Routes to debugging skill, explains the feedback-loop-first principle, mentions specific techniques (failing test, curl, bisection).

@@ -3,7 +3,7 @@ description: Investigates topics thoroughly, gathers evidence, and reports findi
 archetype: worker
 
 skills:
-  - troubleshooting-protocol
+  - feedback-loop-debugging
   - research-methodology
   - research-output
   - study-reference

@@ -31,10 +31,6 @@ Use these terms precisely. Full definitions in [references/vocabulary.md](refere
 - **The interface is the test surface.** If you can't test through the interface, the interface is wrong.
 - **One adapter = hypothetical seam. Two adapters = real seam.**
 
-## Vocabulary
-
-Use the shared design vocabulary consistently: **module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**. For definitions and tests (deletion test, adapter count rule), see [references/design-vocabulary.md](references/design-vocabulary.md).
-
 ## Process
 
 ### 0. Specify Desired Outcome (before exploring)

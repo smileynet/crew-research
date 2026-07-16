@@ -8,21 +8,7 @@ When you have multiple research topics to investigate:
 
 ## Format for each finding file
 
-```markdown
-# {Topic Name}
-
-## Key Facts
-- ...
-
-## Decisions Enabled
-- ...
-
-## Open Questions
-- ...
-
-## Sources
-- ...
-```
+Each subagent writes its finding file in the **research-output** skill's canonical template (frontmatter + Summary, Sources, Related Topics, Findings, Open Questions). Include the template's section list in the dispatch prompt so subagents don't improvise structure.
 
 ## Rules
 

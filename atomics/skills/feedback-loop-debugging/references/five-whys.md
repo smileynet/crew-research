@@ -37,6 +37,6 @@ Action: [what to fix]
 
 ## When to Switch
 
-- If multiple independent causes exist → use cause-mapping instead
-- If the problem is "which option to pick" → use decision-matrix instead
-- If you need to stress-test a plan → use pre-mortem instead
+- If multiple independent causes exist → map causes in parallel branches instead of forcing one chain
+- If the problem is "which option to pick" → that's a decision, not a diagnosis; compare options against criteria
+- If you need to stress-test a plan before executing → use grill-with-docs

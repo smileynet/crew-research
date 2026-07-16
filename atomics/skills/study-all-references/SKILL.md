@@ -19,27 +19,15 @@ List all directories in `.references/`. For each, note what it appears to be (la
 
 For each reference, check if `.memory/{name}-reference.md` already exists with `studied_at` frontmatter. Skip those — already studied. Only dispatch subagents for unstudied references.
 
-Dispatch one subagent per unstudied reference. Each writes to `.memory/{name}-reference.md` with frontmatter:
-
-```markdown
----
-studied_at: {ISO 8601 timestamp}
-source: references/{name}
----
-```
-
-- **Purpose** — what it does, what problem it solves
-- **Usage** — how to invoke/use it (commands, API, key patterns)
-- **Architecture** — key files, entry points, data flow
-- **Novel Patterns** — techniques worth adopting
-- **Anti-patterns** — things to avoid
-- **Integration Points** — how it connects to our project
+Dispatch one subagent per unstudied reference. **Each doc follows the study-reference skill's schema** — same frontmatter (`studied_at`, `source: .references/{name}`), same seven analysis dimensions (JTBD, Decisions and tradeoffs, Non-obvious, Prior art, Audience, Conventions, Integration points). This skill is the batch driver; study-reference owns the document structure.
 
 Subagent prompt template:
 ```
-Explore references/{name}/ thoroughly. Read key files (README, main entry points, config).
-Write a reference doc to .memory/{name}-reference.md with sections:
-Purpose, Usage, Architecture, Novel Patterns, Anti-patterns, Integration Points.
+Explore .references/{name}/ thoroughly. Read key files (README, main entry points, config).
+Write a reference doc to .memory/{name}-reference.md following the structure in
+.kiro/skills/study-reference/references/exploration-template.md (JTBD, Decisions and
+tradeoffs, Non-obvious, Prior art, Audience, Conventions, Integration points), with
+frontmatter: studied_at ({ISO 8601 timestamp}) and source (.references/{name}).
 Focus on what's relevant to THIS project (read AGENTS.md for context).
 ```
 

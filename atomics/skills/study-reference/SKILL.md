@@ -21,7 +21,7 @@ Dispatch a subagent to explore the repo/tool and write a reference doc to `.memo
 ```markdown
 ---
 studied_at: {ISO 8601 timestamp}
-source: references/{name}
+source: .references/{name}
 ---
 ```
 

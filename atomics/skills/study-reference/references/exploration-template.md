@@ -33,7 +33,8 @@ This is the highest-value section — be specific and cite file paths.}
 ## Conventions
 {Local rules. Naming patterns. Style deviations. Internal protocols.}
 
-## Interface Surfaces
+## Integration Points
+How it connects to our project, via its interface surfaces:
 - **CLI**: {commands, flags, entry points}
 - **API**: {exports, public functions, key types}
 - **Config**: {config files, env vars, settings}
@@ -57,7 +58,7 @@ This is the highest-value section — be specific and cite file paths.}
 
 When dispatched to explore a reference:
 
-1. **Write output to file** at `.scratch/research/{repo-slug}.md`
+1. **Write output to file** at `.memory/{name}-reference.md` (with `studied_at` + `source` frontmatter per the skill)
 2. **Return a brief summary** to the orchestrator (JTBD + key finding + top recommendation + file path)
 3. **Do NOT return the full analysis inline** — file is the deliverable
 
