@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Code review standards and checklist. Use when reviewing code, PRs, or implementations for correctness, security, and quality."
+description: "Two-axis code review: Standards (code quality, smells, security) and Spec (does it match requirements?). Use when reviewing a diff, PR, branch, or implementation. Trigger: review this code, review the diff, PR review, code review, check this implementation, review since main."
 metadata:
   type: protocol
   invocation: both

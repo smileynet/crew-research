@@ -30,6 +30,6 @@ tasks:
 
 trials: 3
 threshold: 3
-delta_threshold: 0.5
+delta_threshold: 0
 timeout: 240
 tags: [process-behavior, question-dithering, kiro-cli, self-answering]

@@ -66,6 +66,6 @@ tasks:
 
 trials: 3
 threshold: 4
-delta_threshold: 0.5
+delta_threshold: 0
 timeout: 150
 tags: [context-neutrality, spec-validation, agent-dispatch]

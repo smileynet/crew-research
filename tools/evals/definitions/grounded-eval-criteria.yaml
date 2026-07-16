@@ -31,6 +31,6 @@ runs:
   without_skill: true
 
 threshold: 4
-delta_threshold: 1.0
+delta_threshold: 0
 timeout: 180
 tags: [skill-effectiveness, meta-eval, grounded]

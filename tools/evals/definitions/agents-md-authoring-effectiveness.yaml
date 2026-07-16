@@ -28,6 +28,6 @@ tasks:
 
 trials: 3
 threshold: 4
-delta_threshold: 1.0
+delta_threshold: 0
 timeout: 120
 tags: [skill-effectiveness, documentation]

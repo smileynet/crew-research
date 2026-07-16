@@ -1,6 +1,6 @@
 ---
 name: presentation-writing
-description: Create effective presentations, slide decks, and workshop materials. Use when building MARP decks, PowerPoint content, demo scripts, or any audience-facing material.
+description: 'Create presentations, slide decks, and workshop materials. Use when building MARP decks, PowerPoint outlines, talk structures, demo scripts, conference talks, or any audience-facing slide content. Trigger: slides, presentation, deck, talk, MARP, speaker notes, workshop material.'
 metadata:
   type: process
   invocation: both

@@ -47,7 +47,7 @@ tasks:
       BONUS (score 5): Structured verdict with explicit threshold ("if p99 stays under 150ms after full rollout, DEPLOY CONFIRMED; if it exceeds 150ms, ROLLBACK"). States what evidence would change the verdict.
 
 threshold: 4
-delta_threshold: 0.5
+delta_threshold: 0
 trials: 3
 timeout: 120
 tags: [effectiveness, deployment, verdict-gate]

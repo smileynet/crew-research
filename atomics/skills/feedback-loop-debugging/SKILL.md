@@ -46,6 +46,13 @@ For non-deterministic bugs (flaky tests, race conditions, environment-dependent)
 
 ## Phase 2: Red → Green Loop
 
+Once you have a loop, **tighten it** before iterating:
+- **Fast** — target <5 seconds. Cache setup, skip unrelated init, narrow scope.
+- **Sharp** — assert the SPECIFIC symptom, not "didn't crash."
+- **Deterministic** — pin time, seed RNG, isolate filesystem, freeze network.
+
+A 30-second loop is barely better than no loop. A 2-second loop is a debugging superpower.
+
 ```
 1. Run loop → FAIL (confirms bug exists)
 2. Make ONE change (single variable)
