@@ -184,7 +184,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 07 | Installed recall CLI matches source and docs | ✅ done — 0.2.0 reinstalled from source; import round-trip verified; all install docs point at ./tools/recall; spike findings promoted |
 | 08 | Dead/broken tooling pruned or repaired | ✅ done — okf-bundle + prime hook deleted (decisions recorded), inspect-session exec bit fixed, run.sh skips null adapters, init.sh dead code removed |
 | 09 | Clean post-review eval baseline | 03, 04 (01/02/05/11 done) |
-| 10 | Session logs reveal actual skill/tool usage | — |
+| 10 | Session logs reveal actual skill/tool usage | ✅ done — spike PASS (activation detectable); 595 sessions analyzed; report in docs/development/session-skill-usage-2026-07-17.md |
 | 11 | Eval sessions cannot write outside their workdir | ✅ done (2b699cc — run-model-comparison.sh was the leaker, not run.sh) |
 | 12 | Re-run full suite to validate threshold calibration | ✅ done — 25/35 pass (71.4%, target ≥30%), 0 regressions, 0 infra failures; notes in docs/eval-results-2026-07-17.md |
 

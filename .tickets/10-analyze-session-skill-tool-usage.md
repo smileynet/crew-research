@@ -1,7 +1,7 @@
 ---
 id: "10"
 title: "Session logs reveal which skills and tools actually get used"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---
