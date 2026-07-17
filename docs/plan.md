@@ -187,6 +187,16 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 10 | Session logs reveal actual skill/tool usage | ✅ done — spike PASS (activation detectable); 595 sessions analyzed; report in docs/development/session-skill-usage-2026-07-17.md |
 | 11 | Eval sessions cannot write outside their workdir | ✅ done (2b699cc — run-model-comparison.sh was the leaker, not run.sh) |
 | 12 | Re-run full suite to validate threshold calibration | ✅ done — 25/35 pass (71.4%, target ≥30%), 0 regressions, 0 infra failures; notes in docs/eval-results-2026-07-17.md |
+| 13 | architecture-deepening activates + rejects rubber-stamps | open (spec session-improvements-2026-07-17) |
+| 14 | feedback-loop-debugging passes both effectiveness evals | open (spec session-improvements-2026-07-17) |
+| 15 | Eval harness resume capability | open — implement only after t09 baseline run completes (harness scripts owned by live run) |
+| 16 | Steering references stop defeating progressive loading | open — needs ADR (options in ticket) |
+| 17 | Explore: script-file rule for bash invocations (windows steering) | open (spec field-feedback; from upstream 2026-07-17) |
+| 18 | Explore: concurrent-session ticket allocation guard | open (spec field-feedback; from upstream 2026-07-17) |
+
+**Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
+
+**Baseline caveat (t09):** merge a03798e landed `atomics/skills/handoff/SKILL.md` changes mid-run at 19/35 judged evals. `handoff-decaying-resolution` completed pre-merge (✅ 5.00, clean vs 24d9691); phase-2 `activation-handoff` will measure post-merge content. Do NOT redeploy global steering/skills (`mise run init --global`) until the run prints BASELINE RUN COMPLETE.
 
 **Frontier (2026-07-16 19:20):** 02, 04, 05, 06, 07, 08, 10, 11. Ticket 12 (was numbered 01, renamed to fix ID collision; spec eval-improvements-2026-07-16) gained blockers 05+11 — running the suite with 6 known-broken definitions and an uncontained workdir leak would waste a 5-6h run. If 01-04 land before 12 runs, consider merging 12 into 09 (one clean run satisfies both).
 
