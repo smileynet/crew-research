@@ -51,7 +51,7 @@ validate() {
   done
 
   # Check skill references
-  for f in "$COMPOSITIONS_DIR"/agent-archetypes/*.yaml "$COMPOSITIONS_DIR"/crew-patterns/*.yaml; do
+  for f in "$COMPOSITIONS_DIR"/agent-archetypes/*.yaml "$COMPOSITIONS_DIR"/crew-patterns/*.yaml "$COMPOSITIONS_DIR"/project-level.yaml; do
     [[ -f "$f" ]] || continue
     local skills=$(yq '.skills[]? // .["shared-skills"][]?' "$f" 2>/dev/null)
     for s in $skills; do

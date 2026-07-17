@@ -58,6 +58,10 @@ mise run recall:ingest               # ingest all projects + sessions
 mise run recall:status               # show indexed content
 recall search "query"                # semantic search
 recall import .memory/ --wing name   # import a single project's knowledge
+
+# Release (versioning: SemVer, tags + CHANGELOG — see release-protocol skill)
+mise run release -- <version> --dry-run   # preview
+mise run release -- <version>             # changelog roll, tag, push, GH release
 ```
 
 ## Windows / WSL Deployment

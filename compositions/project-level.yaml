@@ -1,0 +1,11 @@
+name: project-level
+description: >
+  Skills that install per-project (mise run add-skill -- <name>) rather than
+  through a global tier. Listing here documents intent and satisfies the
+  cross-link lint's membership check. Skills referenced by agent archetypes
+  or crew patterns don't need to be listed — those references already count.
+skills:
+  - poc-workflow
+  - prototype-protocol
+  - tutorial-authoring
+  - ux-walkthrough

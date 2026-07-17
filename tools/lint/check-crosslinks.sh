@@ -18,8 +18,9 @@ warnings=0
 # Collect all skills referenced by tiers (skills + steering + extensions)
 tier_skills=$(yq -r '.skills[], .steering[], .extensions[]?.skills[]?, .extensions[]?.steering[]?' "$TIERS_DIR"/*.yaml 2>/dev/null | grep -v '^---$' | grep -v '^null$' | sort -u)
 
-# Skills consumed by compositions (archetypes/crew-patterns) count as deployed too
-comp_skills=$(yq -r '.skills[]?, .["shared-skills"][]?' "$ROOT_DIR"/compositions/agent-archetypes/*.yaml "$ROOT_DIR"/compositions/crew-patterns/*.yaml 2>/dev/null | sort -u)
+# Skills consumed by compositions (archetypes/crew-patterns) count as deployed too,
+# and compositions/project-level.yaml documents per-project installables
+comp_skills=$(yq -r '.skills[]?, .["shared-skills"][]?' "$ROOT_DIR"/compositions/agent-archetypes/*.yaml "$ROOT_DIR"/compositions/crew-patterns/*.yaml "$ROOT_DIR"/compositions/project-level.yaml 2>/dev/null | sort -u)
 
 echo "Linting skills..."
 
