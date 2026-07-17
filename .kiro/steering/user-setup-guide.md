@@ -143,6 +143,6 @@ To install the WSL hook: `cat tools/recall/bashrc-hook.sh >> ~/.bashrc`
 WSL doesn't auto-start services. The .bashrc hook calls `sudo service cron start`. To avoid password prompts:
 
 ```bash
-echo 'sabiggin ALL=(ALL) NOPASSWD: /usr/sbin/service cron *' | sudo tee /etc/sudoers.d/cron-nopasswd
+echo '<user> ALL=(ALL) NOPASSWD: /usr/sbin/service cron *' | sudo tee /etc/sudoers.d/cron-nopasswd
 sudo chmod 440 /etc/sudoers.d/cron-nopasswd
 ```
