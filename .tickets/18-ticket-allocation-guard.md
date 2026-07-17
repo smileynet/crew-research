@@ -1,5 +1,5 @@
 ---
-id: "13"
+id: "18"
 title: "Explore: concurrent-session ticket allocation guard in frontier-work steering"
 status: open
 blocked_by: []
