@@ -178,7 +178,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 01 | Broken skill content repaired (P0 + one-liners) | ✅ done (e0fde71) |
 | 02 | Cross-skill contradictions resolved | ✅ done (5cd6bb5 — troubleshooting-protocol merged into feedback-loop-debugging) |
 | 03 | Over-budget skills fit 100-line limit | ✅ done (c54b412 — all 7 ≤100; grill+sdd evals re-passed post-trim) |
-| 04 | Always-on steering slimmed 812→~450 lines | — |
+| 04 | Always-on steering slimmed 812→~450 lines | ✅ done — batch-5 total 387 lines; tool-installation demoted to project level; OS refs gated in init.sh; activation eval 0.90 accuracy |
 | 05 | 7 flagged eval definitions run as designed | ✅ done (815fbe2 + validation runs: 4✅/1❌, the ❌ is genuine skill signal) |
 | 06 | doctor.sh + catalog.sh report current reality | — |
 | 07 | Installed recall CLI matches source and docs | — |

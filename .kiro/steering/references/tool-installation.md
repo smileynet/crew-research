@@ -9,6 +9,8 @@ When a required tool is missing, install it using the commands below. Detect the
 | `kiro-cli` | AI coding assistant CLI | All deployments |
 | `codex` | OpenAI Codex CLI | Codex deployments only |
 | `agy` | Google Antigravity CLI | Antigravity deployments only |
+| `crush` | Charm's Crush agent CLI | Adapter/judge pools (e.g., codex-runner) |
+| `tk` | Minimal ticket system (lo5/tk) | Ticket-based dispatch projects |
 | `yq` | YAML processor | init.sh, doctor.sh |
 | `mise` | Task runner / env manager | All mise run commands |
 | `jq` | JSON processor | eval harness |
@@ -24,6 +26,44 @@ case "$(uname -s)" in
   Linux*) OS="linux" ;;
 esac
 ```
+
+## tk (all OSes — needs Go ≥ 1.25.5)
+
+```bash
+go install github.com/lo5/tk@latest
+```
+
+If Go is older than 1.25.5: `mise install go@1.25` first, then use that binary explicitly
+(`~/.local/share/mise/installs/go/1.25/bin/go install ...`).
+
+**Behind a corporate proxy** (TLS interception breaks proxy.golang.org — symptom:
+`tls: failed to verify certificate: certificate is valid for <corp-host>, not proxy.golang.org`):
+
+```bash
+GOPROXY=direct GOSUMDB=off GOTOOLCHAIN=local go install github.com/lo5/tk@latest
+```
+
+`GOTOOLCHAIN=local` matters: with GOSUMDB=off, Go refuses to auto-download toolchains
+("verifying module: checksum database disabled").
+
+**Verify with `which tk`** — `go install` honors `GOBIN`, which mise-managed machines often
+point at mise's go bin dir (e.g. `~/.local/share/mise/installs/go/<ver>/bin`), NOT `~/go/bin`.
+
+## crush (Charm's Crush)
+
+```bash
+# macOS / Linux (linuxbrew)
+brew install charmbracelet/tap/crush
+
+# Windows
+winget install charmbracelet.crush
+# Or any OS via Go (same corporate-proxy recipe as tk if needed):
+go install github.com/charmbracelet/crush@latest
+```
+
+Crush auto-detects providers from env (e.g., Bedrock via CLAUDE_CODE_USE_BEDROCK). It writes
+a `.crush/` state dir into cwd on every run — gitignore it or pass `--data-dir`.
+
 
 ## Windows (Git Bash / MSYS2)
 

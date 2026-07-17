@@ -1,6 +1,6 @@
 ---
 name: context-budget-awareness
-description: "Manage context as a finite resource. Compress between phases, reinforce objectives in long sessions, restart before degradation. Use when sessions are long, multi-phase, or approaching limits."
+description: "Manage context as a finite resource. Compress between phases, reinforce objectives in long sessions, decay old detail. Use when sessions are long, multi-phase, or approaching limits."
 metadata:
   type: steering
   invocation: passive
@@ -9,13 +9,7 @@ metadata:
 
 # Context Budget Awareness
 
-Context is finite and depletable. Fresh context produces better results than accumulated context.
-
-## When to Restart
-
-- **Phase transitions** — start fresh for each major phase (research → plan → implement)
-- **Quality degradation** — repeating yourself, contradicting prior statements, losing the objective
-- **After sub-agent returns** — incorporate findings as compressed artifacts, not raw transcripts
+Context is finite. Compress at phase boundaries rather than carrying everything forward; incorporate sub-agent findings as compressed artifacts, not raw transcripts. (If the human offers to restart the session at a phase boundary, that's a good point to accept — but never stop or suggest a new session on your own account.)
 
 ## Decaying Resolution
 
@@ -42,4 +36,3 @@ In long sessions (20+ messages), the model loses track of original objectives.
 - Carrying raw research into implementation (summarize first)
 - Accumulating verbose tool output without extracting the relevant result
 - Assuming constraints stated 30+ messages ago are still active in attention
-- Running multi-phase work in a single unbroken context when phases are independent

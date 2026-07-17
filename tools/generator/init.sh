@@ -181,6 +181,11 @@ if [[ "$GLOBAL" == true ]]; then
         mkdir -p "$DEST/steering/references"
         for ref in "$SKILLS_DIR/$skill/references/"*; do
           [[ -f "$ref" ]] || continue
+          # OS-gate OS-specific references (steering refs load always-on; don't ship dead weight)
+          case "$(basename "$ref")" in
+            windows.md) [[ "$(uname -s)" =~ ^(MINGW|MSYS|CYGWIN) ]] || continue ;;
+            unix.md)    [[ "$(uname -s)" =~ ^(MINGW|MSYS|CYGWIN) ]] && continue ;;
+          esac
           deploy_file "$ref" "$DEST/steering/references/$(basename "$ref")"
           DESIRED_FILES["$DEST/steering/references/$(basename "$ref")"]=1
         done

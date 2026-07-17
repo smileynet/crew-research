@@ -1,7 +1,7 @@
 ---
 id: "04"
 title: "Always-on steering costs ~450 lines instead of 812"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---

@@ -1,6 +1,6 @@
 ---
 name: project-conventions
-description: "Project behavioral rules enforced every turn."
+description: "Workspace conventions enforced every turn: glossary upkeep, document placement (.scratch vs .memory vs docs), validation contract for scripts, and git discipline for convention projects."
 metadata:
   type: reference
   invocation: agent-only
@@ -11,7 +11,7 @@ metadata:
 
 ## Glossary Maintenance
 
-Update `.memory/CONTEXT.md` immediately when a term is resolved or clarified. Don't batch — capture as it happens.
+Update `.memory/CONTEXT.md` immediately when a term is resolved or clarified. Don't batch — capture as it happens. Create the file on first term resolution if missing.
 
 **Format:**
 ```
@@ -20,15 +20,9 @@ One-sentence definition.
 _Avoid_: what not to call it
 ```
 
-**What qualifies as a term:**
-- Domain concepts (what the project calls things)
-- Internal naming decisions (why we say X not Y)
-- Abbreviations and acronyms in the codebase
-- Anything where two people might use different words for the same thing
+**What qualifies:** domain concepts, internal naming decisions, abbreviations/acronyms, anything where two people might use different words for the same thing.
 
 **What doesn't belong:** implementation details, specs, decisions with rationale (those are ADRs).
-
-If CONTEXT.md doesn't exist, create it on first term resolution.
 
 ## Document Placement
 - Default new documents to `.scratch/` (ephemeral)
@@ -48,10 +42,10 @@ Scripts and tools that produce output SHOULD return structured results:
 - Self-validate output (count checks, schema validation, range checks)
 
 ## Git Discipline
-- If no git repo exists, run `git init` and make an initial commit before starting work
-- Commit after each logical unit of work — don't accumulate uncommitted changes
-- Push after committing (if remote exists)
-- Use descriptive commit messages: `type(scope): what changed`
+
+In projects using these conventions, **proactive commits are authorized**: commit after each logical unit of work with `type(scope): what changed` messages, and push after committing (if a remote exists). This convention overrides the ask-first default for commits. If no git repo exists, `git init` and make an initial commit before starting work.
+
+Before any push, run `git fetch` and verify no upstream changes exist.
 
 ### When push is rejected (upstream changes)
 
@@ -60,34 +54,15 @@ Scripts and tools that produce output SHOULD return structured results:
 3. **If diverged** (both sides have commits): tell the user what the upstream commits are, whether conflicts are likely (check `git merge --no-commit --no-ff origin/main` then `git merge --abort`), and ask how they want to proceed (merge vs rebase)
 4. Never force-push or auto-rebase without telling the user what happened upstream
 
-### After pushing (corrections)
-
-- Never amend a commit that has been pushed. Always fix forward with a new commit.
-- Before any push (including after a correction), run `git fetch` and verify no upstream changes exist.
-- Force push requires explicit user permission AND a stated reason. "I just pushed this" is not sufficient justification.
-
 ## Long-Running Commands
 
-See [references/windows.md](references/windows.md) or [references/unix.md](references/unix.md) based on your OS.
+On Unix: `nohup <command> > /tmp/output.log 2>&1 &`, then observe with `kill -0 $!` and `tail /tmp/output.log`. If the command must outlive this session, prefix with `setsid`. On Windows, see [references/windows.md](references/windows.md) for Start-Process rules.
 
 ## Missing Tools
 
-When a command fails with "not found" or a tool is unavailable, install it immediately using [references/tool-installation.md](references/tool-installation.md). Detect the OS, install, verify, then continue.
+When a command fails with "not found", install the tool for your OS immediately, verify it works, then continue. Project-level steering may provide a project-specific install guide.
 
-## Tool Over Shell (strict)
+## Tool Use Notes
 
-- NEVER write file content via shell (heredocs, echo, Out-File, Set-Content). Use the write tool.
-- NEVER check file existence via shell (Test-Path). Use read or glob.
-- NEVER prefix commands with `cd` to change directory. Use the `working_dir` parameter instead.
 - The write tool creates parent directories automatically — don't mkdir first.
-- Reserve shell for: git, build commands, process management, and commands with no tool equivalent.
-
-## Autonomy Within Plans
-
-Once a plan is agreed, execute sequential steps without pausing unless:
-- A step failed and needs user input
-- A decision point not covered by the plan arises
-- The action is high-risk per safety guardrails
-
-Do not ask "shall I proceed?" between planned steps.
-
+- Never check file existence via shell (`test`, `Test-Path`) — use read or glob.
