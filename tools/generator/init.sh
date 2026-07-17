@@ -11,6 +11,16 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TIERS_DIR="$ROOT_DIR/compositions/tiers"
 SKILLS_DIR="$ROOT_DIR/atomics/skills"
 
+# Detect deploy HOME: when running in WSL, tools on Windows read from the
+# Windows user home (/mnt/c/Users/$USER), not the WSL home (/home/$USER).
+DEPLOY_HOME="$HOME"
+if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+  WIN_USER="${WIN_USERNAME:-$USER}"
+  if [[ -d "/mnt/c/Users/$WIN_USER" ]]; then
+    DEPLOY_HOME="/mnt/c/Users/$WIN_USER"
+  fi
+fi
+
 PROJECT=""
 GLOBAL=false
 TIER="basic"
@@ -144,7 +154,7 @@ if [[ "$GLOBAL" == true ]]; then
   # ─── Tool-specific deploy functions ───────────────────────────
 
   deploy_kiro_cli() {
-    local DEST="$HOME/.kiro"
+    local DEST="$DEPLOY_HOME/.kiro"
     echo "Deploying crew-research ($TIER tier) → kiro-cli ($DEST)"
     echo ""
 
@@ -349,8 +359,8 @@ if [[ "$GLOBAL" == true ]]; then
 
   deploy_codex() {
     deploy_agents_md_tool "codex" \
-      "$HOME/.agents/skills" \
-      "${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
+      "$DEPLOY_HOME/.agents/skills" \
+      "${CODEX_HOME:-$DEPLOY_HOME/.codex}/AGENTS.md"
   }
 
   deploy_agy() {
@@ -360,10 +370,10 @@ if [[ "$GLOBAL" == true ]]; then
     #   Both read ~/.gemini/AGENTS.md for steering
     # Deploy skills to both locations; steering to AGENTS.md
     deploy_agents_md_tool "agy" \
-      "$HOME/.agents/skills" \
-      "$HOME/.gemini/AGENTS.md"
+      "$DEPLOY_HOME/.agents/skills" \
+      "$DEPLOY_HOME/.gemini/AGENTS.md"
     # Also deploy to CLI-specific path
-    local cli_dest="$HOME/.gemini/antigravity-cli/skills"
+    local cli_dest="$DEPLOY_HOME/.gemini/antigravity-cli/skills"
     mkdir -p "$cli_dest"
     for skill in "${SKILLS[@]}"; do
       src_dir="$SKILLS_DIR/$skill"

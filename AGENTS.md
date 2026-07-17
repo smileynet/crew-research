@@ -17,6 +17,8 @@ tools/evals/                      — Eval harness, definitions, fixtures, exper
 tools/proofs/                     — Platform assumption tests
 tools/lint/                       — Cross-link validation
 tools/recall/                     — Cross-session memory CLI tool (extension)
+tools/recall/ingest-all.sh        — Scheduled recall ingestion (all projects + sessions)
+tools/recall/bashrc-hook.sh       — WSL .bashrc staleness checker (source of truth)
 tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
@@ -50,6 +52,58 @@ mise run eval:activation             # skill activation tests
 mise run eval:qualitative -- <name>  # keyword-based experiment
 mise run session:parse               # parse session transcripts
 mise run session:skills              # skill activation + steering compliance report
+
+# Recall (cross-session memory)
+mise run recall:ingest               # ingest all projects + sessions
+mise run recall:status               # show indexed content
+recall search "query"                # semantic search
+recall import .memory/ --wing name   # import a single project's knowledge
+```
+
+## Windows / WSL Deployment
+
+On Windows, run deployment via WSL bash (bypasses PowerShell PATH issues):
+
+```bash
+# Deploy all tools via WSL
+wsl -- bash -c "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:\$PATH && \
+  cd /mnt/c/Users/\$USER/code/crew-research && \
+  bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
+
+# Trust mise.toml after cloning (Windows mise)
+mise trust C:\Users\<user>\code\crew-research\mise.toml
+
+# Prerequisites (WSL)
+sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+  -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install ./tools/recall
+```
+
+**Staleness hooks** ensure recall ingestion runs on shell open if >4h stale:
+- PowerShell: `Invoke-RecallIngestIfStale` in `$PROFILE` — fires WSL ingestion as background job
+- WSL: `_recall_ingest_if_stale` in `~/.bashrc` — fires nohup background ingestion
+- Source of truth for the WSL hook: `tools/recall/bashrc-hook.sh`
+
+## Recall Operations
+
+```bash
+# Manual full ingestion (all projects + sessions)
+bash ~/.local/bin/recall-ingest-all.sh
+# or: mise run recall:ingest
+
+# Check what's indexed
+recall status
+
+# Search memory
+recall search "what did we decide about X"
+
+# Add a new project to automatic ingestion
+# Edit tools/recall/ingest-all.sh → add to PROJECTS array
+# Then: cp tools/recall/ingest-all.sh ~/.local/bin/recall-ingest-all.sh
+
+# Schedule: WSL cron runs every 4h
+# Staleness hooks in PowerShell profile + .bashrc trigger on shell open if >4h stale
 ```
 
 ## Skill Authoring Rules

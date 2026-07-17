@@ -93,3 +93,16 @@ if [[ -d "$REPO_ROOT/atomics/skills/${usage_name}/references" ]]; then
 fi
 echo "Installed ${usage_name} → $DEST"
 """
+
+[tasks."recall:ingest"]
+description = "Run recall ingestion for all projects and sessions"
+run = "bash tools/recall/ingest-all.sh"
+
+[tasks."recall:status"]
+description = "Show recall index status"
+run = "recall status"
+
+[tasks.release]
+description = "Cut a tagged release (validates, updates changelog, tags, pushes, creates GH release)"
+raw = true
+run = "bash tools/generator/release.sh"

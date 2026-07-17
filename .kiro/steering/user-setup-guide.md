@@ -92,3 +92,57 @@ uv tool install ./tools/recall   # from a crew-research clone (PyPI "recall" is 
 | "Command not found" for mise | `mise` is optional; they can run `tools/generator/init.sh` directly |
 | Want to add more skills later | `mise run catalog` to browse, then re-run init with `--tier full` |
 | Steering feels too aggressive | Remove specific `.kiro/steering/*.md` files they don't want |
+| mise config not trusted (Windows) | Run `mise trust` in the project directory |
+| yq not found (Windows/WSL) | `sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq` |
+
+## Windows / WSL Setup
+
+On Windows, crew-research deploys via WSL bash. The init script auto-detects WSL and writes to the Windows home (`C:\Users\<user>\`) so all tools can read the files.
+
+### Prerequisites (WSL)
+
+```bash
+# yq (YAML processor — required by init.sh)
+sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+  -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
+
+# uv (Python package manager — needed for recall)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# recall (cross-session memory)
+uv tool install ./tools/recall   # from local clone
+```
+
+### Deploy
+
+```bash
+# From WSL (recommended — avoids PATH issues)
+wsl -- bash -c "export PATH=\$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:\$PATH && \
+  cd /mnt/c/Users/\$USER/code/crew-research && \
+  bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
+```
+
+### After Deploy (Windows side)
+
+```powershell
+# Trust mise.toml so mise stops showing errors
+mise trust C:\Users\<user>\code\crew-research\mise.toml
+```
+
+### Recall Staleness Hooks
+
+Both hooks fire ingestion in the background on shell open if >4h stale:
+
+- **PowerShell**: `Invoke-RecallIngestIfStale` added to `$PROFILE`
+- **WSL .bashrc**: `_recall_ingest_if_stale` — source of truth is `tools/recall/bashrc-hook.sh`
+
+To install the WSL hook: `cat tools/recall/bashrc-hook.sh >> ~/.bashrc`
+
+### Passwordless Cron (WSL)
+
+WSL doesn't auto-start services. The .bashrc hook calls `sudo service cron start`. To avoid password prompts:
+
+```bash
+echo 'sabiggin ALL=(ALL) NOPASSWD: /usr/sbin/service cron *' | sudo tee /etc/sudoers.d/cron-nopasswd
+sudo chmod 440 /etc/sudoers.d/cron-nopasswd
+```
