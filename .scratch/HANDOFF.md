@@ -1,43 +1,35 @@
 ---
-created_at: 2026-07-16T18:55:00+00:00
-base_commit: e0fde71
-handoff_key: review-followup-tickets
+created_at: 2026-07-17T11:00:00+00:00
+base_commit: e80a2e8
+handoff_key: review-followup-final
 ---
 
 # Handoff
 
 ## Objective
-Execute the project-review follow-up backlog: 11 tickets in `.tickets/` (from the 8-ticket deep-dive review completed 2026-07-16, all findings in `.memory/review-2026-07/`).
+Finish the project-review follow-up backlog. 11 of 12 tickets done; only ticket 09 (clean baseline) remains, blocked on a ~14h eval run in flight.
 
 ## Constraints
-- Skills <100 lines (references/ overflow); steering pays always-on cost per line
-- NEVER edit `tools/evals/harness/run.sh` while an eval run is live (wedged the 17h run at 102/105)
-- Steering in tier yamls must live in `atomics/skills/` — lint enforces (bug hit twice)
-- Evals: nohup → observe → sleep pattern per `.kiro/steering/eval-execution.md`
-
-## Prior Decisions
-- Backlog = `.tickets/` files; plan.md (docs/plan.md) is the authoritative status map
-- 21 evals retired (consolidation one-shots); suite = 30 judged + 24 activation defs
-- Review verdicts: 53 skills → 32 KEEP / 20 FIX / 1 MERGE; details in `.memory/review-2026-07/`
-- recall CLI: installed 0.1.0 is stale vs source AND PyPI name is squatted (ticket 07)
+- NEVER edit eval harness scripts while a run is live
+- Background runs MUST use `setsid` (nohup alone dies with the launching kiro session — killed the first t12 run at 11/35)
+- `~/.kiro/steering/` has UNMANAGED user drift: `references/environment-gotchas.md` (another live session maintains it) and the Environment Gotchas section in deployed project-conventions.md (clobbered by redeploy — section pointer cosmetic since steering refs eager-load anyway). Never add a reference prune loop to init.sh without a symlink/allowlist escape.
+- `archwright-conventions.md` in global steering is a SYMLINK to ~/code/archwright/steering/ (symlinks are prune-safe)
+- pgrep -f self-match gotcha: `pkill -f "proofs/harness"` killed my own shell
 
 ## Current State
-Ticket 01 done (commit e0fde71). A parallel eval-improvements arc landed threshold calibration (6ee2d28) and a rerun ticket that collided with ticket 01's ID — renamed to `12-rerun-eval-suite.md` and given `blocked_by: ["05", "11"]` (running with 6 broken defs + uncontained workdir leak would waste 5-6h). Ticket 05 is 1/7 done (context-neutrality already retired). Frontier: 02, 04, 05, 06, 07, 08, 10, 11.
+**Ticket 09 baseline run LIVE: PID 1757091, log /tmp/baseline-t09.log, started 10:41 UTC at commit 24d9691.** Phase 1 = judged suite (35 defs, ~9-10h at 6-67 min/eval), phase 2 = activation suite (--all). Terminal line: "BASELINE RUN COMPLETE".
+
+Done this arc: 12 (rerun: 25/35 pass, 71.4%, 0 regressions — docs/eval-results-2026-07-17.md), 03 (7 skills ≤100 lines, evals re-passed), 04 (steering 812→387 lines, activation eval 0.90), 06 (doctor tier-reconciliation/recall-staleness/frontmatter; catalog tags + --tier), 07 (recall 0.2.0 from source, docs unsquatted, spike findings promoted), 08 (okf-bundle + prime hook deleted, inspect-session exec bit, run.sh null-adapter skips, untracked files resolved), 10 (skill_usage.py + usage report — activation IS detectable, spike PASS).
 
 ## Next Steps
-1. Ticket 05: fix 6 remaining flagged eval defs (mechanical: embed fixtures for architecture-deepening-rubber-stamp/agents-md-authoring/context-budget; judgment: handoff-improves-continuity merge-vs-differentiate, spec-validator description-vs-conditions, verification-protocol task headroom)
-2. Ticket 11: contain eval workdir leak (hypothesis: judge or fixture-less sessions)
-3. Ticket 12: kick off full rerun in background (nohup pattern) once 05+11 land
-4. Foreground while 12 runs: ticket 02 (contradictions — the troubleshooting-protocol merge/re-scope is the judgment call), then 03
-5. Parallel-friendly: 04, 06, 07, 08, 10; 09 last (consider merging 12 into 09 if 01-04 all land first)
+1. When baseline run completes: summarize pass/fail, per-eval deltas vs the t12 merged results (batch A 2026-07-16T21-11-16Z + batch B per-def dirs 2026-07-17T00*..09*) AND vs 2026-07-15T12-56-23Z where comparable; triage failures (regression vs known gap); record baseline in docs/development/ with date + commit; mark ticket 09 done.
+2. Follow-up candidates (from t12 + t10 findings, new tickets if pursued): architecture-deepening rework (1.00 score, 0% activation); feedback-loop skill pair (both evals fail post-merge); recall-check steering compliance (21%); planning-cycles overlap review (1 field activation/30d).
 
 ## Fog
-- Whether troubleshooting-protocol should merge into feedback-loop-debugging or re-scope (ticket 02 decision point — R1 batch2 leans merge, batch2 noted a conflicting-protocols hazard either way)
-- Whether skill activation is detectable from session transcripts at all (ticket 10 spike)
-- What actually leaked cwd in the eval harness (ticket 11 hypothesis: judge or fixture-less sessions)
+- None blocking. Known gaps are catalogued as follow-up candidates above.
 
 ## Evidence
-- Review findings: `.memory/review-2026-07/` (skill-verdicts, eval-verdicts, tooling-audit, batch1-8)
-- Overnight eval run scores: `/tmp/full-eval-run.log` (102/105, 32✅/70❌ pre-cleanup) + `tools/evals/results/2026-07-15T12-56-23Z/`
-- Commits this arc: e34b30f (deploy fix) → 0f6dcc3 (review done) → 45fc048 (tickets) → e0fde71 (ticket 01)
-- Dead scratch (cleanup candidates): `.scratch/r2-r3-audit.md`, `.scratch/r7-spec-statuses.md`, `.scratch/skill-review/`, `.scratch/eval-review/`, `.scratch/tooling-audit/` (all promoted or done)
+- Rerun analysis: docs/eval-results-2026-07-17.md
+- Usage report: docs/development/session-skill-usage-2026-07-17.md
+- Commits this session: 5d4fff5 → b37724f (t03+t12) → 2d4c164 (t04) → cd78f2c+57e8378 (t06) → 1af6756 (t07) → 24d9691 (t08) → e80a2e8 (t10)
+- Known failures triage (for t09 comparison): genuine skill gaps = architecture-deepening-rubber-stamp, feedback-loop pair, type-error-diagnosis, prototype-branch-picking; cross-model = grill-question-dithering-codex, code-review-security, cross-tool-planning-with-skills; small-model capability = code-edit (near-miss 3.44), instruction-following
