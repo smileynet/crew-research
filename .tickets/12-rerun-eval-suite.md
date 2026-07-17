@@ -1,7 +1,7 @@
 ---
 id: "12"
 title: "Re-run full eval suite after threshold calibration"
-status: open
+status: done
 blocked_by: ["05", "11"]
 spec: "eval-improvements-2026-07-16"
 ---

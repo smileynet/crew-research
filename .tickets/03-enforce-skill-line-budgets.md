@@ -1,7 +1,7 @@
 ---
 id: "03"
 title: "Over-budget skills fit the 100-line limit via progressive loading"
-status: open
+status: done
 blocked_by: ["02"]
 spec: "project-review-followup"
 ---

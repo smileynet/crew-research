@@ -177,7 +177,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 |--------|-------|------------|
 | 01 | Broken skill content repaired (P0 + one-liners) | ✅ done (e0fde71) |
 | 02 | Cross-skill contradictions resolved | ✅ done (5cd6bb5 — troubleshooting-protocol merged into feedback-loop-debugging) |
-| 03 | Over-budget skills fit 100-line limit | 🟡 trims done (c54b412) — awaiting grill+sdd eval scores from ticket-12 resume run |
+| 03 | Over-budget skills fit 100-line limit | ✅ done (c54b412 — all 7 ≤100; grill+sdd evals re-passed post-trim) |
 | 04 | Always-on steering slimmed 812→~450 lines | — |
 | 05 | 7 flagged eval definitions run as designed | ✅ done (815fbe2 + validation runs: 4✅/1❌, the ❌ is genuine skill signal) |
 | 06 | doctor.sh + catalog.sh report current reality | — |
@@ -186,7 +186,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 09 | Clean post-review eval baseline | 03, 04 (01/02/05/11 done) |
 | 10 | Session logs reveal actual skill/tool usage | — |
 | 11 | Eval sessions cannot write outside their workdir | ✅ done (2b699cc — run-model-comparison.sh was the leaker, not run.sh) |
-| 12 | Re-run full suite to validate threshold calibration | 🟡 in progress — first run died at 11/35 (session-group kill, 00:09); remaining 24 resumed via setsid (PID 723808, /tmp/resume-t12.log); merge with partial results in results/2026-07-16T21-11-16Z |
+| 12 | Re-run full suite to validate threshold calibration | ✅ done — 25/35 pass (71.4%, target ≥30%), 0 regressions, 0 infra failures; notes in docs/eval-results-2026-07-17.md |
 
 **Frontier (2026-07-16 19:20):** 02, 04, 05, 06, 07, 08, 10, 11. Ticket 12 (was numbered 01, renamed to fix ID collision; spec eval-improvements-2026-07-16) gained blockers 05+11 — running the suite with 6 known-broken definitions and an uncontained workdir leak would waste a 5-6h run. If 01-04 land before 12 runs, consider merging 12 into 09 (one clean run satisfies both).
 
