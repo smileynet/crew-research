@@ -110,6 +110,7 @@ if [[ "$GLOBAL" == true ]]; then
       -e 's|{{params.durable_path}}|.memory|g' \
       -e 's|{{params.scripts_path}}|tools|g' \
       -e 's|{{params.mise_file}}|mise.toml|g' \
+      -e 's|{{params.crosslink_lint}}|tools/lint/check-crosslinks.sh|g' \
       -e 's|{{params.output_path}}|.scratch/research|g' "$src")
     if [[ -f "$real_dest" ]] && printf '%s\n' "$content" | diff -q - "$real_dest" &>/dev/null; then
       unchanged=$((unchanged + 1))
@@ -138,6 +139,7 @@ if [[ "$GLOBAL" == true ]]; then
       -e 's|{{params.durable_path}}|.memory|g' \
       -e 's|{{params.scripts_path}}|tools|g' \
       -e 's|{{params.mise_file}}|mise.toml|g' \
+      -e 's|{{params.crosslink_lint}}|tools/lint/check-crosslinks.sh|g' \
       -e 's|{{params.output_path}}|.scratch/research|g')
     if [[ -f "$real_dest" ]] && printf '%s\n' "$content" | diff -q - "$real_dest" &>/dev/null; then
       unchanged=$((unchanged + 1))
@@ -238,6 +240,9 @@ if [[ "$GLOBAL" == true ]]; then
       echo "  pruned: prompts/ (migrated to skills)"
     fi
 
+    # --- Record deployed tier (doctor.sh reads this for reconciliation) ---
+    echo "$TIER" > "$DEST/.crew-tier"
+
     # --- Deploy permissions.yaml (v3 forward-compatible) ---
     local perms_src="$ROOT_DIR/atomics/eager-context/permissions.yaml"
     if [[ -f "$perms_src" ]]; then
@@ -320,6 +325,7 @@ if [[ "$GLOBAL" == true ]]; then
           -e 's|{{params.durable_path}}|.memory|g' \
           -e 's|{{params.scripts_path}}|tools|g' \
           -e 's|{{params.mise_file}}|mise.toml|g' \
+      -e 's|{{params.crosslink_lint}}|tools/lint/check-crosslinks.sh|g' \
           -e 's|{{params.output_path}}|.scratch/research|g')
         agents_content+=$'\n'"$body"$'\n'
       fi

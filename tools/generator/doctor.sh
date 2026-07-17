@@ -1,11 +1,22 @@
 #!/bin/bash
 # tools/generator/doctor.sh — Health check for crew-research deployment
-# Usage: ./doctor.sh [--project <path>]
+# Usage: ./doctor.sh [--project <path>] [--tier basic|full]
 set -euo pipefail
 
-PROJECT="${1:-}"
-[[ "$PROJECT" == "--project" ]] && PROJECT="${2:-.}"
-[[ -z "$PROJECT" ]] && PROJECT="."
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+TIERS_DIR="$ROOT_DIR/compositions/tiers"
+SKILLS_DIR="$ROOT_DIR/atomics/skills"
+
+PROJECT="."
+TIER=""
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --project) PROJECT="${2:-.}"; shift 2 ;;
+    --tier) TIER="${2:-}"; shift 2 ;;
+    *) PROJECT="$1"; shift ;;
+  esac
+done
 PROJECT=$(cd "$PROJECT" && pwd)
 
 echo "Doctor: $PROJECT"
@@ -47,6 +58,85 @@ else
   errors=$((errors + 1))
 fi
 
+# --- Tier manifest reconciliation ---
+# Which tier? --tier flag > deployment marker > best guess by skill count.
+if [[ -z "$TIER" ]]; then
+  if [[ -f ~/.kiro/.crew-tier ]]; then
+    TIER=$(cat ~/.kiro/.crew-tier)
+  else
+    basic_n=$(yq -r '.skills | length' "$TIERS_DIR/basic.yaml" 2>/dev/null || echo 0)
+    [[ $skill_count -gt $basic_n ]] && TIER="full" || TIER="basic"
+  fi
+fi
+
+if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
+  echo ""
+  echo "Tier reconciliation ($TIER):"
+  missing_steering=()
+  missing_skills=()
+
+  # Manifest steering must exist as deployed files (skip skills scoped away from kiro-cli)
+  while IFS= read -r s; do
+    [[ -z "$s" || "$s" == "null" ]] && continue
+    tools_scope=$(yq -r '.metadata.tools // [] | join(",")' <(sed -n '/^---$/,/^---$/p' "$SKILLS_DIR/$s/SKILL.md" 2>/dev/null) 2>/dev/null || echo "")
+    [[ -n "$tools_scope" && ! "$tools_scope" =~ kiro-cli ]] && continue
+    [[ -f ~/.kiro/steering/"$s".md ]] || missing_steering+=("$s")
+  done < <(yq -r '.steering[]' "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
+
+  while IFS= read -r s; do
+    [[ -z "$s" || "$s" == "null" ]] && continue
+    [[ -f ~/.kiro/skills/"$s"/SKILL.md ]] || missing_skills+=("$s")
+  done < <(yq -r '.skills[]' "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
+
+  # Extensions: if the prerequisite passes, its steering/skills must be deployed
+  ext_count=$(yq -r '.extensions | length' "$TIERS_DIR/$TIER.yaml" 2>/dev/null || echo 0)
+  for ((i=0; i<ext_count; i++)); do
+    ext_name=$(yq -r ".extensions[$i].name" "$TIERS_DIR/$TIER.yaml")
+    prereq=$(yq -r ".extensions[$i].prerequisite.command" "$TIERS_DIR/$TIER.yaml")
+    if eval "$prereq" &>/dev/null; then
+      while IFS= read -r s; do
+        [[ -z "$s" || "$s" == "null" ]] && continue
+        [[ -f ~/.kiro/steering/"$s".md ]] || missing_steering+=("$s (ext:$ext_name)")
+      done < <(yq -r ".extensions[$i].steering[]" "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
+      while IFS= read -r s; do
+        [[ -z "$s" || "$s" == "null" ]] && continue
+        [[ -f ~/.kiro/skills/"$s"/SKILL.md ]] || missing_skills+=("$s (ext:$ext_name)")
+      done < <(yq -r ".extensions[$i].skills[]" "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
+    else
+      echo "  ⚠️  extension '$ext_name' prerequisite not met ($prereq) — its files not expected"
+    fi
+  done
+
+  if [[ ${#missing_steering[@]} -eq 0 && ${#missing_skills[@]} -eq 0 ]]; then
+    echo "  ✅ all $TIER-tier steering + skills deployed"
+  else
+    for m in "${missing_steering[@]}"; do echo "  ❌ steering missing: $m"; errors=$((errors + 1)); done
+    for m in "${missing_skills[@]}"; do echo "  ❌ skill missing: $m"; errors=$((errors + 1)); done
+    echo "     fix: mise run init -- --global --tier $TIER"
+  fi
+fi
+
+# --- Source frontmatter validation (catches skills shipped without frontmatter) ---
+echo ""
+echo "Skill frontmatter (source):"
+fm_bad=0
+for skill_md in "$SKILLS_DIR"/*/SKILL.md; do
+  [[ -f "$skill_md" ]] || continue
+  if [[ "$(head -1 "$skill_md")" != "---" ]]; then
+    echo "  ❌ no frontmatter: ${skill_md#$ROOT_DIR/}"
+    fm_bad=$((fm_bad + 1)); errors=$((errors + 1))
+    continue
+  fi
+  fm=$(sed -n '/^---$/,/^---$/p' "$skill_md")
+  for field in name description; do
+    if ! grep -q "^$field:" <<< "$fm"; then
+      echo "  ❌ missing '$field': ${skill_md#$ROOT_DIR/}"
+      fm_bad=$((fm_bad + 1)); errors=$((errors + 1))
+    fi
+  done
+done
+[[ $fm_bad -eq 0 ]] && echo "  ✅ all source skills have frontmatter (name + description)"
+
 # Check for unresolved params in global
 if grep -r '{{params' ~/.kiro/skills/ 2>/dev/null | grep -q .; then
   echo "  ⚠️  Unresolved {{params}} in global files (re-run global deploy)"
@@ -57,6 +147,7 @@ fi
 if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx codex; then
   echo ""
   echo "Global (codex):"
+  check_tool codex
   codex_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
   codex_agents_md="${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
   if [[ $codex_skills -gt 0 && -f "$codex_agents_md" ]]; then
@@ -71,6 +162,7 @@ fi
 if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then
   echo ""
   echo "Global (agy):"
+  check_tool agy
   agy_desktop_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
   agy_cli_skills=$(find ~/.gemini/antigravity-cli/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
   if [[ $agy_desktop_skills -gt 0 && -f "$HOME/.gemini/AGENTS.md" ]]; then
@@ -114,18 +206,39 @@ else
   warnings=$((warnings + 1))
 fi
 
-# Check recall import status
-if command -v recall &>/dev/null && [[ -d "$PROJECT/.memory" ]]; then
-  mem_files=$(find "$PROJECT/.memory" -name "*.md" | wc -l)
-  if [[ $mem_files -gt 0 ]]; then
-    imported=$(recall status 2>/dev/null | grep -c "import:" || true)
-    wing_name=$(basename "$PROJECT" | tr '-' '_')
-    wing_count=$(recall status 2>/dev/null | grep "$wing_name" | grep -oP '\(\K[0-9]+' || echo "0")
-    if [[ ${wing_count:-0} -gt 0 ]]; then
-      echo "  ✅ recall: $wing_name wing has ${wing_count} chunks"
-    else
-      echo "  ⚠️  recall: .memory/ has $mem_files files but not imported (run: recall import .memory/ --wing $wing_name)"
+# Check recall import status + ingest freshness
+if command -v recall &>/dev/null; then
+  # Ingest staleness: recall-session-start steering depends on <24h-old ingest
+  if [[ -f ~/.recall/last_ingest ]]; then
+    now=$(date +%s)
+    ingest_mtime=$(stat -c %Y ~/.recall/last_ingest 2>/dev/null || stat -f %m ~/.recall/last_ingest 2>/dev/null || echo 0)
+    age_h=$(( (now - ingest_mtime) / 3600 ))
+    if [[ $age_h -gt 24 ]]; then
+      echo "  ⚠️  recall ingest stale (${age_h}h old — run: recall ingest ~/.kiro/sessions/cli)"
       warnings=$((warnings + 1))
+    else
+      echo "  ✅ recall ingest fresh (${age_h}h old)"
+    fi
+  else
+    echo "  ⚠️  recall never ingested (~/.recall/last_ingest missing — run: recall ingest ~/.kiro/sessions/cli)"
+    warnings=$((warnings + 1))
+  fi
+  if ! crontab -l 2>/dev/null | grep -q "recall ingest"; then
+    echo "  ⚠️  no cron entry for recall ingest (memory goes stale without it)"
+    warnings=$((warnings + 1))
+  fi
+
+  if [[ -d "$PROJECT/.memory" ]]; then
+    mem_files=$(find "$PROJECT/.memory" -name "*.md" | wc -l)
+    if [[ $mem_files -gt 0 ]]; then
+      wing_name=$(basename "$PROJECT" | tr '-' '_')
+      wing_count=$(recall status 2>/dev/null | grep "$wing_name" | sed -n 's/.*(\([0-9][0-9]*\)).*/\1/p' | head -1)
+      if [[ ${wing_count:-0} -gt 0 ]]; then
+        echo "  ✅ recall: $wing_name wing has ${wing_count} chunks"
+      else
+        echo "  ⚠️  recall: .memory/ has $mem_files files but not imported (run: recall import .memory/ --wing $wing_name)"
+        warnings=$((warnings + 1))
+      fi
     fi
   fi
 fi

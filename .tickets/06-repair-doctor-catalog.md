@@ -1,7 +1,7 @@
 ---
 id: "06"
 title: "doctor.sh and catalog.sh report current reality"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---
