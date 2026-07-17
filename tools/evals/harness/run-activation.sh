@@ -122,6 +122,17 @@ echo "True Positive Rate (recall): $TPR"
 echo "False Positive Rate: $FPR"
 echo "Accuracy: $ACCURACY"
 
+# Explicit verdict: unforced activation baseline is ~40-50% (see glossary),
+# so gate at TPR >= 0.5 with FPR <= 0.2. Overridable via env.
+TPR_GATE="${ACTIVATION_TPR_GATE:-0.5}"
+FPR_GATE="${ACTIVATION_FPR_GATE:-0.2}"
+if (( $(echo "$TPR >= $TPR_GATE" | bc -l) )) && (( $(echo "$FPR <= $FPR_GATE" | bc -l) )); then
+  VERDICT="PASS"
+else
+  VERDICT="FAIL"
+fi
+echo "Verdict: $VERDICT (gates: TPR >= $TPR_GATE, FPR <= $FPR_GATE)"
+
 cat > "$RUN_DIR/summary.json" << EOF
 {
   "timestamp": "$TIMESTAMP",
@@ -130,7 +141,9 @@ cat > "$RUN_DIR/summary.json" << EOF
   "tp": $TP, "fp": $FP, "tn": $TN, "fn": $FN,
   "true_positive_rate": $TPR,
   "false_positive_rate": $FPR,
-  "accuracy": $ACCURACY
+  "accuracy": $ACCURACY,
+  "verdict": "$VERDICT",
+  "gates": {"tpr_min": $TPR_GATE, "fpr_max": $FPR_GATE}
 }
 EOF
 

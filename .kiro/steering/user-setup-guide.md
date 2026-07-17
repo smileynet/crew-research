@@ -43,6 +43,16 @@ Teach the user these workflows:
 - **Ending a session**: `/handoff`
 - **Periodic cleanup**: `/workspace-cleanup`
 
+### Personal Global Steering (symlink convention)
+
+Files added directly to `~/.kiro/steering/` that aren't in the deployed tier get **PRUNED on the next deploy**. To add personal always-on steering that survives redeploys, symlink it — init.sh's prune preserves symlinks:
+
+```bash
+ln -s ~/my-notes/my-conventions.md ~/.kiro/steering/my-conventions.md
+```
+
+`mise run doctor` warns about unmanaged regular files at risk.
+
 ### Customizing Global Skills
 
 If a global skill needs project-specific knowledge (domain questions, source priorities, cross-reference targets), use a **steering pointer** instead of forking the skill:

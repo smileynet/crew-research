@@ -8,7 +8,8 @@
 .mise.local.toml
 
 # Ephemeral workspace
-.scratch/
+.scratch/*
+!.scratch/HANDOFF.md
 
 # Credentials
 *.pem

@@ -114,6 +114,19 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
     for m in "${missing_skills[@]}"; do echo "  ❌ skill missing: $m"; errors=$((errors + 1)); done
     echo "     fix: mise run init -- --global --tier $TIER"
   fi
+
+  # Unmanaged drift: regular files in ~/.kiro/steering not owned by the tier.
+  # init.sh's prune deletes these on the next deploy — symlinks survive.
+  expected_steering=$( { yq -r '.steering[]' "$TIERS_DIR/$TIER.yaml"; yq -r '.extensions[].steering[]' "$TIERS_DIR/$TIER.yaml" 2>/dev/null; } 2>/dev/null | grep -v '^null$')
+  for f in ~/.kiro/steering/*.md; do
+    [[ -f "$f" ]] || continue
+    [[ -L "$f" ]] && continue
+    base=$(basename "$f" .md)
+    if ! grep -qx "$base" <<< "$expected_steering"; then
+      echo "  ⚠️  unmanaged steering file: $(basename "$f") — next deploy will PRUNE it; convert to a symlink to survive (ln -sf <source> ~/.kiro/steering/$(basename "$f"))"
+      warnings=$((warnings + 1))
+    fi
+  done
 fi
 
 # --- Source frontmatter validation (catches skills shipped without frontmatter) ---

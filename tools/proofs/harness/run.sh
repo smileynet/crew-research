@@ -24,6 +24,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Require explicit scope — a bare invocation must never start a full run
+# (incident 2026-07-17: a no-arg "smoke test" kicked off a real proof suite)
+if [[ -z "$DEFINITION" && "$RUN_ALL" != "true" ]]; then
+  echo "Usage: ./run.sh [--adapter kiro-cli] --definition <name> | --all" >&2
+  exit 2
+fi
+
 # Load adapter
 ADAPTER_FILE="$ADAPTERS_DIR/$ADAPTER.yaml"
 if [[ ! -f "$ADAPTER_FILE" ]]; then

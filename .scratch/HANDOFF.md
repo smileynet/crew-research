@@ -27,8 +27,8 @@ Work status: `docs/plan.md` ticket table (all current). **Ticket 09 baseline run
 ## Next Steps
 1. When run completes: tally judged pass/fail + activation TPR/FPR; compare per-eval vs t12 merged results (batch A `results/2026-07-16T21-11-16Z/` + batch B per-def dirs `2026-07-17T00*..09*`) and vs `2026-07-15T12-56-23Z` where names overlap (only 12 defs overlap — suite was renamed/retired)
 2. Triage each failure: regression vs known gap, using the classification in Evidence below
-3. Write baseline record to `docs/development/` with date + commit 24d9691; mark ticket 09 done in `.tickets/` + plan.md; commit
-4. Follow-up candidates (new tickets if pursued): architecture-deepening rework (1.00 score, 0/6 activation); feedback-loop pair (both evals fail post-merge); recall-check steering compliance (21% field rate); planning-cycles overlap review (1 activation/30d vs sdd 6 + grill 6)
+3. Write baseline record to `docs/development/` with date + commit 24d9691 — **fold in `.scratch/t09-report-recommendations.md`** (5 judgment items from session review); mark ticket 09 done in `.tickets/` + plan.md; commit
+4. New tickets 13-16 exist (session improvements): architecture-deepening rework, feedback-loop pair, harness resume, steering-refs loading — the unblocked frontier after 09 closes
 
 ## Fog
 - None blocking. Open question parked: should the generator inline-trim steering references (they defeat progressive loading — batch5 cross-cutting finding #1)? No ticket exists.

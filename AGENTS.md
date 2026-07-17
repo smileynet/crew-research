@@ -49,6 +49,7 @@ mise run eval:one -- <definition>    # single eval
 mise run eval:activation             # skill activation tests
 mise run eval:qualitative -- <name>  # keyword-based experiment
 mise run session:parse               # parse session transcripts
+mise run session:skills              # skill activation + steering compliance report
 ```
 
 ## Skill Authoring Rules

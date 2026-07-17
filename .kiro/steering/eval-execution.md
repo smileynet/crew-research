@@ -7,9 +7,11 @@ When running evals (`mise run eval`, `mise run eval:one`, or the harness directl
 Evals take 5-15 minutes each. A full suite (100+) takes hours. Never run inline.
 
 ```bash
-nohup bash tools/evals/harness/run.sh [args] > /tmp/full-eval-run.log 2>&1 &
+setsid nohup bash tools/evals/harness/run.sh [args] > /tmp/full-eval-run.log 2>&1 < /dev/null &
 echo "PID: $!"
 ```
+
+**`setsid` is mandatory, not optional** — plain nohup dies when the launching kiro session ends (the sandbox kills the process group; incident: 2026-07-17 t12 run killed at 11/35).
 
 ## Observe with sleep cycles
 
@@ -24,9 +26,9 @@ tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 
 ## Estimate completion
 
-- Each eval ≈ 8 min (6 sessions: 3 trials × 2 conditions)
-- Full suite (105 evals) ≈ 5-6 hours
-- Single eval ≈ 8 min
+- Each judged eval ≈ 6-67 min, median ~17 min (12 sessions: 3 trials × 2 conditions × 2 tasks, plus 4-model consensus judging)
+- Full judged suite (35 evals) ≈ 8-10 hours
+- Single activation def (10 tasks) ≈ 12 min
 
 ## Hard Rules (incidents behind each)
 
