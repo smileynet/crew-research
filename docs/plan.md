@@ -181,7 +181,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 04 | Always-on steering slimmed 812→~450 lines | ✅ done — batch-5 total 387 lines; tool-installation demoted to project level; OS refs gated in init.sh; activation eval 0.90 accuracy |
 | 05 | 7 flagged eval definitions run as designed | ✅ done (815fbe2 + validation runs: 4✅/1❌, the ❌ is genuine skill signal) |
 | 06 | doctor.sh + catalog.sh report current reality | ✅ done (cd78f2c — tier reconciliation, recall staleness/cron, frontmatter lint, portable grep; catalog tags + --tier) |
-| 07 | Installed recall CLI matches source and docs | — |
+| 07 | Installed recall CLI matches source and docs | ✅ done — 0.2.0 reinstalled from source; import round-trip verified; all install docs point at ./tools/recall; spike findings promoted |
 | 08 | Dead/broken tooling pruned or repaired | — |
 | 09 | Clean post-review eval baseline | 03, 04 (01/02/05/11 done) |
 | 10 | Session logs reveal actual skill/tool usage | — |

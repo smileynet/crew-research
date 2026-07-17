@@ -65,7 +65,7 @@ Extensions add capabilities with external tool dependencies. They auto-deploy wh
 
 ```bash
 # Install cross-session memory (the prerequisite)
-uv tool install recall
+uv tool install ./tools/recall   # from a crew-research clone — PyPI "recall" is an unrelated squatted package
 
 # Deploy tier — recall extension activates automatically
 mise run init -- --global --tier basic --tool kiro-cli

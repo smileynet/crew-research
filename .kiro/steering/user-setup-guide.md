@@ -58,7 +58,7 @@ This costs ~50 characters of always-loaded context vs thousands for a full skill
 Extensions add capabilities that require external tools. They deploy automatically when prerequisites are met during tier deploy.
 
 ```bash
-uv tool install recall                    # install prerequisite
+uv tool install ./tools/recall            # install from a crew-research clone
 mise run init -- --global --tier basic    # recall auto-activates
 mise run init -- --skip-extension recall  # opt out if desired
 ```
@@ -71,7 +71,7 @@ mise run init -- --skip-extension recall  # opt out if desired
 
 **Install recall prerequisite:**
 ```bash
-uv tool install recall   # from PyPI, or from local crew-research clone
+uv tool install ./tools/recall   # from a crew-research clone (PyPI "recall" is a squatted unrelated package)
 ```
 
 ## Troubleshooting

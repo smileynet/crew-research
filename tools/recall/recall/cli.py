@@ -348,7 +348,7 @@ def cmd_status(args):
 
 def main():
     parser = argparse.ArgumentParser(prog="recall", description="Cross-session semantic memory for AI agents")
-    parser.add_argument("--version", action="version", version="recall 0.1.0")
+    parser.add_argument("--version", action="version", version="recall 0.2.0")
     sub = parser.add_subparsers(dest="command")
 
     # search

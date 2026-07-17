@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-uv tool install recall                        # from PyPI or local source
+uv tool install ./tools/recall                # from a crew-research clone (PyPI "recall" is squatted — never install from PyPI)
 ```
 
 **Windows (Application Control blocks .exe):** Create `recall.cmd` on PATH:

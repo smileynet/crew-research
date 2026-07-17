@@ -104,7 +104,7 @@ mise run add-skill -- <name>
 |-----------|----------|-------------|
 | `recall` | `recall search "query"`, `recall add "fact" --type decision`, `recall import .memory/ --wing name` | Cross-session memory — past decisions, prior work, project knowledge. Auto-primes at session start. |
 
-Prerequisites: `uv tool install recall`. Then re-run tier deploy — recall activates automatically.
+Prerequisites: `uv tool install ./tools/recall` (from a crew-research clone — the PyPI "recall" name is a squatted unrelated package). Then re-run tier deploy — recall activates automatically.
 
 ### Recall quick reference
 

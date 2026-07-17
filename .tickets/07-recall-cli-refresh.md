@@ -1,7 +1,7 @@
 ---
 id: "07"
 title: "Installed recall CLI matches repo source and docs"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---
