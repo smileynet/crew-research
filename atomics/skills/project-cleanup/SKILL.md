@@ -10,6 +10,7 @@ metadata:
     durable_path: ".memory"
     scripts_path: "tools"
     mise_file: "mise.toml"
+    crosslink_lint: "tools/lint/check-crosslinks.sh"
 ---
 
 # Project Cleanup
@@ -30,14 +31,7 @@ Decision criteria for promotion:
 
 ## Phase 2: Process Decisions → ADR
 
-Check for decisions files (`decisions.md`, `DECISIONS.md`, `.memory/decisions.md`, `docs/decisions.md`):
-
-1. **Read** each decisions file
-2. **Evaluate** each decision for ADR fitness:
-   - Hard to reverse? Surprising without context? Real trade-off? → write ADR
-   - Lightweight/easily reversed? → leave in place or delete if captured elsewhere
-3. **Extract terms** — scan for domain terminology, add to `.memory/CONTEXT.md`
-4. **Clean up** — remove decisions files once all entries are processed
+Check for decisions files (`decisions.md`, `DECISIONS.md`, `.memory/decisions.md`, `docs/decisions.md`). Process each per [init-project](../init-project/SKILL.md)'s decision-processing procedure: ADR-worthy entries (hard to reverse, surprising, real trade-off) → write ADR; extract domain terms → `.memory/CONTEXT.md`; remove the decisions file once all entries are processed.
 
 ## Phase 3: Consolidate Memory
 
@@ -51,9 +45,7 @@ Check: is every entry in CONTEXT.md still accurate? Remove stale definitions.
 
 ## Phase 4: References Directory
 
-- If `resources/` or `references/` exists and is gitignored → rename to `.references/`, update `.gitignore`
-- Ensure `.references/` is in `.gitignore`
-- Verify reference repos are documented in AGENTS.md
+Verify reference-repo layout per [init-project](../init-project/SKILL.md)'s detection procedure: gitignored `references/` or `resources/` → rename to `.references/`; ensure `.references/` is gitignored and documented in AGENTS.md.
 
 ## Phase 5: Organize Scripts
 
@@ -75,23 +67,15 @@ Review `{{params.mise_file}}` (or Makefile/justfile):
 For each eager-context file and skill:
 - **Accuracy** — do file paths and commands referenced still exist?
 - **Freshness** — does the content reflect current project state?
-- **Cross-links** — run `tools/lint/check-crosslinks.sh`
+- **Cross-links** — run `{{params.crosslink_lint}}` if it exists
 - **Params** — do declared params have sensible defaults?
 
 Flag any skill that references files/tools that no longer exist.
 
 ## Phase 8: README & AGENTS.md Currency
 
-**README.md** (user-facing entry point):
-- Does it reflect what the project IS and HOW to use it?
-- Focus on user concerns: what it does, quick start, how to get value
-- No internal architecture or agent-only details
-
-**AGENTS.md** (agent-facing entry point):
-- Does it reflect current project structure and conventions?
-- Aware of BOTH user docs (docs/) and agent docs (.memory/, .kiro/)
-- Contains: project layout, commands, configs, tool references
-- Navigation map: where to look for what kind of information
+- **README.md** (user-facing): reflects what the project IS and HOW to use it — what it does, quick start, how to get value. No internal architecture or agent-only details.
+- **AGENTS.md** (agent-facing): reflects current structure and conventions — project layout, commands, configs, tool references, and a navigation map covering BOTH user docs (docs/) and agent docs (.memory/, .kiro/).
 
 ## Phase 9: Dependency & Config Hygiene
 

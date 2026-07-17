@@ -9,7 +9,6 @@ description: Structure work through phased planning — brainstorm, validate, sc
 
 # Planning Cycles
 
-
 Separate divergent thinking from convergent thinking. Validate before committing.
 
 ## Trigger Conditions
@@ -32,37 +31,26 @@ Before any phase: name what "done" looks like in one sentence. This fixes scope.
 - If you can't state the destination, you need `/grill-with-docs` first, not planning
 
 ### Phase 0: Specify
-- Describe the desired experience in the USER'S language (not implementation language)
-- Format: "When [user does X], they [see/get Y]"
-- 3-7 statements that define success from outside the system
+- **Mandatory for new features.** Your first output MUST be specify statements. If your instinct is to discuss architecture, STOP — write "When [user]..." statements first. No technical content before Phase 0 completes.
+- Describe the desired experience in the USER'S language: "When [user does X], they [see/get Y]" — 3-7 statements defining success from outside the system
 - **Output:** specify document (user-facing acceptance criteria)
 - **Gate:** user must approve before Phase 1 begins
 - **Skip when:** user already provided clear acceptance criteria
 
-**Phase 0 is mandatory for new features.** Your first output MUST be specify statements. If your instinct is to discuss architecture, STOP — write "When [user]..." statements first. Do NOT produce technical content before Phase 0 is complete.
-
 ### Phase 1: Brainstorm
-- Ask clarifying questions
-- Explore approaches in the codebase
-- Identify risks and unknowns
-- Recommend direction with rationale
+- Ask clarifying questions; explore approaches in the codebase; identify risks and unknowns; recommend a direction with rationale
 - **Output:** brainstorm document
 - **Skip when:** requirements already clear
 
 ### Phase 2: Sample
-- Walk through user experience (5 beats: first encounter, discovery, core workflow, edge cases, return)
-- Create interaction sketches
-- Flag UX problems before they become tasks
+- Walk through user experience (5 beats: first encounter, discovery, core workflow, edge cases, return); create interaction sketches; flag UX problems before they become tasks
 - **Output:** walkthrough document
 - **Skip when:** backend-only, UX already documented
 
 ### Phase 2b: Prototype (optional)
-- Build throwaway code to answer a specific design question
-- Route: logic question → TUI state explorer; visual question → multi-variant UI
-- See [prototype-protocol](../prototype-protocol/SKILL.md) for full workflow
+- Build throwaway code to answer a specific design question ("I'm not sure this state model works", "I need to see options"). Route: logic question → TUI state explorer; visual question → multi-variant UI. Full workflow: [prototype-protocol](../prototype-protocol/SKILL.md).
 - **Output:** answer to the question (captured in commit/ADR/notes), prototype deleted
-- **Use when:** "I'm not sure this state model works" or "I need to see options before committing"
-- **Skip when:** question can be answered by reasoning alone, or requirements are already validated
+- **Skip when:** question answerable by reasoning alone, or requirements already validated
 
 ### Phase 3: Scope
 - Structure work into hierarchy (epic → feature → task)
@@ -103,23 +91,10 @@ Before any phase: name what "done" looks like in one sentence. This fixes scope.
 
 ## References
 
-- For reasoning technique selection and sequencing, read [references/reasoning-modes.md](references/reasoning-modes.md)
-- For surfacing and tracking assumptions before building, read [references/assumptions.md](references/assumptions.md)
-- Source practice: `docs/practices/planning-cycles.md` (in best_practices repo)
-- Origin: line-cook/docs/cycles/mise-cycle.md
-- Related: [prototype-protocol](../prototype-protocol/SKILL.md) for Phase 2b
-- Related: [architecture-deepening](../architecture-deepening/SKILL.md) for refactoring plans
+- Reasoning technique selection: [references/reasoning-modes.md](references/reasoning-modes.md)
+- Assumption surfacing and tracking: [references/assumptions.md](references/assumptions.md)
+- Related: [prototype-protocol](../prototype-protocol/SKILL.md) (Phase 2b), [architecture-deepening](../architecture-deepening/SKILL.md) (refactoring plans)
 
 ## Spike vs Tracer Bullet vs Prototype
 
-Three tools for reducing uncertainty — pick based on what's unknown:
-
-| Tool | Answers | Code fate |
-|------|---------|-----------|
-| **Spike** | "Is this feasible?" | Thrown away |
-| **Prototype** | "Does this design feel right?" | Thrown away |
-| **Tracer bullet** | "Does this path work end-to-end?" | Kept (production) |
-
-**Quick decision**: Unknown feasibility → spike. Unknown design → prototype. Known what, unknown path → tracer bullet. Everything clear → just build it.
-
-See [references/spike-tracer-prototype.md](references/spike-tracer-prototype.md) for the full decision framework.
+Three uncertainty-reduction tools: unknown feasibility → **spike** (thrown away); unknown design → **prototype** (thrown away); known what, unknown path → **tracer bullet** (kept as production code). Everything clear → just build it. Full decision framework: [references/spike-tracer-prototype.md](references/spike-tracer-prototype.md).

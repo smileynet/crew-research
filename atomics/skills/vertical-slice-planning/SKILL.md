@@ -9,10 +9,6 @@ metadata:
 
 # Vertical Slice Planning
 
-## Step 1: Assess Uncertainty
-
-What's blocking progress?
-
 ## Route by Fog Density
 
 How much can you see toward the destination?
@@ -26,8 +22,6 @@ How much can you see toward the destination?
 If unsure: default to **tracer bullet** — it proves the path while producing kept code.
 
 **The fog clears as you resolve:** Each spike clears fog for a tracer bullet. Each tracer bullet clears fog for vertical slices. Don't skip levels — dense fog needs a spike, not a slice.
-
----
 
 ## Spike (reduce uncertainty)
 
@@ -47,8 +41,6 @@ FAILURE: [document why + alternative approach]
 ```
 
 **After spike:** Define a tracer bullet or slice with the new understanding.
-
----
 
 ## Tracer Bullet (prove architecture)
 
@@ -71,8 +63,6 @@ KEEP: Yes — this becomes the foundation
 
 **After tracer bullet:** Architecture is proven. Expand with vertical slices.
 
----
-
 ## Vertical Slice (deliver features)
 
 **Use when:** Architecture is proven and you need to fill in features incrementally.
@@ -88,8 +78,6 @@ SYSTEMS REQUIRED: [minimum subsystems that must work]
 
 Each slice adds exactly ONE new capability. If it breaks, you know what caused it.
 
----
-
 ## Anti-Patterns
 
 | Anti-Pattern | Fix |
@@ -101,14 +89,8 @@ Each slice adds exactly ONE new capability. If it breaks, you know what caused i
 
 ## Plan Hygiene
 
-### Two-Session Rule
-No measurable progress in 2 sessions → stop and try differently.
-
-### Session Output Rule
-Every session produces at least one of:
-- A new failing test (demonstrates a gap)
-- A previously-failing test now passing (demonstrates progress)
-- A plan rewrite (acknowledges reality changed)
+- **Two-session rule:** no measurable progress in 2 sessions → stop and try differently.
+- **Session output rule:** every session produces at least one of: a new failing test (demonstrates a gap), a previously-failing test now passing (demonstrates progress), or a plan rewrite (acknowledges reality changed).
 
 ## After Choosing Methodology
 

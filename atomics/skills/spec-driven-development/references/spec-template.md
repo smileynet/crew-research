@@ -46,3 +46,28 @@ How we prove it works:
 - Validation must be concrete and testable — no "it works correctly"
 - Unresolved Questions block progression to "Accepted" status
 - After implementation, reconcile: update spec to match reality if it diverged
+
+# PLAN.md Template
+
+The plan is a living map, not a static document. Update after each resolved decision; fog graduates to phases when it sharpens.
+
+```markdown
+## Destination
+<What "done" looks like — one sentence>
+
+## Phases
+| Phase | Goal | Features | Validates |
+|-------|------|----------|-----------|
+
+## Decisions so far
+- [Decision] — rationale (detail in spec or ADR if complex)
+
+## Task Graph
+feature-a → feature-b [P] feature-c → integration
+
+## Fog (not yet specified)
+- Decisions/features we know are coming but can't spec yet
+
+## Out of scope
+- What this project does NOT include
+```
