@@ -1,0 +1,268 @@
+question: "How do the latest Bedrock models from each family compare on common agentic coding tasks?"
+experiment: bedrock-model-family-comparison
+category: model-evaluation
+
+# One model per family — the best available on Bedrock today (Jul 2026)
+models:
+  - id: anthropic.claude-sonnet-5
+    family: Anthropic
+    label: "Claude Sonnet 5"
+    adapter: kiro-cli
+    notes: "Latest Sonnet (Jun 30 2026). Near-Opus quality, agentic focus."
+
+  - id: openai.gpt-5.5
+    family: OpenAI
+    label: "GPT-5.5"
+    adapter: codex
+    notes: "GA on Bedrock. GPT-5.6 in limited preview only."
+
+  - id: deepseek.v3.2
+    family: DeepSeek
+    label: "DeepSeek V3.2"
+    adapter: closecode
+    notes: "Best DeepSeek on Bedrock. V4 not available yet."
+
+  - id: zai.glm-5
+    family: "Z.ai (Zhipu)"
+    label: "GLM-5"
+    adapter: closecode
+    notes: "GLM-5.2 is latest but only GLM-5 on Bedrock."
+
+  - id: moonshot.kimi-k2-thinking
+    family: Moonshot
+    label: "Kimi K2 Thinking"
+    adapter: closecode
+    notes: "K2.7 Code is latest but only K2/K2.5 on Bedrock."
+
+  - id: qwen.qwen3-coder-480b-a35b-v1:0
+    family: Alibaba (Qwen)
+    label: "Qwen3 Coder 480B"
+    adapter: closecode
+    notes: "Largest Qwen coder on Bedrock. Qwen3.7-Max not available."
+
+  - id: mistral.devstral-2-123b
+    family: Mistral
+    label: "Devstral 2 123B"
+    adapter: closecode
+    notes: "Mistral's agentic coding model. Medium 3.5 not on Bedrock yet."
+
+  - id: xai.grok-4.3
+    family: xAI
+    label: "Grok 4.3"
+    adapter: closecode
+    notes: "Current Grok on Bedrock."
+
+  - id: meta.llama4-maverick-17b-instruct-v1:0
+    family: Meta
+    label: "Llama 4 Maverick"
+    adapter: closecode
+    notes: "Best Llama on Bedrock. Behemoth still training."
+
+  - id: minimax.minimax-m2.5
+    family: MiniMax
+    label: "MiniMax M2.5"
+    adapter: closecode
+    notes: "Current. 230B MoE / 10B active."
+
+# ─── Tasks ───────────────────────────────────────────────────────────────────
+# Designed to test different capabilities relevant to coding agents
+tasks:
+
+  # T1: Code comprehension — can it read and explain unfamiliar code?
+  - name: code-comprehension
+    category: understanding
+    input: |
+      Read this function and explain what it does, identify any bugs, and suggest improvements.
+
+      ```python
+      def merge_intervals(intervals):
+          if not intervals:
+              return []
+          intervals.sort(key=lambda x: x[0])
+          merged = [intervals[0]]
+          for current in intervals[1:]:
+              if current[0] <= merged[-1][1]:
+                  merged[-1][1] = max(merged[-1][1], current[1])
+              else:
+                  merged.append(current)
+          return merged
+      ```
+    criteria: |
+      Score 1: Cannot explain the function or gives wrong explanation.
+      Score 2: Correct explanation but misses the mutation bug (modifies input list elements).
+      Score 3: Correct explanation, identifies it merges overlapping intervals. Notes the sort.
+      Score 4: Explains algorithm, identifies the mutation issue (modifying original list's inner lists), suggests defensive copy.
+      Score 5: Full explanation, catches mutation bug, notes edge cases (single-element intervals, touching vs overlapping), suggests type hints and immutable approach.
+
+  # T2: Bug diagnosis — given a stack trace, locate and fix
+  - name: bug-diagnosis
+    category: debugging
+    input: |
+      This code throws: TypeError: Cannot read properties of undefined (reading 'map')
+
+      ```javascript
+      async function fetchUserPosts(userId) {
+        const response = await fetch(`/api/users/${userId}/posts`);
+        const data = await response.json();
+        return data.posts.map(post => ({
+          id: post.id,
+          title: post.title,
+          date: new Date(post.created_at).toLocaleDateString()
+        }));
+      }
+      ```
+
+      The API returns `{ posts: [...] }` on success but `{ error: "not found" }` when the user doesn't exist.
+    criteria: |
+      Score 1: Generic advice ("add error handling") without identifying the specific issue.
+      Score 2: Identifies data.posts could be undefined but fix is incomplete.
+      Score 3: Identifies the issue (API returns { error: ... } without posts field) and adds a null check.
+      Score 4: Checks response.ok first, handles the error response shape, provides defensive access to data.posts.
+      Score 5: Checks response.ok, handles error shape, adds optional chaining or explicit check, suggests a typed response interface, mentions the fetch API doesn't throw on 404.
+
+  # T3: Code generation — implement a spec from scratch
+  - name: code-generation
+    category: implementation
+    input: |
+      Implement a TypeScript function called `debounce` with this signature:
+
+      ```typescript
+      function debounce<T extends (...args: any[]) => any>(
+        fn: T,
+        ms: number,
+        options?: { leading?: boolean; maxWait?: number }
+      ): (...args: Parameters<T>) => void
+      ```
+
+      Requirements:
+      - Delays invocation until `ms` milliseconds after the last call
+      - If `leading: true`, invoke on the leading edge (first call) instead of trailing
+      - If `maxWait` is set, guarantee invocation at least every `maxWait` ms during rapid calls
+      - Return type should include a `.cancel()` method
+    criteria: |
+      Score 1: Incomplete or non-functional implementation.
+      Score 2: Basic debounce works (delay + clearTimeout) but missing leading/maxWait.
+      Score 3: Debounce + leading edge works. MaxWait missing or broken.
+      Score 4: All three features work correctly. Cancel method present. Types are correct.
+      Score 5: All features work, handles edge cases (leading+trailing combination, maxWait < ms guard), includes JSDoc, implementation is clean and minimal.
+
+  # T4: Refactoring — improve existing code while preserving behavior
+  - name: refactoring
+    category: transformation
+    input: |
+      Refactor this code to be more maintainable without changing its behavior:
+
+      ```python
+      def process_order(order):
+          if order['status'] == 'pending':
+              if order['total'] > 1000:
+                  if order['customer']['tier'] == 'gold':
+                      order['discount'] = 0.15
+                  elif order['customer']['tier'] == 'silver':
+                      order['discount'] = 0.10
+                  else:
+                      order['discount'] = 0.05
+              else:
+                  if order['customer']['tier'] == 'gold':
+                      order['discount'] = 0.10
+                  elif order['customer']['tier'] == 'silver':
+                      order['discount'] = 0.05
+                  else:
+                      order['discount'] = 0
+          elif order['status'] == 'confirmed':
+              order['discount'] = 0
+          elif order['status'] == 'cancelled':
+              order['discount'] = 0
+              order['refund'] = order['total']
+          return order
+      ```
+    criteria: |
+      Score 1: Cosmetic changes only (renaming, formatting) or breaks behavior.
+      Score 2: Reduces nesting slightly but still has repetitive structure.
+      Score 3: Extracts discount logic into a lookup table or helper, reduces nesting.
+      Score 4: Clean separation — discount calculation is data-driven (dict/map), status handling is flat (early return or match). Clearly preserves all original behavior.
+      Score 5: Data-driven discount table, flat status handling, adds type hints or dataclass, explains the refactoring rationale, notes the mutation pattern (modifies dict in place) as a potential concern.
+
+  # T5: Multi-step reasoning — plan before acting
+  - name: planning-before-acting
+    category: agentic
+    input: |
+      I need to add rate limiting to our Express.js API. Requirements:
+      - 100 requests per minute per API key
+      - 429 response when exceeded with Retry-After header
+      - Must work across multiple server instances (we run 3 replicas behind a load balancer)
+      - Rate limit state should survive server restarts
+
+      Plan the implementation before writing code. What would you build?
+    criteria: |
+      Score 1: Jumps to code without addressing the distributed/persistence requirements.
+      Score 2: Mentions Redis/shared store but plan is vague or incomplete.
+      Score 3: Clear plan with Redis as backing store, sliding window or token bucket algorithm, middleware approach.
+      Score 4: Plan addresses all 4 requirements explicitly. Identifies Redis as shared state, chooses algorithm (sliding window/token bucket), explains Retry-After header calculation, considers failure modes (what if Redis is down?).
+      Score 5: Comprehensive plan covering algorithm choice with tradeoffs, Redis data structure (sorted sets vs strings), graceful degradation, key expiry, monitoring/alerting, testing strategy. Acknowledges tradeoffs between approaches.
+
+  # T6: Instruction following — precisely follow constraints
+  - name: instruction-following
+    category: compliance
+    input: |
+      Write a Python function that:
+      1. Takes a list of dictionaries, each with "name" (str) and "score" (int) keys
+      2. Returns the top 3 entries sorted by score descending
+      3. If fewer than 3 entries exist, return all of them
+      4. CONSTRAINT: Do NOT use the built-in sorted() function or .sort() method
+      5. CONSTRAINT: The function must be named exactly `top_three`
+      6. CONSTRAINT: Include exactly one docstring (no other comments)
+    criteria: |
+      Score 1: Ignores multiple constraints (uses sorted, wrong name, etc).
+      Score 2: Function works but violates 1-2 constraints.
+      Score 3: All constraints followed, implementation works but algorithm is naive (O(n²) selection).
+      Score 4: All constraints followed, clean implementation (partial heapq or manual selection sort for top-k).
+      Score 5: All constraints followed, efficient algorithm (O(n) for fixed k=3 using manual tracking or heapq.nlargest), clean code, docstring is informative and concise.
+
+  # T7: Tool use / MCP reasoning — understanding when to use what
+  - name: tool-use-reasoning
+    category: agentic
+    input: |
+      I have a bug in production. The error is: "Connection pool exhausted after 30s timeout" in our Java service.
+      I have access to: CloudWatch logs, the service source code, the RDS metrics dashboard, and a staging environment.
+
+      What's your investigation plan? What would you check first, second, third? Explain your reasoning.
+    criteria: |
+      Score 1: Generic "check the logs" without structured investigation plan.
+      Score 2: Lists things to check but no prioritized order or reasoning.
+      Score 3: Ordered investigation plan (metrics first to scope, then logs, then code). Mentions connection pool size vs active connections.
+      Score 4: Structured plan: (1) RDS metrics for connection count vs max, (2) CloudWatch for error rate timeline, (3) code review for connection leaks (unclosed connections, missing finally/try-with-resources), (4) staging reproduction. Explains WHY each step before the next.
+      Score 5: Above plus identifies common root causes (leaked connections in error paths, missing connection timeouts, pool size misconfiguration, long-running queries holding connections), proposes specific metrics to check (ActiveConnections, DatabaseConnections, connection wait time), suggests interim mitigation.
+
+# ─── Execution Config ─────────────────────────────────────────────────────────
+trials: 3
+timeout: 180
+fixture: defu
+
+metrics:
+  - total_tokens
+  - output_tokens
+  - duration_ms
+  - tool_use_count
+
+judge:
+  mode: consensus
+  # Use Claude Opus 4.8 as primary judge (strongest available)
+  primary: anthropic.claude-opus-4-8
+  temperature: 0
+
+acceptance_criteria: |
+  - All models complete all 7 tasks without timeout or error
+  - Scores are reproducible across 3 trials (stddev < 1.0)
+  - Results identify clear tier separation between model families
+  - Token efficiency (score-per-dollar) is calculated for cost comparison
+
+output_format: |
+  Final report should include:
+  1. Scorecard table (model × task, average score)
+  2. Radar chart data (7 dimensions per model)
+  3. Cost-efficiency ranking (score / estimated token cost)
+  4. Latency comparison (median response time per model)
+  5. Failure modes observed per model (timeouts, refusals, hallucinations)
+
+tags: [model-comparison, bedrock, multi-family, agentic-coding]

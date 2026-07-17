@@ -1,7 +1,7 @@
 ---
 id: "08"
 title: "Dead and broken tooling is pruned or repaired"
-status: open
+status: done
 blocked_by: []
 spec: "project-review-followup"
 ---

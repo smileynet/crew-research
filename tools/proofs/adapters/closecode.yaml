@@ -1,0 +1,24 @@
+tool: closecode
+version_command: "closecode --version"
+
+invoke:
+  # --model flag overrides the configured default per-run
+  command: 'closecode run --model amazon-bedrock/{model} "{query}"'
+  timeout: 180
+
+skill:
+  location: ".kiro/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+
+output:
+  strip_ansi: true
+  encoding: utf-8
+
+notes: |
+  CloseCode is an Amazon-internal Bedrock-only fork of OpenCode.
+  Supports arbitrary model selection via --model flag (prefix: amazon-bedrock/).
+  Does not require interactive approval (run subcommand is non-interactive).
+  Auth: requires ADA profile configured via /connect or closecode providers.
+
+# run.sh proof-harness support: agentless invocation not defined for this tool
+eval_harness_status: "unsupported (no invoke.command_no_agent — run.sh skips with reason)"

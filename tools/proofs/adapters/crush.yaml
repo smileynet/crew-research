@@ -18,3 +18,6 @@ eager_context:
 output:
   strip_ansi: false
   encoding: utf-8
+
+# run.sh proof-harness support: agentless invocation not defined for this tool
+eval_harness_status: "unsupported (no invoke.command_no_agent — run.sh skips with reason)"

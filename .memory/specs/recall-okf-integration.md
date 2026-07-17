@@ -94,7 +94,7 @@ OKF could expand what recall searches over:
 **With OKF import**: recall could also ingest:
 - `.memory/` files as searchable knowledge (type-tagged)
 - External OKF bundles from other teams/projects
-- Reference repo bundles (we already generate these via `tools/okf-bundle/`)
+- Reference repo bundles (a bundle generator existed as `tools/okf-bundle/`; deleted 2026-07-17 as unwired — regenerate from this spec if needed)
 
 This means `recall search "deployment architecture"` could return:
 1. A past conversation where you discussed it (session memory)

@@ -7,7 +7,7 @@ Reads from ~/.kiro/sessions/cli/ and produces a JSON summary.
 """
 import json
 import sys
-import os
+
 from pathlib import Path
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict

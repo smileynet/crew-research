@@ -224,8 +224,16 @@ run_proof() {
   # Invoke
   local cmd
   if [[ -n "$agent_name" ]]; then
+    if [[ -z "$INVOKE_CMD" || "$INVOKE_CMD" == "null" ]]; then
+      echo "  SKIP: adapter '$TOOL_NAME' has no invoke.command (agent invocation unsupported)" >&2
+      return 2
+    fi
     cmd=$(echo "$INVOKE_CMD" | sed "s/{agent}/$agent_name/" | sed "s|{query}|$query|")
   else
+    if [[ -z "$INVOKE_NO_AGENT_CMD" || "$INVOKE_NO_AGENT_CMD" == "null" ]]; then
+      echo "  SKIP: adapter '$TOOL_NAME' has no invoke.command_no_agent (agentless invocation unsupported)" >&2
+      return 2
+    fi
     cmd=$(echo "$INVOKE_NO_AGENT_CMD" | sed "s|{query}|$query|")
   fi
 

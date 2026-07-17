@@ -15,7 +15,6 @@ PROJECT=""
 GLOBAL=false
 TIER="basic"
 TOOLS=()
-LANGUAGE=""
 BUILD_CMD=""
 TEST_CMD=""
 LINT_CMD=""
@@ -27,7 +26,6 @@ while [[ $# -gt 0 ]]; do
     --project) PROJECT="$2"; shift 2 ;;
     --tier) TIER="$2"; shift 2 ;;
     --tool) TOOLS+=("$2"); shift 2 ;;
-    --language) LANGUAGE="$2"; shift 2 ;;
     --skip-extension) SKIP_EXTENSIONS+=("$2"); shift 2 ;;
     *) echo "Unknown: $1" >&2; exit 1 ;;
   esac
@@ -44,12 +42,6 @@ fi
 
 # Resolve tier from env if not overridden on CLI (default still basic)
 [[ "$TIER" == "basic" && -n "${CREW_TIER:-}" ]] && TIER="$CREW_TIER"
-
-# ═══════════════════════════════════════════════════════════════
-# PLUGIN INSTALL / REMOVE
-# ═══════════════════════════════════════════════════════════════
-
-
 
 # Validate
 TIER_FILE="$TIERS_DIR/$TIER.yaml"
@@ -416,17 +408,13 @@ elif [[ -n "$PROJECT" ]]; then
   # Detect language and commands
   if [[ -f "$PROJECT/Cargo.toml" ]]; then
     BUILD_CMD="cargo check"; TEST_CMD="cargo test"; LINT_CMD="cargo clippy -- -D warnings"
-    [[ -z "$LANGUAGE" ]] && LANGUAGE="rust"
   elif [[ -f "$PROJECT/package.json" ]]; then
     BUILD_CMD="npm run build"; TEST_CMD="npm test"; LINT_CMD="npm run lint"
-    [[ -z "$LANGUAGE" ]] && LANGUAGE="typescript"
     [[ -f "$PROJECT/pnpm-lock.yaml" ]] && { BUILD_CMD="pnpm build"; TEST_CMD="pnpm test"; LINT_CMD="pnpm lint"; }
   elif [[ -f "$PROJECT/pyproject.toml" ]] || [[ -f "$PROJECT/setup.py" ]]; then
     BUILD_CMD=""; TEST_CMD="pytest"; LINT_CMD="ruff check ."
-    [[ -z "$LANGUAGE" ]] && LANGUAGE="python"
   elif [[ -f "$PROJECT/go.mod" ]]; then
     BUILD_CMD="go build ./..."; TEST_CMD="go test ./..."; LINT_CMD="golangci-lint run"
-    [[ -z "$LANGUAGE" ]] && LANGUAGE="go"
   fi
 
   # Create workspace structure
