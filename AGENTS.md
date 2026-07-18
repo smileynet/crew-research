@@ -56,8 +56,8 @@ mise run eval:one -- <definition>    # single eval
 bash tools/evals/harness/run.sh --all --skip-completed <results-dir>  # resume an interrupted run into one dir
 mise run eval:activation             # skill activation tests (gates: TPR≥0.5, FPR≤0.2; env-overridable; retired/ excluded)
 mise run eval:qualitative -- <name>  # keyword-based experiment
-mise run session:parse -- --days 30  # parse session transcripts (--days required)
-mise run session:skills -- --days 30 # skill activation + steering compliance report (--days required)
+mise run session:parse 30            # parse session transcripts (days required)
+mise run session:skills 30           # skill activation + steering compliance report (days required)
 
 # Recall (cross-session memory)
 mise run recall:ingest               # ingest all projects + sessions

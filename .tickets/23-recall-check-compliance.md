@@ -22,10 +22,16 @@ Strengthen the `recall-check` steering so agents actually run `recall search` be
 
 ## Acceptance criteria
 
-- [ ] recall-check steering restructured as a gate (mandatory check + explicit skip conditions), staying compact (it's always-on — every line costs)
-- [ ] Compliance measurement runs from a mise task and reports the history-question compliance rate with session counts
+- [x] recall-check steering restructured as a gate (mandatory check + explicit skip conditions), staying compact (it's always-on — every line costs) — 2026-07-18, 47-line SKILL.md: GATE header, 3-step workflow, skip conditions marked "the ONLY exemptions", violations section
+- [x] Compliance measurement runs from a mise task and reports the history-question compliance rate with session counts — `mise run session:skills <days>` now emits `recall_check_compliance` with rate + baseline (detection regex unchanged for comparability)
 - [ ] Post-fix compliance measured over ≥1 week of sessions and recorded; target >50% (2.4× baseline), threshold documented if adjusted
-- [ ] Global deploy updated
+- [x] Global deploy updated — 2026-07-18, all three tools, idempotency verified (second run 0 updated, 0 pruned)
+
+## Measurement window
+
+- **Gate deployed:** 2026-07-18 — window opens here; measure no earlier than 2026-07-25 with `mise run session:skills 7`
+- **Pre-fix reference:** 7-day window ending 2026-07-18 = 78/271 (29%); 30-day baseline = 60/284 (21%)
+- Compare like windows (7d vs 7d) per session-analysis skill rules
 
 ## Out of scope
 

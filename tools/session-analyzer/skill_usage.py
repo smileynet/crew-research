@@ -125,6 +125,15 @@ def main():
 
     never_used = [s for s in deployed if activations[s] == 0]
 
+    hq = compliance["history_questions"]
+    hq_ok = compliance["history_q_with_recall_search"]
+    recall_compliance = {
+        "history_questions": hq,
+        "with_recall_search": hq_ok,
+        "rate": f"{hq_ok}/{hq}" + (f" ({hq_ok / hq:.0%})" if hq else ""),
+        "baseline": "60/284 (21%) — 2026-07-17, ticket 23",
+    }
+
     report = {
         "window_days": days,
         "sessions": len(files),
@@ -136,6 +145,7 @@ def main():
         "tool_usage": dict(tool_usage),
         "sessions_per_project": dict(per_project_sessions.most_common(15)),
         "steering_compliance": dict(compliance),
+        "recall_check_compliance": recall_compliance,
     }
     out = json.dumps(report, indent=2)
     if output:
