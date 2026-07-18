@@ -43,7 +43,7 @@ Teach the user these workflows:
 - **Ending a session**: `/handoff`
 - **Periodic cleanup**: `/workspace-cleanup`
 
-### Personal Global Steering (symlink convention)
+### Personal Global Steering & Skills (symlink convention)
 
 Files added directly to `~/.kiro/steering/` that aren't in the deployed tier get **PRUNED on the next deploy**. To add personal always-on steering that survives redeploys, symlink it — init.sh's prune preserves symlinks:
 
@@ -51,7 +51,13 @@ Files added directly to `~/.kiro/steering/` that aren't in the deployed tier get
 ln -s ~/my-notes/my-conventions.md ~/.kiro/steering/my-conventions.md
 ```
 
-`mise run doctor` warns about unmanaged regular files at risk.
+`~/.kiro/skills/` is safer: init.sh prunes only skills it deployed itself (tracked in `~/.kiro/.crew-skills`); unmanaged skill dirs are warned about but kept. Still, **symlinks are the recommended convention for other projects deploying skills globally** — ownership is explicit and the deployed skill stays live with its source repo:
+
+```bash
+ln -s ~/code/my-project/skills/my-skill ~/.kiro/skills/my-skill
+```
+
+`mise run doctor` warns about unmanaged regular files (steering) and unmanaged skill dirs.
 
 ### Customizing Global Skills
 
