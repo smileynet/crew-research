@@ -1,7 +1,7 @@
 ---
 id: "15"
 title: "Interrupted eval runs resume without manual scripting"
-status: open
+status: done
 blocked_by: []
 spec: "session-improvements-2026-07-17"
 ---

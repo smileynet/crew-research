@@ -189,7 +189,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 12 | Re-run full suite to validate threshold calibration | ✅ done — 25/35 pass (71.4%, target ≥30%), 0 regressions, 0 infra failures; notes in docs/eval-results-2026-07-17.md |
 | 13 | architecture-deepening activates + rejects rubber-stamps | ✅ done (2026-07-18) — activation PASS (TPR 1.00, FPR 0), judged eval with-skill 5.00 / delta 4.00 |
 | 14 | feedback-loop-debugging passes both effectiveness evals | ✅ done (2026-07-18) — root cause: fixture-task mismatch (tasks described nonexistent bugs), NOT merge dilution; per-task bug-injected fixtures + continuous-signal skill section; both PASS (4.44/4.44) |
-| 15 | Eval harness resume capability | open — implement only after t09 baseline run completes (harness scripts owned by live run) |
+| 15 | Eval harness resume capability | ✅ done (2026-07-18) — `--skip-completed <dir>` skips scored defs, appends into one dir; verified via dry-run truncate-resume (35/35 unique, meta preserved, idempotent) |
 | 16 | Steering references stop defeating progressive loading | open — needs ADR (options in ticket) |
 | 17 | Explore: script-file rule for bash invocations (windows steering) | ✅ done (2026-07-18) — Git Bash invocation section in project-conventions references/windows.md |
 | 18 | Explore: concurrent-session ticket allocation guard | ✅ done (2026-07-18) — Creating Tickets section in frontier-work |
@@ -197,7 +197,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 20 | init.sh prunes only skills it deployed (manifest-based) | ✅ done (2026-07-18, bea4bfd) — incident: tier prune deleted 13 archwright skills |
 | 21 | Deprecated-skills list drives cleanup of retired names | ✅ done (2026-07-18) — compositions/deprecated.yaml (16 names) wired into init prune, lint, doctor |
 
-**Frontier (2026-07-18):** 15, 16, 19. Baseline run complete — all harness/skill edit freezes lifted. v0.2.0 released.
+**Frontier (2026-07-18):** 16, 19. Baseline run complete — all harness/skill edit freezes lifted. v0.2.0 released.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 

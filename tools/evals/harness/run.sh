@@ -1,6 +1,7 @@
 #!/bin/bash
 # tools/evals/harness/run.sh — LLM-as-judge eval harness with dual-run support
-# Usage: ./run.sh [--adapter kiro-cli|crush|codex|agy] [--definition name] [--all] [--dry-run] [--trials 3] [--engine v2|v3]
+# Usage: ./run.sh [--adapter kiro-cli|crush|codex|agy] [--definition name] [--all] [--dry-run] [--trials 3] [--engine v2|v3] [--skip-completed <results-dir>]
+#   --skip-completed <dir>: resume an interrupted run — skip definitions already scored in <dir>/scores.jsonl, append new scores into <dir>
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -21,6 +22,7 @@ TRIALS=3
 MODEL=""
 ENGINE=""
 JUDGE_CONFIG="$JUDGES_DIR/default.yaml"
+RESUME_DIR=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -33,6 +35,7 @@ while [[ $# -gt 0 ]]; do
     --model) MODEL="$2"; shift 2 ;;
     --engine) ENGINE="$2"; shift 2 ;;
     --judge) JUDGE_CONFIG="$2"; shift 2 ;;
+    --skip-completed) RESUME_DIR="$2"; shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
@@ -92,11 +95,39 @@ else
 fi
 
 [[ ${#DEFS[@]} -gt 0 ]] || { echo "No definitions found." >&2; exit 1; }
+
+# Resume mode: skip definitions already scored in a prior run's dir, append into that dir
+if [[ -n "$RESUME_DIR" ]]; then
+  [[ -d "$RESUME_DIR" ]] || RESUME_DIR="$RESULTS_DIR/$RESUME_DIR"
+  [[ -d "$RESUME_DIR" ]] || { echo "Error: --skip-completed dir not found: $RESUME_DIR" >&2; exit 2; }
+  RESUME_SCORES="$RESUME_DIR/scores.jsonl"
+  REMAINING_DEFS=()
+  for def_file in "${DEFS[@]}"; do
+    def_name=$(yq '.name' "$def_file")
+    if [[ -f "$RESUME_SCORES" ]] && grep -q "\"name\":\"$def_name\"" "$RESUME_SCORES"; then
+      echo "  ⏭  $def_name — already completed in $(basename "$RESUME_DIR"), skipping"
+    else
+      REMAINING_DEFS+=("$def_file")
+    fi
+  done
+  DEFS=("${REMAINING_DEFS[@]+"${REMAINING_DEFS[@]}"}")
+  if [[ ${#DEFS[@]} -eq 0 ]]; then
+    echo ""
+    echo "All definitions already completed in $RESUME_DIR — nothing to do."
+    exit 0
+  fi
+  echo ""
+fi
+
 echo "Running ${#DEFS[@]} eval(s)..."
 echo ""
 
-# Results setup
-RUN_DIR="$RESULTS_DIR/$TIMESTAMP"
+# Results setup — resume mode appends into the prior run's dir
+if [[ -n "$RESUME_DIR" ]]; then
+  RUN_DIR="$RESUME_DIR"
+else
+  RUN_DIR="$RESULTS_DIR/$TIMESTAMP"
+fi
 mkdir -p "$RUN_DIR"
 
 # Warm up recall embedding model (avoids first-run latency in trials)
@@ -106,7 +137,8 @@ fi
 
 TOTAL=0; PASSED=0; FAILED=0
 SCORES_FILE="$RUN_DIR/scores.jsonl"
-: > "$SCORES_FILE"
+# Resume mode appends to existing scores; fresh runs start clean
+[[ -n "$RESUME_DIR" ]] || : > "$SCORES_FILE"
 
 strip_ansi() { sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'; }
 
@@ -644,8 +676,10 @@ echo ""
 echo "---"
 echo "Results: $PASSED passed, $FAILED failed ($TOTAL total)"
 
-# Write meta.json
-cat > "$RUN_DIR/meta.json" << EOF
+# Write meta.json (resume mode: preserve the original, record the resume separately)
+META_FILE="$RUN_DIR/meta.json"
+[[ -n "$RESUME_DIR" && -f "$META_FILE" ]] && META_FILE="$RUN_DIR/meta-resume-$TIMESTAMP.json"
+cat > "$META_FILE" << EOF
 {
   "tool": "$TOOL_NAME",
   "tool_version": "$TOOL_VERSION",

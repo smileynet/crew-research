@@ -7,6 +7,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Interrupted eval runs resume with `--skip-completed <dir>` — already-scored definitions are skipped and remaining results append into the same directory, so analysis never merges scattered runs
+
 - Retired skills clean themselves up — deploys remove renamed/merged skills left behind by old versions (`compositions/deprecated.yaml`); symlinked and personal skills are never touched
 - Deploys no longer delete skills installed by other projects — only skills crew-research itself deployed are pruned; everything else gets a warning instead
 
