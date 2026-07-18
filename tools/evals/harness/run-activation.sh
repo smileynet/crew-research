@@ -82,10 +82,11 @@ for def_file in "${DEFS[@]}"; do
       cp "$skill_src" "$skill_dest"
     fi
 
-    # Invoke agent
+    # Invoke agent — capture output for check-activation.sh Strategy 1
+    # (was > /dev/null: Strategy 1 was dead code until ticket 24)
     cmd=$(echo "$INVOKE_NO_AGENT_CMD" | sed "s|{query}|$input|")
     cd "$workdir"
-    timeout "$DEFAULT_TIMEOUT" bash -c "$cmd" > /dev/null 2>&1 || true
+    timeout "$DEFAULT_TIMEOUT" bash -c "$cmd" 2>&1 | strip_ansi > "$workdir/.eval-output" || true
 
     # Check activation
     activated=false

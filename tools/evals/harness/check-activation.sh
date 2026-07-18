@@ -4,9 +4,13 @@
 # Returns: exit 0 if skill was activated, exit 1 if not, exit 2 on error
 #
 # Detection strategy (in priority order):
-# 1. Check captured output file for skill-specific markers
-# 2. Check kiro-cli session DB (if available)
-# 3. Check workspace for skill-produced artifacts
+# 1. Captured output ($workspace/.eval-output, written by run-activation.sh since
+#    ticket 24 — before that this strategy was dead code): skill-specific
+#    behavioral markers, else the generic skill-load log line
+# 2. kiro-cli session DB fallback: grep the latest conversations_v2 entry for the
+#    skill's H1. Fragile (matches anywhere in a large conversation JSON and
+#    depends on the DB schema) — kept as fallback only
+# 3. Workspace artifacts the skill is expected to produce
 set -euo pipefail
 
 WORKSPACE="${1:-}"
@@ -20,22 +24,20 @@ fi
 # --- Strategy 1: Output-based detection (preferred) ---
 OUTPUT_FILE="$WORKSPACE/.eval-output"
 if [[ -f "$OUTPUT_FILE" ]]; then
-  # Skill-specific markers
+  # Skill-specific behavioral markers — stronger evidence than a content grep.
+  # (recall marker removed: activation-recall def retired, ticket 19.)
   case "$SKILL_NAME" in
-    recall)
-      grep -qi "recall search\|recall prime\|recall add\|Results for:" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
-      ;;
     handoff)
+      # live def: handoff behavior = writing HANDOFF.md with a handoff_key
       grep -qi "HANDOFF.md\|handoff_key\|session state" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
       ;;
     read-handoff)
+      # live def: orientation behavior mentions the handoff file / prior session
       grep -qi "HANDOFF.md\|read.*handoff\|prior session\|last session" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
       ;;
-    *)
-      # Generic: check if the skill's SKILL.md was read (kiro-cli logs this)
-      grep -qi "skills/$SKILL_NAME/SKILL.md" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
-      ;;
   esac
+  # Generic: kiro-cli logs the SKILL.md path when it loads a skill
+  grep -qi "skills/$SKILL_NAME/SKILL.md" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
 fi
 
 # --- Strategy 2: Session DB (legacy, may not exist) ---
