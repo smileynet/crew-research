@@ -197,8 +197,12 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 20 | init.sh prunes only skills it deployed (manifest-based) | ✅ done (2026-07-18, bea4bfd) — incident: tier prune deleted 13 archwright skills |
 | 21 | Deprecated-skills list drives cleanup of retired names | ✅ done (2026-07-18) — compositions/deprecated.yaml (16 names) wired into init prune, lint, doctor |
 | 22 | mcp-partitioning skill — agent/MCP breakout guidance | ✅ done (2026-07-18, 34582a0) — kiro-scoped reference skill in full tier; eval-pass follow-up noted in ticket |
+| 23 | recall-check steering gate raises field compliance above 21% | open (spec t09-baseline-followups) — t09 rec #1; ownership settled by ticket 19 |
+| 24 | Activation detection uses live output capture | open (spec t09-baseline-followups) — Strategy 1 is dead code (found in ticket 19) |
+| 25 | mcp-partitioning activation + effectiveness evals | open, blocked by 24 — ticket 22 follow-up |
+| 26 | Eval baseline record reflects post-baseline fix batch | open (spec t09-baseline-followups) — 3 former failures now pass/retired; expect ≥29/35 |
 
-**Frontier (2026-07-18):** empty — all tickets done (01-22). Remaining open thread: t09 rec #1 (recall-check steering gate strengthening + field-compliance measurement), not yet ticketed.
+**Frontier (2026-07-18):** 23, 24, 26 (25 blocked by 24). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 
