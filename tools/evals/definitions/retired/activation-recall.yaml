@@ -1,4 +1,11 @@
 id: activation-recall  # immutable — survives renames; never change once results reference it
+# RETIRED 2026-07-18 (ticket 19): measures skill-loading in an environment where the
+# recall-check steering (deployed by the same extension, always-on) owns the trigger
+# space — the matcher correctly never loads the redundant skill. Causal evidence:
+# identical task probe WITH steering = behavior correct via steering, skill not loaded
+# (the eval's permanent 0/5); WITHOUT steering = skill loads and runs recall search.
+# Both environments produce the desired behavior. The right measurement is
+# steering-side field compliance (session-skill-usage reports), not skill activation.
 name: activation-recall
 skill: recall
 category: activation

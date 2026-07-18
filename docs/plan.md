@@ -193,12 +193,12 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 16 | Steering references stop defeating progressive loading | ✅ done (2026-07-18) — ADR 0009: refs deploy to skills tree, links rewritten absolute; always-on 90→0 managed lines; per-tool AGENTS.md manifests fix codex/agy shared-dir prune flap |
 | 17 | Explore: script-file rule for bash invocations (windows steering) | ✅ done (2026-07-18) — Git Bash invocation section in project-conventions references/windows.md |
 | 18 | Explore: concurrent-session ticket allocation guard | ✅ done (2026-07-18) — Creating Tickets section in frontier-work |
-| 19 | recall skill activates on memory questions | open — TPR 0/5 in baseline + verify run; description flatten ruled out; 3 hypotheses in ticket |
+| 19 | recall skill activates on memory questions | ✅ done (2026-07-18) — h3 confirmed causally: recall-check steering owns the trigger space (skill correctly shadowed); def retired with rationale; steering-side field compliance is the measurement (t09 rec #1) |
 | 20 | init.sh prunes only skills it deployed (manifest-based) | ✅ done (2026-07-18, bea4bfd) — incident: tier prune deleted 13 archwright skills |
 | 21 | Deprecated-skills list drives cleanup of retired names | ✅ done (2026-07-18) — compositions/deprecated.yaml (16 names) wired into init prune, lint, doctor |
 | 22 | mcp-partitioning skill — agent/MCP breakout guidance | ✅ done (2026-07-18, 34582a0) — kiro-scoped reference skill in full tier; eval-pass follow-up noted in ticket |
 
-**Frontier (2026-07-18):** 19. Baseline run complete — all harness/skill edit freezes lifted. v0.2.0 released.
+**Frontier (2026-07-18):** empty — all tickets done (01-22). Remaining open thread: t09 rec #1 (recall-check steering gate strengthening + field-compliance measurement), not yet ticketed.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 

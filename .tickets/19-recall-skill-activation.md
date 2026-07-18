@@ -1,7 +1,7 @@
 ---
 id: "19"
 title: "recall skill activates on memory questions"
-status: open
+status: done
 blocked_by: []
 spec: "t09-baseline-followups"
 ---
@@ -28,3 +28,20 @@ The recall skill activates when the user asks about past decisions or prior sess
 - [ ] Root cause identified with evidence (per-hypothesis test results)
 - [ ] Fix applied: skill description/body rework, OR def retired with rationale + steering-side measurement plan
 - [ ] If skill reworked: `activation-recall` TPR ≥ 3/5, FPR ≤ 1/5 on a fresh run
+
+## Resolution (2026-07-18)
+
+**Root cause: hypothesis 3 confirmed with a causal pair.** Eval workdirs inherit the global `~/.kiro/steering/` — including `recall-check.md`, deployed always-on by the same extension that ships the recall skill. The steering owns the trigger space, so the matcher (correctly) never loads the redundant skill.
+
+**Evidence:**
+- Probe WITH steering (eval + production reality): agent ran `recall search` twice and suggested `recall add` — desired behavior — but skill content never entered the conversation (0 hits for its H1 in the session DB). This is exactly what the eval scores as FN ×5.
+- Identical probe WITHOUT steering (temporarily hidden): skill loaded (H1 in conversation: 1 hit) and agent ran recall search. TPR would pass in an environment that never exists in production.
+- Both environments produce the correct behavior; the def measures a mechanism that is structurally shadowed wherever the extension is actually deployed.
+
+**Hypotheses 1–2 rejected:** the agent doesn't prefer file reads (it ran recall CLI in both probes), and question-form inputs match fine when the steering isn't present.
+
+**Fix: def retired** to `definitions/retired/activation-recall.yaml` with rationale in the file header (excluded from `--all` runs by the existing retired/ filter).
+
+**Steering-side measurement plan:** the behavior is owned by `recall-check` steering; measure field compliance via `mise run session:skills` (session-skill-usage reports). Baseline 21% (`session-skill-usage-2026-07-17.md`). Strengthening the steering gate is t09 baseline rec #1 — tracked there, decided together with this per ticket context, implemented separately.
+
+**Incidental finding (no action):** activation detection Strategy 1 (`.eval-output`) never fires — run-activation.sh discards agent output; all activation defs are actually detected via the session-DB marker (SKILL.md H1 grep). Worked as intended in both probes; noted for whoever next touches the harness.
