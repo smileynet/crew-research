@@ -251,3 +251,11 @@ _Avoid_: backlog (that's unordered), next (implies single item)
 **CREW_TICKET_SOURCES**:
 Env var (set in `mise.toml`) controlling ticket source priority. Comma-separated list: `local` (`.tickets/` files), `github` (issues labeled `ready-for-agent`), `gitlab`. Default: `local,github`. First source with results wins.
 _Avoid_: hardcoding source preference in skills/steering
+
+**Skill ownership manifest**:
+`~/.kiro/.crew-skills` — the list of skill names the last crew-research deploy installed. Deploy prune removes only names in this manifest that left the tier; unknown dirs are warned, never deleted.
+_Avoid_: lockfile (no version pinning), registry (that's deprecated.yaml)
+
+**Deprecated skill list**:
+`compositions/deprecated.yaml` — append-only registry of retired skill names (with replaced_by, reason, since). Deploys prune matching dirs even pre-manifest; lint blocks reusing a retired name. Retiring a skill = delete it + add its entry in the same commit.
+_Avoid_: blocklist, removal list (entries carry replacement pointers, not just bans)
