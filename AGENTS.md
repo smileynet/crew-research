@@ -26,6 +26,7 @@ tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
 .memory/specs/                    — Lasting technical specs
+.kiro/skills/                     — Project-local tooling guides (eval-harness, session-analysis, deploy-toolkit, release-protocol, tool-installation)
 .tickets/                         — Ticket files (frontier-work; NN-slug.md with status/blocked_by)
 .scratch/                         — Ephemeral (handoffs, active plans)
 docs/                             — Research history (eval results, experiment plans)
@@ -52,10 +53,11 @@ mise run lint                        # practice↔skill cross-links
 # Evaluation
 mise run eval                        # all dual-run evals
 mise run eval:one -- <definition>    # single eval
+bash tools/evals/harness/run.sh --all --skip-completed <results-dir>  # resume an interrupted run into one dir
 mise run eval:activation             # skill activation tests (gates: TPR≥0.5, FPR≤0.2; env-overridable; retired/ excluded)
 mise run eval:qualitative -- <name>  # keyword-based experiment
-mise run session:parse               # parse session transcripts
-mise run session:skills              # skill activation + steering compliance report
+mise run session:parse -- --days 30  # parse session transcripts (--days required)
+mise run session:skills -- --days 30 # skill activation + steering compliance report (--days required)
 
 # Recall (cross-session memory)
 mise run recall:ingest               # ingest all projects + sessions
@@ -119,7 +121,7 @@ recall search "what did we decide about X"
 - `atomics/skills/{slug}/SKILL.md` — primary file, <100 lines
 - YAML frontmatter: `name`, `description`, `metadata.type`, `metadata.invocation`, `metadata.practice`
 - `description` field doubles as activation trigger — use distinctive keywords
-- Companion files in `references/` load progressively (only when needed)
+- Companion files in `references/` load progressively (only when needed) — for STEERING skills, deploys place them in the tool's skills tree with links rewritten, never under `steering/references/` (ADR 0009)
 - Practices in `docs/development/` are source research; skills are distilled deployment
 - Cross-link: skill declares `practice: slug`, practice declares `skills: [slug]`
 - **Retiring a skill:** add it to `compositions/deprecated.yaml` (name, replaced_by, reason, since) in the same commit that deletes it — deploys prune retired names from user machines; lint blocks name reuse

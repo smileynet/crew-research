@@ -43,3 +43,13 @@ cat tools/evals/results/<timestamp>/scores.jsonl | jq -s '.'
 ```
 
 Report: total pass/fail, any new failures vs previous run, notable delta changes.
+
+## If a run dies mid-suite
+
+Resume into the SAME results dir — never hand-script per-definition loops:
+
+```bash
+setsid nohup bash tools/evals/harness/run.sh --all --skip-completed tools/evals/results/<dead-run-dir> > /tmp/resume.log 2>&1 < /dev/null &
+```
+
+Already-scored definitions are skipped; the dir ends with one complete scores.jsonl.

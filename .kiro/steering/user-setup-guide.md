@@ -64,7 +64,7 @@ ln -s ~/code/my-project/skills/my-skill ~/.kiro/skills/my-skill
 If a global skill needs project-specific knowledge (domain questions, source priorities, cross-reference targets), use a **steering pointer** instead of forking the skill:
 
 1. Create `.kiro/steering/pointer-file.md` (always-loaded, ~2 lines): "Before starting [skill], read [detail file]"
-2. Create `.kiro/steering/detail-file.md` with `inclusion: manual` — contains the domain context
+2. Put the detail content in `.kiro/skills/<name>/SKILL.md` (or a `references/` file there) — the skills tree is the non-eager zone. Do NOT place detail files under `.kiro/steering/` — everything there loads on every turn regardless of `inclusion:` markers (ADR 0009); `steering/references/` is reserved for user-owned always-on files
 3. The global skill runs unmodified; the agent reads the detail file on demand when the skill activates
 
 This costs ~50 characters of always-loaded context vs thousands for a full skill copy. See ADR 0002 for when to use params vs pointers vs extends.
