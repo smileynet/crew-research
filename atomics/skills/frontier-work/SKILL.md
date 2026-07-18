@@ -48,6 +48,15 @@ When a ticket's acceptance criteria are all met:
 4. Check if completing this ticket unblocks others — if so, state the new frontier
 5. If the completed ticket was the last one: report "All tickets done for this spec"
 
+## Creating Tickets
+
+Ticket creation is a race when 2+ sessions work the same repo (observed twice: archwright 005 pair, crew-research 12/13 collision — both required reconciliation merges).
+
+1. **Claim before allocating:** `git fetch`, then rescan `.tickets/` (local + `origin/main`) for the true max ID
+2. **Push promptly:** commit + push the ticket file right after creating it — a pushed ticket is a claim; an unpushed ticket is invisible to other sessions
+3. **On collision:** reconcile immediately — merge content into the lower-numbered/pushed ticket (or renumber the newer one), never let both proceed
+4. Optional `lane:` frontmatter when sessions have declared work lanes
+
 ## Between Tickets
 
 - Do NOT carry implementation context from one ticket to another

@@ -1,7 +1,7 @@
 ---
 id: "17"
 title: "Explore: script-file rule for bash invocations in windows steering"
-status: open
+status: done
 blocked_by: []
 spec: "field-feedback"
 ---

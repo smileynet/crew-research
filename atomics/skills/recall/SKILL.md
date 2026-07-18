@@ -1,11 +1,6 @@
 ---
 name: recall
-description: >
-  Cross-session memory recall. Use when asked about past decisions,
-  prior work, what was discussed previously, or to continue from where
-  a session left off. Use to persist decisions and lessons learned.
-  Trigger: "what did we decide", "last session", "previously", "recall",
-  "remind me", "continue from where we left off", "what was the decision".
+description: "Cross-session memory recall. Use when asked about past decisions, prior work, what was discussed previously, or to continue from where a session left off. Use to persist decisions and lessons learned. Trigger: \"what did we decide\", \"last session\", \"previously\", \"recall\", \"remind me\", \"continue from where we left off\", \"what was the decision\"."
 metadata:
   type: protocol
   invocation: both

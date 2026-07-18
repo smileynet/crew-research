@@ -11,8 +11,11 @@ atomics/skills/{slug}/SKILL.md    — Skill source (agent-loadable, <100 lines)
 atomics/skills/{slug}/references/ — Progressive-loading companion files
 atomics/eager-context/            — Always-on context modules
 compositions/tiers/{name}.yaml    — What ships in each tier (inc. extensions)
+compositions/project-level.yaml   — Per-project installable skills (lint membership)
+compositions/agent-archetypes/    — Agent role manifests (skills, tools, prompt)
+compositions/crew-patterns/       — Multi-agent crew manifests
 compositions/workspace-conventions/ — File/folder contracts
-tools/generator/                  — init.sh, doctor.sh, catalog.sh, generate.sh
+tools/generator/                  — init.sh, doctor.sh, catalog.sh, generate.sh, release.sh
 tools/evals/                      — Eval harness, definitions, fixtures, experiments
 tools/proofs/                     — Platform assumption tests
 tools/lint/                       — Cross-link validation
@@ -23,6 +26,7 @@ tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
 .memory/specs/                    — Lasting technical specs
+.tickets/                         — Ticket files (frontier-work; NN-slug.md with status/blocked_by)
 .scratch/                         — Ephemeral (handoffs, active plans)
 docs/                             — Research history (eval results, experiment plans)
 docs/development/                 — Practices, spike records, results
@@ -48,7 +52,7 @@ mise run lint                        # practice↔skill cross-links
 # Evaluation
 mise run eval                        # all dual-run evals
 mise run eval:one -- <definition>    # single eval
-mise run eval:activation             # skill activation tests
+mise run eval:activation             # skill activation tests (gates: TPR≥0.5, FPR≤0.2; env-overridable; retired/ excluded)
 mise run eval:qualitative -- <name>  # keyword-based experiment
 mise run session:parse               # parse session transcripts
 mise run session:skills              # skill activation + steering compliance report

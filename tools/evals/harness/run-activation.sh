@@ -45,7 +45,9 @@ DEFS=()
 if [[ -n "$DEFINITION" ]]; then
   DEFS=("$DEFINITIONS_DIR/$DEFINITION.yaml")
 elif [[ "$RUN_ALL" == true ]]; then
-  mapfile -t DEFS < <(find "$DEFINITIONS_DIR" -name "activation-*.yaml" | sort)
+  # Exclude definitions/retired/ — retired defs test removed skills and pollute
+  # verdicts (2026-07-18 baseline: 11 of 12 activation FAILs were retired defs)
+  mapfile -t DEFS < <(find "$DEFINITIONS_DIR" -name "activation-*.yaml" -not -path "*/retired/*" | sort)
 fi
 
 [[ ${#DEFS[@]} -gt 0 ]] || { echo "No activation definitions found." >&2; exit 1; }
