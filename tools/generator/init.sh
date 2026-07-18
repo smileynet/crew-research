@@ -160,6 +160,7 @@ if [[ "$GLOBAL" == true ]]; then
 
     updated=0; removed=0; unchanged=0
     declare -A DESIRED_FILES
+    local STEERING_REF_SKILLS=()
 
     # --- Deploy steering ---
     mkdir -p "$DEST/steering"
@@ -177,22 +178,33 @@ if [[ "$GLOBAL" == true ]]; then
         fi
         dest="$DEST/steering/$skill.md"
         content=$(awk 'BEGIN{s=0} /^---$/{s++;next} s>=2{print}' "$src")
+        # ADR 0009: steering companion refs live in the skills tree (non-eager);
+        # rewrite relative links in the deployed body to their absolute location
+        if [[ -d "$SKILLS_DIR/$skill/references" ]]; then
+          content=$(echo "$content" | sed "s|](references/|]($DEST/skills/$skill/references/|g; s|\`references/|\`$DEST/skills/$skill/references/|g")
+        fi
         deploy_content "$content" "$dest"
         DESIRED_FILES["$dest"]=1
       fi
-      # Deploy steering references (progressive-load companions)
+      # Deploy steering references into the skills tree (ADR 0009 — progressive load)
       if [[ -d "$SKILLS_DIR/$skill/references" ]]; then
-        mkdir -p "$DEST/steering/references"
+        mkdir -p "$DEST/skills/$skill/references"
         for ref in "$SKILLS_DIR/$skill/references/"*; do
           [[ -f "$ref" ]] || continue
-          # OS-gate OS-specific references (steering refs load always-on; don't ship dead weight)
-          case "$(basename "$ref")" in
-            windows.md) [[ "$(uname -s)" =~ ^(MINGW|MSYS|CYGWIN) ]] || continue ;;
-            unix.md)    [[ "$(uname -s)" =~ ^(MINGW|MSYS|CYGWIN) ]] && continue ;;
-          esac
-          deploy_file "$ref" "$DEST/steering/references/$(basename "$ref")"
-          DESIRED_FILES["$DEST/steering/references/$(basename "$ref")"]=1
+          deploy_file "$ref" "$DEST/skills/$skill/references/$(basename "$ref")"
         done
+        STEERING_REF_SKILLS+=("$skill")
+      fi
+    done
+
+    # Migration (ADR 0009): remove previously-managed refs from the eager dir.
+    # Exact names only — everything else in steering/references/ is user-owned.
+    for old in project-checks.md tool-limitations.md windows.md unix.md; do
+      old_path="$DEST/steering/references/$old"
+      if [[ -f "$old_path" && ! -L "$old_path" ]]; then
+        rm "$old_path"
+        removed=$((removed + 1))
+        echo "  pruned: steering/references/$old (moved to skills tree — ADR 0009)"
       fi
     done
 
@@ -242,8 +254,8 @@ if [[ "$GLOBAL" == true ]]; then
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
       skill_name=$(basename "$d")
-      if printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" 2>/dev/null; then
-        continue  # in current tier — managed and desired
+      if printf '%s\n' "${SKILLS[@]}" "${STEERING_REF_SKILLS[@]+"${STEERING_REF_SKILLS[@]}"}" | grep -qx "$skill_name" 2>/dev/null; then
+        continue  # in current tier (skill or steering-ref dir) — managed and desired
       fi
       if grep -qx "$skill_name" <<< "$deprecated_skills" 2>/dev/null; then
         replaced=$(yq -r ".skills[] | select(.name == \"$skill_name\") | .replaced_by" "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
@@ -258,7 +270,7 @@ if [[ "$GLOBAL" == true ]]; then
         echo "  ⚠️  unmanaged (kept): skills/$skill_name/ — not deployed by crew-research; symlink it to make this explicit"
       fi
     done
-    printf '%s\n' "${SKILLS[@]}" > "$manifest"
+    printf '%s\n' "${SKILLS[@]}" "${STEERING_REF_SKILLS[@]+"${STEERING_REF_SKILLS[@]}"}" > "$manifest"
 
     if [[ -d "$DEST/prompts" ]]; then
       rm -rf "$DEST/prompts"
@@ -305,6 +317,12 @@ if [[ "$GLOBAL" == true ]]; then
     for skill in "${SKILLS[@]}"; do
       src_dir="$SKILLS_DIR/$skill"
       if [[ -d "$src_dir" ]]; then
+        # Skip skills scoped to other tools (metadata.tool / metadata.tools)
+        local sk_tool sk_tools
+        sk_tool=$(skill_fm_field "$src_dir/SKILL.md" '.metadata.tool // ""')
+        sk_tools=$(skill_fm_field "$src_dir/SKILL.md" '.metadata.tools // [] | join(",")')
+        [[ -n "$sk_tool" && "$sk_tool" != "$tool_label" ]] && continue
+        [[ -n "$sk_tools" && ! "$sk_tools" =~ "$tool_label" ]] && continue
         dest="$skills_dest/$skill"
         mkdir -p "$dest"
         deploy_file "$src_dir/SKILL.md" "$dest/SKILL.md"
@@ -352,6 +370,18 @@ if [[ "$GLOBAL" == true ]]; then
           -e 's|{{params.mise_file}}|mise.toml|g' \
       -e 's|{{params.crosslink_lint}}|tools/lint/check-crosslinks.sh|g' \
           -e 's|{{params.output_path}}|.scratch/research|g')
+        # ADR 0009: deploy steering companion refs to this tool's skills tree
+        # and point the rendered links at them (keeps context reachable off-kiro)
+        if [[ -d "$SKILLS_DIR/$skill/references" ]]; then
+          mkdir -p "$skills_dest/$skill/references"
+          local sref
+          for sref in "$SKILLS_DIR/$skill/references/"*; do
+            [[ -f "$sref" ]] || continue
+            deploy_file "$sref" "$skills_dest/$skill/references/$(basename "$sref")"
+          done
+          DESIRED_SKILLS["$skill"]=1
+          body=$(echo "$body" | sed "s|](references/|]($skills_dest/$skill/references/|g; s|\`references/|\`$skills_dest/$skill/references/|g")
+        fi
         agents_content+=$'\n'"$body"$'\n'
       fi
     done
@@ -362,17 +392,27 @@ if [[ "$GLOBAL" == true ]]; then
       updated=$((updated + 1))
     fi
 
-    # --- Prune stale skill dirs ---
+    # --- Prune stale skill dirs (per-tool manifest — codex and agy can share
+    # a skills dest with different tool-scoped sets; only prune dirs THIS tool
+    # deployed, mirroring the kiro .crew-skills pattern) ---
+    local am_manifest="$skills_dest/.crew-skills-$tool_label"
+    local am_prev=""
+    [[ -f "$am_manifest" ]] && am_prev=$(cat "$am_manifest")
     for d in "$skills_dest/"*/; do
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && continue
       skill_name=$(basename "$d")
-      if [[ -z "${DESIRED_SKILLS[$skill_name]:-}" ]]; then
+      if [[ -n "${DESIRED_SKILLS[$skill_name]:-}" ]]; then
+        continue
+      fi
+      if grep -qx "$skill_name" <<< "$am_prev" 2>/dev/null; then
         rm -rf "$d"
         removed=$((removed + 1))
         echo "  pruned: skills/$skill_name/"
       fi
+      # not in our manifest → another tool's or unmanaged; keep
     done
+    printf '%s\n' "${!DESIRED_SKILLS[@]}" | sort > "$am_manifest"
 
     echo ""
     echo "  Skills: ${#SKILLS[@]} | Steering → $(basename "$agents_md_dest") (${#STEERING[@]} sections)"
@@ -401,6 +441,12 @@ if [[ "$GLOBAL" == true ]]; then
     for skill in "${SKILLS[@]}"; do
       src_dir="$SKILLS_DIR/$skill"
       if [[ -d "$src_dir" ]]; then
+        # Skip skills scoped to other tools (metadata.tool / metadata.tools)
+        local cli_tool cli_tools
+        cli_tool=$(skill_fm_field "$src_dir/SKILL.md" '.metadata.tool // ""')
+        cli_tools=$(skill_fm_field "$src_dir/SKILL.md" '.metadata.tools // [] | join(",")')
+        [[ -n "$cli_tool" && "$cli_tool" != "agy" ]] && continue
+        [[ -n "$cli_tools" && ! "$cli_tools" =~ "agy" ]] && continue
         dest="$cli_dest/$skill"
         mkdir -p "$dest"
         deploy_file "$src_dir/SKILL.md" "$dest/SKILL.md"

@@ -1,7 +1,7 @@
 ---
 id: "16"
 title: "Steering references stop defeating progressive loading"
-status: open
+status: done
 blocked_by: []
 spec: "session-improvements-2026-07-17"
 ---
@@ -29,3 +29,17 @@ A decision plus implementation for how steering companion files deploy. Today ev
 ## Out of scope
 
 - Changing skill reference behavior in `~/.kiro/skills/` (progressive loading works there)
+
+## Resolution (2026-07-18)
+
+**Decision: ADR 0009** — non-eager references deploy as skill companion files, adjacent to SKILL.md in each tool's skills tree (the purpose-built non-eager zone); deployed steering bodies (kiro files and AGENTS.md renders) get links rewritten to absolute paths. Option (b) refined by operator: reuse the skills tree instead of inventing `~/.kiro/references/`.
+
+**Measured always-on cost (managed):** before = 90 lines/turn global (project-checks 46 + tool-limitations 44) + 213 in crew-research sessions (tool-installation.md eager duplicate). After = **0**. Only user-owned `environment-gotchas.md` (160) remains in `steering/references/`, by design.
+
+**Implementation notes:**
+- kiro: refs → `~/.kiro/skills/{name}/references/`, recorded in `.crew-skills`; migration removes exactly `project-checks.md tool-limitations.md windows.md unix.md` from the eager dir (user files untouched by construction); OS gate dropped (lazy files cost nothing)
+- codex/agy: refs → shared `~/.agents/skills/{name}/references/`; AGENTS.md links rewritten (codex 3, agy 2 — subagent-reliability is tools-scoped without agy); fixed previously-dangling links
+- Shared-dir hazard found and fixed: codex+agy share `~/.agents/skills/` with different tool-scoped sets — per-tool manifests (`.crew-skills-{tool}`) stop cross-tool prune flapping (observed: agy repeatedly pruned codex's subagent-reliability)
+- Bonus: tool scoping (metadata.tool/tools) now honored in AGENTS.md skills loops + agy CLI loop (mcp-partitioning no longer leaks off-kiro)
+- Project orphan converted: `.kiro/steering/references/tool-installation.md` (213-line eager duplicate) deleted; pointer retargeted at the existing `.kiro/skills/tool-installation/` skill, now tracked
+- Verified: second deploy = 0 updated/0 pruned on all three tools; lint clean

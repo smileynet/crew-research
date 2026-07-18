@@ -1,4 +1,14 @@
+---
+name: tool-installation
+description: "Install missing development tools (kiro-cli, codex, agy, crush, tk, yq, mise, jq, bc) with OS detection, per-OS commands, corporate-proxy recipes, and verification. Use when a command fails with 'not found' or a prerequisite tool is missing. Trigger: not found, install tool, missing tool, winget, brew, go install proxy error."
+metadata:
+  type: reference
+  invocation: both
+  practice: null
+---
+
 # Tool Installation Guide
+
 
 When a required tool is missing, install it using the commands below. Detect the OS first, then use the appropriate method.
 

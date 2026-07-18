@@ -17,6 +17,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Architecture reviews now push back on rubber-stamping — accepting 3+ refactoring candidates in a row without discussion triggers a hard pause and a trade-off challenge instead of silent agreement
 - Debugging guidance now covers continuous signals (memory leaks, latency) — establish a baseline, state a numeric pass/fail criterion, change one thing, re-measure
 - Eval tasks can now target per-task fixtures — debugging evals run against fixtures with real injected bugs instead of describing bugs that don't exist
+- Steering companion files no longer load on every turn — references deploy to the skills tree and load on demand, cutting ~90 always-loaded lines per session (ADR 0009)
+- Steering references now work outside kiro — codex and agy AGENTS.md links point at deployed files instead of dangling
+- Tool-scoped skills stay in their tool — kiro-only skills no longer leak into codex/agy deployments, and codex/agy no longer delete each other's files in the shared skills directory
 
 ## [0.2.0] - 2026-07-18
 
