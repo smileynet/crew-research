@@ -59,6 +59,7 @@ skills:
   - eval-criteria
   - multi-agent-validation
   - enforcement-hierarchy
+  - mcp-partitioning
 
 extensions:
   - name: recall
