@@ -1,7 +1,7 @@
 ---
 id: "20"
 title: "init.sh prunes only skills it deployed (manifest-based)"
-status: open
+status: done
 blocked_by: []
 spec: "t09-baseline-followups"
 ---

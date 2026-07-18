@@ -226,16 +226,29 @@ if [[ "$GLOBAL" == true ]]; then
       fi
     done
 
+    # Skills: manifest-based prune (ticket 20). Only remove dirs WE deployed
+    # (recorded in .crew-skills); unmanaged dirs are warned, never deleted.
+    # Incident 2026-07-18: tier-based prune deleted 13 archwright-* skills
+    # deployed by another project.
+    local manifest="$DEST/.crew-skills"
+    local prev_managed=""
+    [[ -f "$manifest" ]] && prev_managed=$(cat "$manifest")
     for d in "$DEST/skills/"*/; do
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
       skill_name=$(basename "$d")
-      if ! printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" 2>/dev/null; then
+      if printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" 2>/dev/null; then
+        continue  # in current tier — managed and desired
+      fi
+      if grep -qx "$skill_name" <<< "$prev_managed" 2>/dev/null; then
         rm -rf "$d"
         removed=$((removed + 1))
-        echo "  pruned: skills/$skill_name/"
+        echo "  pruned: skills/$skill_name/ (left the tier)"
+      else
+        echo "  ⚠️  unmanaged (kept): skills/$skill_name/ — not deployed by crew-research; symlink it to make this explicit"
       fi
     done
+    printf '%s\n' "${SKILLS[@]}" > "$manifest"
 
     if [[ -d "$DEST/prompts" ]]; then
       rm -rf "$DEST/prompts"

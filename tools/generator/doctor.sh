@@ -127,6 +127,22 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
       warnings=$((warnings + 1))
     fi
   done
+
+  # Unmanaged skill dirs: kept by init.sh's manifest-based prune (ticket 20),
+  # but surfaced here so their ownership is explicit. Symlinks are the
+  # recommended convention for other projects deploying into ~/.kiro/skills.
+  if [[ -f ~/.kiro/.crew-skills ]]; then
+    managed_skills=$(cat ~/.kiro/.crew-skills)
+    for d in ~/.kiro/skills/*/; do
+      [[ -d "$d" ]] || continue
+      [[ -L "${d%/}" ]] && continue
+      sbase=$(basename "$d")
+      if ! grep -qx "$sbase" <<< "$managed_skills"; then
+        echo "  ⚠️  unmanaged skill dir: skills/$sbase/ — kept by deploys, but consider a symlink to make ownership explicit"
+        warnings=$((warnings + 1))
+      fi
+    done
+  fi
 fi
 
 # --- Source frontmatter validation (catches skills shipped without frontmatter) ---
