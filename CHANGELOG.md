@@ -19,6 +19,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Skill catalog shows tier membership and filters by tier — `mise run catalog --tier basic`
 - Doctor warns when personal files in `~/.kiro/steering/` would be lost on redeploy — symlink them to keep them
 - See which skills actually activate in your own sessions — `mise run session:skills` reports activation and steering compliance from session logs
+- Concurrent-session safety for tickets — creating a ticket now claims its ID (fetch before allocating, push promptly), with a reconciliation rule for collisions
+- Windows Git Bash invocation rules — script-file pattern prevents PowerShell `$`-interpolation corrupting bash commands
 
 ### Changed
 
