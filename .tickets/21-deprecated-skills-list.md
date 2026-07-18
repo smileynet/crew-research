@@ -1,7 +1,7 @@
 ---
 id: "21"
 title: "Deprecated-skills list drives cleanup of retired skill names"
-status: open
+status: done
 blocked_by: []
 spec: "t09-baseline-followups"
 ---

@@ -194,6 +194,8 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 17 | Explore: script-file rule for bash invocations (windows steering) | ✅ done (2026-07-18) — Git Bash invocation section in project-conventions references/windows.md |
 | 18 | Explore: concurrent-session ticket allocation guard | ✅ done (2026-07-18) — Creating Tickets section in frontier-work |
 | 19 | recall skill activates on memory questions | open — TPR 0/5 in baseline + verify run; description flatten ruled out; 3 hypotheses in ticket |
+| 20 | init.sh prunes only skills it deployed (manifest-based) | ✅ done (2026-07-18, bea4bfd) — incident: tier prune deleted 13 archwright skills |
+| 21 | Deprecated-skills list drives cleanup of retired names | ✅ done (2026-07-18) — compositions/deprecated.yaml (16 names) wired into init prune, lint, doctor |
 
 **Frontier (2026-07-18):** 13, 14, 15, 16, 19. Baseline run complete — all harness/skill edit freezes lifted. Next release: v0.2.0 (changelog ready).
 

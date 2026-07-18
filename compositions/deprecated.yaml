@@ -1,0 +1,74 @@
+name: deprecated
+description: >
+  Retired skill names. Deploy (init.sh) prunes these from ~/.kiro/skills/ even
+  when the ownership manifest predates them; lint (check-crosslinks.sh) fails
+  if a name here reappears in atomics/skills/ or any tier/composition; doctor
+  reports deployed dirs matching these names. Symlinks are never pruned — a
+  symlinked dir with a deprecated name is someone's live source, not our stale
+  copy. Add entries when retiring a skill; never remove entries (machines in
+  the field may deploy years apart).
+skills:
+  - name: troubleshooting-protocol
+    replaced_by: feedback-loop-debugging
+    reason: merged — same trigger space, one clear owner (ticket 02)
+    since: 0.2.0
+  - name: assumption-tracking
+    replaced_by: planning-cycles
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: commit-pr-discipline
+    replaced_by: git-protocol
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: completion-protocol
+    replaced_by: verification-protocol (steering)
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: diataxis-classification
+    replaced_by: docs-audit
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: document-formats
+    replaced_by: writing-style
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: five-whys
+    replaced_by: feedback-loop-debugging
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: prompt-vocabulary
+    replaced_by: skill-authoring
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: reference-exploration
+    replaced_by: study-reference
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: research-dispatch
+    replaced_by: research-dispatch-mandate (steering)
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: research-topics
+    replaced_by: research-methodology
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: session-review-patterns
+    replaced_by: project-audit
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: situation-routing
+    replaced_by: cheatsheet
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: spec-review
+    replaced_by: spec-driven-development
+    reason: 12-skill consolidation (0304fe0)
+    since: 0.2.0
+  - name: image-analysis
+    replaced_by: image-handling (steering)
+    reason: converted to steering (6dec0ad)
+    since: 0.2.0
+  - name: windows-shell-safety
+    replaced_by: project-conventions references/windows.md
+    reason: converted to progressive reference (921eb2c)
+    since: 0.2.0

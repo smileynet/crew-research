@@ -233,6 +233,11 @@ if [[ "$GLOBAL" == true ]]; then
     local manifest="$DEST/.crew-skills"
     local prev_managed=""
     [[ -f "$manifest" ]] && prev_managed=$(cat "$manifest")
+    # Retired skill names (compositions/deprecated.yaml) — pruned even when the
+    # manifest predates them (pre-manifest machines carry stale copies).
+    local deprecated_skills=""
+    [[ -f "$ROOT_DIR/compositions/deprecated.yaml" ]] && \
+      deprecated_skills=$(yq -r '.skills[].name' "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
     for d in "$DEST/skills/"*/; do
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && { echo "  kept (symlink): skills/$(basename "$d")/"; continue; }
@@ -240,7 +245,12 @@ if [[ "$GLOBAL" == true ]]; then
       if printf '%s\n' "${SKILLS[@]}" | grep -qx "$skill_name" 2>/dev/null; then
         continue  # in current tier — managed and desired
       fi
-      if grep -qx "$skill_name" <<< "$prev_managed" 2>/dev/null; then
+      if grep -qx "$skill_name" <<< "$deprecated_skills" 2>/dev/null; then
+        replaced=$(yq -r ".skills[] | select(.name == \"$skill_name\") | .replaced_by" "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
+        rm -rf "$d"
+        removed=$((removed + 1))
+        echo "  pruned: skills/$skill_name/ (deprecated — replaced by: ${replaced:-n/a})"
+      elif grep -qx "$skill_name" <<< "$prev_managed" 2>/dev/null; then
         rm -rf "$d"
         removed=$((removed + 1))
         echo "  pruned: skills/$skill_name/ (left the tier)"

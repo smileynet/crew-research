@@ -133,11 +133,15 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
   # recommended convention for other projects deploying into ~/.kiro/skills.
   if [[ -f ~/.kiro/.crew-skills ]]; then
     managed_skills=$(cat ~/.kiro/.crew-skills)
+    deprecated_names=$(yq -r '.skills[].name' "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
     for d in ~/.kiro/skills/*/; do
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && continue
       sbase=$(basename "$d")
-      if ! grep -qx "$sbase" <<< "$managed_skills"; then
+      if grep -qx "$sbase" <<< "$deprecated_names" 2>/dev/null; then
+        echo "  ⚠️  deprecated skill dir: skills/$sbase/ — retired name; next deploy will PRUNE it (see compositions/deprecated.yaml)"
+        warnings=$((warnings + 1))
+      elif ! grep -qx "$sbase" <<< "$managed_skills"; then
         echo "  ⚠️  unmanaged skill dir: skills/$sbase/ — kept by deploys, but consider a symlink to make ownership explicit"
         warnings=$((warnings + 1))
       fi

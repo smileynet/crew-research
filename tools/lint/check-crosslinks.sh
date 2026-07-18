@@ -22,6 +22,23 @@ tier_skills=$(yq -r '.skills[], .steering[], .extensions[]?.skills[]?, .extensio
 # and compositions/project-level.yaml documents per-project installables
 comp_skills=$(yq -r '.skills[]?, .["shared-skills"][]?' "$ROOT_DIR"/compositions/agent-archetypes/*.yaml "$ROOT_DIR"/compositions/crew-patterns/*.yaml "$ROOT_DIR"/compositions/project-level.yaml 2>/dev/null | sort -u)
 
+# Deprecated names (compositions/deprecated.yaml) must stay dead: not in
+# atomics/skills/, not referenced by any tier or composition (resurrecting a
+# retired name breaks the deploy prune's assumption that the name is stale)
+if [[ -f "$ROOT_DIR/compositions/deprecated.yaml" ]]; then
+  while IFS= read -r dep; do
+    [[ -n "$dep" ]] || continue
+    if [[ -d "$SKILLS_DIR/$dep" ]]; then
+      echo "  ❌ deprecated name resurrected: atomics/skills/$dep/ exists but $dep is in compositions/deprecated.yaml"
+      errors=$((errors + 1))
+    fi
+    if grep -qx "$dep" <<< "$tier_skills" || grep -qx "$dep" <<< "$comp_skills"; then
+      echo "  ❌ deprecated name referenced: $dep appears in a tier/composition but is in compositions/deprecated.yaml"
+      errors=$((errors + 1))
+    fi
+  done < <(yq -r '.skills[].name' "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
+fi
+
 echo "Linting skills..."
 
 # 0. Every tier steering/skill entry must resolve to atomics/skills/{slug}/SKILL.md

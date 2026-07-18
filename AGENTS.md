@@ -122,6 +122,7 @@ recall search "what did we decide about X"
 - Companion files in `references/` load progressively (only when needed)
 - Practices in `docs/development/` are source research; skills are distilled deployment
 - Cross-link: skill declares `practice: slug`, practice declares `skills: [slug]`
+- **Retiring a skill:** add it to `compositions/deprecated.yaml` (name, replaced_by, reason, since) in the same commit that deletes it — deploys prune retired names from user machines; lint blocks name reuse
 
 ### Eval-Proven Patterns
 
