@@ -1,7 +1,7 @@
 ---
 id: "09"
 title: "Clean post-review eval baseline exists"
-status: blocked
+status: done
 blocked_by: ["01", "02", "03", "04", "05", "11"]
 spec: "project-review-followup"
 ---

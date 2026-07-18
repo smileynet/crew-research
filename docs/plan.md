@@ -183,7 +183,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 06 | doctor.sh + catalog.sh report current reality | ✅ done (cd78f2c — tier reconciliation, recall staleness/cron, frontmatter lint, portable grep; catalog tags + --tier) |
 | 07 | Installed recall CLI matches source and docs | ✅ done — 0.2.0 reinstalled from source; import round-trip verified; all install docs point at ./tools/recall; spike findings promoted |
 | 08 | Dead/broken tooling pruned or repaired | ✅ done — okf-bundle + prime hook deleted (decisions recorded), inspect-session exec bit fixed, run.sh skips null adapters, init.sh dead code removed |
-| 09 | Clean post-review eval baseline | 03, 04 (01/02/05/11 done) |
+| 09 | Clean post-review eval baseline | ✅ done (2026-07-18) — 26/35 judged (74.3%), 19/20 live activation; record: `docs/development/eval-baseline-2026-07-17.md` |
 | 10 | Session logs reveal actual skill/tool usage | ✅ done — spike PASS (activation detectable); 595 sessions analyzed; report in docs/development/session-skill-usage-2026-07-17.md |
 | 11 | Eval sessions cannot write outside their workdir | ✅ done (2b699cc — run-model-comparison.sh was the leaker, not run.sh) |
 | 12 | Re-run full suite to validate threshold calibration | ✅ done — 25/35 pass (71.4%, target ≥30%), 0 regressions, 0 infra failures; notes in docs/eval-results-2026-07-17.md |
@@ -191,8 +191,11 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 14 | feedback-loop-debugging passes both effectiveness evals | open (spec session-improvements-2026-07-17) |
 | 15 | Eval harness resume capability | open — implement only after t09 baseline run completes (harness scripts owned by live run) |
 | 16 | Steering references stop defeating progressive loading | open — needs ADR (options in ticket) |
-| 17 | Explore: script-file rule for bash invocations (windows steering) | open (spec field-feedback; from upstream 2026-07-17) |
-| 18 | Explore: concurrent-session ticket allocation guard | open (spec field-feedback; from upstream 2026-07-17) |
+| 17 | Explore: script-file rule for bash invocations (windows steering) | ✅ done (2026-07-18) — Git Bash invocation section in project-conventions references/windows.md |
+| 18 | Explore: concurrent-session ticket allocation guard | ✅ done (2026-07-18) — Creating Tickets section in frontier-work |
+| 19 | recall skill activates on memory questions | open — TPR 0/5 in baseline + verify run; description flatten ruled out; 3 hypotheses in ticket |
+
+**Frontier (2026-07-18):** 13, 14, 15, 16, 19. Baseline run complete — all harness/skill edit freezes lifted. Next release: v0.2.0 (changelog ready).
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 
