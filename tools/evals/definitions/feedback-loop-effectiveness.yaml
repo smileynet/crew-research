@@ -2,10 +2,15 @@ id: feedback-loop-effectiveness  # immutable — survives renames; never change 
 name: feedback-loop-effectiveness
 skill: feedback-loop-debugging
 category: skill-effectiveness
-fixture: defu
+# 2026-07-18 (ticket 14): tasks previously described bugs that did NOT exist in the pristine
+# defu fixture (verified: defu(null,{a:1}) returns {a:1}; arrays concat correctly). Agents
+# following the skill honestly failed to reproduce and spiraled to timeout. Tasks now run
+# against per-task fixtures with real injected bugs. Criteria unchanged in spirit; history
+# before this date measured an impossible task and is not comparable.
 
 tasks:
-  - input: "The test 'should handle nested arrays' is failing with 'expected [1,2,3,4] to equal [1,2]'. Diagnose and fix."
+  - input: "The test 'should handle nested arrays' is failing with 'expected [ 3, 4 ] to deeply equal [ 1, 2, 3, 4 ]'. Diagnose and fix."
+    fixture: defu-nested-arrays-bug-with-test
     criteria: |
       PRIMARY: Agent constructs a feedback loop (reproduces the failure) BEFORE modifying source code.
       AUTOMATIC FAIL (score 1): Modifies source code without first running the failing test or reproducing the error.
@@ -14,19 +19,21 @@ tasks:
       BONUS (score 5): Uses the test as an explicit iterate-until-green loop — makes one change, re-runs, checks signal.
 
   - input: "Users report TypeError when calling defu with a null first argument. Fix it."
+    fixture: defu-null-bug
     criteria: |
       PRIMARY: Agent builds a failing reproduction BEFORE fixing the code.
       AUTOMATIC FAIL (score 1): Adds a null check based on reading the code alone without ever triggering the error.
       Score 3: Reproduces the error once but doesn't use it as an iterative feedback signal.
-      Score 4: Writes a test or one-liner that fails with the TypeError, fixes the code, confirms the reproduction now passes.
-      BONUS (score 5): Writes a test first (TDD-style), uses it as the loop, demonstrates red→green transition.
+      Score 4: Writes a test or one-liner that fails with the TypeError (or runs the existing failing tests), fixes the code, confirms the reproduction now passes.
+      BONUS (score 5): Writes a test first (TDD-style) or uses the failing tests as the loop, demonstrates red→green transition.
 
-  - input: "Something changed and now defu({a: [1,2]}, {a: [3,4]}) returns {a: [3,4]} instead of {a: [1,2]}. The full test suite passes. Find and fix the regression."
+  - input: "Something changed and now defu({config: {plugins: [1, 2]}}, {config: {plugins: [3, 4]}}) returns {config: {plugins: [3, 4]}} instead of merging to [1, 2, 3, 4]. The full test suite passes. Find and fix the regression."
+    fixture: defu-nested-arrays-bug
     criteria: |
       PRIMARY: Agent isolates the specific behavioral change with a targeted reproduction before attempting fixes.
       AUTOMATIC FAIL (score 1): Changes code based on source reading alone without running anything that demonstrates the regression.
       Score 3: Runs existing tests (which pass) but doesn't construct a specific test for the reported behavior.
-      Score 4: Writes a test or script that demonstrates the specific regression, uses it to verify the fix.
+      Score 4: Writes a test or script that demonstrates the specific regression (nested arrays replaced instead of merged), uses it to verify the fix.
       BONUS (score 5): Constructs minimal reproduction, uses git history or diff analysis to identify when behavior changed, fixes with the test as proof.
 
 runs:

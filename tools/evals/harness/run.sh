@@ -379,18 +379,20 @@ run_eval() {
 
   # Collect tasks
   local task_count=$(yq '.tasks | length // 0' "$def_file")
-  local inputs=() criterias=() ideals=()
+  local inputs=() criterias=() ideals=() task_fixtures=()
 
   if [[ $task_count -gt 0 ]]; then
     for i in $(seq 0 $((task_count - 1))); do
       inputs+=("$(yq ".tasks[$i].input" "$def_file")")
       criterias+=("$(yq ".tasks[$i].criteria" "$def_file")")
       ideals+=("$(yq ".tasks[$i].ideal // \"\"" "$def_file")")
+      task_fixtures+=("$(yq ".tasks[$i].fixture // \"\"" "$def_file")")
     done
   else
     inputs+=("$(yq '.input' "$def_file")")
     criterias+=("$(yq '.criteria' "$def_file")")
     ideals+=("$(yq '.ideal // ""' "$def_file")")
+    task_fixtures+=("")
   fi
 
   # Run each condition
@@ -413,7 +415,10 @@ run_eval() {
 
       for trial in $(seq 1 "$run_trials"); do
         local workdir=$(mktemp -d -t "eval-${name}-${cond}-XXXX")
-        [[ -n "$fixture" ]] && setup_fixture "$workdir" "$fixture"
+        # Per-task fixture overrides def-level fixture
+        local effective_fixture="${task_fixtures[$task_idx]:-}"
+        [[ -z "$effective_fixture" ]] && effective_fixture="$fixture"
+        [[ -n "$effective_fixture" ]] && setup_fixture "$workdir" "$effective_fixture"
         mkdir -p "$workdir/.kiro/skills" "$workdir/.kiro/steering"
 
         # Deploy all skills for this condition (SKILL.md + references/)

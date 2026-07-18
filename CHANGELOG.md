@@ -13,6 +13,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Architecture reviews now push back on rubber-stamping — accepting 3+ refactoring candidates in a row without discussion triggers a hard pause and a trade-off challenge instead of silent agreement
+- Debugging guidance now covers continuous signals (memory leaks, latency) — establish a baseline, state a numeric pass/fail criterion, change one thing, re-measure
+- Eval tasks can now target per-task fixtures — debugging evals run against fixtures with real injected bugs instead of describing bugs that don't exist
 
 ## [0.2.0] - 2026-07-18
 

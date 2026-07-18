@@ -42,6 +42,8 @@ All four must be true. If any is missing, you're still in Phase 1.
 
 A loop that takes 30 seconds is barely useful. Target: < 5 seconds, deterministic, sharp assertion.
 
+**Continuous signals** (memory leaks, latency, throughput): the loop is measure → ONE change → re-measure. Establish the baseline rate first, state a numeric PASS/FAIL criterion up front ("growth < 5MB over 1000 requests"), and compress time with load (don't wait an hour — hammer it for 60s). Isolate differentially: run with/without a suspect component and compare rates.
+
 For non-deterministic bugs (flaky tests, race conditions, environment-dependent): read `references/tighten.md` — it covers raising reproduction rate, pinning randomness, and making flakes debuggable.
 
 ## Phase 2: Red → Green Loop
