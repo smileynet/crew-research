@@ -204,8 +204,12 @@ The deployment model: basic (minimal global fundamentals), full (complete lifecy
 _Avoid_: "packs" (no pack mechanism exists), "optional tier" (it's not a tier, it's per-project)
 
 **Steering pointer**:
-A tiny always-loaded steering file (~50 chars) that instructs the agent to read a manual-inclusion detail file when a specific skill activates. Provides project-specific knowledge injection into global skills without forking or drift.
-_Avoid_: extends (that's a full shadow), params (that's value substitution)
+A tiny always-loaded steering file (~50 chars) that instructs the agent to read a detail file living in the skills tree (the non-eager zone, per ADR 0009). Provides project-specific knowledge injection into global skills without forking or drift.
+_Avoid_: extends (that's a full shadow), params (that's value substitution), placing detail files under steering/ (eager-loads regardless of inclusion markers)
+
+**Steering shadow**:
+When always-on steering covers a skill's trigger space, the matcher correctly never loads the redundant skill — activation evals for such skills score 0 TPR while behavior stays correct. Measure steering field compliance instead (precedent: activation-recall retirement, ticket 19).
+_Avoid_: activation failure (the behavior isn't failing), matcher bug (the matcher is right)
 
 
 **Recall**:
