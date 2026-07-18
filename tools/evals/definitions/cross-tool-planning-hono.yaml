@@ -1,3 +1,4 @@
+id: cross-tool-planning-hono  # immutable — survives renames; never change once results reference it
 name: cross-tool-planning-hono
 description: "Compare planning, code, and prose quality on a larger project (hono, ~15k LOC) to stress-test codebase navigation."
 skill: null

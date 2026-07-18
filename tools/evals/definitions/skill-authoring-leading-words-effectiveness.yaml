@@ -1,3 +1,4 @@
+id: skill-authoring-leading-words-effectiveness  # immutable — survives renames; never change once results reference it
 name: skill-authoring-leading-words-effectiveness
 description: "Does the skill-authoring skill guide authors to use leading words — compact pretrained concepts that anchor agent behavior?"
 skill: skill-authoring

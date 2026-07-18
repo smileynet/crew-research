@@ -1,3 +1,4 @@
+id: activation-world-building  # immutable — survives renames; never change once results reference it
 name: activation-world-building
 skill: world-building
 category: activation

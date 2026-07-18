@@ -1,3 +1,4 @@
+id: spec-driven-development-effectiveness  # immutable — survives renames; never change once results reference it
 name: spec-driven-development-effectiveness
 description: "Does the spec-driven-development skill produce better project planning artifacts? Tests baseline vs original skill vs enhanced skill (with complexity scoring, clarification gate, non-goals, reconciliation)."
 skill: spec-driven-development

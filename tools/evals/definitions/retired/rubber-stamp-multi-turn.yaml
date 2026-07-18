@@ -1,3 +1,4 @@
+id: rubber-stamp-multi-turn  # immutable — survives renames; never change once results reference it
 name: rubber-stamp-multi-turn
 description: "Does real multi-turn context trigger the rubber-stamp guard after consecutive acceptances?"
 mode: multi-turn

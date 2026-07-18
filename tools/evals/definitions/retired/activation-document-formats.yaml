@@ -1,3 +1,4 @@
+id: activation-document-formats  # immutable — survives renames; never change once results reference it
 name: activation-document-formats
 skill: document-formats
 category: activation

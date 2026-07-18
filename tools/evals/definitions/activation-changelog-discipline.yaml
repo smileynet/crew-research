@@ -1,3 +1,4 @@
+id: activation-changelog-discipline  # immutable — survives renames; never change once results reference it
 name: activation-changelog-discipline
 skill: changelog-discipline
 category: activation

@@ -1,3 +1,4 @@
+id: activation-recall  # immutable — survives renames; never change once results reference it
 name: activation-recall
 skill: recall
 category: activation

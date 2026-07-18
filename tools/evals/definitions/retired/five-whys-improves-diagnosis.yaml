@@ -1,3 +1,4 @@
+id: five-whys-improves-diagnosis  # immutable — survives renames; never change once results reference it
 name: five-whys-improves-diagnosis
 skill: five-whys
 category: skill-effectiveness

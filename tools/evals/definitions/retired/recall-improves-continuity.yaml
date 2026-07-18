@@ -1,3 +1,4 @@
+id: recall-improves-continuity  # immutable — survives renames; never change once results reference it
 name: recall-improves-continuity
 skill: recall
 category: skill-effectiveness

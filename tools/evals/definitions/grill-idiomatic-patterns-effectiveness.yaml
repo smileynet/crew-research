@@ -1,3 +1,4 @@
+id: grill-idiomatic-patterns-effectiveness  # immutable — survives renames; never change once results reference it
 name: grill-idiomatic-patterns-effectiveness
 description: "Does the negative research gate cause the agent to proactively search for warnings/problems before recommending?"
 skill: grill-with-docs

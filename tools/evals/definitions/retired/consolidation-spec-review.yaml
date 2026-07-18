@@ -1,3 +1,4 @@
+id: consolidation-spec-review  # immutable — survives renames; never change once results reference it
 name: consolidation-spec-review
 description: "Does spec-review gate behavior survive consolidation into spec-driven-development/references/?"
 category: consolidation-impact

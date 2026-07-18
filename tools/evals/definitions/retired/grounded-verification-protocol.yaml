@@ -1,3 +1,4 @@
+id: grounded-verification-protocol  # immutable — survives renames; never change once results reference it
 name: grounded-verification-protocol
 skill: verification-protocol
 category: skill-effectiveness

@@ -1,3 +1,4 @@
+id: small-model-instruction-following  # immutable — survives renames; never change once results reference it
 name: small-model-instruction-following
 description: "Compare small/fast models at precise instruction following — output format compliance and constraint adherence"
 category: small-model-comparison

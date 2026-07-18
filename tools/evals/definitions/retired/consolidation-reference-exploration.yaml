@@ -1,3 +1,4 @@
+id: consolidation-reference-exploration  # immutable — survives renames; never change once results reference it
 name: consolidation-reference-exploration
 description: "Does reference exploration behavior survive consolidation into study-reference?"
 category: consolidation-impact

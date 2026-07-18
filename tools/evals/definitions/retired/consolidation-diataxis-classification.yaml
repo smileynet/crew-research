@@ -1,3 +1,4 @@
+id: consolidation-diataxis-classification  # immutable — survives renames; never change once results reference it
 name: consolidation-diataxis-classification
 description: "Does documentation classification behavior survive consolidation into docs-audit/references/?"
 category: consolidation-impact

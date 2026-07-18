@@ -1,3 +1,4 @@
+id: grill-research-gates-codex  # immutable — survives renames; never change once results reference it
 name: grill-research-gates-codex
 description: "Does the grill-with-docs research gate set cause codex to do negative research before recommending approaches?"
 skill: grill-with-docs

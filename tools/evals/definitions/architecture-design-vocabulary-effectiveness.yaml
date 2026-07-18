@@ -1,3 +1,4 @@
+id: architecture-design-vocabulary-effectiveness  # immutable — survives renames; never change once results reference it
 name: architecture-design-vocabulary-effectiveness
 description: "Does the architecture-deepening skill use consistent deep-module vocabulary (module, interface, depth, seam, adapter, leverage, locality)?"
 skill: architecture-deepening

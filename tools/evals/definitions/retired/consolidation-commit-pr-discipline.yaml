@@ -1,3 +1,4 @@
+id: consolidation-commit-pr-discipline  # immutable — survives renames; never change once results reference it
 name: consolidation-commit-pr-discipline
 description: "Does commit message discipline survive consolidation into git-protocol/references/?"
 category: consolidation-impact

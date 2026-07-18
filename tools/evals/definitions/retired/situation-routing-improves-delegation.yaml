@@ -1,3 +1,4 @@
+id: situation-routing-improves-delegation  # immutable — survives renames; never change once results reference it
 name: situation-routing-improves-delegation
 skill: situation-routing
 category: skill-effectiveness

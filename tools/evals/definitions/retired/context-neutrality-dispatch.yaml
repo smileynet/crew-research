@@ -1,3 +1,4 @@
+id: context-neutrality-dispatch  # immutable — survives renames; never change once results reference it
 name: context-neutrality-dispatch
 description: "Does dispatching evaluation tasks to a subagent produce better critique than inline review?"
 skill: code-review

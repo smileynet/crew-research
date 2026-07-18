@@ -1,3 +1,4 @@
+id: activation-ai-generation-hygiene  # immutable — survives renames; never change once results reference it
 name: activation-ai-generation-hygiene
 skill: ai-generation-hygiene
 category: activation

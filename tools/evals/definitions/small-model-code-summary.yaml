@@ -1,3 +1,4 @@
+id: small-model-code-summary  # immutable — survives renames; never change once results reference it
 name: small-model-code-summary
 description: "Compare small/fast models at concise code summarization — the 'what does this do?' task"
 category: small-model-comparison

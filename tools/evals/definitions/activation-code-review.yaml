@@ -1,3 +1,4 @@
+id: activation-code-review  # immutable — survives renames; never change once results reference it
 name: activation-code-review
 skill: code-review
 category: activation

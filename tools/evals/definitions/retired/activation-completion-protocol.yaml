@@ -1,3 +1,4 @@
+id: activation-completion-protocol  # immutable — survives renames; never change once results reference it
 name: activation-completion-protocol
 skill: completion-protocol
 category: activation

@@ -1,3 +1,4 @@
+id: grounded-eval-criteria  # immutable — survives renames; never change once results reference it
 name: grounded-eval-criteria
 skill: eval-criteria
 category: skill-effectiveness

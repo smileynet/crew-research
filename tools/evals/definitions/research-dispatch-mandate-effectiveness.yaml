@@ -1,3 +1,4 @@
+id: research-dispatch-mandate-effectiveness  # immutable — survives renames; never change once results reference it
 name: research-dispatch-mandate-effectiveness
 description: "Does the steering cause the agent to dispatch subagents for multi-topic research instead of researching inline?"
 category: steering-effectiveness

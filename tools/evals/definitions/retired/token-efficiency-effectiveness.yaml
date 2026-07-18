@@ -1,3 +1,4 @@
+id: token-efficiency-effectiveness  # immutable — survives renames; never change once results reference it
 name: token-efficiency-effectiveness
 description: "Does the skill reduce context waste by compressing between phases and extracting selectively from research?"
 skill: token-efficiency

@@ -1,3 +1,4 @@
+id: handoff-improves-continuity  # immutable — survives renames; never change once results reference it
 # RETIRED 2026-07-16: subsumed by handoff-decaying-resolution (its task 2 scores the same structure signal plus compression). Ticket 05.
 name: handoff-improves-continuity
 skill: handoff

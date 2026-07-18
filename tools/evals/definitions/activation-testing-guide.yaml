@@ -1,3 +1,4 @@
+id: activation-testing-guide  # immutable — survives renames; never change once results reference it
 name: activation-testing-guide
 skill: testing-guide
 category: activation

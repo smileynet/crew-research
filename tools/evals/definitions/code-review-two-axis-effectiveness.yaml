@@ -1,3 +1,4 @@
+id: code-review-two-axis-effectiveness  # immutable — survives renames; never change once results reference it
 name: code-review-two-axis-effectiveness
 description: "Does the code-review skill evaluate against BOTH coding standards AND the originating spec?"
 skill: code-review

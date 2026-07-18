@@ -1,3 +1,4 @@
+id: consolidation-vertical-slice-planning  # immutable — survives renames; never change once results reference it
 name: consolidation-vertical-slice-planning
 description: "Does methodology routing (spike/tracer/slice) survive consolidation into planning-cycles/references/?"
 category: consolidation-impact

@@ -1,3 +1,4 @@
+id: activation-git-protocol  # immutable — survives renames; never change once results reference it
 name: activation-git-protocol
 skill: git-protocol
 category: activation

@@ -1,3 +1,4 @@
+id: activation-adr-authoring  # immutable — survives renames; never change once results reference it
 name: activation-adr-authoring
 skill: adr-authoring
 category: activation

@@ -1,3 +1,5 @@
+id: cross-tool-planning-with-skills  # immutable — survives renames; never change once results reference it
+known_gap: "codex-family judging — fails on codex-family judges while kiro siblings pass; not a fresh regression (triage 2026-07-17)"
 name: cross-tool-planning-with-skills
 description: "Compare planning quality across tools WITH grill-with-docs and source-authority skills deployed."
 skill: grill-with-docs

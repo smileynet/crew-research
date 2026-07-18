@@ -1,3 +1,4 @@
+id: verification-protocol-improves-completion  # immutable — survives renames; never change once results reference it
 name: verification-protocol-improves-completion
 description: "Does the verification-protocol skill make the agent run checks and cite evidence before claiming done, on tasks complex enough that skipping verification is tempting?"
 skill: verification-protocol

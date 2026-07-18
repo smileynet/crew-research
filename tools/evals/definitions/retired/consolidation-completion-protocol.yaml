@@ -1,3 +1,4 @@
+id: consolidation-completion-protocol  # immutable — survives renames; never change once results reference it
 name: consolidation-completion-protocol
 description: "Does task completion signaling survive consolidation into git-protocol/references/?"
 category: consolidation-impact

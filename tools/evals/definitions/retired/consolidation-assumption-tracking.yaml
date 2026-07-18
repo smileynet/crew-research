@@ -1,3 +1,4 @@
+id: consolidation-assumption-tracking  # immutable — survives renames; never change once results reference it
 name: consolidation-assumption-tracking
 description: "Does assumption surfacing behavior survive consolidation into planning-cycles/references/?"
 category: consolidation-impact

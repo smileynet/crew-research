@@ -1,3 +1,4 @@
+id: small-model-commit-message  # immutable — survives renames; never change once results reference it
 name: small-model-commit-message
 description: "Compare small/fast models at generating conventional commit messages from diffs"
 category: small-model-comparison

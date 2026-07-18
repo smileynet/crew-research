@@ -1,3 +1,4 @@
+id: activation-reference-exploration  # immutable — survives renames; never change once results reference it
 name: activation-reference-exploration
 skill: reference-exploration
 category: activation

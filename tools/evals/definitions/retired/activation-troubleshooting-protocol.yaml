@@ -1,3 +1,4 @@
+id: activation-troubleshooting-protocol  # immutable — survives renames; never change once results reference it
 name: activation-troubleshooting-protocol
 skill: troubleshooting-protocol
 category: activation

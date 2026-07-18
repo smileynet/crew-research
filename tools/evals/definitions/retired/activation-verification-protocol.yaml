@@ -1,3 +1,4 @@
+id: activation-verification-protocol  # immutable — survives renames; never change once results reference it
 name: activation-verification-protocol
 skill: verification-protocol
 category: activation

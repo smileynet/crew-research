@@ -1,3 +1,4 @@
+id: activation-readme-writing  # immutable — survives renames; never change once results reference it
 name: activation-readme-writing
 skill: readme-writing
 category: activation

@@ -1,3 +1,4 @@
+id: activation-presentation-writing  # immutable — survives renames; never change once results reference it
 name: activation-presentation-writing
 skill: presentation-writing
 category: activation

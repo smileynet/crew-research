@@ -1,3 +1,4 @@
+id: spec-self-gating-effectiveness  # immutable — survives renames; never change once results reference it
 name: spec-self-gating-effectiveness
 description: "Does the spec-driven-development skill cause the agent to self-gate (refuse vague input, self-review before presenting) when NOT explicitly asked to review?"
 skill: spec-driven-development

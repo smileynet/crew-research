@@ -18,8 +18,14 @@ Always run in background (see `.kiro/steering/eval-execution.md`): a full suite 
 ## Dual-Run Definition Schema (run.sh)
 
 ```yaml
-name: my-skill-effectiveness          # required, matches filename
+id: my-skill-effectiveness            # IMMUTABLE — set once at creation, survives renames.
+                                      # Longitudinal comparison keys on id, never name
+                                      # (2026-07-15→17: only 12/35 defs comparable after renames).
+name: my-skill-effectiveness          # required, matches filename (renameable)
 description: "What this measures"     # required
+known_gap: "model-family — why"       # optional — documents a known cross-model failure so
+                                      # it doesn't read as a fresh regression each run.
+                                      # Current: 3 defs fail/flip under codex-family judging.
 fixture: defu                          # optional — fixtures/{name}.yaml (git-clone workspace)
 skill: my-skill                        # legacy shorthand — prefer conditions:
 

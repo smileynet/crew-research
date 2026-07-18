@@ -1,3 +1,4 @@
+id: agents-md-authoring-effectiveness  # immutable — survives renames; never change once results reference it
 name: agents-md-authoring-effectiveness
 description: "Does the skill produce shorter, more structured AGENTS.md files with escalation rules and verifiable criteria?"
 skill: agents-md-authoring

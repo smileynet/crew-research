@@ -1,3 +1,4 @@
+id: small-model-tool-calling  # immutable — survives renames; never change once results reference it
 name: small-model-tool-calling
 description: "Compare small/fast models at tool call generation — correct function names, params, and ordering"
 category: small-model-comparison

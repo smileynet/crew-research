@@ -1,3 +1,4 @@
+id: spike-1-compound-prompt  # immutable — survives renames; never change once results reference it
 name: spike-1-compound-prompt
 description: "Spike 1: Does embedding synthetic conversation history in the prompt trigger interactive gate behaviors?"
 skill: planning-cycles

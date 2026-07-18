@@ -1,3 +1,4 @@
+id: recall-search-precision  # immutable — survives renames; never change once results reference it
 name: recall-search-precision
 description: "Tests that recall-check steering correctly routes: searches recall for history questions, does NOT search for code/file/current-session questions"
 category: recall-routing

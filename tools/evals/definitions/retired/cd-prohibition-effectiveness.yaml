@@ -1,3 +1,4 @@
+id: cd-prohibition-effectiveness  # immutable — survives renames; never change once results reference it
 name: cd-prohibition-effectiveness
 description: "Does the project-conventions steering prevent the agent from using cd in shell commands?"
 skill: project-conventions

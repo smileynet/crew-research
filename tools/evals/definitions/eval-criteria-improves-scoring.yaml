@@ -1,3 +1,4 @@
+id: eval-criteria-improves-scoring  # immutable — survives renames; never change once results reference it
 name: eval-criteria-improves-scoring
 skill: eval-criteria
 category: skill-effectiveness

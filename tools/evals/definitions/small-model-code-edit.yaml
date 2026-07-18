@@ -1,3 +1,4 @@
+id: small-model-code-edit  # immutable — survives renames; never change once results reference it
 name: small-model-code-edit
 description: "Compare small/fast models at targeted code edits — the inline completion / quick fix task"
 category: small-model-comparison

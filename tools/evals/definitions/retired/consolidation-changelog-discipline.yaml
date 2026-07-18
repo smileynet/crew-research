@@ -1,3 +1,4 @@
+id: consolidation-changelog-discipline  # immutable — survives renames; never change once results reference it
 name: consolidation-changelog-discipline
 description: "Does changelog quality discipline survive consolidation into writing-style/references/?"
 category: consolidation-impact

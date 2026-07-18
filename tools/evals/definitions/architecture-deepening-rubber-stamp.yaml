@@ -1,3 +1,4 @@
+id: architecture-deepening-rubber-stamp  # immutable — survives renames; never change once results reference it
 name: architecture-deepening-rubber-stamp
 description: "Does architecture-deepening skill challenge the user after 3+ consecutive unmodified acceptances of refactoring candidates?"
 skill: architecture-deepening

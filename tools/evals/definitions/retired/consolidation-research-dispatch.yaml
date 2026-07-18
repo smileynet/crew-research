@@ -1,3 +1,4 @@
+id: consolidation-research-dispatch  # immutable — survives renames; never change once results reference it
 name: consolidation-research-dispatch
 description: "Does parallel research dispatch pattern survive consolidation into research-methodology/references/?"
 category: consolidation-impact

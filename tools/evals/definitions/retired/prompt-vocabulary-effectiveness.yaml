@@ -1,3 +1,4 @@
+id: prompt-vocabulary-effectiveness  # immutable — survives renames; never change once results reference it
 name: prompt-vocabulary-effectiveness
 description: "Does the skill produce specific named technique recommendations with decision trees and sequencing guidance?"
 skill: prompt-vocabulary

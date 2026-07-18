@@ -1,3 +1,4 @@
+id: grounded-source-authority  # immutable — survives renames; never change once results reference it
 name: grounded-source-authority
 skill: source-authority
 category: skill-effectiveness

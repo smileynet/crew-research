@@ -1,3 +1,4 @@
+id: grill-question-dithering-kiro  # immutable — survives renames; never change once results reference it
 name: grill-question-dithering-kiro
 description: "Does kiro-cli produce actionable analysis vs. a list of unanswered questions when given a design task with sufficient context?"
 skill: grill-with-docs

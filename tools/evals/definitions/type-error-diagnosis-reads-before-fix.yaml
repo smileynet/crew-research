@@ -1,3 +1,4 @@
+id: type-error-diagnosis-reads-before-fix  # immutable — survives renames; never change once results reference it
 name: type-error-diagnosis-reads-before-fix
 skill: feedback-loop-debugging
 category: skill-effectiveness

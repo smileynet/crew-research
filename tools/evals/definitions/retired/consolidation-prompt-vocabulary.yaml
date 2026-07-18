@@ -1,3 +1,4 @@
+id: consolidation-prompt-vocabulary  # immutable — survives renames; never change once results reference it
 name: consolidation-prompt-vocabulary
 description: "Does reasoning technique selection survive consolidation into planning-cycles/references/?"
 category: consolidation-impact

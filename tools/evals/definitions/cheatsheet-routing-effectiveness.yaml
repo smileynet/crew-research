@@ -1,3 +1,4 @@
+id: cheatsheet-routing-effectiveness  # immutable — survives renames; never change once results reference it
 name: cheatsheet-routing-effectiveness
 description: "Does the cheatsheet skill route users to the correct workflow based on their situation?"
 skill: cheatsheet

@@ -1,3 +1,4 @@
+id: activation-script-authoring  # immutable — survives renames; never change once results reference it
 name: activation-script-authoring
 skill: script-authoring
 category: activation

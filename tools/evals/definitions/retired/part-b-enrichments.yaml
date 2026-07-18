@@ -1,3 +1,4 @@
+id: part-b-enrichments  # immutable — survives renames; never change once results reference it
 name: part-b-enrichments
 description: "Do the Part B enrichments add measurable value? Tests Phase 0 specify, three-verdict review, rubber-stamp guard, and JTBD table."
 skill: planning-cycles

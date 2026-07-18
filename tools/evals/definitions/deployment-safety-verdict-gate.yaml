@@ -1,3 +1,4 @@
+id: deployment-safety-verdict-gate  # immutable — survives renames; never change once results reference it
 name: deployment-safety-verdict-gate
 description: "Does deployment-safety skill produce an explicit DEPLOY CONFIRMED/HOLD/ROLLBACK verdict after verification steps?"
 fixture: defu

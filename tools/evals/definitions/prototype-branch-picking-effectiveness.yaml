@@ -1,3 +1,4 @@
+id: prototype-branch-picking-effectiveness  # immutable — survives renames; never change once results reference it
 name: prototype-branch-picking-effectiveness
 description: "Does the prototype skill correctly identify and fork between Logic (state/data) vs UI (visual) vs Spike (feasibility) branches?"
 skill: prototype-protocol

@@ -1,3 +1,4 @@
+id: consolidation-enforcement-hierarchy  # immutable — survives renames; never change once results reference it
 name: consolidation-enforcement-hierarchy
 description: "Does enforcement level selection survive consolidation into skill-authoring/references/?"
 category: consolidation-impact

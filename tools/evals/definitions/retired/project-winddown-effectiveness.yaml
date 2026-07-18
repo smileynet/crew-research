@@ -1,3 +1,4 @@
+id: project-winddown-effectiveness  # immutable — survives renames; never change once results reference it
 name: project-winddown-effectiveness
 description: "Does the skill produce a winddown with minimal ceremony and correct output location?"
 skill: project-winddown

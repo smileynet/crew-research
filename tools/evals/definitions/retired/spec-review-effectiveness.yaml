@@ -1,3 +1,4 @@
+id: spec-review-effectiveness  # immutable — survives renames; never change once results reference it
 name: spec-review-effectiveness
 description: "Does the spec-review skill catch quality issues that baseline accepts?"
 skill: spec-review

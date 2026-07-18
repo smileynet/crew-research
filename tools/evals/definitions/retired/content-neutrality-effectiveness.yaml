@@ -1,3 +1,4 @@
+id: content-neutrality-effectiveness  # immutable — survives renames; never change once results reference it
 name: content-neutrality-effectiveness
 description: "Does neutral evaluation catch quality issues that same-context review misses? Tests across docs, changelogs, and skill descriptions."
 skill: writing-style

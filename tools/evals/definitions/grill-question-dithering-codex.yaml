@@ -1,3 +1,5 @@
+id: grill-question-dithering-codex  # immutable — survives renames; never change once results reference it
+known_gap: "codex-family judging — intermittent: failed t12 (delta -0.34), passed t09 (5.00); flips with judge family, not a fresh regression (triage 2026-07-17)"
 name: grill-question-dithering-codex
 description: "Does codex produce actionable analysis vs. a list of unanswered questions when given a design task with sufficient context?"
 skill: grill-with-docs

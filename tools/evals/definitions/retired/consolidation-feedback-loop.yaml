@@ -1,3 +1,4 @@
+id: consolidation-feedback-loop  # immutable — survives renames; never change once results reference it
 name: consolidation-feedback-loop
 description: "Does feedback-loop debugging behavior survive consolidation into troubleshooting-protocol?"
 category: consolidation-impact

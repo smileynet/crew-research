@@ -1,3 +1,4 @@
+id: steering-pointer-effectiveness  # immutable — survives renames; never change once results reference it
 name: steering-pointer-effectiveness
 description: "Does a steering pointer reliably cause the agent to read a manual-inclusion detail file and incorporate its content during skill execution?"
 skill: grill-with-docs

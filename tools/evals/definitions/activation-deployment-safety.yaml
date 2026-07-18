@@ -1,3 +1,4 @@
+id: activation-deployment-safety  # immutable — survives renames; never change once results reference it
 name: activation-deployment-safety
 skill: deployment-safety
 category: activation

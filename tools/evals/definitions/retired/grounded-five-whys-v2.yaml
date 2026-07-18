@@ -1,3 +1,4 @@
+id: grounded-five-whys-v2  # immutable — survives renames; never change once results reference it
 name: grounded-five-whys-v2
 skill: five-whys
 category: skill-effectiveness

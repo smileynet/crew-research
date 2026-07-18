@@ -1,3 +1,4 @@
+id: activation-diataxis-classification  # immutable — survives renames; never change once results reference it
 name: activation-diataxis-classification
 skill: diataxis-classification
 category: activation

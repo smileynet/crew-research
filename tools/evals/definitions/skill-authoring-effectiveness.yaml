@@ -1,3 +1,4 @@
+id: skill-authoring-effectiveness  # immutable — survives renames; never change once results reference it
 name: skill-authoring-effectiveness
 description: "Does the skill-authoring skill produce better-structured skills with stronger activation triggers?"
 skill: skill-authoring

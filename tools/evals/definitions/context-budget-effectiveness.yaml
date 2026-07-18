@@ -1,3 +1,4 @@
+id: context-budget-effectiveness  # immutable — survives renames; never change once results reference it
 name: context-budget-effectiveness
 skill: context-budget-awareness
 category: skill-effectiveness

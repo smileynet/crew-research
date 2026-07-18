@@ -1,3 +1,4 @@
+id: grill-research-gates-codex-steering  # immutable — survives renames; never change once results reference it
 name: grill-research-gates-codex-steering
 description: "Does putting research gates in AGENTS.md (always-loaded) produce stronger compliance in codex than a skill file?"
 skill: grill-with-docs

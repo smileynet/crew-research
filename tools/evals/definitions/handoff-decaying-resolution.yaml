@@ -1,3 +1,4 @@
+id: handoff-decaying-resolution  # immutable — survives renames; never change once results reference it
 name: handoff-decaying-resolution
 description: "Does the handoff skill produce compressed, phase-aware handoffs that decay old context?"
 skill: handoff

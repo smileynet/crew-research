@@ -1,3 +1,4 @@
+id: activation-commit-pr-discipline  # immutable — survives renames; never change once results reference it
 name: activation-commit-pr-discipline
 skill: commit-pr-discipline
 category: activation

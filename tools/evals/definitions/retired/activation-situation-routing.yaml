@@ -1,3 +1,4 @@
+id: activation-situation-routing  # immutable — survives renames; never change once results reference it
 name: activation-situation-routing
 skill: situation-routing
 category: activation

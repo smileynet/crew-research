@@ -1,3 +1,4 @@
+id: grounded-situation-routing  # immutable — survives renames; never change once results reference it
 name: grounded-situation-routing
 skill: situation-routing
 category: skill-effectiveness

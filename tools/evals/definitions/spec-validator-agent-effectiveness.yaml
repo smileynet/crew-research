@@ -1,3 +1,4 @@
+id: spec-validator-agent-effectiveness  # immutable — survives renames; never change once results reference it
 name: spec-validator-agent-effectiveness
 description: "Does adding the code-review skill alongside spec-driven-development catch spec quality issues (vague validation, scope creep) that spec-driven-development alone misses?"
 skill: spec-driven-development

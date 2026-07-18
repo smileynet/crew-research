@@ -1,3 +1,4 @@
+id: activation-writing-style  # immutable — survives renames; never change once results reference it
 name: activation-writing-style
 skill: writing-style
 category: activation

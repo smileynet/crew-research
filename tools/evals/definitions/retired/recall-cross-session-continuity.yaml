@@ -1,3 +1,4 @@
+id: recall-cross-session-continuity  # immutable — survives renames; never change once results reference it
 name: recall-cross-session-continuity
 description: "Does recall enable the agent to answer questions about decisions from prior sessions that are NOT in the current workspace?"
 mode: multi-turn

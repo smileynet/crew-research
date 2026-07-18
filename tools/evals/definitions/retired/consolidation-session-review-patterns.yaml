@@ -1,3 +1,4 @@
+id: consolidation-session-review-patterns  # immutable — survives renames; never change once results reference it
 name: consolidation-session-review-patterns
 description: "Does session review behavior survive consolidation into eval-criteria/references/?"
 category: consolidation-impact

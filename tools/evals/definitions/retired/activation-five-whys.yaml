@@ -1,3 +1,4 @@
+id: activation-five-whys  # immutable — survives renames; never change once results reference it
 name: activation-five-whys
 skill: five-whys
 category: activation

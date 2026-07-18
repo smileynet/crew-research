@@ -1,3 +1,4 @@
+id: consolidation-ux-walkthrough  # immutable — survives renames; never change once results reference it
 name: consolidation-ux-walkthrough
 description: "Does UX walkthrough behavior survive consolidation into code-review/references/?"
 category: consolidation-impact

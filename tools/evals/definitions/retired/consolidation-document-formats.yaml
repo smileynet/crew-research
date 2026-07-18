@@ -1,3 +1,4 @@
+id: consolidation-document-formats  # immutable — survives renames; never change once results reference it
 name: consolidation-document-formats
 description: "Does markup format selection guidance survive consolidation into writing-style/references/?"
 category: consolidation-impact

@@ -1,3 +1,4 @@
+id: activation-session-review-patterns  # immutable — survives renames; never change once results reference it
 name: activation-session-review-patterns
 skill: session-review-patterns
 category: activation
