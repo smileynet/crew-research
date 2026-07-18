@@ -1,0 +1,34 @@
+id: activation-architecture-deepening  # immutable — survives renames; never change once results reference it
+name: activation-architecture-deepening
+skill: architecture-deepening
+category: activation
+
+tasks:
+  # Rubber-stamp / mid-review acceptance phrasings (mirrors architecture-deepening-rubber-stamp judged tasks)
+  - input: |
+      We're mid-way through an architecture review. Earlier you proposed three refactoring candidates: (1) consolidate the event handlers, (2) merge the validator modules, (3) combine the config parsers. I already accepted candidates 1 and 2 as-is. Candidate 3 sounds right too. Accept.
+    expect_activation: true
+  - input: |
+      Continuing our refactoring review of the data access layer. I've accepted your candidates 1, 2, and 3 (QueryBuilder extraction, built-in pooling, repo merge). Accept candidate 4 as well.
+    expect_activation: true
+  - input: "The refactoring proposals all look good to me — keep them and let's move on."
+    expect_activation: true
+  # Core deepening vocabulary
+  - input: "Our codebase has a lot of shallow modules — can you find opportunities to deepen them?"
+    expect_activation: true
+  - input: "There's architectural friction in src/services — find places to consolidate tightly-coupled modules and simplify interfaces."
+    expect_activation: true
+  # Negatives
+  - input: "Create a new endpoint for fetching user preferences."
+    expect_activation: false
+  - input: "Approve my PTO request in the HR system."
+    expect_activation: false
+  - input: "Review this pull request for security issues."
+    expect_activation: false
+  - input: "Write a migration script to add the email_verified column."
+    expect_activation: false
+  - input: "What's the difference between composition and inheritance in OOP?"
+    expect_activation: false
+
+threshold: 3.5
+timeout: 60

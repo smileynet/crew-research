@@ -187,7 +187,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 10 | Session logs reveal actual skill/tool usage | ✅ done — spike PASS (activation detectable); 595 sessions analyzed; report in docs/development/session-skill-usage-2026-07-17.md |
 | 11 | Eval sessions cannot write outside their workdir | ✅ done (2b699cc — run-model-comparison.sh was the leaker, not run.sh) |
 | 12 | Re-run full suite to validate threshold calibration | ✅ done — 25/35 pass (71.4%, target ≥30%), 0 regressions, 0 infra failures; notes in docs/eval-results-2026-07-17.md |
-| 13 | architecture-deepening activates + rejects rubber-stamps | open (spec session-improvements-2026-07-17) |
+| 13 | architecture-deepening activates + rejects rubber-stamps | ✅ done (2026-07-18) — activation PASS (TPR 1.00, FPR 0), judged eval with-skill 5.00 / delta 4.00 |
 | 14 | feedback-loop-debugging passes both effectiveness evals | open (spec session-improvements-2026-07-17) |
 | 15 | Eval harness resume capability | open — implement only after t09 baseline run completes (harness scripts owned by live run) |
 | 16 | Steering references stop defeating progressive loading | open — needs ADR (options in ticket) |
@@ -197,7 +197,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 20 | init.sh prunes only skills it deployed (manifest-based) | ✅ done (2026-07-18, bea4bfd) — incident: tier prune deleted 13 archwright skills |
 | 21 | Deprecated-skills list drives cleanup of retired names | ✅ done (2026-07-18) — compositions/deprecated.yaml (16 names) wired into init prune, lint, doctor |
 
-**Frontier (2026-07-18):** 13, 14, 15, 16, 19. Baseline run complete — all harness/skill edit freezes lifted. Next release: v0.2.0 (changelog ready).
+**Frontier (2026-07-18):** 14, 15, 16, 19. Baseline run complete — all harness/skill edit freezes lifted. v0.2.0 released.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 

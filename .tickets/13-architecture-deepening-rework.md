@@ -1,7 +1,7 @@
 ---
 id: "13"
 title: "architecture-deepening activates and rejects rubber-stamps"
-status: open
+status: done
 blocked_by: []
 spec: "session-improvements-2026-07-17"
 ---

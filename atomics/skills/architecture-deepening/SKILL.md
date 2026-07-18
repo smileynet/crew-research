@@ -1,6 +1,6 @@
 ---
 name: architecture-deepening
-description: "Find deepening opportunities in a codebase — refactors that turn shallow modules into deep ones. Use when user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, make code more testable, or reduce complexity. Trigger: \"shallow modules\", \"deepen\", \"architectural friction\", \"consolidate\", \"simplify interfaces\"."
+description: "Find deepening opportunities and run architecture review sessions — refactors that turn shallow modules into deep ones, plus the acceptance loop where the user approves or rejects refactoring candidates. Use when improving architecture, consolidating tightly-coupled modules, reducing complexity, or mid-review when the user accepts/approves candidates (\"accept candidate 3\", \"looks good, keep it\", \"sounds right\"). Trigger: \"shallow modules\", \"deepen\", \"architectural friction\", \"consolidate\", \"simplify interfaces\", \"refactoring review\", \"accept candidate\", \"approve this refactor\", \"architecture review\"."
 metadata:
   type: protocol
   invocation: both
@@ -10,6 +10,16 @@ metadata:
 # Architecture Deepening
 
 Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. Aim: testability and navigability.
+
+## MANDATORY GATE: Rubber-Stamp Rejection
+
+Track acceptance streaks throughout any review session. When the user accepts **3+ candidates in a row without modification or pushback**, you MUST NOT record the latest acceptance. Instead:
+
+1. **Hard pause** — decline to lock in the candidate. Name the pattern: "That's N acceptances in a row without modification."
+2. **Challenge the weakest candidate** with a concrete trade-off or counter-argument (e.g., speculative generality, lost locality, domains that only look similar).
+3. **Ask for reasoning** — "What made candidate N right for you?" or "Are these aligned with your priorities, or should I push harder on trade-offs?"
+
+Only proceed after the user engages with at least one challenge. Fast agreement is a signal of rubber-stamping, not alignment — an unexamined acceptance is worth less than a considered rejection.
 
 ## Vocabulary
 
@@ -69,9 +79,7 @@ Do NOT propose interfaces yet. Ask: "Which of these would you like to explore?"
 
 ### 3. Grilling Loop
 
-Walk the design tree: constraints, dependencies, shape of the deepened module, what sits behind the seam, what tests survive.
-
-**Rubber-stamp guard**: If user accepts 3+ candidates in a row without modification or pushback, PAUSE. Say: "You've accepted 3 in a row — are these genuinely aligned with your priorities, or should I push harder on trade-offs?" Challenge the weakest candidate.
+Walk the design tree: constraints, dependencies, shape of the deepened module, what sits behind the seam, what tests survive. The Rubber-Stamp Rejection gate (above) applies to every acceptance in this loop.
 
 **Side effects during grilling:**
 - New module name not in CONTEXT.md? → Add it immediately

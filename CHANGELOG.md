@@ -10,6 +10,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Retired skills clean themselves up — deploys remove renamed/merged skills left behind by old versions (`compositions/deprecated.yaml`); symlinked and personal skills are never touched
 - Deploys no longer delete skills installed by other projects — only skills crew-research itself deployed are pruned; everything else gets a warning instead
 
+### Changed
+
+- Architecture reviews now push back on rubber-stamping — accepting 3+ refactoring candidates in a row without discussion triggers a hard pause and a trade-off challenge instead of silent agreement
+
 ## [0.2.0] - 2026-07-18
 
 ### Added
