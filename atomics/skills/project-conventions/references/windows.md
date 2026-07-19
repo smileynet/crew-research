@@ -39,6 +39,25 @@ For builds, installs, test suites, data processing:
 - Sleep briefly, then observe via port/process/API check
 - Report outcome from observation, not from captured output
 
+## WSL Invocation (from PowerShell)
+
+**Problem:** `wsl bash -c "..."` inherits Windows PATH (with parentheses, spaces). Bash interprets `(` as subshell syntax → `unexpected token` errors.
+
+**Safe patterns:**
+```powershell
+# Single-quoted string — PowerShell passes literally, no interpolation
+wsl bash -c 'export WIN_USERNAME=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d "\r") && cd /mnt/c/Users/$WIN_USERNAME/code/project && bash script.sh'
+
+# For complex commands: write to file first
+wsl bash /mnt/c/Users/uosmi/code/project/.scratch/task.sh
+```
+
+**Key rules:**
+- Always single-quote the `-c` argument in PowerShell (prevents `$VAR` interpolation)
+- If the bash command itself needs single quotes internally, use a script file instead
+- `WIN_USERNAME` is required when WSL user ≠ Windows user (common: WSL defaults to `user`)
+- Never rely on `$PATH` inherited from Windows — it contains paths with `(` that break bash. Set PATH explicitly inside the bash command if needed.
+
 ## Git Bash Invocation (from PowerShell)
 
 Two live failures in one field session, despite prior documentation (2026-07-17):

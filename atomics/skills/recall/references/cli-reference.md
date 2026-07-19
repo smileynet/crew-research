@@ -111,3 +111,10 @@ recall status                                 # show indexed content
 - Omit `--wing` on search to find content across all projects
 - Omit `--wing` on add/prime to use cwd-based auto-detection
 - Pass `--wing name` to override auto-detection
+
+
+## Known Issues
+
+| Issue | Symptom | Workaround |
+|-------|---------|------------|
+| `recall status` empty output | Command returns exit 0 but prints nothing, even with indexed data | Use `recall search "test"` to verify DB is populated; status display is cosmetic |
