@@ -49,6 +49,23 @@ bash run-activation.sh --all        # excludes definitions/retired/
 ```
 
 - Verdict gates: TPR ≥ 0.5 AND FPR ≤ 0.2 (env-overridable: `ACTIVATION_TPR_GATE`/`ACTIVATION_FPR_GATE`). Unforced activation baseline is ~40-50%, so TPR 1.0 is exceptional, 0.6 is fine.
+- The run summary is aggregate-only. **Per-def verdicts** (needed for no-regression comparisons) come from activation.jsonl:
+
+```bash
+python3 -c "
+import json
+from collections import defaultdict
+d = defaultdict(lambda: {'TP':0,'FP':0,'TN':0,'FN':0})
+for line in open('<run-dir>/activation.jsonl'):
+    r = json.loads(line); d[r['skill']][r['result']] += 1
+for s, c in sorted(d.items()):
+    tpr = c['TP']/(c['TP']+c['FN']) if c['TP']+c['FN'] else 1.0
+    fpr = c['FP']/(c['FP']+c['TN']) if c['FP']+c['TN'] else 0.0
+    print(f\"{s:30s} TPR={tpr:.2f} FPR={fpr:.2f} {'PASS' if tpr>=0.5 and fpr<=0.2 else 'FAIL'}\")
+"
+```
+
+(Snippet, not a script, by decision 2026-07-19: the jsonl schema changes when ticket 29 lands row keys — promote to `tools/` only if the need survives that change.)
 - Output: per-task TP/FN/TN/FP lines + `summary.json`. FN on a positive task = description lacks that task's vocabulary; FP = description too broad.
 - Detection greps the session DB for the skill's H1 (output-based Strategy 1 is currently dead code — ticket 24). **A skill shadowed by always-on steering covering the same triggers will score 0 TPR while behaving correctly** — retire the def instead of fighting it (precedent: activation-recall, ticket 19).
 

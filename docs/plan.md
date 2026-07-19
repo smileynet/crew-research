@@ -209,8 +209,9 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 32 | Results support async completion: re-judge mode + interchange | open, blocked by 29 — outputs already retained (feasible); needs row keys, --judge-only, export/import |
 | 33 | Result identity hashes (skill/def/env drift detection + --changed-only) | open, blocked by 29 — makes staleness computed not remembered (a03798e + ticket-14 precedents) |
 | 34 | Explore: automated session-history self-improvement review | open — /guidance-sync's archived-sessions counterpart; spike-first; global findings route through crew-research |
+| 35 | Model cost/quality benchmarking (judges first: agreement vs 2026-07-19 consensus) | open — prefer cheaper models where quality holds; retained outputs are the ready-made benchmark |
 
-**Frontier (2026-07-19):** 27, 28, 29, 31, 34 (30 + 32 + 33 blocked by 29; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
+**Frontier (2026-07-19):** 27, 28, 29, 31, 34, 35 (30 + 32 + 33 blocked by 29; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 
