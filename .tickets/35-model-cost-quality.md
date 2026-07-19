@@ -32,7 +32,8 @@ Evidence for model selection across the roles where WE choose the model, preferr
 
 ## Acceptance criteria
 
-- [ ] Judge-agreement numbers for ≥2 cheaper candidates vs the 2026-07-19 consensus baseline (sampled, n stated)
+- [ ] SHADOW study (grill Q04, 2026-07-19): ≥2 cheaper candidates re-judge retained 2026-07-19 outputs (~150-200 judgment sample, n stated). Qualification bar: median-shift <5% AND mean bias within ±0.1 (bias cap non-negotiable). Offline only — no live judge config changes before ticket 29 lands judge-set recording
+- [ ] Post-29 policy documented in judges/default.yaml comments: qualifying candidate AUGMENTS as 5th leg (probation), opus leg dropped only on probation evidence; budget note: opus = kiro credits, bedrock legs = AWS account, caching disabled
 - [ ] small-model def results per candidate at recorded commit
 - [ ] Role → model recommendation table with cost + quality evidence, date-stamped; applied where a swap is justified (judges yaml), or documented why not
 - [ ] Constraint respected (updated per grill Q01): corp candidates = kiro-cli `--model` list, codex, **and Bedrock** — Claude family via crush-bedrock (haiku-4.5 is the prime cheap-judge candidate; caching disabled inflates repeated-context judge costs — measure, don't assume), non-Anthropic cheap models (nova-lite/micro, glm-4.7-flash, deepseek-v3.2) only via direct `aws bedrock invoke-model` — a possible 5th judge leg, spike before building. agy candidates: personal env only (corp = policy-blocked, ticket 36)
