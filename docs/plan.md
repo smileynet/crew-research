@@ -211,8 +211,10 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 34 | Explore: automated session-history self-improvement review | open — /guidance-sync's archived-sessions counterpart; spike-first; global findings route through crew-research |
 | 35 | Model cost/quality benchmarking (judges first: agreement vs 2026-07-19 consensus) | open — prefer cheaper models where quality holds; corp candidates incl. Bedrock Claude via crush (haiku-4.5) |
 | 36 | CREW_ENV designation + agy policy enforcement on corp | open — agy = company-policy violation on corp (artifacts removed 2026-07-19); init/doctor/harness hard-blocks |
+| 37 | Integrate archwright as a known tool (hydrated externally, recommended by relevant skills) | open, HIGH PRIORITY (user, 2026-07-19) — extension-style detection + hydration path + recommendation seams in adjacent skills; no content forking |
+| 38 | Explore: custom tk-like ticket CLI fitting crew-research + archwright shapes | open, HIGH PRIORITY (user, 2026-07-19) — consistent frontier/claim/status behaviors across repos; spike-first (adopt vs build vs steering-only) |
 
-**Frontier (2026-07-19):** 27, 28, 29, 31, 34, 35, 36 (30 + 32 + 33 blocked by 29; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
+**Frontier (2026-07-19, post-29):** 27, 28, 31, 32, 33, 34, 35, 36, 37, 38 — 37/38 are user-flagged high priority and jump the lowest-number-first default. (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 
