@@ -9,22 +9,36 @@ _recall_ensure_cron() {
 }
 
 _recall_ingest_if_stale() {
-    local stamp_file="$HOME/.recall-last-ingest"
+    # Success marker — written by the recall CLI after each ingest
+    # (same path doctor.sh and recall-session-start steering check).
+    local success_marker="$HOME/.recall/last_ingest"
+    # Attempt stamp — touched when a run fires; prevents retry storms when
+    # ingestion keeps failing (success marker stays stale, correctly).
+    local attempt_stamp="$HOME/.recall-last-ingest"
     local stale_seconds=14400  # 4 hours
     local now
     now=$(date +%s)
 
-    if [[ -f "$stamp_file" ]]; then
-        local last_run
-        last_run=$(stat -c %Y "$stamp_file" 2>/dev/null || echo 0)
-        local elapsed=$((now - last_run))
-        if [[ $elapsed -lt $stale_seconds ]]; then
+    # Fresh successful ingest → nothing to do
+    if [[ -f "$success_marker" ]]; then
+        local last_success
+        last_success=$(stat -c %Y "$success_marker" 2>/dev/null || echo 0)
+        if (( now - last_success < stale_seconds )); then
+            return 0
+        fi
+    fi
+
+    # Recent attempt (running or failed) → don't re-fire yet
+    if [[ -f "$attempt_stamp" ]]; then
+        local last_attempt
+        last_attempt=$(stat -c %Y "$attempt_stamp" 2>/dev/null || echo 0)
+        if (( now - last_attempt < stale_seconds )); then
             return 0
         fi
     fi
 
     # Touch stamp immediately to prevent concurrent runs
-    touch "$stamp_file"
+    touch "$attempt_stamp"
     # Run in background, detached
     (
         export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"

@@ -32,10 +32,14 @@ param(
 $ErrorActionPreference = "Continue"
 $LogPrefix = "[recall-ingest $(Get-Date -Format 'yyyy-MM-dd HH:mm')]"
 
-# Verify recall is available
+# Verify recall is available (dry-run may proceed without it)
 if (-not (Get-Command recall -ErrorAction SilentlyContinue)) {
-    Write-Error "recall not found on PATH. Install: uv tool install <crew-research>/tools/recall"
-    exit 1
+    if ($DryRun) {
+        Write-Warning "recall not found on PATH — showing plan only. Install: uv tool install <crew-research>/tools/recall"
+    } else {
+        Write-Error "recall not found on PATH. Install: uv tool install <crew-research>/tools/recall"
+        exit 1
+    }
 }
 
 # ─── Discover projects ─────────────────────────────────────────
@@ -91,9 +95,3 @@ if (Test-Path $SessionsDir) {
 
 Write-Host ""
 Write-Host "$LogPrefix Done."
-
-# ─── Update stamp file ────────────────────────────────────────
-if (-not $DryRun) {
-    $stampFile = Join-Path $env:USERPROFILE ".recall-last-ingest"
-    Set-Content -Path $stampFile -Value (Get-Date -Format o)
-}

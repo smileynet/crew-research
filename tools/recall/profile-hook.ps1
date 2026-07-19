@@ -8,21 +8,31 @@
 # Fires recall ingestion as a background job on shell open if >4h stale.
 
 function Invoke-RecallIngestIfStale {
-    $stampFile = Join-Path $env:USERPROFILE ".recall-last-ingest"
+    # Success marker — written by the recall CLI after each ingest.
+    # Same path doctor.sh and recall-session-start steering check.
+    $successMarker = Join-Path $env:USERPROFILE ".recall\last_ingest"
+    # Attempt stamp — touched when a run is fired; prevents retry storms
+    # when ingestion keeps failing (success marker stays stale, correctly).
+    $attemptStamp = Join-Path $env:USERPROFILE ".recall-last-ingest"
     $staleHours = 4
 
     # Check if recall is available
     if (-not (Get-Command recall -ErrorAction SilentlyContinue)) { return }
 
-    # Check staleness
-    if (Test-Path $stampFile) {
-        $lastRun = (Get-Item $stampFile).LastWriteTime
-        $elapsed = (Get-Date) - $lastRun
+    # Fresh successful ingest → nothing to do
+    if (Test-Path $successMarker) {
+        $elapsed = (Get-Date) - (Get-Item $successMarker).LastWriteTime
         if ($elapsed.TotalHours -lt $staleHours) { return }
     }
 
-    # Touch stamp immediately to prevent concurrent runs
-    Set-Content -Path $stampFile -Value (Get-Date -Format o)
+    # Recent attempt (running or failed) → don't re-fire yet
+    if (Test-Path $attemptStamp) {
+        $elapsed = (Get-Date) - (Get-Item $attemptStamp).LastWriteTime
+        if ($elapsed.TotalHours -lt $staleHours) { return }
+    }
+
+    # Touch attempt stamp immediately to prevent concurrent runs
+    Set-Content -Path $attemptStamp -Value (Get-Date -Format o)
 
     # Find the ingest script
     $scriptPath = Join-Path $env:USERPROFILE "code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1"

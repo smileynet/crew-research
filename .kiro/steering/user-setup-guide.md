@@ -127,11 +127,15 @@ sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_
 
 ### Deploy
 
-```bash
-# From WSL (recommended — avoids PATH issues; set WIN_USERNAME if WSL user differs)
-wsl -- bash -c "export WIN_USERNAME=\$(cmd.exe /C 'echo %USERNAME%' 2>/dev/null | tr -d '\\r') && \
-  cd /mnt/c/Users/\$WIN_USERNAME/code/crew-research && \
-  bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
+```powershell
+# Run from PowerShell. Single quotes are load-bearing: with double quotes
+# PowerShell expands $USER/$HOME/$(...) itself and the deploy silently degrades.
+# Corp machines (CREW_ENV=corp): kiro-cli + codex only (no agy — company policy).
+# Personal machines: add --tool agy.
+wsl -- bash -c 'export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && cd /mnt/c/Users/$USER/code/crew-research && bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex'
+
+# If your WSL username differs from your Windows username, resolve it first:
+wsl -- bash -c 'WIN_USERNAME=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d "\r") && export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && cd /mnt/c/Users/$WIN_USERNAME/code/crew-research && bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex'
 ```
 
 ### After Deploy (Windows side)

@@ -84,10 +84,16 @@ On Windows, **only init.sh requires WSL** (the generator is bash). Everything el
 sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
   -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
 
-# Deploy (set WIN_USERNAME if WSL user differs from Windows user)
-wsl -- bash -c "export WIN_USERNAME=\$(cmd.exe /C 'echo %USERNAME%' 2>/dev/null | tr -d '\\r') && \
-  cd /mnt/c/Users/\$WIN_USERNAME/code/crew-research && \
-  bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
+# Deploy — run from PowerShell. The single quotes are load-bearing: with double
+# quotes PowerShell expands $USER/$HOME/$(...) itself (empty or wrong values) and
+# the deploy silently degrades (e.g. recall extension skipped). The quoted PATH
+# export matters too — the inherited Windows PATH contains spaces and parens.
+# Tool set: corp machines (CREW_ENV=corp) deploy kiro-cli + codex only (no agy —
+# company policy); personal machines add --tool agy.
+wsl -- bash -c 'export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && cd /mnt/c/Users/$USER/code/crew-research && bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex'
+
+# If your WSL username differs from your Windows username, resolve it first:
+wsl -- bash -c 'WIN_USERNAME=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d "\r") && export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && cd /mnt/c/Users/$WIN_USERNAME/code/crew-research && bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex'
 ```
 
 ### Step 2: Trust mise config (Windows — one-time)
