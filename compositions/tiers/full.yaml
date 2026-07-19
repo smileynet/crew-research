@@ -47,6 +47,7 @@ skills:
   # Verify & Ship
   - deployment-safety
   - git-protocol
+  - release-protocol
   - adr-authoring
 
   # Maintain
