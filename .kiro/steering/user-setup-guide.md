@@ -111,20 +111,14 @@ On Windows, crew-research deploys via WSL bash. The init script auto-detects WSL
 # yq (YAML processor — required by init.sh)
 sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
   -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
-
-# uv (Python package manager — needed for recall)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# recall (cross-session memory)
-uv tool install ./tools/recall   # from local clone
 ```
 
 ### Deploy
 
 ```bash
-# From WSL (recommended — avoids PATH issues)
-wsl -- bash -c "export PATH=\$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:\$PATH && \
-  cd /mnt/c/Users/\$USER/code/crew-research && \
+# From WSL (recommended — avoids PATH issues; set WIN_USERNAME if WSL user differs)
+wsl -- bash -c "export WIN_USERNAME=\$(cmd.exe /C 'echo %USERNAME%' 2>/dev/null | tr -d '\\r') && \
+  cd /mnt/c/Users/\$WIN_USERNAME/code/crew-research && \
   bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
 ```
 
@@ -135,20 +129,36 @@ wsl -- bash -c "export PATH=\$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:\$PAT
 mise trust C:\Users\<user>\code\crew-research\mise.toml
 ```
 
-### Recall Staleness Hooks
+### Recall Setup (Native Windows — no WSL needed)
 
-Both hooks fire ingestion in the background on shell open if >4h stale:
+Recall runs natively on Windows. No WSL, cron, or .bashrc hooks required.
 
-- **PowerShell**: `Invoke-RecallIngestIfStale` added to `$PROFILE`
-- **WSL .bashrc**: `_recall_ingest_if_stale` — source of truth is `tools/recall/bashrc-hook.sh`
+```powershell
+# Install recall (from a crew-research clone — PyPI "recall" is squatted)
+uv tool install .\tools\recall
 
-To install the WSL hook: `cat tools/recall/bashrc-hook.sh >> ~/.bashrc`
+# Manual ingestion (discovers all projects under ~/code)
+pwsh -File tools\recall\Invoke-RecallIngestAll.ps1
 
-### Passwordless Cron (WSL)
+# Scheduled Task (every 4h, replaces cron)
+$action = New-ScheduledTaskAction -Execute "pwsh.exe" `
+  -Argument "-NoProfile -NonInteractive -File `"$env:USERPROFILE\code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1`""
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 4)
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+Register-ScheduledTask -TaskName "RecallIngest" -Action $action -Trigger $trigger -Settings $settings
 
-WSL doesn't auto-start services. The .bashrc hook calls `sudo service cron start`. To avoid password prompts:
+# Profile hook (fires on shell open if >4h stale)
+# Add to $PROFILE:
+. C:\Users\<user>\code\crew-research\tools\recall\profile-hook.ps1
+```
+
+### Recall Setup (Linux/macOS)
 
 ```bash
-echo '<user> ALL=(ALL) NOPASSWD: /usr/sbin/service cron *' | sudo tee /etc/sudoers.d/cron-nopasswd
-sudo chmod 440 /etc/sudoers.d/cron-nopasswd
+# Install
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install ./tools/recall   # from local clone
+
+# .bashrc staleness hook (fires on shell open if >4h stale)
+cat tools/recall/bashrc-hook.sh >> ~/.bashrc
 ```

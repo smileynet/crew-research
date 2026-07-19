@@ -20,8 +20,10 @@ tools/evals/                      — Eval harness, definitions, fixtures, exper
 tools/proofs/                     — Platform assumption tests
 tools/lint/                       — Cross-link validation
 tools/recall/                     — Cross-session memory CLI tool (extension)
-tools/recall/ingest-all.sh        — Scheduled recall ingestion (all projects + sessions)
-tools/recall/bashrc-hook.sh       — WSL .bashrc staleness checker (source of truth)
+tools/recall/Invoke-RecallIngestAll.ps1 — Windows: scheduled recall ingestion (all projects + sessions)
+tools/recall/profile-hook.ps1     — Windows: PowerShell $PROFILE staleness hook
+tools/recall/ingest-all.sh        — Linux/macOS: scheduled recall ingestion
+tools/recall/bashrc-hook.sh       — Linux/macOS: .bashrc staleness hook
 tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
@@ -75,15 +77,15 @@ mise run release -- <version>             # changelog roll, tag, push, GH releas
 On Windows, run deployment via WSL bash (bypasses PowerShell PATH issues):
 
 ```bash
-# Deploy all tools via WSL
-wsl -- bash -c "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:\$PATH && \
-  cd /mnt/c/Users/\$USER/code/crew-research && \
+# Deploy all tools via WSL (set WIN_USERNAME if WSL user differs from Windows user)
+wsl -- bash -c "export WIN_USERNAME=\$(cmd.exe /C 'echo %USERNAME%' 2>/dev/null | tr -d '\\r') && \
+  cd /mnt/c/Users/\$WIN_USERNAME/code/crew-research && \
   bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
 
 # Trust mise.toml after cloning (Windows mise)
 mise trust C:\Users\<user>\code\crew-research\mise.toml
 
-# Prerequisites (WSL)
+# Prerequisites (WSL — for deployment only)
 sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
   -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -91,9 +93,9 @@ uv tool install ./tools/recall
 ```
 
 **Staleness hooks** ensure recall ingestion runs on shell open if >4h stale:
-- PowerShell: `Invoke-RecallIngestIfStale` in `$PROFILE` — fires WSL ingestion as background job
-- WSL: `_recall_ingest_if_stale` in `~/.bashrc` — fires nohup background ingestion
-- Source of truth for the WSL hook: `tools/recall/bashrc-hook.sh`
+- PowerShell: `Invoke-RecallIngestIfStale` in `$PROFILE` — native Windows, fires background job
+- Linux/macOS: `_recall_ingest_if_stale` in `~/.bashrc` — fires nohup background ingestion
+- Source: `tools/recall/profile-hook.ps1` (Windows), `tools/recall/bashrc-hook.sh` (Unix)
 
 ## Recall Operations
 
@@ -101,6 +103,7 @@ uv tool install ./tools/recall
 # Manual full ingestion (all projects + sessions)
 bash ~/.local/bin/recall-ingest-all.sh
 # or: mise run recall:ingest
+# Windows: pwsh -File tools/recall/Invoke-RecallIngestAll.ps1
 
 # Check what's indexed
 recall status
@@ -109,11 +112,11 @@ recall status
 recall search "what did we decide about X"
 
 # Add a new project to automatic ingestion
-# Edit tools/recall/ingest-all.sh → add to PROJECTS array
-# Then: cp tools/recall/ingest-all.sh ~/.local/bin/recall-ingest-all.sh
+# Auto-discovered from $USERPROFILE\code (Windows) or ~/code (Unix)
+# Override: set RECALL_PROJECTS_ROOT or -ProjectsRoot parameter
 
-# Schedule: WSL cron runs every 4h
-# Staleness hooks in PowerShell profile + .bashrc trigger on shell open if >4h stale
+# Schedule: Windows Task Scheduler (every 4h) or Unix cron
+# Staleness hooks in PowerShell $PROFILE (Windows) or .bashrc (Unix) trigger on shell open if >4h stale
 ```
 
 ## Skill Authoring Rules

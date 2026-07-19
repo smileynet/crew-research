@@ -6,22 +6,23 @@
 uv tool install ./tools/recall                # from a crew-research clone (PyPI "recall" is squatted — never install from PyPI)
 ```
 
-**Windows (Application Control blocks .exe):** Create `recall.cmd` on PATH:
-```cmd
-@echo off
-python -c "import sys; sys.path.insert(0, r'%APPDATA%\uv\tools\recall\Lib\site-packages'); from recall.cli import main; main()" %*
-```
-Then rename `recall.exe` → `recall.exe.blocked` so `.cmd` takes priority.
-
 **Verify:** `recall --version` should print `recall 0.1.0`
 
-## Daily Ingest Setup
+## Scheduled Ingestion
 
-Recall needs periodic ingestion of session transcripts. Set up a daily task:
+Recall needs periodic ingestion of project knowledge and session transcripts. The `Invoke-RecallIngestAll.ps1` (Windows) or `ingest-all.sh` (Unix) script auto-discovers projects and ingests everything.
 
-### Windows
+### Windows (native — recommended)
 ```powershell
-schtasks /Create /SC DAILY /TN "RecallIngest" /TR "cmd /c recall.cmd ingest %USERPROFILE%\.kiro\sessions\cli" /ST 03:00 /F
+# One-time: register scheduled task (every 4h)
+$action = New-ScheduledTaskAction -Execute "pwsh.exe" `
+  -Argument "-NoProfile -NonInteractive -File `"$env:USERPROFILE\code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1`""
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 4)
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+Register-ScheduledTask -TaskName "RecallIngest" -Action $action -Trigger $trigger -Settings $settings
+
+# Profile hook (add to $PROFILE — fires on shell open if >4h stale)
+. $env:USERPROFILE\code\crew-research\tools\recall\profile-hook.ps1
 ```
 
 ### macOS
@@ -46,20 +47,28 @@ launchctl load ~/Library/LaunchAgents/com.recall.ingest.plist
 
 ### Linux
 ```bash
-(crontab -l 2>/dev/null; echo "0 3 * * * recall ingest ~/.kiro/sessions/cli") | crontab -
+(crontab -l 2>/dev/null; echo "0 */4 * * * ~/.local/bin/recall-ingest-all.sh >> /tmp/recall-ingest.log 2>&1") | crontab -
+
+# .bashrc staleness hook (fires on shell open if >4h stale)
+cat tools/recall/bashrc-hook.sh >> ~/.bashrc
 ```
 
 ### Verify schedule
-- Windows: `schtasks /Query /TN "RecallIngest"`
+- Windows: `Get-ScheduledTask -TaskName "RecallIngest" | Select State`
 - macOS: `launchctl list | grep recall`
 - Linux: `crontab -l | grep recall`
 
 ## Staleness Check
 
-After each ingest, recall writes `~/.recall/last_ingest` (unix timestamp). The `recall-session-start` steering checks this at session start and warns the user if >24h stale.
+After each ingestion, the scripts write a stamp file (`~/.recall-last-ingest`). The profile hook checks this on shell open and fires background ingestion if >4h stale.
 
-To manually check: `cat ~/.recall/last_ingest`
-To manually update: `recall ingest ~/.kiro/sessions/cli`
+To manually check staleness:
+- Windows: `Get-Item $env:USERPROFILE\.recall-last-ingest | Select LastWriteTime`
+- Unix: `stat ~/.recall-last-ingest`
+
+To manually run full ingestion:
+- Windows: `pwsh -File tools/recall/Invoke-RecallIngestAll.ps1`
+- Unix: `bash tools/recall/ingest-all.sh`
 
 ## Commands
 
