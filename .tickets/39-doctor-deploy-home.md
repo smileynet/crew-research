@@ -1,5 +1,5 @@
 ---
-id: "37"
+id: "39"
 title: "doctor.sh checks WSL $HOME instead of the Windows deploy home"
 status: open
 blocked_by: []
