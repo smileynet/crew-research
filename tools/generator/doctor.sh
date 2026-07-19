@@ -58,6 +58,36 @@ else
   errors=$((errors + 1))
 fi
 
+# --- Known external tools (compositions/known-tools.yaml) ---
+# Separately-owned repos that self-deploy skills (symlink convention). Absence
+# is pending-with-reason (hydration hint), never silent and never an error.
+KNOWN_TOOLS_FILE="$ROOT_DIR/compositions/known-tools.yaml"
+if [[ -f "$KNOWN_TOOLS_FILE" ]]; then
+  echo ""
+  echo "Known tools:"
+  kt_count=$(yq -r '.tools | length' "$KNOWN_TOOLS_FILE" 2>/dev/null || echo 0)
+  for ((i=0; i<kt_count; i++)); do
+    kt_name=$(yq -r ".tools[$i].name" "$KNOWN_TOOLS_FILE")
+    kt_glob=$(yq -r ".tools[$i].detect.skill_glob" "$KNOWN_TOOLS_FILE")
+    kt_hydrate=$(yq -r ".tools[$i].hydrate" "$KNOWN_TOOLS_FILE")
+    kt_found=0; kt_broken=0
+    for d in ~/.kiro/skills/$kt_glob; do
+      [[ -e "$d" || -L "$d" ]] || continue
+      kt_found=$((kt_found + 1))
+      # Broken symlink = repo moved/deleted after deploy
+      [[ -L "$d" && ! -e "$d" ]] && kt_broken=$((kt_broken + 1))
+    done
+    if [[ $kt_broken -gt 0 ]]; then
+      echo "  ⚠️  $kt_name: $kt_broken broken skill symlink(s) — source repo moved? re-hydrate: $kt_hydrate"
+      warnings=$((warnings + 1))
+    elif [[ $kt_found -gt 0 ]]; then
+      echo "  ✅ $kt_name ($kt_found skills, self-deployed)"
+    else
+      echo "  ○  $kt_name: not hydrated — $kt_hydrate"
+    fi
+  done
+fi
+
 # --- Tier manifest reconciliation ---
 # Which tier? --tier flag > deployment marker > best guess by skill count.
 if [[ -z "$TIER" ]]; then

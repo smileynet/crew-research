@@ -1,7 +1,7 @@
 ---
 id: "37"
 title: "Integrate archwright as a known tool (hydrated externally, recommended by relevant skills)"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: ""

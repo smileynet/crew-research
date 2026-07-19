@@ -12,6 +12,7 @@ atomics/skills/{slug}/references/ — Progressive-loading companion files
 atomics/eager-context/            — Always-on context modules
 compositions/tiers/{name}.yaml    — What ships in each tier (inc. extensions)
 compositions/project-level.yaml   — Per-project installable skills (lint membership)
+compositions/known-tools.yaml     — External self-deploying tools (archwright); doctor/catalog consume
 compositions/agent-archetypes/    — Agent role manifests (skills, tools, prompt)
 compositions/crew-patterns/       — Multi-agent crew manifests
 compositions/workspace-conventions/ — File/folder contracts

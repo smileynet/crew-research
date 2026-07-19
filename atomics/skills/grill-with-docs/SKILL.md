@@ -67,6 +67,8 @@ Look for existing documentation before asking:
 
 Present the full table when the interview concludes.
 
+If archwright skills are available and decisions carry recurring force tensions, offer to graduate them into `design/forces/` via `archwright-forces` (traceable provenance beats a table).
+
 ## ADRs
 
 Only offer when ALL THREE are true:

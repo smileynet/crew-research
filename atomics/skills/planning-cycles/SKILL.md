@@ -73,6 +73,7 @@ Before any phase: name what "done" looks like in one sentence. This fixes scope.
 - **Don't over-plan** — no 4-phase cycle for a bug fix.
 - **Brainstorm must converge** — ends with a recommended direction, not open exploration.
 - **Don't skip Sample for user-facing work** — if it has a UI, walk through it.
+- **Competing forces without a clear winner?** → If archwright skills are available, recommend `archwright-resolve` — explicit tension resolution beats implicit compromise.
 
 ## Phase Selection Quick Reference
 

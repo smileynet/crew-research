@@ -86,6 +86,7 @@ Walk the design tree: constraints, dependencies, shape of the deepened module, w
 - Sharpening a fuzzy term? → Update CONTEXT.md
 - User rejects with a load-bearing reason? → Offer an ADR
 - Exploring alternative interfaces? → Sketch 2-3 options with trade-offs
+- Friction traces to an unresolved design-level tension (not module shape)? → If archwright skills are available, recommend `archwright-resolve` for the tension; code-level deepening stays here
 
 ## Output Formats
 

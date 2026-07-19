@@ -20,6 +20,8 @@ Record decisions so future-you (and future-teammates) know WHY, not just WHAT.
 
 Do NOT write ADRs for: trivial choices, temporary experiments, or decisions that are easily reversed.
 
+If archwright skills are available and the decision resolves a named force tension, also consider `archwright-formalize` — a pattern with a mechanical check outlives an ADR's prose.
+
 ## Format (MADR-lite)
 
 ```markdown

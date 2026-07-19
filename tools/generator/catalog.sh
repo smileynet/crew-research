@@ -71,3 +71,23 @@ for t in basic full; do
   echo "$t tier: $n_skills skills + $n_steering steering + $n_ext extension(s)"
 done
 echo "[project-level] skills install per-project: mise run add-skill -- <name>"
+
+# Known external tools (separately owned, self-deploying — see compositions/known-tools.yaml)
+KNOWN_TOOLS_FILE="$ROOT_DIR/compositions/known-tools.yaml"
+if [[ -f "$KNOWN_TOOLS_FILE" ]]; then
+  echo ""
+  echo "Known Tools (external, self-deploying)"
+  echo "======================================"
+  kt_count=$(yq -r '.tools | length' "$KNOWN_TOOLS_FILE" 2>/dev/null || echo 0)
+  for ((i=0; i<kt_count; i++)); do
+    kt_name=$(yq -r ".tools[$i].name" "$KNOWN_TOOLS_FILE")
+    kt_desc=$(yq -r ".tools[$i].description" "$KNOWN_TOOLS_FILE")
+    kt_glob=$(yq -r ".tools[$i].detect.skill_glob" "$KNOWN_TOOLS_FILE")
+    kt_hydrate=$(yq -r ".tools[$i].hydrate" "$KNOWN_TOOLS_FILE")
+    status="not hydrated — $kt_hydrate"
+    for d in ~/.kiro/skills/$kt_glob; do
+      [[ -e "$d" ]] && { status="hydrated"; break; }
+    done
+    printf "  %-28s [%s]\n    %s\n" "$kt_name" "$status" "$kt_desc"
+  done
+fi

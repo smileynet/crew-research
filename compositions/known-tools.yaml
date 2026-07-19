@@ -1,0 +1,38 @@
+# Known external tools — separately-owned repos that integrate with crew-research
+# deployments. Unlike extensions (crew-owned content gated on a prerequisite),
+# known tools own and deploy their OWN skills/steering; crew-research detects
+# them, surfaces hydration hints, and carries recommendation seams in adjacent
+# skills. Registry consumers: doctor.sh (detection), catalog.sh (listing).
+#
+# Ownership rule: crew-research references known tools, never copies their
+# content. Their skills survive crew deploys via the symlink convention
+# (init.sh prune preserves symlinks; see user-setup-guide).
+
+tools:
+  - name: archwright
+    description: "Force-resolution design methodology — survey/forces/tensions/resolve pipeline producing verified architecture (patterns, models, checkable specs)"
+    repo: "~/code/archwright"
+    # Detection: archwright self-deploys its skills as symlinks into the skills tree
+    detect:
+      skill_glob: "archwright-*"
+    hydrate: "git clone <archwright-repo> ~/code/archwright && bash ~/code/archwright/tools/deploy-skills.sh"
+    # Recommendation seams: crew skills that route to archwright when the work
+    # shape fits. Content lives in each skill's SKILL.md (conditional on
+    # detection — no broken references on machines without archwright).
+    seams:
+      - skill: architecture-deepening
+        when: "friction traces to unresolved design-level tensions, not just module shape"
+      - skill: spec-driven-development
+        when: "specs need mechanical verification (constraints, invariants, state machines)"
+      - skill: planning-cycles
+        when: "planning surfaces competing forces that need explicit resolution"
+      - skill: grill-with-docs
+        when: "grill decisions should graduate into traceable forces/patterns"
+      - skill: adr-authoring
+        when: "a decision resolves a force tension and warrants a checkable pattern"
+    # Overlap decisions (recorded 2026-07-19, ticket 37):
+    # - Design-state review (survey/audit) and force resolution are archwright
+    #   territory; code-level refactoring review stays native (architecture-deepening).
+    # - crew-research OWNS the global subagent-reliability steering; archwright's
+    #   deploy copying its fork over it is a known collision — fix tracked in
+    #   archwright's ticket queue, crew content is authoritative meanwhile.

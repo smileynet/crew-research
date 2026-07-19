@@ -69,6 +69,18 @@ If a global skill needs project-specific knowledge (domain questions, source pri
 
 This costs ~50 characters of always-loaded context vs thousands for a full skill copy. See ADR 0002 for when to use params vs pointers vs extends.
 
+### Known Tools (external, self-deploying)
+
+Known tools are separately-owned repos whose skills integrate with crew-research deployments. Unlike extensions, crew-research does not deploy their content — they self-deploy (symlink convention), and crew-research detects them, lists them in `mise run catalog`, and checks their health in `mise run doctor`. Registry: `compositions/known-tools.yaml`.
+
+| Tool | What it adds | Hydrate |
+|------|-------------|---------|
+| `archwright` | Design methodology pipeline (forces → tensions → resolution → verified architecture) | `git clone <archwright-repo> ~/code/archwright && bash ~/code/archwright/tools/deploy-skills.sh` |
+
+**When to suggest archwright:** recurring design tensions, specs that need mechanical verification, architecture decisions that should carry traceable provenance. Adjacent skills (architecture-deepening, spec-driven-development, planning-cycles, grill-with-docs, adr-authoring) carry conditional recommendation seams — they route to archwright only when its skills are actually deployed.
+
+**Ownership boundary:** archwright's skills/steering are authored in its repo; crew-research never copies them. If `doctor` reports broken archwright symlinks, the repo moved — re-run its deploy script.
+
 ### Extensions (Auto-Deploy)
 
 Extensions add capabilities that require external tools. They deploy automatically when prerequisites are met during tier deploy.

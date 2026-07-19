@@ -90,6 +90,7 @@ After a spec is **Accepted**, decompose it into tickets using `/ticket-planning`
 - Non-Goals mandatory for complexity 3+
 - Reconcile after implementation — lying specs are worse than no specs
 - `[P]` = parallelizable, `→` = dependency
+- Spec needs mechanical verification (invariants, state machines, constraint checks)? → If archwright skills are available, recommend its pipeline (`archwright-derive`/`-check`) for checkable specs
 
 ## References
 
