@@ -38,13 +38,14 @@ Before presenting a new skill as complete, verify ALL gates pass:
 
 | # | Gate | Fail action |
 |---|------|-------------|
+| G0 | Invocation model confirmed WITH the requester before authoring: who triggers it (user `/name`, agent description-match, or both) and when (during work, after work, periodically) | Ask — this determines `metadata.invocation`, trigger vocabulary, and workflow tense (incident: guidance-sync authored as post-work sync when the user wanted an in-session probe, 2026-07-19) |
 | G1 | Description contains "Use when" + 3+ trigger keywords | Rewrite description |
 | G2 | Body is steps/process (not a list of facts) | Restructure as imperative |
 | G3 | Scope boundary declared ("Does NOT cover: ...") | Add scope section |
 | G4 | Under 100 lines total | Extract to references/ |
 | G5 | Single concern (would you split this into two skills?) | Split now |
 
-If G1-G5 don't all pass, the skill is not done. Fix before presenting.
+If G0-G5 don't all pass, the skill is not done. Fix before presenting.
 
 ## Writing a Good Description
 

@@ -23,4 +23,4 @@
 | Q2 | Per-env deploy sets in docs/commands | folded into Q1 → ticket 36 AC (corp: kiro-cli+codex; personal adds agy+crush) | — |
 | Q3 | Ticket 34 cadence + proposal artifact format | RESOLVED → [Q03](Q03-session-review-cadence.md) | manual task first; daily-collect/weekly-synthesize pairing designed in; digest artifact, human-only ticket creation |
 | Q4 | Ticket 35 judge-swap bar + candidate constraints | RESOLVED → [Q04](Q04-judge-swap-bar.md) | <5% median-shift + ±0.1 bias cap; shadow → augment-probation (post-29) → drop on evidence |
-| Q5 | skill-authoring invocation-model checkpoint (pending from probe) | pending | — |
+| Q5 | skill-authoring invocation-model checkpoint (pending from probe) | RESOLVED — approved & applied | G0 gate added to skill-authoring creation gates; deployed (corp set: kiro-cli+codex) |
