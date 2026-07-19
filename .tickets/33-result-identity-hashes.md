@@ -3,6 +3,7 @@ id: "33"
 title: "Result identity hashes: detect which eval results reflect current skill/def/model state"
 status: open
 blocked_by: ["29"]
+env: either
 spec: "eval-harness"
 ---
 

@@ -3,6 +3,7 @@ id: "30"
 title: "image-* eval defs conform to suite conventions (ids, adapter scoping, deferred birth run)"
 status: open
 blocked_by: ["29"]
+env: personal
 spec: "t09-baseline-followups"
 ---
 
@@ -16,6 +17,7 @@ Bring the three image-handling defs from upstream 5a23e45 (`image-greedy-tool-de
 
 - **Missing immutable `id:` fields** (verified: `grep -c "^id:"` → 0 for all three) — convention landed 2026-07-18 on all 111 defs; baseline invariant requires ids for longitudinal comparison
 - **Designed for crush** ("no native vision — steepest behavioral delta") but currently selected by kiro-cli `--all` runs — needs `adapters:` scoping from ticket 29
+- **env: personal (grill Q01):** corp crush runs Bedrock = Claude models, which HAVE vision — the no-vision premise only holds with GLM via Z.AI (personal). Birth runs owed to the personal env via the deferred ledger
 - **No recorded runs anywhere** — untested at birth; the conformance-at-birth rule wants a run including at least one scenario that can genuinely fail
 - **Baseline invariants stale:** judged suite is now 39 defs (was stated 36 in the 2026-07-19 record amendment)
 - **Files:** `tools/evals/definitions/image-*.yaml`, `docs/development/eval-baseline-2026-07-19.md`, `docs/development/deferred-runs.md` (from ticket 29)

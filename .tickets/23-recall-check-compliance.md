@@ -3,6 +3,7 @@ id: "23"
 title: "recall-check steering gate raises field compliance above 21%"
 status: open
 blocked_by: []
+env: either
 spec: "t09-baseline-followups"
 ---
 

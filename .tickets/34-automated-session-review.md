@@ -3,6 +3,7 @@ id: "34"
 title: "Explore: automated periodic session-history review for self-improvement opportunities"
 status: open
 blocked_by: []
+env: either
 spec: ""
 ---
 

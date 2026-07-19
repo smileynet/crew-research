@@ -3,6 +3,7 @@ id: "32"
 title: "Results support async completion: re-judge mode + cross-machine interchange"
 status: open
 blocked_by: ["29"]
+env: either
 spec: "eval-harness"
 ---
 

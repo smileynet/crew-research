@@ -3,6 +3,7 @@ id: "35"
 title: "Model cost/quality benchmarking: prefer cheaper models where quality holds"
 status: open
 blocked_by: []
+env: either
 spec: "eval-harness"
 ---
 
@@ -34,7 +35,7 @@ Evidence for model selection across the roles where WE choose the model, preferr
 - [ ] Judge-agreement numbers for ≥2 cheaper candidates vs the 2026-07-19 consensus baseline (sampled, n stated)
 - [ ] small-model def results per candidate at recorded commit
 - [ ] Role → model recommendation table with cost + quality evidence, date-stamped; applied where a swap is justified (judges yaml), or documented why not
-- [ ] Constraint respected: local machine lacks crush/agy access — candidate set limited to reachable models (kiro-cli `--model` list, codex); note what's untestable here (deferred-run ledger, ticket 29)
+- [ ] Constraint respected (updated per grill Q01): corp candidates = kiro-cli `--model` list, codex, **and Bedrock** — Claude family via crush-bedrock (haiku-4.5 is the prime cheap-judge candidate; caching disabled inflates repeated-context judge costs — measure, don't assume), non-Anthropic cheap models (nova-lite/micro, glm-4.7-flash, deepseek-v3.2) only via direct `aws bedrock invoke-model` — a possible 5th judge leg, spike before building. agy candidates: personal env only (corp = policy-blocked, ticket 36)
 
 ## Out of scope
 

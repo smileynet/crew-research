@@ -3,6 +3,7 @@ id: "28"
 title: "Near-threshold judged failures triaged: agents-md, handoff-decaying, feedback-loop-tighten"
 status: open
 blocked_by: []
+env: either
 spec: "t09-baseline-followups"
 ---
 
