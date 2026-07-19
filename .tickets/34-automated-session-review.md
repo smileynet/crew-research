@@ -28,7 +28,7 @@ An exploration (spike first, tool second) of the automated counterpart to `/guid
 
 - [ ] Spike verdict: can P1 (corrections) and P2 (friction) signals be detected from archived JSONLs with acceptable precision on a sampled window? (pattern-match candidates + LLM confirmation on a sample; report hit rates)
 - [ ] Routing design: how a finding maps to project-local vs crew-research-global, and what artifact each produces (local: proposal file/ticket in that repo; global: crew-research ticket)
-- [ ] Scheduling design: where it hooks (recall ingest cron? separate mise task? staleness-hook style?) and its cost envelope
+- [ ] Scheduling per grill Q03 (2026-07-19): MANUAL mise task first (also the spike vehicle, runs collect+synthesize end-to-end); architecture supports the future daily-collect (cheap heuristics -> candidate queue) / weekly-synthesize (batched LLM -> one deduped digest) pairing; cron graduation only after precision proves out. Artifact: digest file, human triages; the pipeline NEVER creates tickets
 - [ ] Recommendation: build/defer/fold-into-session-analysis, with evidence
 
 ## Out of scope

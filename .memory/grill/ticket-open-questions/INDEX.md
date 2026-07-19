@@ -21,6 +21,6 @@
 |---|----------|--------|----------|
 | Q1 | Which machines have which tool/model access (crush, agy)? | RESOLVED → [Q01](Q01-access-map.md) | corp: no agy (POLICY — removed + ticket 36), crush via Bedrock/Claude-only (ticket 31); personal: full. CREW_ENV flag in .mise.local.toml; env: frontmatter on all tickets |
 | Q2 | Per-env deploy sets in docs/commands | folded into Q1 → ticket 36 AC (corp: kiro-cli+codex; personal adds agy+crush) | — |
-| Q3 | Ticket 34 cadence + proposal artifact format | pending | — |
+| Q3 | Ticket 34 cadence + proposal artifact format | RESOLVED → [Q03](Q03-session-review-cadence.md) | manual task first; daily-collect/weekly-synthesize pairing designed in; digest artifact, human-only ticket creation |
 | Q4 | Ticket 35 judge-swap bar + candidate constraints | pending | — |
 | Q5 | skill-authoring invocation-model checkpoint (pending from probe) | pending | — |
