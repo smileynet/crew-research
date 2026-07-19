@@ -1,56 +1,65 @@
 ---
 name: guidance-sync
-description: "Propose updates to project-local skills, AGENTS.md, and tool-script guides after work lands — and enforce that every tools/ script family has a skill covering usage and output interpretation. Use after adding or changing tool scripts, closing tickets that touched tooling, or when commands/flags/outputs drifted from their docs. Trigger: sync guidance, update project skills, agents.md stale, tool script has no skill, guide coverage, output interpretation, keep skills in sync, tooling guide."
+description: "Probe the current session for self-improvement opportunities — corrections, friction, gotchas, and repetition that should become updates to project-local skills, AGENTS.md, steering, or tool-script guides. Invoke manually (/guidance-sync) periodically during a session or before wrapping up. Trigger: guidance sync, self improvement, what should we update, capture learnings, sync guidance, improvement opportunities, session retro."
 metadata:
   type: protocol
-  invocation: both
+  invocation: user-only
   practice: null
 ---
 
-# Guidance Sync
+# Guidance Sync — In-Session Self-Improvement Probe
 
-After work lands, the project's guidance layer (project-local skills, AGENTS.md, steering pointers) must still describe reality. Run this sync; propose updates as a batch.
+Mine THIS session for signals that the project's guidance layer should change. Source material is the live conversation — not git history, not session archives (the automated retrospective variant is future work; `session-analysis` owns historical data).
 
-## Coverage Gate (the invariant)
+## Probes (run all, report findings per probe)
 
-**Every `tools/` script family has a project-local skill** (`.kiro/skills/{name}/SKILL.md`) covering: how to run it, what the flags do, how to read its output, and known failure modes.
+### P1 — Corrections
+Where did the user correct me this session? Each correction is a candidate rule:
+- Corrected assumption → steering or AGENTS.md line
+- Corrected workflow → skill edit (the skill taught the wrong shape)
+- Corrected scope/intent → skill description or trigger vocabulary fix
 
-Judgment rule — a family needs a full guide skill when ANY hold:
-- Output requires interpretation (verdicts, rates, thresholds, JSON fields)
-- It has modes/flags an agent could misuse (resume, dry-run, destructive paths)
-- Misuse has cost (long runtimes, state mutation, result corruption)
+### P2 — Friction
+Where did work stall or need archaeology this session?
+- Stale docs hit in practice (wrong flag syntax, dead path, missing step)
+- Knowledge that existed only in someone's head or a previous session
+- A check or verification that had to be improvised
 
-A single-command script with self-evident output needs only an AGENTS.md command entry — don't create ceremony.
+### P3 — New knowledge
+What did this session learn that the next session shouldn't rediscover?
+- Gotchas with incidents behind them → guide skill "hard rules" section
+- Output-interpretation rules (what a field/verdict actually means)
+- Environment facts (access limits, version quirks) → environment notes
 
-## Sync Workflow
+### P4 — Repetition
+What did I do manually 2+ times this session? Candidates for:
+- A tools/ script (follow the validation contract)
+- A skill workflow step
+- An AGENTS.md command entry
 
-1. **Inventory** — list `tools/` families, `.kiro/skills/` guides, AGENTS.md command blocks, steering pointers.
-2. **Coverage check** — apply the gate above; each uncovered family gets a proposed guide or an explicit "AGENTS.md entry suffices" verdict.
-3. **Drift pass** — for each existing guide + AGENTS.md block, diff against current script behavior: flags, arg syntax, output fields, paths. Run `--help` or read the script header; don't trust memory. (Precedent: `session:skills` arg syntax was stale in AGENTS.md while the task worked fine.)
-4. **New-knowledge pass** — did recent work produce decisions, gotchas, or output-reading rules that belong in a guide? (e.g., a new verdict field, a resume flag, a "never edit mid-run" rule.)
-5. **Propose as a batch** — one table: file → change → reason. Apply on approval; for trivial corrections (stale flag syntax, dead path) apply directly and note it.
+### P5 — Coverage gate
+Does every `tools/` script family touched this session have a guide skill covering usage and output interpretation? A family needs one if output requires interpretation, flags are misusable, or misuse has cost. Otherwise an AGENTS.md command entry suffices — don't create ceremony.
 
-## Proposal Format
+## Output Format
 
 ```
-| Target | Change | Why |
-|--------|--------|-----|
-| .kiro/skills/X/SKILL.md | add --foo flag + verdict row | landed in ticket N |
-| AGENTS.md commands | fix arg syntax | drifted from script |
-| (new) .kiro/skills/Y/ | create guide | tools/Y fails coverage gate |
+## Self-Improvement Probe — {date}
+
+| # | Probe | Finding | Proposed change | Target |
+|---|-------|---------|-----------------|--------|
+| 1 | P1 correction | ... | ... | .kiro/skills/X or AGENTS.md |
+| 2 | P3 gotcha | ... | ... | guide skill hard-rules |
+
+Apply now: [items needing no decision]
+Needs your call: [items with trade-offs]
+Not worth capturing: [signals judged noise, with one-line why]
 ```
 
-## What a Tool-Guide Skill Contains
+Apply approved items in the same session. Trivial corrections (stale syntax, dead link) apply directly; note them.
 
-Model on existing guides (eval-harness, deploy-toolkit, session-analysis):
-- Run commands with real flag examples
-- Output interpretation table (field → meaning → action)
-- Failure modes and their fixes
-- When to run / when NOT to run
-- Hard rules with the incident that created them
+## Discipline
 
-## Scope Discipline
-
-- Guides describe CURRENT behavior — never document planned features as existing
-- One source of truth: AGENTS.md gets the command line; the guide skill gets interpretation. Don't duplicate prose between them
+- Proposals must trace to a specific moment in this session — no generic "docs could be better"
+- One source of truth: command lines in AGENTS.md, interpretation in guide skills, incidents in hard-rules sections
+- Capture into the right layer: glossary terms → `.memory/CONTEXT.md`; decisions → recall/ADR; behavior rules → steering/skills
 - Skill budget: <100 lines per SKILL.md; split to `references/` if over
