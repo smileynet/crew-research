@@ -1,46 +1,48 @@
 ---
-created_at: 2026-07-18T21:46:00+00:00
-base_commit: 6f03640
+created_at: 2026-07-19T17:43:00+00:00
+base_commit: 1d7ffae
 handoff_key: post-baseline-frontier
 ---
 
 # Handoff
 
 ## Objective
-Frontier work continues: tickets 23 (recall-check compliance), 24 (activation detection cleanup), 26 (baseline refresh); 25 blocked by 24. All of 01-22 closed this session (13/14/15/16/19) — see docs/plan.md.
+Work the frontier (see docs/plan.md ticket table): 29 is the dependency root (30/32/33 blocked on it; judge changes blocked on it per grill Q04). 27/28/31/36 are parallel-friendly. 23 reopens ~2026-07-25.
 
 ## Constraints
-- Eval runs: setsid nohup + observe pattern ALWAYS (even dry-runs); never edit harness scripts mid-run; resume with `--skip-completed <dir>`, never hand-script
-- ADR 0009 deploy semantics live now: steering refs → skills tree, links rewritten absolute; `~/.kiro/steering/references/` = user-owned only (environment-gotchas.md — never touch)
-- Deploy idempotency invariant: second run must be `0 updated, 0 pruned` (see deploy-toolkit skill)
-- Ticket IDs: `git fetch` + rescan before allocating (26 is max); push claims promptly
-- kiro tool-use cancellation does NOT kill spawned processes — orphans survive and complete; kill by recorded exact PID only (two incidents this session)
+- **agy is FORBIDDEN on this machine (company policy)** — artifacts removed 2026-07-19; deploys here = `--tool kiro-cli --tool codex` ONLY; enforcement lands in ticket 36. `CREW_ENV=corp` in gitignored `.mise.local.toml`
+- Eval-run liveness = artifacts (log growth, results-dir mtimes, `ps aux | grep "[r]un.sh"`), NEVER the setsid launcher PID (updated in eval-execution steering after near-double-launch)
+- No live judge-set changes before ticket 29 (recording gap); consensus scores on this machine are ~2-judge medians (opus+codex) — don't compare across machines
+- A kiro `run.sh --all` today blind-runs the 3 upstream image-* defs (no adapter scoping until 29) — avoid full suite runs or discount those rows
+- Parallel sessions are ACTIVE on this repo (5 upstream rebases today): fetch+rescan before ticket allocation (36 is max); divergence default = rebase when possible (now in project-conventions)
 
 ## Prior Decisions
-- ADR 0009: non-eager refs deploy adjacent to SKILL.md in the skills tree; AGENTS.md tools get same files, links rewritten (codex/agy were dangling). Per-tool manifests `.crew-skills-{tool}` — codex+agy SHARE ~/.agents/skills; single-manifest prune flaps
-- Ticket 19: activation-recall RETIRED — recall-check steering owns the trigger space ("steering shadow", now in glossary); measurement moved to field compliance
-- Ticket 14: feedback-loop failures were fixture-task mismatch (tasks described nonexistent bugs), NOT merge dilution; per-task `fixture:` override added to run.sh; pre-2026-07-18 history for that def non-comparable
-- Eval-proven again (ticket 13): gates > suggestions; trigger vocabulary must cover eval task phrasings
-- Project tooling skills convention: every tools/ script family has a .kiro/skills/ guide (eval-harness, session-analysis, deploy-toolkit)
+- Grill `ticket-open-questions` complete (Q1–Q5): access map + CREW_ENV; session-review = manual task first, daily-collect/weekly-synthesize pairing later, digest-only artifact; judge swap = <5% median-shift + ±0.1 bias cap, shadow→augment(post-29)→drop; G0 invocation-model gate added to skill-authoring. Files: `.memory/grill/ticket-open-questions/`
+- crush on corp = Bedrock, Anthropic-only, caching disabled (crush docs; account pool verified — haiku-4.5 is the cheap-judge candidate)
+- Eval results schema target (spec `.memory/specs/eval-harness.md` gaps table): rows get id/adapter/judges (29), re-judge + interchange (32), identity hashes + --changed-only (33)
+- guidance-sync skill = manually-invoked in-session probe (`/guidance-sync`, user-only); first probe applied 3 fixes; automated variant = ticket 34
+- New baseline 2026-07-19: 28/35 judged @ 28ed513, known gaps 8→5 (`docs/development/eval-baseline-2026-07-19.md`); +2 defs (mcp-partitioning) pass at birth
 
 ## Current State
-Clean boundary — nothing mid-flight. Working tree clean, all pushed (6f03640). Global deploys current on all three tools. docs/plan.md is authoritative for ticket status.
+Clean boundary — grill closed, tree clean, all pushed (1d7ffae). Nothing mid-flight. Ticket 29 proposed as next but NOT started; user hasn't confirmed.
 
 ## Next Steps
-1. Ticket 23 (start soon — measurement clock): restructure recall-check steering as a gate, then ≥1 week field window before measuring vs 21% baseline. Early signal: 2-day window shows 42/98 (~43%) — promising, not evidence (see session-analysis skill for window rules)
-2. Ticket 24: tee agent output to `$workdir/.eval-output` in run-activation.sh (~line 88), clean dead markers in check-activation.sh, no-regression `--all` run (19/19)
-3. Ticket 26: full suite refresh (~8-10h judged run) — expect ≥29/35; re-justify each remaining known gap
-4. Ticket 25 after 24: mcp-partitioning activation + effectiveness defs
+1. Ticket 29 (deferred eval protocol) — dependency root; schema decisions pre-made (grill pre-resolved table + Q04); include hash-field placeholders in the row schema so 33 doesn't churn it (recall note 2026-07-19)
+2. Ticket 23 measurement ≥2026-07-25: `mise run session:skills 7` vs pre-fix 78/271 (29%)
+3. Personal-env owed work when there: image-def birth runs (30), agy/GLM judge legs (35 shadow candidates)
+4. Tickets 27/28/31/36 — small, parallel-friendly, env-appropriate
 
 ## Fog
-- Ticket 23 target (>50%) is a guess — adjust with justification if the gate redesign lands differently
-- t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) deliberately deferred to ~2026-08-17 — do NOT ticket before then
+- crush-Bedrock live behavior on corp unverified (ticket 31 probes; docs' Claude-only limit is as-of Mar 2026)
+- Ticket 28: flaky vs genuine (incl. a03798e confound on handoff-decaying) unknown until solo re-runs
+- Ticket 34/35 spike-gated: detection precision; direct-invoke Bedrock judge leg feasibility
+- Personal-env specifics assumed (tool versions, kiro presence) — verify on first session there
 
 ## Recommended Updates
-- [ ] skill(tool-installation): 223 lines — split into SKILL.md + references/ if it bothers anyone (justified as lookup table for now)
-- [ ] user steering references/environment-gotchas.md: suggest adding "kiro cancellation doesn't kill spawned processes" gotcha (user-owned file — their call)
+- [ ] user steering references/environment-gotchas.md (user-owned): add "setsid $! is the wrapper PID" + "kiro cancellation doesn't kill spawned processes" gotchas
+- [ ] skill(tool-installation): 223 lines — split if it bothers anyone (carried from last handoff)
 
 ## Evidence
-- Ticket resolutions with per-hypothesis evidence: `.tickets/{13,14,15,16,19}-*.md` (19 has the causal probe pair; 14 has the fixture verification)
-- Eval runs: architecture-deepening `results/2026-07-18T14-48-21Z` (activation) + judged pass; feedback-loop `results/2026-07-18T15-26-45Z` + `15-55-26Z` (both PASS)
-- Tried & failed: em-dash-in-H1 detection hypothesis (ticket 19 — full marker matched; dead end); inline kill of backgrounded eval runs (use truncate-copy simulation instead, see ticket 15)
+- Session commits: 6ec4890..1d7ffae (~14, all pushed); tickets 23–36 in `.tickets/`; grill: `.memory/grill/ticket-open-questions/`
+- Runs: activation 19/20 `results/activation-2026-07-18T21-56-19Z`; judged 28/35 `results/2026-07-19T00-29-50Z`; mcp-partitioning `2026-07-19T13-32-32Z` + `activation-2026-07-19T13-13-30Z`
+- Tried & failed: `kill -0 $!` liveness after setsid (misdiagnosed healthy 10h run — fixed in steering); attempt-1 log-missing mystery unexplained but harmless now; git-protocol FP forensics via session-DB marker grep WORKED (reusable method, see ticket 27)
