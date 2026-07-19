@@ -46,3 +46,6 @@ tools/evals/harness/node_modules/
 # Python
 __pycache__/
 *.pyc
+
+# Cross-tool testing artifacts
+.claude/
