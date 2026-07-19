@@ -161,17 +161,18 @@ Key properties (verified 2026-07-19):
 
 - **Raw outputs are retained** — re-judging past runs is feasible: outputs + the def's criteria at `meta.json`'s recorded commit reconstruct the judge prompt.
 - **Adapter is per-run** (meta.json), so cross-adapter comparison = sibling run dirs joined on def identity. A crush run of the same defs slots in beside a kiro run.
-- **Judge artifacts are deleted** after scoring (only the median survives), and judge participation is not recorded — a degraded consensus (e.g., 2 of 4 judges reachable) is indistinguishable from a full one. Fix tracked in ticket 29.
+- **Judge artifacts are deleted** after scoring (only the median survives), but judge participation IS recorded (ticket 29): per-trial `task_scores[].judges` in scores.jsonl, per-run `judges.live/excluded` in meta.json. Judges and the agent adapter are access-probed with a real prompt each run (`EVAL_PROBE_TIMEOUT`, default 30s) — PATH presence alone never qualifies a tool. **Pre-2026-07-19 results have no judge recording and were opus-only on corp** (crush produced no scores; codex silently died in untrusted temp dirs — fixed with `--skip-git-repo-check`).
+- **Adapter-scoped defs** (`adapters: [x]` frontmatter) SKIP under other adapters with a reason row in scores.jsonl (`status: SKIP`); skips are excluded from tallies and from `--skip-completed` completion. Owed runs are tracked in `docs/development/deferred-runs.md` (committed — results are gitignored).
 
-### Known gaps (target schema — tickets 29/32)
+### Known gaps (target schema — tickets 32/33)
 
 | Gap | Impact | Fix |
 |-----|--------|-----|
-| scores.jsonl rows lack `id` (only mutable `name`) and `adapter` | joins break on rename; rows aren't self-describing outside their dir | ticket 29: emit `id` + `adapter` per row |
-| Judge participation unrecorded | cross-machine consensus differences invisible | ticket 29: `judges: [names]` per row |
+| ~~scores.jsonl rows lack `id`/`adapter`~~ | — | DONE ticket 29 (2026-07-19) |
+| ~~Judge participation unrecorded~~ | — | DONE ticket 29 (2026-07-19): `judges` per row + per trial |
 | No re-judge mode | can't upgrade old scores when more judges become reachable | ticket 32: `--judge-only <results-dir>` writing a versioned scores file (never overwrite) |
 | `results/` is gitignored, no interchange format | runs from other machines (e.g., crush-capable) can't merge | ticket 32: export/import bundle or committed summary format; owed runs tracked in `docs/development/deferred-runs.md` |
-| No result identity hashes | "does this result reflect current skill/def/model state?" requires git archaeology (a03798e confound precedent) | ticket 33: per-row `skill_hash`/`def_hash`/`env_id` + staleness checker + `--changed-only` |
+| No result identity hashes | "does this result reflect current skill/def/model state?" requires git archaeology (a03798e confound precedent) | ticket 33: per-row `skill_hash`/`def_hash`/`env_id` (null placeholders emitted since ticket 29) + staleness checker + `--changed-only` |
 
 ## Result Fields (meta.json)
 
@@ -182,6 +183,7 @@ Key properties (verified 2026-07-19):
   "timestamp": "2026-05-18T01:13:58Z",
   "commit": "abc1234",
   "config": {"trials": 3, "threshold": 3, "judge": "claude-sonnet-4-6", "adapter": "kiro-cli"},
-  "summary": {"total": 46, "passed": 38, "failed": 8, "avg_score": 4.1}
+  "judges": {"live": ["kiro", "codex"], "excluded": "crush (probe failed), agy (not on PATH)"},
+  "summary": {"total": 46, "passed": 38, "failed": 8, "skipped": 3, "avg_score": 4.1}
 }
 ```

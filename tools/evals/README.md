@@ -23,6 +23,11 @@ id: my-skill-effectiveness            # IMMUTABLE — set once at creation, surv
                                       # (2026-07-15→17: only 12/35 defs comparable after renames).
 name: my-skill-effectiveness          # required, matches filename (renameable)
 description: "What this measures"     # required
+adapters: [crush]                     # optional — adapters this def may run under.
+                                      # Other adapters emit a SKIP row (reason: "needs
+                                      # adapter: X") — not a pass, not a fail, not
+                                      # "completed" for --skip-completed. Owed runs are
+                                      # tracked in docs/development/deferred-runs.md.
 known_gap: "model-family — why"       # optional — documents a known cross-model failure so
                                       # it doesn't read as a fresh regression each run.
                                       # Current: 3 defs fail/flip under codex-family judging.
@@ -73,7 +78,12 @@ DB at `~/.recall/`) can't run isolated — see `definitions/retired/recall-cross
 
 ### Judging
 
-4-model consensus (claude-opus + codex + crush + agy run in parallel; median score).
+Multi-model consensus (claude-opus + codex + crush + agy candidates; median score). The live
+judge set is determined by an access probe per run (tiny real prompt, `EVAL_PROBE_TIMEOUT`
+default 30s) — PATH presence alone does not qualify a judge (discovered 2026-07-19: crush
+spawned but never scored; codex silently died in untrusted temp dirs, so all pre-2026-07-19
+"consensus" scores on corp were opus-only). Judge participation is recorded per trial in
+scores.jsonl (`task_scores[].judges`) and per run in `meta.json` (`judges.live/excluded`).
 Session behavior (tool calls, retries) is extracted and shown to the judge; definitions can add
 `log_analysis.penalties` (max_tool_calls, max_retries) for hard score deductions.
 

@@ -1,7 +1,7 @@
 ---
 id: "29"
 title: "Deferred eval protocol: adapter-scoped defs, access probes, judge visibility, owed-run ledger"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "t09-baseline-followups"

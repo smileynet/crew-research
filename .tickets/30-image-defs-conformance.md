@@ -15,6 +15,8 @@ Bring the three image-handling defs from upstream 5a23e45 (`image-greedy-tool-de
 
 ## Context
 
+- **NOTE (2026-07-19, ticket 29):** `id:` + `adapters: [crush]` were already added to all three defs, ledger entries seeded in `docs/development/deferred-runs.md`, kiro-cli SKIP verified in a real run, and the baseline record amended (36 scored + 3 skipped). Remaining for this ticket: the lint warning fix, regression-rule wording check, and the actual crush birth runs on a personal machine.
+
 - **Missing immutable `id:` fields** (verified: `grep -c "^id:"` → 0 for all three) — convention landed 2026-07-18 on all 111 defs; baseline invariant requires ids for longitudinal comparison
 - **Designed for crush** ("no native vision — steepest behavioral delta") but currently selected by kiro-cli `--all` runs — needs `adapters:` scoping from ticket 29
 - **env: personal (grill Q01):** corp crush runs Bedrock = Claude models, which HAVE vision — the no-vision premise only holds with GLM via Z.AI (personal). Birth runs owed to the personal env via the deferred ledger

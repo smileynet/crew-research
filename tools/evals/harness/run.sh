@@ -23,6 +23,7 @@ MODEL=""
 ENGINE=""
 JUDGE_CONFIG="$JUDGES_DIR/default.yaml"
 RESUME_DIR=""
+PROBE_TIMEOUT="${EVAL_PROBE_TIMEOUT:-30}"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -46,13 +47,8 @@ for cmd in yq; do
     echo "Error: $cmd required" >&2; exit 2
   fi
 done
-# Validate adapter tool is available
-case "$ADAPTER" in
-  crush) command -v crush &>/dev/null || { echo "Error: crush not found" >&2; exit 2; } ;;
-  codex) command -v codex &>/dev/null || { echo "Error: codex not found" >&2; exit 2; } ;;
-  agy) command -v agy &>/dev/null || { echo "Error: agy not found" >&2; exit 2; } ;;
-  *) command -v kiro-cli &>/dev/null || { echo "Error: kiro-cli not found" >&2; exit 2; } ;;
-esac
+# Adapter availability is verified by a live access probe at first use
+# (ensure_agent_probed) — PATH presence != model access. No-access defs SKIP.
 
 # Validate trials
 [[ "$TRIALS" -gt 0 ]] 2>/dev/null || { echo "Error: --trials must be > 0" >&2; exit 1; }
@@ -79,7 +75,7 @@ TIMESTAMP=$(date -u +%Y-%m-%dT%H-%M-%SZ)
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 echo "Eval harness: $TOOL_NAME ($TOOL_VERSION)"
-echo "Judge: $JUDGE_MODE (${JUDGE_MODEL}+codex+crush+agy) | Trials: $TRIALS | Dry-run: $DRY_RUN"
+echo "Judge: $JUDGE_MODE (candidates: ${JUDGE_MODEL}+codex+crush+agy — live set probed at first judging call) | Trials: $TRIALS | Dry-run: $DRY_RUN"
 echo "Timestamp: $TIMESTAMP"
 echo ""
 
@@ -104,7 +100,8 @@ if [[ -n "$RESUME_DIR" ]]; then
   REMAINING_DEFS=()
   for def_file in "${DEFS[@]}"; do
     def_name=$(yq '.name' "$def_file")
-    if [[ -f "$RESUME_SCORES" ]] && grep -q "\"name\":\"$def_name\"" "$RESUME_SCORES"; then
+    # A SKIP row is not a completed def — only scored (PASS/FAIL) rows count
+    if [[ -f "$RESUME_SCORES" ]] && grep "\"name\":\"$def_name\"" "$RESUME_SCORES" | grep -qv '"status":"SKIP"'; then
       echo "  ⏭  $def_name — already completed in $(basename "$RESUME_DIR"), skipping"
     else
       REMAINING_DEFS+=("$def_file")
@@ -135,12 +132,91 @@ if command -v recall &>/dev/null; then
   recall search "warmup" --results 1 >/dev/null 2>&1 || true
 fi
 
-TOTAL=0; PASSED=0; FAILED=0
+TOTAL=0; PASSED=0; FAILED=0; SKIPPED=0
 SCORES_FILE="$RUN_DIR/scores.jsonl"
 # Resume mode appends to existing scores; fresh runs start clean
 [[ -n "$RESUME_DIR" ]] || : > "$SCORES_FILE"
 
+# Emit a SKIP row: pending-with-reason, never silent (extension-protocol principle).
+# SKIPs are excluded from pass/fail tallies and do NOT count as completed for --skip-completed.
+emit_skip() {
+  local name="$1" def_id="$2" why="$3"
+  SKIPPED=$((SKIPPED + 1))
+  echo "  ⏭  SKIP $name — $why"
+  # Resume mode: don't append duplicate SKIP rows across resumes
+  if [[ -n "$RESUME_DIR" && -f "$SCORES_FILE" ]] && grep "\"name\":\"$name\"" "$SCORES_FILE" | grep -q '"status":"SKIP"'; then
+    return
+  fi
+  local id_json="null"
+  [[ -n "$def_id" ]] && id_json="\"$def_id\""
+  echo "{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"status\":\"SKIP\",\"reason\":\"$why\",\"judges\":[],\"skill_hash\":null,\"def_hash\":null,\"env_id\":null}" >> "$SCORES_FILE"
+}
+
 strip_ansi() { sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'; }
+
+# --- Adapter access probes ---------------------------------------------------
+# PATH presence != model access (verified 2026-07-19: crush spawns but scores
+# nothing; codex exec dies on untrusted temp dirs with stderr discarded).
+# A tool is "live" only when a tiny real prompt produces the expected token.
+declare -A PROBE_RESULTS=()   # tool -> "live" | "dead"
+
+probe_tool() {
+  local tool="$1"
+  if [[ -n "${PROBE_RESULTS[$tool]:-}" ]]; then
+    [[ "${PROBE_RESULTS[$tool]}" == "live" ]]; return
+  fi
+  local verdict="dead"
+  if command -v "$tool" &>/dev/null; then
+    local probe_dir out=""
+    probe_dir=$(mktemp -d -t "probe-${tool}-XXXX")
+    case "$tool" in
+      kiro-cli) out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" kiro-cli chat --no-interactive --wrap never "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
+      codex)    out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" codex exec -s read-only --skip-git-repo-check "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
+      crush)    out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" crush run --quiet --model "${MODEL:-glm-5.2}" "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
+      agy)      out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" agy --print "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
+    esac
+    rm -rf "$probe_dir"
+    grep -q "OK" <<< "$out" && verdict="live"
+  fi
+  PROBE_RESULTS[$tool]="$verdict"
+  [[ "$verdict" == "live" ]]
+}
+
+# Agent probe — lazy, once per run, only when a def actually needs to run
+AGENT_PROBED=false
+AGENT_LIVE=false
+ensure_agent_probed() {
+  [[ "$AGENT_PROBED" == true ]] && return 0
+  AGENT_PROBED=true
+  [[ "$DRY_RUN" == true ]] && { AGENT_LIVE=true; return 0; }
+  if probe_tool "$ADAPTER"; then
+    AGENT_LIVE=true
+  else
+    echo "  ⚠️  Agent adapter '$ADAPTER' failed access probe (on PATH: $(command -v "$ADAPTER" &>/dev/null && echo yes || echo no)) — defs will SKIP" >&2
+  fi
+}
+
+# Judge probes — lazy, once per run, before the first judging call
+JUDGES_PROBED=false
+LIVE_JUDGES=()          # subset of kiro codex crush agy
+JUDGES_EXCLUDED=""      # "crush (probe failed), agy (not on PATH)"
+ensure_judges_probed() {
+  [[ "$JUDGES_PROBED" == true ]] && return 0
+  JUDGES_PROBED=true
+  [[ "$DRY_RUN" == true ]] && return 0
+  local tool short
+  for tool in kiro-cli codex crush agy; do
+    short="${tool%%-*}"   # kiro-cli -> kiro
+    if probe_tool "$tool"; then
+      LIVE_JUDGES+=("$short")
+    else
+      local why="probe failed"
+      command -v "$tool" &>/dev/null || why="not on PATH"
+      JUDGES_EXCLUDED="${JUDGES_EXCLUDED:+$JUDGES_EXCLUDED, }$short ($why)"
+    fi
+  done
+  echo "  Judges live: ${LIVE_JUDGES[*]:-none}${JUDGES_EXCLUDED:+ | excluded: $JUDGES_EXCLUDED}"
+}
 
 # Set up a project fixture in the workspace
 setup_fixture() {
@@ -286,6 +362,7 @@ REASON: <one sentence>"
   if [[ "$DRY_RUN" == true ]]; then
     echo "SCORE: 3"
     echo "REASON: dry-run placeholder"
+    echo "JUDGES:"
     return
   fi
 
@@ -299,28 +376,28 @@ REASON: <one sentence>"
   local prompt_file="$judge_dir/prompt.txt"
   printf '%s' "$judge_prompt" > "$prompt_file"
 
-  # Run judges in parallel
+  # Run live judges in parallel (probed once per run — see ensure_judges_probed)
+  ensure_judges_probed
   local pids=()
-
-  if command -v kiro-cli &>/dev/null; then
-    (cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-kiro.txt") &
-    pids+=($!)
-  fi
-
-  if command -v codex &>/dev/null; then
-    (cd "$judge_dir" && timeout 60 codex exec -s read-only "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-codex.txt") &
-    pids+=($!)
-  fi
-
-  if command -v crush &>/dev/null; then
-    (cd "$judge_dir" && timeout 60 crush run --quiet --model glm-5.2 "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
-    pids+=($!)
-  fi
-
-  if command -v agy &>/dev/null; then
-    (cd "$judge_dir" && timeout 60 agy --print "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-agy.txt") &
-    pids+=($!)
-  fi
+  local j
+  for j in "${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"}"; do
+    case "$j" in
+      kiro)
+        (cd "$judge_dir" && kiro-cli chat --no-interactive --model "$JUDGE_MODEL" --wrap never "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-kiro.txt") &
+        pids+=($!) ;;
+      codex)
+        # --skip-git-repo-check: codex exec silently dies in untrusted temp dirs
+        # (discovered 2026-07-19 — the leg produced zero scores in every prior run)
+        (cd "$judge_dir" && timeout 60 codex exec -s read-only --skip-git-repo-check "$(cat "$prompt_file")" </dev/null 2>/dev/null | strip_ansi > "$judge_dir/result-codex.txt") &
+        pids+=($!) ;;
+      crush)
+        (cd "$judge_dir" && timeout 60 crush run --quiet --model glm-5.2 "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
+        pids+=($!) ;;
+      agy)
+        (cd "$judge_dir" && timeout 60 agy --print "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-agy.txt") &
+        pids+=($!) ;;
+    esac
+  done
 
   # Wait for all judges
   for pid in "${pids[@]}"; do
@@ -328,8 +405,7 @@ REASON: <one sentence>"
   done
 
   # Collect scores from all judges
-  local all_scores=""
-  local all_reasons=""
+  local judge_names=()
   for result_file in "$judge_dir"/result-*.txt; do
     [[ -f "$result_file" ]] || continue
     local s=$(grep -o 'SCORE: *[0-9]*' "$result_file" | grep -o '[0-9]*$' | tail -1)
@@ -337,6 +413,7 @@ REASON: <one sentence>"
     local judge_name=$(basename "$result_file" .txt | sed 's/result-//')
     if [[ -n "$s" && "$s" -ge 1 && "$s" -le 5 ]]; then
       scores+=("$s")
+      judge_names+=("$judge_name")
       reasons+=("[$judge_name:$s] ${r:-no reason}")
     fi
   done
@@ -347,6 +424,7 @@ REASON: <one sentence>"
   if [[ ${#scores[@]} -eq 0 ]]; then
     echo "SCORE: 0"
     echo "REASON: no judge produced a valid score"
+    echo "JUDGES:"
     return
   fi
 
@@ -355,9 +433,10 @@ REASON: <one sentence>"
   local median_idx=$(( (n - 1) / 2 ))
   local median_score=${sorted_scores[$median_idx]}
 
-  # Return median score with all judge reasons
+  # Return median score with all judge reasons + participating judges
   echo "SCORE: $median_score"
   echo "REASON: median of $n judges [${scores[*]}] — ${reasons[0]}"
+  echo "JUDGES: ${judge_names[*]}"
 }
 
 # Parse score from judge output
@@ -371,10 +450,44 @@ parse_reason() {
   echo "$judge_output" | grep -o 'REASON: .*' | sed 's/^REASON: //' | tail -1 || echo "parse error"
 }
 
+# Participating judges as a JSON string array: ["kiro","codex"]
+parse_judges() {
+  local judge_output="$1"
+  local names
+  names=$(echo "$judge_output" | grep -o '^JUDGES:.*' | sed 's/^JUDGES:*//' | tail -1)
+  if [[ -z "${names// /}" ]]; then
+    echo "[]"
+  else
+    printf '%s\n' "$names" | awk '{out=""; for(i=1;i<=NF;i++){out=out (i>1?",":"") "\""$i"\""} print "["out"]"}'
+  fi
+}
+
 # Run a single eval (standard or dual-run)
 run_eval() {
   local def_file="$1"
   local name=$(yq '.name' "$def_file")
+  local def_id=$(yq '.id // ""' "$def_file")
+  [[ "$def_id" == "null" ]] && def_id=""
+
+  # Adapter scoping: a def listing adapters runs ONLY under those adapters
+  local def_adapters=$(yq '.adapters // [] | join(",")' "$def_file")
+  if [[ -n "$def_adapters" && "$def_adapters" != "null" && ",$def_adapters," != *",$ADAPTER,"* ]]; then
+    emit_skip "$name" "$def_id" "needs adapter: $def_adapters"
+    return
+  fi
+
+  # Access probe: PATH presence != model access
+  ensure_agent_probed
+  if [[ "$AGENT_LIVE" != true ]]; then
+    emit_skip "$name" "$def_id" "adapter $ADAPTER: no access (probe failed)"
+    return
+  fi
+
+  # Probe judges in the PARENT shell — judge_output runs in a $(...) subshell,
+  # so state set there (LIVE_JUDGES, JUDGES_PROBED) never reaches meta.json and
+  # probing would silently repeat on every judging call
+  ensure_judges_probed
+
   local skill=$(yq '.skill // ""' "$def_file")
   local threshold=$(yq '.threshold // 4' "$def_file")
   local delta_threshold=$(yq '.delta_threshold // .acceptance.min_delta // 0' "$def_file")
@@ -440,6 +553,7 @@ run_eval() {
   declare -A cond_stddev=()
   declare -A cond_min=()
   declare -A cond_max=()
+  declare -A row_judges=()
   local activation_count=0 activation_total=0
   local task_scores_json="["
 
@@ -452,6 +566,7 @@ run_eval() {
       local criteria="${criterias[$task_idx]}"
       local ideal="${ideals[$task_idx]}"
       local task_trial_scores=()
+      local task_trial_judges=()
 
       for trial in $(seq 1 "$run_trials"); do
         local workdir=$(mktemp -d -t "eval-${name}-${cond}-XXXX")
@@ -538,6 +653,12 @@ run_eval() {
         judge_result=$(judge_output "$output" "$criteria" "$ideal" "$session_summary")
         local score
         score=$(parse_score "$judge_result")
+        # Record judge participation for this trial
+        task_trial_judges+=("$(parse_judges "$judge_result")")
+        local jn
+        for jn in $(echo "$judge_result" | grep -o '^JUDGES:.*' | sed 's/^JUDGES://'); do
+          row_judges[$jn]=1
+        done
         # Apply log penalties (floor at 1)
         if [[ $log_penalty -gt 0 ]]; then
           score=$((score - log_penalty))
@@ -561,7 +682,8 @@ run_eval() {
       local task_sum=0
       for s in "${task_trial_scores[@]}"; do task_sum=$((task_sum + s)); done
       local task_avg=$(echo "scale=2; $task_sum / ${#task_trial_scores[@]}" | bc | sed 's/^\./0./;s/^-\./-0./')
-      task_scores_json="$task_scores_json{\"task\":$task_idx,\"condition\":\"$cond\",\"avg\":$task_avg,\"scores\":[$(IFS=,; echo "${task_trial_scores[*]}")]}"
+      local task_judges_join=$(IFS=,; echo "${task_trial_judges[*]}")
+      task_scores_json="$task_scores_json{\"task\":$task_idx,\"condition\":\"$cond\",\"avg\":$task_avg,\"scores\":[$(IFS=,; echo "${task_trial_scores[*]}")],\"judges\":[$task_judges_join]}"
       # Add comma if not last
       if [[ $task_idx -lt $((${#inputs[@]} - 1)) || "$cond" != "${condition_names[-1]}" ]]; then
         task_scores_json="$task_scores_json,"
@@ -653,7 +775,15 @@ run_eval() {
   fi
   local escaped_reason="${reason//\\/\\\\}"
   escaped_reason="${escaped_reason//\"/\\\"}"
-  local score_line="{\"name\":\"$name\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
+  # Self-describing row: immutable id (joins survive renames), run adapter,
+  # judge-set union, and null placeholders for ticket 33's identity hashes
+  local id_json="null"
+  [[ -n "$def_id" ]] && id_json="\"$def_id\""
+  local judges_union="[]"
+  if [[ ${#row_judges[@]} -gt 0 ]]; then
+    judges_union=$(printf '%s\n' "${!row_judges[@]}" | sort | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}')
+  fi
+  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"skill_hash\":null,\"def_hash\":null,\"env_id\":null,\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
   if [[ $is_comparison -eq 1 ]]; then
     local primary_cond="" baseline_cond=""
     for cond in "${condition_names[@]}"; do
@@ -682,7 +812,14 @@ done
 
 echo ""
 echo "---"
-echo "Results: $PASSED passed, $FAILED failed ($TOTAL total)"
+echo "Results: $PASSED passed, $FAILED failed, $SKIPPED skipped ($TOTAL run)"
+
+# Live judge set as JSON (empty if judging never happened this run)
+JUDGES_LIVE_JSON="[]"
+if [[ ${#LIVE_JUDGES[@]} -gt 0 ]]; then
+  JUDGES_LIVE_JSON=$(printf '%s\n' "${LIVE_JUDGES[@]}" | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}')
+fi
+JUDGES_EXCLUDED_ESCAPED="${JUDGES_EXCLUDED//\"/\\\"}"
 
 # Write meta.json (resume mode: preserve the original, record the resume separately)
 META_FILE="$RUN_DIR/meta.json"
@@ -694,7 +831,8 @@ cat > "$META_FILE" << EOF
   "timestamp": "$TIMESTAMP",
   "commit": "$COMMIT",
   "config": {"trials": $TRIALS, "judge": "$JUDGE_MODEL", "adapter": "$ADAPTER", "dry_run": $DRY_RUN},
-  "summary": {"total": $TOTAL, "passed": $PASSED, "failed": $FAILED, "avg_score": 0}
+  "judges": {"live": $JUDGES_LIVE_JSON, "excluded": "$JUDGES_EXCLUDED_ESCAPED"},
+  "summary": {"total": $TOTAL, "passed": $PASSED, "failed": $FAILED, "skipped": $SKIPPED, "avg_score": 0}
 }
 EOF
 

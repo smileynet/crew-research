@@ -1,3 +1,5 @@
+id: image-multi-validator-consensus
+adapters: [crush]
 name: image-multi-validator-consensus
 description: >
   For important validation tasks, agent with image-handling skill dispatches to ALL

@@ -1,3 +1,5 @@
+id: image-greedy-tool-detection
+adapters: [crush]
 name: image-greedy-tool-detection
 description: >
   Agent with image-handling skill detects available vision tools and dispatches
