@@ -22,7 +22,7 @@ Bring the three image-handling defs from upstream 5a23e45 (`image-greedy-tool-de
 
 ## Acceptance criteria
 
-- [ ] All three defs carry immutable `id:` + `adapters:` scoping; lint clean
+- [ ] All three defs carry immutable `id:` + `adapters:` scoping; lint clean (incl. fixing the existing warning: `image-handling: references/tool-dispatch.md not linked from SKILL.md body`)
 - [ ] kiro-cli `--all` run shows them as SKIP-with-reason, not run and not counted
 - [ ] Deferred-run ledger entries created (owed: crush birth run per def)
 - [ ] Baseline record corrected: judged counts restated (≥29/39 with 3 pending-by-adapter), regression rule unambiguous about SKIPped defs

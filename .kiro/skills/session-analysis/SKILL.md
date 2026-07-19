@@ -27,6 +27,7 @@ Direct: `python tools/session-analyzer/skill_usage.py --days N` (JSON to stdout)
 | `never_activated` | deployed skills with zero activations in the window — retirement CANDIDATES, not verdicts (check the skill was actually deployed and correct for the whole window first; see multi-agent-validation precedent, t09 rec #5) |
 | `activation_signal_kinds` | how activation was detected — weight explicit loads over incidental mentions |
 | `steering_compliance.history_questions` vs `.history_q_with_recall_search` | **recall-check compliance ratio** — the ticket 23 metric. Baseline 21% (2026-07-17, 60/284) |
+| `recall_check_compliance` | convenience block (added ticket 23): same counters plus precomputed `rate` and the baseline string — cite this in compliance reports |
 | `steering_compliance.eval_run_sessions` vs `.eval_run_with_nohup` | eval-execution steering compliance |
 | `sessions_per_project` | denominator context — low-session projects give noisy rates |
 

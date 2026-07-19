@@ -26,7 +26,7 @@ tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
 .memory/specs/                    — Lasting technical specs
-.kiro/skills/                     — Project-local tooling guides (eval-harness, session-analysis, deploy-toolkit, release-protocol, tool-installation)
+.kiro/skills/                     — Project-local tooling guides (eval-harness, session-analysis, deploy-toolkit, release-protocol, tool-installation, proof-harness)
 .tickets/                         — Ticket files (frontier-work; NN-slug.md with status/blocked_by)
 .scratch/                         — Ephemeral (handoffs, active plans)
 docs/                             — Research history (eval results, experiment plans)

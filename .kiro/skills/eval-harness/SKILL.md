@@ -15,15 +15,17 @@ Run discipline (backgrounding, setsid, observation cycles) lives in `.kiro/steer
 
 ```bash
 bash run.sh --definition <name>              # one def
-bash run.sh --all                            # full suite (~8-10h, 35 defs)
+bash run.sh --all                            # full suite (~8-10h, 39 defs)
 bash run.sh --all --dry-run                  # fast, no agents/judges (plumbing test)
 bash run.sh --all --skip-completed <dir>     # RESUME: skip defs already in <dir>/scores.jsonl, append into it
 bash run.sh --definition <name> --trials 5   # more trials (default 3)
+bash run.sh --adapter crush --definition <name>   # run under another tool (kiro-cli default); --model overrides the agent model
 ```
 
 - Results land in `tools/evals/results/<timestamp>/` (resume mode: the given dir; original meta.json preserved, resume metadata in `meta-resume-<ts>.json`).
 - Defs support per-task `fixture:` overriding the def-level fixture (real injected bugs — see `fixtures/defu-null-bug.yaml`).
 - Definition schema and criteria style: `tools/evals/README.md` + the `eval-criteria` skill.
+- **Judge degradation is silent:** consensus judging includes every judge on PATH (`command -v`), but PATH ≠ access — on machines without crush/agy access, scores are ~2-judge medians (opus+codex) and nothing records this. Don't compare consensus scores across machines until ticket 29 lands judge-set recording.
 
 ## Reading scores.jsonl (one JSON line per definition)
 
