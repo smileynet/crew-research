@@ -1,54 +1,44 @@
 ---
-created_at: 2026-07-15T22:30:00-07:00
-base_commit: e6b40b3
-handoff_key: skill-audit-phase4-rebaseline
+created_at: 2026-07-19T21:12:30+00:00
+base_commit: 072d64d
+handoff_key: post-baseline-frontier
 ---
 
 # Handoff
 
 ## Objective
-Complete the skill audit cycle: Phase 3 consolidation done (11 merges + 1 removal), multi-tool deployment fixed, image-handling universalized. Remaining: Phase 4 re-baseline, code-review re-eval, feedback-loop investigation.
+Work the frontier (docs/plan.md ticket table). Ticket 38 (tk-like CLI explore) is the remaining user-flagged HIGH PRIORITY; 30/32/33 unblocked by 29 this session.
 
 ## Constraints
-- Skills must stay <100 lines (references/ for overflow)
-- Generator supports `metadata.tool` and `metadata.tools` for tool-scoped steering
-- Eval judge is 4-model consensus (opus + GPT-5.5 + GLM-5.2 + Gemini)
-- Subagent reliability steering deploys only to kiro-cli + codex
-- crush reads from `~/.agents/skills/` + `~/.config/crush/AGENTS.md` (not `~/.kiro/`)
-- agy print mode soft-denies tools (Issue #548) — use `--add-dir`, never `--dangerously-skip-permissions`
+- agy FORBIDDEN on this machine (corp policy); deploys = `--tool kiro-cli --tool codex` only
+- **Judge-set boundary 2026-07-19:** all results before commit 69547a8 are OPUS-ONLY single-judge (codex leg was silently dead — untrusted temp dir). Post-fix runs are kiro+codex consensus. Never compare scores across that boundary; next full run will move for judge reasons, not skill reasons
+- Full `--all` runs now emit 3 SKIPs (image-* defs scoped to crush) — expected, not failures
+- Parallel sessions ACTIVE (2 rebases today, incl. a 37↔39 ticket collision resolved by renumber): fetch+rescan before allocating; 39 is max
 
 ## Prior Decisions
-- ADR 0008: Plugins → Extensions (single deploy model, auto-detect prerequisites)
-- Subagent failures = prompt size (not quota). Write-then-read pattern fixes.
-- `image-handling` is now universal (PROBE→DETECT→DISPATCH→FALLBACK + multi-validator consensus)
-- Wayfinder "fog of war" pattern propagated to 7 planning/session skills
-- 5 grounded evals retired (model caught up, Δ≈0)
-- crush deployment fixed: `deploy_crush()` function, separate from kiro-cli
-- Model ID standardized to `glm-5.2` (no `glm/` prefix)
+- Ticket 29 landed: `adapters:` SKIP rows, live access probes (`EVAL_PROBE_TIMEOUT` 30s), per-trial judge recording, id/adapter row keys + null hash placeholders (33's seat), owed-run ledger `docs/development/deferred-runs.md`
+- Ticket 37 landed: archwright = KNOWN TOOL not extension (self-deploys symlinks; crew never copies). Registry `compositions/known-tools.yaml`; doctor/catalog consume; 5 conditional seams (arch-deepening, sdd, planning-cycles, grill, adr). Half of ticket 30 pre-done (ids+adapters+ledger) — see its Context note
+- `priority: high` frontmatter jumps frontier number order (in frontier-work skill now)
+- Archwright ticket 037 created (its repo, NEXT UP in its PLAN.md): deploy-skills.sh must stop overwriting crew's subagent-reliability.md (crew's copy authoritative meanwhile)
+- Guidance-sync applied: known-tool glossary term, deploy-toolkit doctor rows, 4 gotchas → user environment-gotchas.md (queue cleared)
 
 ## Current State
-- **Skill consolidation Phase 3:** DONE — 11 merges + 1 removal executed and eval-verified. 5 merges eval-blocked (kept standalone). Skill count: 64 → 53.
-- **Multi-tool deployment:** Fixed and committed (f09f368). crush deploys correctly, agy adapter updated for v1.1.3.
-- **Image handling:** Rewritten as universal skill with 3 passing evals (greedy=4.0, honesty=4.0, consensus=5.0 on crush).
-- **Eval harness:** Fixture install for workspace-injection fixed. crush isolation via CRUSH_SKILLS_DIR. agy uses --add-dir.
-- **Validation:** `mise run validate` PASS (20 references), `mise run lint` PASS (0 errors).
+Clean boundary — tree clean, all pushed (crew 072d64d; archwright f5f57c1). Nothing mid-flight. Ticket 38 not started.
 
 ## Next Steps
-1. **Phase 4 re-baseline** — Run activation suite on remaining 53 skills. Confirm no regressions from consolidation.
-2. **Re-eval code-review** — Inline spec fix committed (`296776b`) but never re-tested. Run the eval.
-3. **Feedback-loop investigation** — `tighten.md` not loading reliably (Δ still low after two attempts: `3e2b8f0`, `56822fb`). May need a fundamentally different approach — inline summary in SKILL.md body instead of progressive-load pointer.
-4. **Archwright doc fixups** — `worked-examples.md` needs desires-primary reframing, `open-questions.md` needs Q6 note.
+1. Ticket 38 (tk-like CLI explore, HIGH PRIORITY) — spike-first: does existing tk cover claim protocol + frontier? 4 spike questions in the ticket; today's 37↔39 collision is fresh motivating evidence
+2. Ticket 32 (re-judge + interchange) — value UP: `--judge-only` can upgrade the entire opus-only backlog to real consensus without re-running agents; outputs retained, row keys landed
+3. Tickets 27/28/31/33/36 — parallel-friendly; 39 (WSL HOME doctor fix) belongs to the other session
+4. Ticket 23 measurement ≥2026-07-25: `mise run session:skills 7` vs pre-fix 78/271 (29%)
 
 ## Fog
-- Whether the 11 completed merges broke activation tests (Phase 4 will reveal)
-- Whether `metadata.tools: [kiro-cli, codex]` array syntax works on all machines (yq version sensitivity)
-- Whether feedback-loop's `tighten.md` problem is a loading issue or a content quality issue
-- The 3-trial eval run used 1 trial for baseline — true delta comparison needs matched trial counts
+- Ticket 38 spike outcomes unknown (build vs adopt vs steering-only); its "where does it live" question leans on 37's known-tool pattern
+- crush-Bedrock live behavior on corp unverified (ticket 31 probes it; crush probe currently fails with default glm-5.2 model — Bedrock config may change that)
+- Ticket 28 flaky-vs-genuine still needs solo re-runs; NOTE: re-runs now judge with kiro+codex, so compare against the boundary caveat above
+- Personal-env owed work: image-def birth runs (30, ledger-tracked), agy/GLM judge legs (35)
 
 ## Evidence
-- Eval baselines: `tools/evals/results/2026-07-10T12-36-50Z/` through `2026-07-10T*/`
-- Image eval results: run locally during Claude Code session (crush adapter, all 3 PASS)
-- Proof results: `tools/proofs/results/proof-S1-2026-07-10T15-35-17Z/`
-- Specs: `.memory/specs/skill-audit-consolidation.md`, `.memory/specs/skill-improvements-mattpocock.md`
-- ADR: `.memory/adr/0008-unify-tiers-and-plugins.md`
-- Consolidation phase 3 results: bottom of `.memory/specs/skill-audit-consolidation.md`
+- Session commits: crew f98cd88..072d64d (~4); archwright f5f57c1
+- Ticket 29 verification: SKIP conformance + resume dedupe in `results/2026-07-19T18-24-55Z`; judge recording in `results/2026-07-19T18-55-08Z` (meta judges.live [kiro,codex]); dry-run 39-row schema check `2026-07-19T18-25-20Z`
+- codex-dead proof: zero codex sessions in `~/.codex/sessions/` for any judged-run window; 0-byte result replication before fix
+- Tried & failed: codex judge probe without `--skip-git-repo-check` (root cause); `ensure_judges_probed` inside `$(...)` (subshell state loss — both now in environment-gotchas)
