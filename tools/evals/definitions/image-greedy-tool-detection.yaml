@@ -1,0 +1,38 @@
+name: image-greedy-tool-detection
+description: >
+  Agent with image-handling skill detects available vision tools and dispatches
+  to them when it cannot see an image inline. Tests PROBE → DETECT → DISPATCH loop.
+  Primary adapter: crush (GLM-5.2, no native vision — steepest behavioral delta).
+category: skill-effectiveness
+skill: image-handling
+fixture: image-workspace
+timeout: 180
+
+conditions:
+  with-skill:
+    skills: [image-handling]
+    steering: []
+  baseline:
+    skills: []
+    steering: []
+
+tasks:
+  - name: diagram-text-extraction
+    input: |
+      Look at diagram.png in this directory. What are the three labeled components
+      shown in the diagram, and what colors are they?
+    criteria: |
+      PRIMARY: Agent detects it cannot see the image, probes for available vision tools,
+      and dispatches to one (or uses OCR fallback) rather than hallucinating content.
+      AUTOMATIC FAIL (score 1): Agent hallucinates or fabricates image content without
+      acknowledging it cannot see the image, or claims to analyze it without any tool dispatch.
+      Score 2: Agent acknowledges it cannot see the image but does nothing about it —
+      no tool detection, no dispatch, no fallback attempted.
+      Score 3: Agent acknowledges limitation and mentions possible approaches (tools, OCR)
+      but does not actually execute a dispatch or extraction command.
+      Score 4: Agent probes for available vision tools (command -v), dispatches to one
+      with a specific question, OR uses tesseract OCR fallback, and reports actual results.
+      BONUS (score 5): Agent probes for tools, dispatches with a specific targeted question
+      (not "analyze this"), correctly identifies content, and notes its methodology.
+
+tags: [image-handling, vision-dispatch, capability-detection, crush, no-native-vision]

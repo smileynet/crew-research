@@ -165,6 +165,10 @@ setup_fixture() {
       mkdir -p "$(dirname "$dest")"
       yq ".files.\"$key\"" "$fixture_file" > "$dest"
     done
+    # Run install for workspace-injection fixtures (e.g. generate test files)
+    if [[ -n "$install_cmd" && "$install_cmd" != "null" && "$install_cmd" != "" ]]; then
+      (cd "$workdir" && eval "$install_cmd" > /dev/null 2>&1) || { echo "[warn] Fixture install failed" >&2; }
+    fi
   fi
 }
 
@@ -206,7 +210,9 @@ invoke_agent() {
     crush)
       local model_flag="--model glm-5.2"
       [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
-      timeout "$timeout" bash -c 'cd "$1" && crush run --quiet '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      # Isolate skills to workdir — prevents global ~/.agents/skills leaking into eval
+      local crush_skills_dir="$workdir/.agents/skills"
+      timeout "$timeout" bash -c 'cd "$1" && CRUSH_SKILLS_DIR="$3" crush run --quiet '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" "$crush_skills_dir" 2>&1 | strip_ansi || true
       ;;
     codex)
       local model_flag=""
@@ -216,7 +222,9 @@ invoke_agent() {
     agy)
       local model_flag=""
       [[ -n "$MODEL" ]] && model_flag="--model $MODEL"
-      timeout "$timeout" bash -c 'cd "$1" && agy --print '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
+      # --add-dir ensures agy sees the workspace files; print mode soft-denies
+      # tool calls (Issue #548), so tasks requiring file reads may not work
+      timeout "$timeout" bash -c 'cd "$1" && agy --print --add-dir "$1" '"$model_flag"' "$(cat "$2")"' _ "$workdir" "$input_file" 2>&1 | strip_ansi || true
       ;;
     *)
       local model_flag=""
@@ -305,7 +313,7 @@ REASON: <one sentence>"
   fi
 
   if command -v crush &>/dev/null; then
-    (cd "$judge_dir" && timeout 60 crush run --quiet --model glm/glm-5.2 "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
+    (cd "$judge_dir" && timeout 60 crush run --quiet --model glm-5.2 "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
     pids+=($!)
   fi
 
@@ -478,8 +486,8 @@ run_eval() {
           local steering_src="$EVALS_DIR/steering/$st"
           if [[ -f "$steering_src" ]]; then
             case "$ADAPTER" in
-              codex|agy)
-                # Codex/agy reads steering from AGENTS.md — append steering content
+              codex|agy|crush)
+                # Codex/agy/crush read steering from AGENTS.md — append steering content
                 mkdir -p "$workdir"
                 cat "$steering_src" >> "$workdir/AGENTS.md"
                 ;;

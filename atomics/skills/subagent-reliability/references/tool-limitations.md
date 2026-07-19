@@ -31,9 +31,11 @@ Known concurrency limits and failure patterns per tool. Only validated observati
 | Property | Value | Source |
 |----------|-------|--------|
 | Subagent support in --print mode | **NO** — single-turn text completion only | Proof S1: agy ignores dispatch instructions |
-| Interactive subagents | Unknown — may work in interactive TUI mode | Not tested |
+| Interactive subagents | Supported (v1.1.x async subagents) | Changelog v1.1.1, v1.1.2 |
+| Tool execution in --print mode | **Broken** — soft-denies all tools requiring permission (Issue #548) | v1.1.3 changelog; confirmed locally |
+| --dangerously-skip-permissions | **Causes model derailment** — model investigates its own flags | Cross-tool comparison doc; confirmed v1.1.3 |
 
-**Proof finding:** `agy --print` mode doesn't support subagent dispatch. The tool treats all prompts as single-turn completions. Subagent reliability guidance does NOT apply to agy in non-interactive mode.
+**Proof finding:** `agy --print` mode doesn't support subagent dispatch or file-reading tools. The tool treats all prompts as single-turn completions. Tool calls are soft-denied in print mode (v1.1.3+). Subagent reliability guidance does NOT apply to agy in non-interactive mode.
 
 ## crush
 

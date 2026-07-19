@@ -12,6 +12,6 @@ judges:
   - tool: codex
     model: gpt-5.5
   - tool: crush
-    model: glm/glm-5.2
+    model: glm-5.2
   - tool: agy
     model: null  # uses default model

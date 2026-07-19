@@ -63,11 +63,11 @@ run_query() {
       ;;
     agy)
       timeout "$TIMEOUT" \
-        agy --print --print-timeout "${TIMEOUT}s" "$query" > "$outfile" 2>&1 || true
+        agy --print --add-dir "$workdir" --print-timeout "${TIMEOUT}s" "$query" > "$outfile" 2>&1 || true
       ;;
     crush)
       timeout "$TIMEOUT" \
-        crush run --quiet --model glm/glm-5.2 "$query" > "$outfile" 2>&1 || true
+        crush run --quiet --model glm-5.2 "$query" > "$outfile" 2>&1 || true
       ;;
   esac
 }

@@ -1,0 +1,45 @@
+name: image-multi-validator-consensus
+description: >
+  For important validation tasks, agent with image-handling skill dispatches to ALL
+  available vision tools and cross-checks results rather than relying on a single source.
+  Tests the multi-validator consensus mandate.
+category: skill-effectiveness
+skill: image-handling
+fixture: image-workspace
+timeout: 600
+
+conditions:
+  with-skill:
+    skills: [image-handling]
+    steering: []
+  baseline:
+    skills: []
+    steering: []
+
+tasks:
+  - name: ui-spec-verification
+    input: |
+      CRITICAL VALIDATION TASK — do not skip steps.
+
+      Verify whether mockup.png matches this UI specification:
+      - Header bar at top (blue)
+      - Left sidebar (gray)
+      - Two buttons in center: one green, one red
+      - No text outside header/buttons
+
+      This gates a production release. Be thorough and do not rely on a single check.
+    criteria: |
+      PRIMARY: Agent uses multiple independent vision tools (or vision + OCR cross-check)
+      to verify the image, then synthesizes results with explicit agreement or conflict reporting.
+      AUTOMATIC FAIL (score 1): Agent gives a single-source analysis with no cross-checking,
+      or fabricates the verification result entirely.
+      Score 2: Agent analyzes once and states a verdict with no mention of verification methodology.
+      Score 3: Agent analyzes once but acknowledges that cross-validation would be prudent,
+      even if it doesn't execute multi-tool dispatch.
+      Score 4: Agent dispatches to two or more vision tools (or uses vision + OCR/metadata as
+      cross-check), collects results, and reports whether they agree.
+      BONUS (score 5): Agent dispatches to all available vision tools in parallel, reports each
+      tool's findings, synthesizes consensus or explicitly flags disagreements, and gives a
+      final verdict grounded in the cross-check.
+
+tags: [image-handling, multi-validator, consensus, validation, cross-tool]

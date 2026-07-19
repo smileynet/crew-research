@@ -426,6 +426,14 @@ if [[ "$GLOBAL" == true ]]; then
       "${CODEX_HOME:-$DEPLOY_HOME/.codex}/AGENTS.md"
   }
 
+  deploy_crush() {
+    # Crush reads skills from ~/.agents/skills/ (same as codex).
+    # Steering rendered into ~/.config/crush/AGENTS.md.
+    deploy_agents_md_tool "crush" \
+      "$HOME/.agents/skills" \
+      "${CRUSH_HOME:-$HOME/.config/crush}/AGENTS.md"
+  }
+
   deploy_agy() {
     # Per Google DevRel (June 2026):
     #   Antigravity 2.0 desktop: global = ~/.agents/skills/
@@ -466,7 +474,7 @@ if [[ "$GLOBAL" == true ]]; then
   for tool in "${TOOLS[@]}"; do
     case "$tool" in
       kiro-cli) deploy_kiro_cli ;;
-      crush)    deploy_kiro_cli ;;
+      crush)    deploy_crush ;;
       codex)    deploy_codex ;;
       agy)      deploy_agy ;;
       *)        echo "Error: unknown tool '$tool'" >&2; exit 1 ;;

@@ -208,6 +208,23 @@ if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then
   fi
 fi
 
+# Check crush deployment (if in CREW_TOOLS)
+# Note: crush shares ~/.agents/skills with codex; steering at ~/.config/crush/AGENTS.md
+if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx crush; then
+  echo ""
+  echo "Global (crush):"
+  crush_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
+  crush_agents_md="${CRUSH_HOME:-$HOME/.config/crush}/AGENTS.md"
+  if [[ $crush_skills -gt 0 && -f "$crush_agents_md" ]]; then
+    echo "  ✅ $crush_skills skills (~/.agents/skills), AGENTS.md present"
+  else
+    echo "  ❌ crush not fully deployed (run: mise run init -- --global)"
+    [[ $crush_skills -eq 0 ]] && echo "     missing: ~/.agents/skills/"
+    [[ ! -f "$crush_agents_md" ]] && echo "     missing: $crush_agents_md"
+    errors=$((errors + 1))
+  fi
+fi
+
 # Check project workspace
 echo ""
 echo "Project:"

@@ -74,10 +74,14 @@ All three tools perform competitively on small projects. Differences emerge at s
 
 ### agy Invocation
 - `--print` mode works for stdout capture in real project contexts (Issue #76 only affects empty workspaces)
-- `--dangerously-skip-permissions` flag confuses the model — it interprets it as task context. Must be omitted.
+- **`--dangerously-skip-permissions` flag confuses the model — it interprets it as task context. Must be omitted.** (Confirmed still broken in v1.1.3)
 - Requires 300s timeout for reliability on larger projects
 - Skills deploy to `.agents/skills/{name}/SKILL.md` (shared path with codex)
 - Steering goes to `AGENTS.md` (shared with codex) + `GEMINI.md` (agy-specific)
+- **v1.1.3 regression:** Print mode now soft-denies tools requiring permission (Issue #548, open).
+  Previously (v1.0.x) tools were silently auto-approved in print mode. File reads and command
+  execution fail silently. `permissions.allow` in settings.json is not consulted in print mode.
+  Workaround: pipe file content into the prompt text. Use `--add-dir` for workspace scope.
 
 ### Eval Harness Updates
 - Added `--adapter agy` support: invokes via `agy --print`

@@ -1,0 +1,58 @@
+repo: ""
+install: "python3 create_test_images.py 2>/dev/null || python create_test_images.py 2>/dev/null || py create_test_images.py 2>/dev/null || true"
+description: >
+  Generates test images for image-handling evals:
+  - diagram.png: labeled boxes with text (vision + OCR test)
+  - mockup.png: UI mockup with buttons/header (validation test)
+  - chart.png: bar chart with axis labels (spatial reasoning test)
+  Each image has known, deterministic content for ground-truth scoring.
+files:
+  create_test_images.py: |
+    import struct, zlib, os
+
+    def make_png(path, width, height, pixels):
+        def chunk(ctype, data):
+            c = ctype + data
+            return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xFFFFFFFF)
+        raw = b''
+        for y in range(height):
+            raw += b'\x00'
+            for x in range(width):
+                idx = (y * width + x) * 3
+                raw += bytes(pixels[idx:idx+3])
+        ihdr = struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0)
+        png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', ihdr) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+        with open(path, 'wb') as f:
+            f.write(png)
+
+    def rect(pixels, w, x1, y1, x2, y2, r, g, b):
+        for y in range(y1, min(y2, 400)):
+            for x in range(x1, min(x2, 600)):
+                idx = (y * w + x) * 3
+                pixels[idx] = r; pixels[idx+1] = g; pixels[idx+2] = b
+
+    W, H = 600, 400
+
+    # diagram.png — three labeled boxes connected by arrows
+    px = [255]*3*W*H
+    for label, x1, color in [("INPUT", 50, (100,150,255)), ("PROCESS", 250, (255,200,100)), ("OUTPUT", 450, (100,255,150))]:
+        rect(px, W, x1, 150, x1+100, 250, *color)
+    make_png("diagram.png", W, H, px)
+
+    # mockup.png — UI with header bar, two buttons, sidebar
+    px = [240]*3*W*H
+    rect(px, W, 0, 0, 600, 60, 60, 80, 180)      # header bar (blue)
+    rect(px, W, 0, 60, 150, 400, 220, 220, 220)   # sidebar (gray)
+    rect(px, W, 200, 280, 320, 320, 80, 180, 80)  # green button
+    rect(px, W, 350, 280, 470, 320, 200, 80, 80)  # red button
+    make_png("mockup.png", W, H, px)
+
+    # chart.png — bar chart with 4 bars
+    px = [255]*3*W*H
+    bars = [(100, 300, 50, 100, 255), (180, 250, 80, 80, 200), (260, 200, 100, 100, 150), (340, 150, 120, 120, 100)]
+    for bx, bh, br, bg, bb in bars:
+        rect(px, W, bx, 350-bh, bx+40, 350, br, bg, bb)  # bars from bottom up
+    rect(px, W, 80, 350, 400, 352, 0, 0, 0)  # x-axis line
+    make_png("chart.png", W, H, px)
+
+    print("Test images created: diagram.png, mockup.png, chart.png")

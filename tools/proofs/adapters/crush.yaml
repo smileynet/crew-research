@@ -6,14 +6,14 @@ invoke:
   timeout: 120
 
 skill:
-  location: ".kiro/skills/{name}/SKILL.md"
+  location: ".agents/skills/{name}/SKILL.md"
   format: markdown-frontmatter
   env_var: CRUSH_SKILLS_DIR
 
 eager_context:
-  location: ".kiro/steering/{name}.md"
-  format: markdown-frontmatter
-  mechanism: context_paths
+  location: "AGENTS.md"
+  format: markdown-concatenated
+  mechanism: agents_md
 
 output:
   strip_ansi: false
