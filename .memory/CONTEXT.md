@@ -224,6 +224,10 @@ _Avoid_: using "plugin" for current deployments (say extension)
 An optional steering + skills bundle declared in a tier manifest, gated on an external prerequisite (a CLI tool on PATH). Auto-deploys during tier deploy when the prerequisite check passes; skippable with `--skip-extension`. Replaced plugins (ADR 0008).
 _Avoid_: plugin (superseded), addon (informal)
 
+**Known tool**:
+A separately-owned repo (registered in `compositions/known-tools.yaml`) whose skills integrate with crew-research deployments but are never copied — it self-deploys via the symlink convention; crew-research detects it (doctor), lists it (catalog), and routes to it via conditional recommendation seams in adjacent skills. Example: archwright.
+_Avoid_: extension (crew-owned content, different mechanism), plugin (superseded), integration (too vague)
+
 **Tier**:
 A named selection of steering + skills (plus extensions) deployed globally as a set. Two tiers exist: basic (everyday fundamentals) and full (complete lifecycle). Declared in `compositions/tiers/{name}.yaml`, which is the single source of truth for what deploys.
 _Avoid_: plugin (that was the separate mechanism), level, pack

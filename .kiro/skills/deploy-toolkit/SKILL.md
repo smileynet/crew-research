@@ -34,6 +34,7 @@ bash tools/generator/catalog.sh                        # browse available skills
 | `pruned: skills/X/ (deprecated — replaced by: Y)` | X is in `compositions/deprecated.yaml` |
 | `kept (symlink): ...` | symlinks are never pruned — the personal-customization escape hatch |
 | `⚠️ unmanaged (kept): skills/X/` | dir we didn't deploy (another project's or hand-made) — warned, never deleted |
+| `✅ <tool> (N skills, self-deployed)` / `○ not hydrated` / `⚠️ broken symlink(s)` | known tool (compositions/known-tools.yaml): healthy / absent-with-hydrate-hint (not an error) / source repo moved — re-run its deploy script |
 
 ## Manifests (what prune trusts)
 

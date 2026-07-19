@@ -27,7 +27,7 @@ The **frontier** = any ticket where `status: open` and all `blocked_by` are `don
 
 When tickets exist and no specific task is given:
 1. Identify the frontier (scan sources in priority order, or run `tk ready` if available)
-2. Pick the lowest-numbered frontier ticket
+2. Pick the lowest-numbered frontier ticket — unless a frontier ticket carries `priority: high` frontmatter (user-flagged), which jumps the number order
 3. Propose it: "Next on the frontier: {title}. Start?"
 
 ## Working a Ticket
