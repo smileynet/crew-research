@@ -207,8 +207,9 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 30 | image-* defs conform (ids, adapter scoping, deferred birth run) | open, blocked by 29 — upstream 5a23e45 defs lack immutable ids and would blind-run under kiro-cli |
 | 31 | crush deployment completeness (deploy + idempotency + docs; probes deferred) | open — capability landed upstream but not deployed here; docs have zero crush coverage |
 | 32 | Results support async completion: re-judge mode + interchange | open, blocked by 29 — outputs already retained (feasible); needs row keys, --judge-only, export/import |
+| 33 | Result identity hashes (skill/def/env drift detection + --changed-only) | open, blocked by 29 — makes staleness computed not remembered (a03798e + ticket-14 precedents) |
 
-**Frontier (2026-07-19):** 27, 28, 29, 31 (30 + 32 blocked by 29; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
+**Frontier (2026-07-19):** 27, 28, 29, 31 (30 + 32 + 33 blocked by 29; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 

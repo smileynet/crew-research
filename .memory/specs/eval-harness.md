@@ -171,6 +171,7 @@ Key properties (verified 2026-07-19):
 | Judge participation unrecorded | cross-machine consensus differences invisible | ticket 29: `judges: [names]` per row |
 | No re-judge mode | can't upgrade old scores when more judges become reachable | ticket 32: `--judge-only <results-dir>` writing a versioned scores file (never overwrite) |
 | `results/` is gitignored, no interchange format | runs from other machines (e.g., crush-capable) can't merge | ticket 32: export/import bundle or committed summary format; owed runs tracked in `docs/development/deferred-runs.md` |
+| No result identity hashes | "does this result reflect current skill/def/model state?" requires git archaeology (a03798e confound precedent) | ticket 33: per-row `skill_hash`/`def_hash`/`env_id` + staleness checker + `--changed-only` |
 
 ## Result Fields (meta.json)
 
