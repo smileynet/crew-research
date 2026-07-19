@@ -74,22 +74,43 @@ mise run release -- <version>             # changelog roll, tag, push, GH releas
 
 ## Windows / WSL Deployment
 
-On Windows, run deployment via WSL bash (bypasses PowerShell PATH issues):
+On Windows, **only init.sh requires WSL** (the generator is bash). Everything else — recall, daily work, scheduled tasks — runs natively.
+
+### Step 1: Deploy skills (WSL — one-time)
 
 ```bash
-# Deploy all tools via WSL (set WIN_USERNAME if WSL user differs from Windows user)
+# Prerequisites (WSL)
+sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+  -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
+
+# Deploy (set WIN_USERNAME if WSL user differs from Windows user)
 wsl -- bash -c "export WIN_USERNAME=\$(cmd.exe /C 'echo %USERNAME%' 2>/dev/null | tr -d '\\r') && \
   cd /mnt/c/Users/\$WIN_USERNAME/code/crew-research && \
   bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex --tool agy"
+```
 
-# Trust mise.toml after cloning (Windows mise)
+### Step 2: Trust mise config (Windows — one-time)
+
+```powershell
 mise trust C:\Users\<user>\code\crew-research\mise.toml
+```
 
-# Prerequisites (WSL — for deployment only)
-sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
-  -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv tool install ./tools/recall
+### Step 3: Recall (Windows — native, no WSL)
+
+```powershell
+# Install recall (from a crew-research clone — PyPI "recall" is squatted)
+uv tool install .\tools\recall
+
+# Register scheduled ingestion (every 4h)
+$action = New-ScheduledTaskAction -Execute "pwsh.exe" `
+  -Argument "-NoProfile -NonInteractive -File `"$env:USERPROFILE\code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1`""
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 4)
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+Register-ScheduledTask -TaskName "RecallIngest" -Action $action -Trigger $trigger -Settings $settings
+
+# Add staleness hook to PowerShell profile (fires on shell open if >4h stale)
+# Append this line to $PROFILE:
+. $env:USERPROFILE\code\crew-research\tools\recall\profile-hook.ps1
 ```
 
 **Staleness hooks** ensure recall ingestion runs on shell open if >4h stale:
@@ -99,11 +120,10 @@ uv tool install ./tools/recall
 
 ## Recall Operations
 
-```bash
+```powershell
 # Manual full ingestion (all projects + sessions)
-bash ~/.local/bin/recall-ingest-all.sh
-# or: mise run recall:ingest
-# Windows: pwsh -File tools/recall/Invoke-RecallIngestAll.ps1
+pwsh -File tools\recall\Invoke-RecallIngestAll.ps1
+# Linux/macOS: bash tools/recall/ingest-all.sh
 
 # Check what's indexed
 recall status
@@ -112,11 +132,12 @@ recall status
 recall search "what did we decide about X"
 
 # Add a new project to automatic ingestion
-# Auto-discovered from $USERPROFILE\code (Windows) or ~/code (Unix)
-# Override: set RECALL_PROJECTS_ROOT or -ProjectsRoot parameter
+# Auto-discovered from ~/code ($USERPROFILE\code on Windows)
+# Override: -ProjectsRoot parameter (Windows) or RECALL_PROJECTS_ROOT env (Unix)
 
-# Schedule: Windows Task Scheduler (every 4h) or Unix cron
-# Staleness hooks in PowerShell $PROFILE (Windows) or .bashrc (Unix) trigger on shell open if >4h stale
+# Verify scheduled task
+Get-ScheduledTask -TaskName "RecallIngest" | Select State
+# Linux: crontab -l | grep recall
 ```
 
 ## Skill Authoring Rules
