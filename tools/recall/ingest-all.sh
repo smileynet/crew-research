@@ -24,12 +24,14 @@ DRY_RUN=false
 LOG_PREFIX="[recall-ingest $(date '+%Y-%m-%d %H:%M')]"
 
 # ─── Configuration ─────────────────────────────────────────────
-# Detect Windows user home via WSL mount (works for any user)
-if [[ -d "/mnt/c/Users/$USER" ]]; then
-  WIN_HOME="/mnt/c/Users/$USER"
+# Detect Windows user home via WSL mount (works for any user).
+# USER is not set under cron — fall back to id (set -u safe).
+USER_NAME="${USER:-$(id -un)}"
+if [[ -d "/mnt/c/Users/$USER_NAME" ]]; then
+  WIN_HOME="/mnt/c/Users/$USER_NAME"
 elif [[ -n "${WSLENV:-}" || -d "/mnt/c" ]]; then
   # Fallback: find the Windows username from cmd.exe
-  WIN_HOME="/mnt/c/Users/$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d '\r' || echo "$USER")"
+  WIN_HOME="/mnt/c/Users/$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d '\r' || echo "$USER_NAME")"
 else
   WIN_HOME="$HOME"
 fi
