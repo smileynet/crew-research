@@ -24,6 +24,7 @@ The mechanism for running a multi-adapter eval suite on machines with partial to
 - [ ] Defs support `adapters: [name, ...]` frontmatter; when the running adapter isn't listed, run.sh emits a SKIP row with reason (`needs adapter: X`) in output and scores.jsonl — skips excluded from pass/fail tallies and from `--skip-completed` completion (a SKIP is not a completed def)
 - [ ] Adapter access probe: cheap liveness check (tiny prompt, ~15s timeout) once per run per adapter, replacing bare `command -v` for both agent invocation and judge inclusion; no-access → SKIP-with-reason (defs) / exclusion (judges)
 - [ ] Judge participation persisted per trial in scores.jsonl (names + count); baseline records state the judge set used
+- [ ] scores.jsonl rows are self-describing: each row carries the def's immutable `id` and the run's `adapter` (today rows have only mutable `name`; cross-adapter joins and rename survival need the id — this is the row-level key ticket 32's interchange builds on)
 - [ ] Committed owed-run ledger (`docs/development/deferred-runs.md`): def, required adapter, reason, owed-since, filled-when-run; seeded with the 3 image defs
 - [ ] Conformance: at least one deliberately non-matching def SKIPs (not fails, not passes) in a test run
 

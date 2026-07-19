@@ -151,10 +151,26 @@ Tests whether the skill's description triggers activation without forcing.
 ## Result Format
 
 ```
-tools/evals/results/{timestamp}/
-├── meta.json       # context: commit, tool version, config, summary
-└── scores.jsonl    # one line per eval: name, score, reason, duration
+tools/evals/results/{timestamp}/          # one dir per run, ONE adapter per run
+├── meta.json       # context: commit, tool version, adapter, config, summary
+├── scores.jsonl    # one line per def: name, status, score, reason, per-task trial scores
+└── outputs/        # RETAINED raw agent outputs: {def}-{condition}-task{N}-trial{M}.txt
 ```
+
+Key properties (verified 2026-07-19):
+
+- **Raw outputs are retained** — re-judging past runs is feasible: outputs + the def's criteria at `meta.json`'s recorded commit reconstruct the judge prompt.
+- **Adapter is per-run** (meta.json), so cross-adapter comparison = sibling run dirs joined on def identity. A crush run of the same defs slots in beside a kiro run.
+- **Judge artifacts are deleted** after scoring (only the median survives), and judge participation is not recorded — a degraded consensus (e.g., 2 of 4 judges reachable) is indistinguishable from a full one. Fix tracked in ticket 29.
+
+### Known gaps (target schema — tickets 29/32)
+
+| Gap | Impact | Fix |
+|-----|--------|-----|
+| scores.jsonl rows lack `id` (only mutable `name`) and `adapter` | joins break on rename; rows aren't self-describing outside their dir | ticket 29: emit `id` + `adapter` per row |
+| Judge participation unrecorded | cross-machine consensus differences invisible | ticket 29: `judges: [names]` per row |
+| No re-judge mode | can't upgrade old scores when more judges become reachable | ticket 32: `--judge-only <results-dir>` writing a versioned scores file (never overwrite) |
+| `results/` is gitignored, no interchange format | runs from other machines (e.g., crush-capable) can't merge | ticket 32: export/import bundle or committed summary format; owed runs tracked in `docs/development/deferred-runs.md` |
 
 ## Result Fields (meta.json)
 
@@ -164,7 +180,7 @@ tools/evals/results/{timestamp}/
   "tool_version": "2.3.0",
   "timestamp": "2026-05-18T01:13:58Z",
   "commit": "abc1234",
-  "config": {"trials": 3, "threshold": 3, "judge": "claude-sonnet-4-6"},
+  "config": {"trials": 3, "threshold": 3, "judge": "claude-sonnet-4-6", "adapter": "kiro-cli"},
   "summary": {"total": 46, "passed": 38, "failed": 8, "avg_score": 4.1}
 }
 ```
