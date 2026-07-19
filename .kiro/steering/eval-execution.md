@@ -15,14 +15,19 @@ echo "PID: $!"
 
 ## Observe with sleep cycles
 
+**Never use the launcher PID for liveness.** `setsid` forks — `$!` is the wrapper, which exits immediately; `kill -0 $!` reports DEAD while the run is healthy (2026-07-19 incident: a healthy 10-hour judged run was misdiagnosed as a failed launch at 120s and nearly double-launched; artifact forensics rescued it). Liveness = the run's own artifacts:
+
 ```bash
-sleep N && kill -0 $PID 2>/dev/null && echo "RUNNING" || echo "DONE"
+sleep N; wc -c /tmp/full-eval-run.log      # growing log = alive
+ls -dt tools/evals/results/*/ | head -1     # results dir exists + outputs/ mtimes advance
+ps aux | grep -c "[r]un.sh"                 # bracket trick — process check without self-match
 tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 ```
 
-- First check: `sleep 60` (confirm it started)
+- First check: `sleep 60` (confirm the log exists and grows)
 - Subsequent checks: `sleep 300` or longer based on pace
 - Filter null bytes: the harness output contains terminal control chars
+- A stale log ≠ dead: judged trials can be silent for many minutes — confirm with the process check before concluding anything
 
 ## Estimate completion
 

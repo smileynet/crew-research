@@ -51,7 +51,7 @@ Before any push, run `git fetch` and verify no upstream changes exist.
 
 1. Run `git fetch` then `git log --oneline HEAD..origin/main` to see what's new
 2. **If fast-forwardable** (our commits are ahead, theirs don't conflict): tell the user "upstream has N new commits, can fast-forward merge — safe to pull and push"
-3. **If diverged** (both sides have commits): tell the user what the upstream commits are, whether conflicts are likely (check `git merge --no-commit --no-ff origin/main` then `git merge --abort`), and ask how they want to proceed (merge vs rebase)
+3. **If diverged** (both sides have commits): tell the user what the upstream commits are and whether conflicts are likely (check `git merge --no-commit --no-ff origin/main` then `git merge --abort`). **Default: rebase when possible** (clean merge test + local commits are few) — report what was rebased. Fall back to asking only when the rebase would be messy (conflicts, many local commits, shared branch)
 4. Never force-push or auto-rebase without telling the user what happened upstream
 
 ## Long-Running Commands

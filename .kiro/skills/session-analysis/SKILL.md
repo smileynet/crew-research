@@ -28,6 +28,8 @@ Direct: `python tools/session-analyzer/skill_usage.py --days N` (JSON to stdout)
 | `activation_signal_kinds` | how activation was detected — weight explicit loads over incidental mentions |
 | `steering_compliance.history_questions` vs `.history_q_with_recall_search` | **recall-check compliance ratio** — the ticket 23 metric. Baseline 21% (2026-07-17, 60/284) |
 | `recall_check_compliance` | convenience block (added ticket 23): same counters plus precomputed `rate` and the baseline string — cite this in compliance reports |
+
+**Measurement soundness:** session JSONLs do NOT embed injected steering text (verified 2026-07-19: zero matches for steering markers in stored transcripts) — compliance regexes match real conversation content, not the steering that teaches the phrases.
 | `steering_compliance.eval_run_sessions` vs `.eval_run_with_nohup` | eval-execution steering compliance |
 | `sessions_per_project` | denominator context — low-session projects give noisy rates |
 
