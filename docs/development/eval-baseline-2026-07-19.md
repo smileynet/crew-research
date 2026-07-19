@@ -45,6 +45,7 @@ Run `activation-2026-07-18T21-56-19Z` (200 tasks, post-ticket-24 detection: Stra
 
 ## Baseline invariants for next run
 
+- **Amendment 2026-07-19 (ticket 25):** suite grew by 2 defs, both passing at birth — `mcp-partitioning-effectiveness` (with-skill 5.00 / delta 2.56, run `2026-07-19T13-32-32Z`) and `activation-mcp-partitioning` (TPR 1.00 / FPR 0, run `activation-2026-07-19T13-13-30Z`). Next full run expects ≥29/36 judged, 20/21 activation (21/21 after ticket 27).
 - Judged: expect ≥28/35. Known-gap set (5): type-error-diagnosis, prototype-branch-picking, code-review-security, cross-tool-planning-with-skills, feedback-loop-tighten (pending ticket 28). agents-md + handoff-decaying pending ticket 28 triage — if confirmed flaky, they join steering-pointer's precedent (trials increase), not the gap set.
 - Any NEW failure outside these 7 names is a regression.
 - Activation: expect 19/20 until ticket 27 lands, then 20/20.

@@ -1,7 +1,7 @@
 ---
 id: "25"
 title: "mcp-partitioning has passing activation + effectiveness evals"
-status: open
+status: done
 blocked_by: ["24"]
 spec: ""
 ---
@@ -23,9 +23,13 @@ Eval coverage for the mcp-partitioning skill (ticket 22 follow-up): an activatio
 
 ## Acceptance criteria
 
-- [ ] `activation-mcp-partitioning` def: ≥5 positive tasks covering the trigger vocabulary, ≥5 negatives; PASS (TPR ≥ 0.5, FPR ≤ 0.2)
-- [ ] Judged effectiveness def passes (with-skill ≥ threshold, delta ≥ delta_threshold) on a fresh run
-- [ ] Both registered with immutable ids; lint clean
+- [x] `activation-mcp-partitioning` def: ≥5 positive tasks covering the trigger vocabulary, ≥5 negatives; PASS (TPR ≥ 0.5, FPR ≤ 0.2) — 5 pos + 5 neg; run `activation-2026-07-19T13-13-30Z`: TPR 1.00, FPR 0, 10/10. Negatives designed to avoid commit-territory-style drift (ticket 27 precedent): MCP-protocol Q&A, UI "too many buttons" near-miss, unrelated dev tasks
+- [x] Judged effectiveness def passes (with-skill ≥ threshold, delta ≥ delta_threshold) on a fresh run — `mcp-partitioning-effectiveness`, run `2026-07-19T13-32-32Z`: with-skill 5.00, baseline 2.44, delta 2.56 (thresholds 4 / 0.75). 3 tasks scoring the distinctive behaviors: placement rule + reachability, zero-tools whitelist trap + sentinel verification, negative-probe test plan
+- [x] Both registered with immutable ids; lint clean — `mise run validate`: 0 errors, 0 warnings
+
+## Resolution notes
+
+- Both defs landed on the post-ticket-24 detection mechanism (Strategy 1 live output capture) as intended by the blocker.
 
 ## Out of scope
 

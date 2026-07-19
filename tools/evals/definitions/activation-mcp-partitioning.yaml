@@ -1,0 +1,34 @@
+id: activation-mcp-partitioning  # immutable — survives renames; never change once results reference it
+name: activation-mcp-partitioning
+skill: mcp-partitioning
+category: activation
+
+tasks:
+  # Trigger vocabulary: tool bloat / too many tools / sessions feel slow
+  - input: "My kiro sessions feel slow and tool selection keeps misfiring — I think I have way too many MCP tools loaded. Help me fix this."
+    expect_activation: true
+  - input: "We have 9 MCP servers in the global config and something like 200 tools per session. That seems like tool bloat — how should we organize them?"
+    expect_activation: true
+  # Trigger vocabulary: mcp server placement / adding a server
+  - input: "I'm adding a new MCP server for our CRM. Should it go in the global config or somewhere else?"
+    expect_activation: true
+  # Trigger vocabulary: specialist agent / agent config / tools whitelist
+  - input: "Design an agent config for a specialist agent that only carries the ops MCP servers, with the right tools whitelist."
+    expect_activation: true
+  - input: "My custom agent config looks correct but the agent doesn't load any MCP tools at all. What's wrong?"
+    expect_activation: true
+  # Negatives — kept outside partitioning territory; avoid tasks that could
+  # legitimately drift into agent/tool reorganization (ticket 27 precedent)
+  - input: "What does the Model Context Protocol actually specify at the wire level?"
+    expect_activation: false
+  - input: "Write a Python script that parses nginx access logs and reports the top 10 IPs."
+    expect_activation: false
+  - input: "My web app's toolbar has too many buttons — suggest a cleaner UI layout."
+    expect_activation: false
+  - input: "Set up ESLint with the recommended TypeScript rules for this repo."
+    expect_activation: false
+  - input: "Why is my PostgreSQL query slow? Here's the EXPLAIN output."
+    expect_activation: false
+
+threshold: 3.5
+timeout: 60

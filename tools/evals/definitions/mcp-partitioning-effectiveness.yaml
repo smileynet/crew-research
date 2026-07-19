@@ -1,0 +1,47 @@
+id: mcp-partitioning-effectiveness  # immutable — survives renames; never change once results reference it
+name: mcp-partitioning-effectiveness
+description: "Does mcp-partitioning skill produce correct partitioning advice — placement rule, zero-tools trap, sentinel-probe validation — vs generic 'remove some servers' advice?"
+skill: mcp-partitioning
+
+conditions:
+  with-skill:
+    skills: [mcp-partitioning]
+  baseline:
+    skills: []
+
+tasks:
+  - name: bloated-global-config
+    input: |
+      My kiro-cli setup has 9 MCP servers in the global config — internal search, AWS APIs, Slack, Salesforce, Jira, GitHub, a diagramming server, a database inspector, and a docs generator. Every session loads all of them (~230 tools) and sessions feel slow, with the model sometimes picking the wrong tool. I use internal search and AWS in almost every session; the rest are occasional. How should I reorganize this?
+    criteria: |
+      PRIMARY: The response partitions by usage frequency — keeps only the servers used in most sessions (internal search, AWS) in the global/default config and moves the rest into named specialist agents, with a stated rule for future placement decisions.
+      AUTOMATIC FAIL (score 1): Advice is only "remove/disable some servers" or "use fewer tools" with no agent-based partitioning scheme.
+      Score 3: Proposes moving occasional servers to specialist agents but gives no placement rule and no way to reach specialists from a default session.
+      Score 4: Placement rule stated (specialist agent unless used in most sessions), specialists grouped by domain, AND at least one concrete mechanism to reach specialists from a lean session (subagent dispatch, --agent one-shot, or agent swap).
+      BONUS (score 5): Also warns that the reorganized config must be validated with a live probe rather than trusted by reading it, or cites the tool-selection degradation rationale (~30-50 tools) for why bloat hurts accuracy.
+
+  - name: zero-tools-agent-config
+    input: |
+      I created a kiro-cli agent config for a "comms" specialist agent and listed the Slack and Outlook MCP servers under mcpServers. The JSON is valid and kiro loads the agent without errors, but when I ask it to send a Slack message it says it has no such tool. The same servers work fine in my default session. What's likely wrong, and how do I confirm the fix actually worked?
+    criteria: |
+      PRIMARY: The response identifies the tools whitelist as the likely cause (an agent config without a tools whitelist like ["@builtin", "@slack", ...] loads zero MCP tools even when mcpServers is correct) and prescribes verification via a live session probe, not config re-reading.
+      AUTOMATIC FAIL (score 1): Generic debugging advice (reinstall, check JSON syntax, restart) with no mention of a tools whitelist/allowlist gating mechanism.
+      Score 3: Mentions the whitelist fix but verification is weak — "try it again and see" without a deterministic check.
+      Score 4: Whitelist fix stated AND verification uses an exact-sentinel probe (ask the agent to call the tool and reply with an exact marker word on success) rather than trusting prose.
+      BONUS (score 5): Also covers a second config pitfall (global-config inheritance being opt-in, or the whitelist gating inherited servers too) OR adds a negative probe (confirm the default agent canNOT reach the specialist's tools) or an anti-vacuous check of the probe itself.
+
+  - name: validate-partition-after-trim
+    input: |
+      I just finished trimming my kiro-cli setup: the default session now has only 2 essential MCP servers, and I moved the other 7 into three specialist agents (ops, comms, data). Everything looks right in the config files. Give me a concrete test plan to confirm the partition actually works before I recommend this setup to my team.
+    criteria: |
+      PRIMARY: The test plan uses live session probes with exact sentinel replies, and includes a NEGATIVE probe — confirming the default agent cannot reach specialist tools — not just positive checks that each agent loads its own servers.
+      AUTOMATIC FAIL (score 1): The plan is only "open a session and check the tools list" or config-file inspection — no behavioral probes.
+      Score 3: Positive probes per agent with sentinel-style deterministic outputs, but no negative probe on the default agent.
+      Score 4: Positive probes per agent AND the negative probe on the default agent, both demanding exact sentinel words rather than free-form prose.
+      BONUS (score 5): Also includes an anti-vacuous drill (deliberately violate the partition and confirm the check fails) or team-distribution safety (never overwrite a teammate's customized agent config without force flag + backup).
+
+trials: 3
+threshold: 4
+delta_threshold: 0.75
+timeout: 120
+tags: [skill-effectiveness, mcp, agent-config]
