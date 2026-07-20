@@ -1,7 +1,7 @@
 ---
 id: "43"
 title: "WSL bashrc should export WIN_USERNAME for deploy reliability"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: ""

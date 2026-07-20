@@ -1,7 +1,7 @@
 ---
 id: "42"
 title: "Lint executable check false positive on Windows (core.filemode=false)"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: ""
