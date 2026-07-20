@@ -1,0 +1,112 @@
+area: tkt
+
+tensions:
+  - id: coordination-vs-dumb-files
+    desire: "pf-concurrent-sessions-safe"
+    constraint: "git-coordination-medium"
+    statement: "Concurrent sessions need race-free allocation and visible claims, but the only shared state is plain files in git — there is no server, lock, or database to arbitrate."
+    contributing_forces: [allocation-race-free, wip-visible, sequential-readable-ids]
+    status: resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:38#Resolution"
+    resolution_gist: "Make the git dance atomic-by-convention inside one tool command: fetch → true-max scan (local+origin) → create → commit → push as the claim; in_progress status pushed for WIP visibility. Random ids (tk's dodge) rejected — sequential readable ids are load-bearing."
+    pattern_id: null
+    open_questions: []
+
+  - id: tolerance-vs-trust
+    desire: "pf-files-hand-editable"
+    constraint: "loud-parse-errors"
+    statement: "Hand-editable files invite variance the tool must tolerate (unknown fields, unquoted ids, legacy metadata), but tolerating variance silently is how tickets become invisible or corrupted — tolerance must never become guessing."
+    contributing_forces: [ids-as-text, preserve-unknown-fields, zero-migration]
+    status: resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:38#Resolution"
+    resolution_gist: "Split tolerance by category: unknown fields preserved verbatim (never interpreted), known fields parsed as raw text lines (no YAML round-trip), anything unparseable is a named hard error in every command. tk's silent omission is the named anti-pattern."
+    pattern_id: null
+    open_questions: []
+
+  - id: shared-contract-vs-repo-dialects
+    desire: "pf-consistent-agent-behavior"
+    constraint: "minimal-contract"
+    statement: "One tool serving both repos wants one contract, but the repos have real dialect differences (2- vs 3-digit ids, env/spec/priority vs legacy created/closed) and neither may be forced to migrate."
+    contributing_forces: [zero-migration, sequential-readable-ids]
+    status: resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:38#Resolution"
+    resolution_gist: "Core contract = the intersection (id/title/status/blocked_by); repo needs enter as optional extension fields with absent-field defaults; padding inferred per-repo from existing filenames; unknown fields preserved. Verified: all 77 tickets valid unchanged."
+    pattern_id: null
+    open_questions: []
+
+  - id: selection-policy-vs-simple-frontier
+    desire: "pf-urgency-out-of-band"
+    constraint: "env-filtered-frontier"
+    statement: "Next-work selection wants to stay trivially predictable (lowest number first), but urgency flags and machine-policy filters both legitimately override it — each override must compose without making selection inscrutable."
+    contributing_forces: [priority-jumps-order]
+    status: resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:38#Resolution + steering:frontier-work"
+    resolution_gist: "Fixed precedence: env filter excludes (hard), then priority: high jumps, then lowest-number-first. Selection PROPOSAL stays in steering (Level 4); the computation is the tool's (Level 2)."
+    pattern_id: null
+    open_questions: []
+
+  - id: automation-vs-ceremony-decay
+    desire: "pf-tickets-as-history"
+    constraint: "ceremony-decays"
+    statement: "Trustworthy history wants dated close-outs, checked ACs, and evidence inline, but every metadata convention not enforced by tooling has demonstrably rotted in both repos."
+    contributing_forces: [body-is-prose, structured-tool-output]
+    status: resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:38#Resolution (enforcement-hierarchy split)"
+    resolution_gist: "The tool automates what it owns (status flips, dated Resolution stub on close, AC-warning) and validate makes decay visible (unchecked ACs on done = finding); prose quality stays judgment (Level 3), never tool-managed. Fields neither automated nor validated get dropped from the contract."
+    pattern_id: null
+    open_questions: []
+
+  - id: projection-vs-second-truth
+    desire: "pf-plan-reflects-truth"
+    constraint: "body-is-prose"
+    statement: "The plan table wants to mirror ticket status mechanically, but plan documents are curated prose the tool must not own — a generated table risks becoming a second source of truth that drifts anyway."
+    contributing_forces: [ceremony-decays, structured-tool-output]
+    status: partially-resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:41 (deferred SHOULD R9)"
+    resolution_gist: "Drift-CHECK first (fail loudly on mismatch), generation only if drift keeps recurring. Deferred to rollout; MVP ships without it."
+    pattern_id: null
+    open_questions:
+      - "Is a drift-check meaningful against free-form plan tables, or does it require a marked region convention in the plan doc?"
+
+  - id: distribution-vs-bootstrap
+    desire: "pf-consistent-agent-behavior"
+    constraint: "install-prerequisite-gated"
+    statement: "Consistent behavior everywhere wants tkt auto-present on every machine and repo, but crew's extension mechanism gates on PATH presence and tkt itself is the prerequisite — something must install it before anything can depend on it."
+    contributing_forces: [tool-name-no-shadow]
+    status: open
+    formalization: none
+    resolution_source: null
+    resolution_gist: null
+    pattern_id: null
+    open_questions:
+      - "Tier extension (auto-detect on PATH, like recall) vs documented-install-only?"
+      - "Does frontier-work steering keep a manual-protocol fallback when tkt is absent (degraded mode), and for how long?"
+
+  - id: one-tool-vs-two-repos-git-state
+    desire: "pf-concurrent-sessions-safe"
+    constraint: "git-coordination-medium"
+    statement: "The claim protocol needs fetch/commit/push side effects, but tkt runs inside ANY repo's git context — a wrong-repo invocation or dirty tree could commit garbage or push to the wrong remote."
+    contributing_forces: [allocation-race-free, structured-tool-output]
+    status: partially-resolved
+    formalization: decided-not-formalized
+    resolution_source: "ticket:40 (implied by 'works against any repo's .tickets/ from inside that repo')"
+    resolution_gist: "Tool operates on cwd's repo only; .tickets/ presence is the guard. Unstated: behavior on dirty tree, detached HEAD, no remote, or push rejection mid-claim."
+    pattern_id: null
+    open_questions:
+      - "What is claim behavior when push is rejected (another session claimed concurrently)? Retry with next id, or surface and abort?"
+      - "Commit scope discipline: claim commits must include ONLY the ticket file even in a dirty tree (git add <file> specifically)?"
+
+summary:
+  total: 8
+  resolved: 5
+  partially_resolved: 2
+  open: 1
+  formalized: 0
+  needs_formalization: 7
+  needs_grilling: 1

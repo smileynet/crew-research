@@ -1,0 +1,264 @@
+area: tkt
+sources_read:
+  - path: ".memory/specs/ticket-cli-spec.md"
+    type: spec
+  - path: ".tickets/38-tk-like-ticket-cli.md"
+    type: decision
+  - path: ".tickets/40-ticket-cli-build.md"
+    type: spec
+  - path: ".tickets/41-ticket-cli-rollout.md"
+    type: spec
+  - path: ".scratch/research/crew-ticket-needs.md"
+    type: product
+  - path: ".scratch/research/archwright-ticket-needs.md"
+    type: product
+  - path: ".scratch/research/tk-capabilities.md"
+    type: product
+  - path: ".memory/CONTEXT.md"
+    type: convention
+  - path: "~/.kiro/steering/frontier-work.md"
+    type: convention
+
+product_forces:
+  - id: pf-concurrent-sessions-safe
+    polarity: desire
+    statement: "An operator running concurrent agent sessions wants each session to pick up and claim work without colliding with or duplicating another session's work."
+    who: operator
+    provenance:
+      - source: "ticket:38"
+        quote: "Divergence has already cost reconciliation merges twice (archwright 005 pair, crew-research 12/13 collision)."
+      - source: "research:crew-ticket-needs"
+        quote: "3 collisions, one AFTER the claim protocol existed"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: pf-consistent-agent-behavior
+    polarity: desire
+    statement: "The operator wants agents to exhibit identical ticket-work behaviors (frontier, claim, status) in every repo, so conventions learned once apply everywhere."
+    who: operator
+    provenance:
+      - source: "ticket:38"
+        quote: "so agents exhibit consistent work behaviors across repos: same frontier computation, same claim protocol, same status transitions, same frontmatter contract"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: pf-urgency-out-of-band
+    polarity: desire
+    statement: "The operator wants to flag urgent work out-of-band and have every session's next-work selection respect it."
+    who: operator
+    provenance:
+      - source: "ticket:38"
+        quote: "priority: high frontmatter (user-flagged), which jumps the number order"
+      - source: "research:archwright-ticket-needs"
+        quote: "out-of-band urgency marking (PLAN.md 'NEXT UP' pointer)"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: pf-env-policy
+    polarity: desire
+    statement: "The operator wants work constrained to machines where it is permitted or possible (corp policy, personal-only tooling)."
+    who: operator
+    provenance:
+      - source: "glossary:CREW_ENV"
+        quote: "marking a machine as corp (agy forbidden by company policy) or personal; tickets carry matching env: corp|personal|either frontmatter"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: pf-tickets-as-history
+    polarity: desire
+    statement: "The operator wants done tickets to serve as trustworthy project archaeology — evidence inline, dated close-outs, auditable at a glance."
+    who: operator
+    provenance:
+      - source: "research:crew-ticket-needs"
+        quote: "done tickets carry inline evidence — run dirs, commits, metrics"
+      - source: "research:archwright-ticket-needs"
+        quote: "ticket-as-append-only-history; close-out prose carries truth"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: pf-plan-reflects-truth
+    polarity: desire
+    statement: "The operator wants the plan table to reflect ticket status without hand-sync drift or a third status copy."
+    who: operator
+    provenance:
+      - source: "research:archwright-ticket-needs"
+        quote: "PLAN.md ↔ tickets is hand-synced bidirectionally; operator directive (ticket 024) polices against a third status copy"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: pf-files-hand-editable
+    polarity: desire
+    statement: "Operators and agents want to hand-edit ticket files directly (they are the database) and trust tooling never to mangle, hide, or reinterpret them."
+    who: operator
+    provenance:
+      - source: "spec:ticket-cli-spec"
+        quote: "files are the database (git-native, hand-editable); unknown fields preserved verbatim"
+      - source: "research:tk-capabilities"
+        quote: "priority: high (crew-research style) → ticket SILENTLY OMITTED from ls/ready/blocked/query"
+    tags: [explicit]
+    evidence_level: L2
+
+forces:
+  - id: ids-as-text
+    polarity: constraint-hard
+    statement: "Ticket ids must be read and written as raw text, never as YAML-typed scalars."
+    serves: [pf-files-hand-editable]
+    provenance:
+      - source: "spec:ticket-cli-spec"
+        quote: "Archwright's are unquoted (id: 010) — YAML 1.1 would parse octal."
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: zero-migration
+    polarity: constraint-hard
+    statement: "All 77 existing tickets in both repos must remain valid with zero edits."
+    serves: [pf-files-hand-editable, pf-tickets-as-history]
+    provenance:
+      - source: "ticket:38"
+        quote: "Existing tickets in both repos remain valid under whatever contract is chosen"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: preserve-unknown-fields
+    polarity: constraint-hard
+    statement: "Any rewrite must be surgical: fields the tool does not interpret survive verbatim."
+    serves: [pf-files-hand-editable]
+    provenance:
+      - source: "research:tk-capabilities"
+        quote: "tk status rewrite PRESERVES custom fields verbatim (surgical edit) — the one strong pass"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: loud-parse-errors
+    polarity: constraint-hard
+    statement: "A ticket file the tool cannot parse is a named hard error in every command — silent omission is forbidden."
+    serves: [pf-files-hand-editable, pf-consistent-agent-behavior]
+    provenance:
+      - source: "research:tk-capabilities"
+        quote: "ticket SILENTLY OMITTED from ls/ready/blocked/query (exit 0, no warning)"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: sequential-readable-ids
+    polarity: constraint-hard
+    statement: "Sequential human-readable NN[-N]-slug ids are entrenched: cross-referenced in prose and load-bearing for lowest-number-first selection."
+    serves: [pf-tickets-as-history, pf-consistent-agent-behavior]
+    provenance:
+      - source: "spec:ticket-cli-spec"
+        quote: "Random IDs (tk's t-xxxx) break existing cross-references and the lowest-number-first selection rule."
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: git-coordination-medium
+    polarity: constraint-hard
+    statement: "Claims, collisions, and WIP visibility resolve only through git (fetch/commit/push); any coordination story must run inside the target repo's git context."
+    serves: [pf-concurrent-sessions-safe]
+    provenance:
+      - source: "spec:ticket-cli-spec"
+        quote: "Git is the coordination medium."
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: allocation-race-free
+    polarity: constraint-hard
+    statement: "Concurrent id allocation must not produce collisions; the allocation and the claim must be one indivisible step."
+    serves: [pf-concurrent-sessions-safe]
+    provenance:
+      - source: "research:crew-ticket-needs"
+        quote: "ID allocation race — 3 collisions, one AFTER the claim protocol existed"
+      - source: "research:archwright-ticket-needs"
+        quote: "id collision 009/010 → renumber commit 0806851 (per concurrent-sessions guard)"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: wip-visible
+    polarity: constraint-soft
+    statement: "Work-in-progress must be visible to concurrent sessions in the pushed ticket state, not only in commit messages."
+    serves: [pf-concurrent-sessions-safe]
+    provenance:
+      - source: "research:archwright-ticket-needs"
+        quote: "ticket 005 implemented independently by two concurrent sessions same day → reconciliation merge"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: env-filtered-frontier
+    polarity: constraint-hard
+    statement: "Frontier computation must exclude tickets whose env designation does not match the current machine."
+    serves: [pf-env-policy]
+    provenance:
+      - source: "research:crew-ticket-needs"
+        quote: "env gating half-mechanical (nothing filters frontier by CREW_ENV)"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: priority-jumps-order
+    polarity: constraint-hard
+    statement: "A priority: high flag must override lowest-number-first ordering in next-work selection."
+    serves: [pf-urgency-out-of-band]
+    provenance:
+      - source: "steering:frontier-work"
+        quote: "unless a frontier ticket carries priority: high frontmatter (user-flagged), which jumps the number order"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: ceremony-decays
+    polarity: constraint-hard
+    statement: "Metadata not maintained by tooling decays and cannot be relied on — a field is either automated or dropped from the contract."
+    serves: [pf-tickets-as-history, pf-files-hand-editable]
+    provenance:
+      - source: "research:archwright-ticket-needs"
+        quote: "created: appears only on tickets 001–016 (convention decayed); ~14 done tickets have unchecked ACs"
+      - source: "research:crew-ticket-needs"
+        quote: "9 done tickets have unchecked boxes"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: body-is-prose
+    polarity: constraint-hard
+    statement: "The ticket body is a human/agent-authored spec; the tool manages frontmatter and may only append (dated stubs), never restructure prose."
+    serves: [pf-tickets-as-history, pf-files-hand-editable]
+    provenance:
+      - source: "spec:ticket-cli-spec"
+        quote: "the body is the spec (tool never manages prose)"
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: minimal-contract
+    polarity: constraint-soft
+    statement: "The frontmatter contract stays as small as possible; per-repo needs enter as optional extension fields, not required schema."
+    serves: [pf-files-hand-editable, pf-consistent-agent-behavior]
+    provenance:
+      - source: "ticket:38"
+        quote: "one frontmatter contract with per-repo extension fields, so both shapes fit without forking the tool"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: tool-name-no-shadow
+    polarity: constraint-soft
+    statement: "The CLI name must not shadow binaries already on operator machines (tk is installed and unrelated)."
+    serves: [pf-consistent-agent-behavior]
+    provenance:
+      - source: "spec:ticket-cli-spec"
+        quote: "Name tkt avoids shadowing the existing tk on PATH."
+    tags: [explicit]
+    evidence_level: L2
+
+  - id: structured-tool-output
+    polarity: constraint-soft
+    statement: "Tool output follows the crew validation contract: structured JSON results and 0/1/2 exit codes."
+    serves: [pf-consistent-agent-behavior, pf-plan-reflects-truth]
+    provenance:
+      - source: "steering:project-conventions"
+        quote: "Scripts and tools that produce output SHOULD return structured results: JSON {status: pass|fail|error} ... Exit code: 0=pass, 1=fail, 2=crash"
+    tags: [explicit]
+    evidence_level: L1
+
+  - id: install-prerequisite-gated
+    polarity: constraint-soft
+    statement: "Crew extensions auto-deploy only when their external prerequisite is on PATH; anything else is a documented manual install."
+    serves: [pf-consistent-agent-behavior]
+    provenance:
+      - source: "adr:0008"
+        quote: "extensions are declared inside tier manifests and auto-deploy when their prerequisite is met"
+    tags: [explicit]
+    evidence_level: L1
