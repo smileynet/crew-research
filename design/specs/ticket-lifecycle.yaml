@@ -1,0 +1,99 @@
+kind: behavior
+id: ticket-lifecycle
+from_patterns:
+  - "pattern:intersection-contract"
+  - "pattern:git-native-claim"
+
+protects_experience: "exp-safe-parallel-work"
+user_story: "A ticket's status always tells the truth about where the work is — new work is open, claimed work is visibly in progress, finished work is done with a dated resolution."
+
+context:
+  variables:
+    status:
+      type: enum
+      values: [open, in_progress, done]
+      initial: open
+      from_force: wip-visible
+
+initial: open
+
+states:
+  open:
+    type: atomic
+    "on":
+      CLAIM:
+        target: in_progress
+        effects:
+          status: in_progress
+        from_force: wip-visible
+        from_pattern: git-native-claim
+      CLOSE:
+        target: done
+        effects:
+          status: done
+        from_force: ceremony-decays
+        from_pattern: automate-or-drop
+    invariant:
+      predicate: "status == 'open'"
+      confidence: "★"
+      from_force: minimal-contract
+    from_pattern: intersection-contract
+
+  in_progress:
+    type: atomic
+    "on":
+      CLOSE:
+        target: done
+        effects:
+          status: done
+        from_force: ceremony-decays
+        from_pattern: automate-or-drop
+    invariant:
+      predicate: "status == 'in_progress'"
+      confidence: "★"
+      from_force: wip-visible
+    from_pattern: git-native-claim
+
+  done:
+    type: atomic
+    "on":
+      HAND_REOPEN:
+        target: open
+        effects:
+          status: open
+        from_force: minimal-contract
+        from_pattern: preserve-or-fail
+    invariant:
+      predicate: "status == 'done'"
+      confidence: "★"
+      from_force: ceremony-decays
+    from_pattern: intersection-contract
+
+invariants:
+  - id: status-in-vocabulary
+    type: temporal
+    predicate: "always (status in {open, in_progress, done})"
+    alloy: "always M.current in Open + InProgress + Done"
+    confidence: "★★"
+    from_force: zero-migration
+    from_pattern: intersection-contract
+    description: "No state outside the contract vocabulary is ever reachable through tool transitions"
+  - id: tool-never-reopens
+    type: transition
+    predicate: "done -> open only via HAND_REOPEN"
+    confidence: "★"
+    from_force: body-is-prose
+    from_pattern: preserve-or-fail
+    description: "The tool has no reopen command in MVP; reopening is a tolerated hand edit that validate watches"
+
+links:
+  - target: "contract:frontmatter-contract"
+    type: consumes
+  - target: "constraint:validate-reports-decay"
+    type: constrained-by
+
+abstraction_notes:
+  included: ["status field transitions driven by tkt commands and hand edits"]
+  excluded: ["body/prose changes", "extension-field changes (env/spec/priority are static designations, not lifecycle)", "git commit/push mechanics (claim-allocation-loop owns those)"]
+  justification: "Status is the only field with lifecycle semantics; other fields are designations."
+  scope_limit: "Trace checking pending python stack adapter; until then this spec is design documentation + Alloy-checkable for the vocabulary invariant."

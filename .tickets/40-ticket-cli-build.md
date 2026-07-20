@@ -40,6 +40,14 @@ read it first; do not re-litigate the contract or the verdict.
 ## Context
 
 - Spec (contract, verdict, requirements): `.memory/specs/ticket-cli-spec.md`
+- **Archwright design artifacts (pipeline run 2026-07-20 — build against these):**
+  `design/patterns/` (6 patterns: git-native-claim ★, intersection-contract ★★,
+  preserve-or-fail ★★, layered-selection ★★, automate-or-drop ★★,
+  surgical-git-side-effects ★★), `design/models/tkt-actors.{yaml,md}` (actor model,
+  FSMs, invariants), `design/specs/` (11 specs: 3 behavior, 2 contract, 6 constraint).
+  The 8 PENDING constraint checks (`target: tools/tkt`, CK-06) activate the moment code
+  lands — run `python3 ~/code/archwright/tools/archwright-check.py --static design/specs/`
+  after every change; NEW AC below makes them gates.
 - Evidence base: `.scratch/research/{crew,archwright}-ticket-needs.md`, `tk-capabilities.md`
 - Incidents motivating R2/R8: crew 12/13 + 37↔39 collisions, archwright 005
   double-implementation + 009/010 id collision — one collision occurred AFTER the manual
@@ -59,6 +67,10 @@ read it first; do not re-litigate the contract or the verdict.
       dangling blocked_by / duplicate id / unquoted-boolean key fails loudly
 - [ ] Tests wired into `mise run validate` or a `tkt`-local test task; validation-contract
       JSON output per project conventions
+- [ ] `archwright-check --static design/specs/` runs green: the 8 pending constraint
+      checks activate against tools/tkt and PASS (no-yaml-roundtrip, loud-parse-errors,
+      stage-only-ticket-file, allocation-single-step, validate-reports-decay + 3 skeletons);
+      zero-migration stays green
 - [ ] No migration: zero edits to existing tickets in either repo
 
 ## Out of scope

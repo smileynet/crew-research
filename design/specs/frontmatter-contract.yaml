@@ -1,0 +1,95 @@
+kind: contract
+id: frontmatter-contract
+from_patterns:
+  - "pattern:intersection-contract"
+from_model: "model:ticket-file"
+confidence: "★★"
+
+protects_experience: "exp-same-everywhere"
+user_story: "An agent in either repo reads and writes the same ticket shapes, so behaviors learned once apply everywhere."
+
+# The shared ticket frontmatter schema. ALL field values are parsed from raw text
+# lines (never YAML-typed) per preserve-or-fail — `type:` below describes the
+# INTERPRETED type after text parsing.
+fields:
+  id:
+    type: string
+    required: true
+    nullable: false
+    description: "Digits as text (quoting optional in the file); MUST match filename prefix NN[-N]-slug.md; zero-padding inferred per repo from existing filenames (default 2)"
+    from_force: ids-as-text
+  title:
+    type: string
+    required: true
+    nullable: false
+    description: "Outcome-phrased one-liner"
+    from_force: minimal-contract
+  status:
+    type: enum
+    values: [open, in_progress, done]
+    required: true
+    nullable: false
+    initial: open
+    description: "in_progress = claimed WIP (additive, no existing ticket uses it); done is terminal-by-convention, hand-reopen tolerated and watched by validate"
+    from_force: wip-visible
+  blocked_by:
+    type: list
+    required: true
+    nullable: false
+    initial: []
+    description: "Ids as text; ticket is frontier-eligible only when every referenced ticket is done"
+    from_force: sequential-readable-ids
+  env:
+    type: enum
+    values: [corp, personal, either]
+    required: false
+    initial: either
+    description: "Extension field. ABSENT = either (RFC 6709 test: absent-default reproduces pre-extension behavior)"
+    from_force: env-filtered-frontier
+  spec:
+    type: string
+    required: false
+    initial: ""
+    description: "Extension field. Campaign grouping label"
+    from_force: minimal-contract
+  priority:
+    type: enum
+    values: [high]
+    required: false
+    description: "Extension field. Only recognized value is high; absent = normal ordering"
+    from_force: priority-jumps-order
+
+# Unknown keys: preserved verbatim on any rewrite, never interpreted, never required.
+# (created:, closed:, lane:, and anything future — passthrough per preserve-or-fail.)
+
+lifecycle:
+  - state: "created"
+    by: "component:claim-engine"
+    invariant: "all required fields present; id matches filename; status is open"
+  - state: "rewritten"
+    by: "component:frontmatter-engine"
+    invariant: "unknown fields byte-identical; only the targeted field's line changed"
+  - state: "consumed"
+    by: "component:frontier-selector"
+    invariant: "absent extension fields read as their documented defaults"
+
+persistence:
+  persisted:
+    - id
+    - title
+    - status
+    - blocked_by
+    - env
+    - spec
+    - priority
+  excluded: []
+  rationale: "The file IS the database — every field is durable by construction; git history is the audit log"
+  versioning:
+    strategy: additive
+    current_version: 1
+
+links:
+  - target: "pattern:intersection-contract"
+    type: produced-by
+  - target: "constraint:zero-migration"
+    type: constrained-by

@@ -1,0 +1,153 @@
+kind: behavior
+id: claim-allocation-loop
+from_patterns:
+  - "pattern:git-native-claim"
+  - "pattern:surgical-git-side-effects"
+
+protects_experience: "exp-safe-parallel-work"
+user_story: "When two sessions race for the same ticket number, one wins instantly and the other auto-renumbers in seconds — nobody reconciles anything by hand."
+
+context:
+  variables:
+    attempt:
+      type: int
+      initial: 0
+      from_force: allocation-race-free
+    outcome:
+      type: enum
+      values: [none, claimed, failed]
+      initial: none
+      from_force: allocation-race-free
+
+initial: fetching
+
+states:
+  fetching:
+    type: atomic
+    "on":
+      FETCH_OK:
+        target: scanning
+        from_force: git-coordination-medium
+        from_pattern: git-native-claim
+    invariant:
+      predicate: "outcome == 'none'"
+      confidence: "★"
+      from_force: allocation-race-free
+    from_pattern: git-native-claim
+
+  scanning:
+    type: atomic
+    "on":
+      MAX_ID_FOUND:
+        target: creating
+        from_force: sequential-readable-ids
+        from_pattern: git-native-claim
+    from_pattern: git-native-claim
+
+  creating:
+    type: atomic
+    "on":
+      COMMITTED:
+        target: pushing
+        from_force: allocation-race-free
+        from_pattern: surgical-git-side-effects
+    invariant:
+      predicate: "outcome == 'none'"
+      confidence: "★"
+      from_force: preserve-unknown-fields
+    from_pattern: git-native-claim
+
+  pushing:
+    type: atomic
+    "on":
+      PUSH_ACCEPTED:
+        target: claimed
+        effects:
+          outcome: claimed
+        from_force: allocation-race-free
+        from_pattern: git-native-claim
+      PUSH_REJECTED:
+        target: retrying
+        assign:
+          attempt: "attempt + 1"
+        from_force: allocation-race-free
+        from_pattern: git-native-claim
+    from_pattern: git-native-claim
+
+  retrying:
+    type: atomic
+    "on":
+      RETRY:
+        target: fetching
+        guard:
+          predicate: "attempt != 3"
+          from_force: allocation-race-free
+          confidence: "★"
+        from_pattern: git-native-claim
+      GIVE_UP:
+        target: failed
+        guard:
+          predicate: "attempt == 3"
+          from_force: allocation-race-free
+          confidence: "★"
+        effects:
+          outcome: failed
+        from_pattern: git-native-claim
+    from_pattern: git-native-claim
+
+  claimed:
+    type: final
+    "on": {}
+    invariant:
+      predicate: "outcome == 'claimed'"
+      confidence: "★"
+      from_force: allocation-race-free
+    from_pattern: git-native-claim
+
+  failed:
+    type: final
+    "on": {}
+    invariant:
+      predicate: "outcome == 'failed'"
+      confidence: "★"
+      from_force: loud-parse-errors
+    from_pattern: git-native-claim
+
+invariants:
+  - id: no-claim-without-push
+    type: temporal
+    predicate: "always (outcome == 'claimed' implies pushing)"
+    alloy: "always (M.outcome = Claimed implies M.current in Claimed)"
+    confidence: "★"
+    from_force: allocation-race-free
+    from_pattern: git-native-claim
+    description: "claimed is reachable only through PUSH_ACCEPTED — no locally-minted id is ever reported as allocated without the remote accepting it"
+  - id: bounded-retries
+    type: temporal
+    predicate: "always (attempt <= 3)"
+    alloy: "always M.attempt <= 3"
+    confidence: "★★"
+    from_force: allocation-race-free
+    from_pattern: git-native-claim
+    description: "Operator decision D1a: bounded auto-retry, never an unbounded loop"
+  - id: refetch-before-rescan
+    type: transition
+    predicate: "retrying -> fetching (never retrying -> scanning)"
+    confidence: "★"
+    from_force: git-coordination-medium
+    from_pattern: git-native-claim
+    description: "Every retry re-fetches — re-scanning stale local state would re-mint the losing id"
+
+links:
+  - target: "contract:frontmatter-contract"
+    type: consumes
+  - target: "constraint:stage-only-ticket-file"
+    type: constrained-by
+  - target: "constraint:allocation-single-step"
+    type: constrained-by
+
+abstraction_notes:
+  included: ["allocation attempt lifecycle from fetch to claimed/failed", "retry counter"]
+  excluded: ["network failure modes other than push rejection (surface as command errors)", "work-claim on existing tickets (same push mechanics, no id minting)"]
+  justification: "Push rejection is the raced path the pattern exists for; other failures abort loudly without state subtlety."
+  scope_limit: "Trace checking pending python stack adapter; bounded-retries and vocabulary invariants are Alloy-checkable from the model."

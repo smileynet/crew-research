@@ -1,0 +1,200 @@
+# tkt domain model — machine-readable projection
+# Produced by archwright-model 2026-07-20. All actors (planned) — ticket 40 builds them.
+
+experiences:
+  - id: exp-safe-parallel-work
+    desire: pf-concurrent-sessions-safe
+    who: operator
+    what_user_sees: "Two sessions on different machines allocate and claim tickets all day and never produce a collision or a double-implementation."
+    protected_by:
+      - spec: "behavior:claim-allocation-loop"
+        how: "The allocation FSM makes push-the-claim and retry-on-reject the only path to a minted id."
+      - spec: "constraint:stage-only-ticket-file"
+        how: "Claim commits can't sweep unrelated work into the coordination channel."
+  - id: exp-trusted-files
+    desire: pf-files-hand-editable
+    who: operator
+    what_user_sees: "Hand edits survive tool rewrites byte-for-byte outside the edited field; a broken file is named loudly, never silently skipped."
+    protected_by:
+      - spec: "constraint:no-yaml-roundtrip"
+        how: "No dumper ever rewrites a ticket file."
+      - spec: "constraint:loud-parse-errors"
+        how: "Unparseable files abort every command with the filename."
+  - id: exp-same-everywhere
+    desire: pf-consistent-agent-behavior
+    who: operator
+    what_user_sees: "An agent in crew-research and an agent in archwright compute the same frontier the same way from the same contract."
+    protected_by:
+      - spec: "contract:frontmatter-contract"
+        how: "One schema, dialects as optional extensions."
+      - spec: "constraint:zero-migration"
+        how: "Existing tickets in both repos parse unchanged."
+  - id: exp-urgent-first
+    desire: pf-urgency-out-of-band
+    who: operator
+    what_user_sees: "Flag a ticket priority: high and every session proposes it next, regardless of number."
+    protected_by:
+      - spec: "behavior:frontier-selection"
+        how: "Urgency stage ranks before numeric order."
+  - id: exp-right-machine
+    desire: pf-env-policy
+    who: operator
+    what_user_sees: "corp-forbidden work never surfaces on the corp machine's frontier."
+    protected_by:
+      - spec: "behavior:frontier-selection"
+        how: "Eligibility stage excludes env-mismatched tickets."
+  - id: exp-history-trustworthy
+    desire: pf-tickets-as-history
+    who: operator
+    what_user_sees: "Done tickets carry dated resolutions; decayed ceremony (unchecked ACs) is reported, not hidden."
+    protected_by:
+      - spec: "constraint:validate-reports-decay"
+        how: "Validate names the two observed decay classes as findings."
+
+domain_vocabulary:
+  - domain_name: "Ticket"
+    implementation_name: "TicketFile (planned)"
+    role: "One unit of work; markdown file whose frontmatter is the shared state"
+  - domain_name: "Claim Engine"
+    implementation_name: "cmd_new / cmd_claim (planned)"
+    role: "Mints ids and announces claims through git push"
+  - domain_name: "Frontier Selector"
+    implementation_name: "cmd_ready (planned)"
+    role: "Computes what to work on next (filter → jump → order)"
+  - domain_name: "Decay Watcher"
+    implementation_name: "cmd_validate (planned)"
+    role: "Reports contract violations and ceremony decay as findings"
+
+actors:
+  - id: ticket-file
+    name: "TicketFile (planned)"
+    domain_name: "Ticket"
+    owns:
+      - status: "enum open|in_progress|done"
+      - blocked_by: "list of id texts"
+      - extension_fields: "env, spec, priority (optional, interpreted)"
+      - unknown_fields: "preserved passthrough, never interpreted"
+    accepts_events:
+      - "CLAIM { by-session }"
+      - "CLOSE { resolution-stub-date }"
+      - "HAND_EDIT { any field }"
+    emits_events: []
+    lifecycle:
+      invoked_by: "claim-engine (new) or hand-creation"
+      active_during: "forever (files are the database; done is terminal-by-convention, hand-reopen tolerated)"
+    persistence: durable
+    invariants:
+      - "status is always one of the contract vocabulary (hand edits included — validate watches)"
+      - "id text matches filename prefix"
+      - "unknown fields survive any tool rewrite verbatim"
+    user_facing_invariants:
+      - "A ticket you wrote by hand is a first-class ticket"
+      - "A ticket never disappears from listings because of its content"
+    from_patterns: [intersection-contract, preserve-or-fail, automate-or-drop]
+
+  - id: claim-engine
+    name: "cmd_new/cmd_claim (planned)"
+    domain_name: "Claim Engine"
+    owns:
+      - allocation_attempt: "int 0..3"
+      - candidate_id: "text"
+    accepts_events:
+      - "NEW { slug, fields }"
+      - "CLAIM { id }"
+      - "PUSH_ACCEPTED {}"
+      - "PUSH_REJECTED {}"
+    emits_events:
+      - "CLAIMED { final-id, renumbered: bool }"
+      - "ALLOCATION_FAILED { attempts }"
+    lifecycle:
+      invoked_by: "CLI invocation"
+      active_during: "one command run (transient)"
+    persistence: transient
+    invariants:
+      - "fetch precedes every scan; scan covers local AND origin"
+      - "no ticket file exists locally without its claim commit staged in the same run"
+      - "retry count never exceeds 3; each retry re-fetches and re-scans"
+      - "a rejected push never overwrites remote state (no force)"
+    user_facing_invariants:
+      - "The id you're told is yours actually landed on the remote"
+      - "A lost race costs seconds (auto-renumber), never a reconciliation merge"
+    from_patterns: [git-native-claim, surgical-git-side-effects]
+
+  - id: decay-watcher
+    name: "cmd_validate (planned)"
+    domain_name: "Decay Watcher"
+    owns:
+      - findings: "list (transient)"
+    accepts_events:
+      - "VALIDATE {}"
+    emits_events:
+      - "FINDINGS { json, exit-code }"
+    lifecycle:
+      invoked_by: "CLI invocation or mise task"
+      active_during: "one command run (transient)"
+    persistence: transient
+    invariants:
+      - "an unparseable file is a finding that fails the run (never skipped)"
+      - "detects: dangling/cyclic blocked_by, id/filename mismatch, unchecked ACs on done, non-contract status values"
+    user_facing_invariants:
+      - "If the board lies, validate says so before you trust it"
+    from_patterns: [automate-or-drop, preserve-or-fail, intersection-contract]
+
+boundary_entities:
+  - id: frontmatter-engine
+    classification: boundary-service
+    name: "frontmatter read/write module (planned)"
+    role: "Facade over ticket files: ordered key→raw-text parsing, surgical line edits, loud errors. No domain events, no FSM."
+    from_patterns: [preserve-or-fail]
+  - id: git-facade
+    classification: boundary-service
+    name: "git subprocess wrapper (planned)"
+    role: "fetch/add(explicit path)/commit/push plumbing. No domain state; push outcomes surface as events to claim-engine."
+    from_patterns: [surgical-git-side-effects]
+  - id: frontier-selector
+    classification: boundary-service
+    name: "cmd_ready (planned)"
+    role: "Stateless three-stage computation (eligibility → urgency → order) over parsed tickets; no owned state, no FSM — trigger/compute/report."
+    from_patterns: [layered-selection]
+  - id: tickets-corpus
+    classification: configuration-authority
+    name: ".tickets/ directory (exists)"
+    role: "The durable store both repos already have; per-repo padding inferred from its filenames."
+    from_patterns: [intersection-contract]
+
+composition:
+  root: "CLI invocation (each command is a short-lived process)"
+  rationale: "FLAT by nature: tkt is a CLI, not a daemon. Every command invocation constructs frontmatter-engine + git-facade, operates on tickets-corpus, and exits. The only durable state is ticket files + the git remote. Forcing a hierarchy would misrepresent the lifecycle."
+  children:
+    - claim-engine: [frontmatter-engine, git-facade]
+    - frontier-selector: [frontmatter-engine]
+    - decay-watcher: [frontmatter-engine]
+
+event_flows:
+  - {from: claim-engine, to: git-facade, event: "push (claim)"}
+  - {from: git-facade, to: claim-engine, event: "PUSH_ACCEPTED | PUSH_REJECTED"}
+  - {from: claim-engine, to: ticket-file, event: "create / status=in_progress"}
+  - {from: decay-watcher, to: operator, event: "FINDINGS (json)"}
+  - {from: frontier-selector, to: operator, event: "ordered frontier"}
+
+contract_candidates:
+  # NOTE: the frontmatter STATE SCHEMA is not an event — it is formalized directly
+  # as contract:frontmatter-contract with from_model: model:ticket-file (actor).
+  - event: query-output
+    producer: frontier-selector
+    consumers: [operator, downstream-tooling]
+  - event: validate-findings
+    producer: decay-watcher
+    consumers: [operator, ci]
+
+spec_projections:
+  - {spec: "behavior:ticket-lifecycle", from: ticket-file, target_status: pending, note: "status FSM open→in_progress→done; implied by intersection-contract + git-native-claim jointly"}
+  - {spec: "behavior:claim-allocation-loop", from: claim-engine, target_status: pending}
+  - {spec: "behavior:frontier-selection", from: frontier-selector, target_status: pending}
+  - {spec: "constraint:allocation-single-step", from: claim-engine, target_status: pending}
+  - {spec: "constraint:no-yaml-roundtrip", from: frontmatter-engine, target_status: pending}
+  - {spec: "constraint:loud-parse-errors", from: frontmatter-engine, target_status: pending}
+  - {spec: "constraint:stage-only-ticket-file", from: git-facade, target_status: pending}
+  - {spec: "constraint:validate-reports-decay", from: decay-watcher, target_status: pending}
+  - {spec: "constraint:zero-migration", from: tickets-corpus, target_status: active, note: "runnable today against existing .tickets/"}
+  - {spec: "contract:frontmatter-contract", from: ticket-file, target_status: active, note: "schema is checkable against existing corpus"}

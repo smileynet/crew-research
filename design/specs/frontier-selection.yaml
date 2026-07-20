@@ -1,0 +1,98 @@
+kind: behavior
+id: frontier-selection
+from_patterns:
+  - "pattern:layered-selection"
+
+protects_experience: "exp-urgent-first"
+user_story: "Ask any session for the next ticket and you get the same answer: nothing forbidden for this machine, urgent work first, then the lowest number."
+
+context:
+  variables:
+    stage:
+      type: enum
+      values: [none, filtered, ordered]
+      initial: none
+      from_force: env-filtered-frontier
+
+initial: idle
+
+states:
+  idle:
+    type: atomic
+    "on":
+      READY_INVOKED:
+        target: filtering
+        from_force: env-filtered-frontier
+        from_pattern: layered-selection
+    from_pattern: layered-selection
+
+  filtering:
+    type: atomic
+    "on":
+      ELIGIBLE_SET_BUILT:
+        target: ordering
+        effects:
+          stage: filtered
+        from_force: env-filtered-frontier
+        from_pattern: layered-selection
+    invariant:
+      predicate: "stage == 'none'"
+      confidence: "★"
+      from_force: env-filtered-frontier
+    from_pattern: layered-selection
+
+  ordering:
+    type: atomic
+    "on":
+      OUTPUT_EMITTED:
+        target: reported
+        effects:
+          stage: ordered
+        from_force: priority-jumps-order
+        from_pattern: layered-selection
+    invariant:
+      predicate: "stage == 'filtered'"
+      confidence: "★"
+      from_force: priority-jumps-order
+    from_pattern: layered-selection
+
+  reported:
+    type: final
+    "on": {}
+    from_pattern: layered-selection
+
+invariants:
+  - id: filter-precedes-order
+    type: temporal
+    predicate: "always (stage == 'ordered' implies reported)"
+    alloy: "always (M.stage = Ordered implies M.current in Reported)"
+    confidence: "★★"
+    from_force: env-filtered-frontier
+    from_pattern: layered-selection
+    description: "Ordering never runs before eligibility filtering completes — a high-priority forbidden ticket can never surface on the wrong machine"
+  - id: eligibility-definition
+    type: state
+    predicate: "eligible = (status == open) and all blocked_by done and (env absent or env == either or env == CREW_ENV)"
+    confidence: "★"
+    from_force: env-filtered-frontier
+    from_pattern: layered-selection
+    description: "in_progress is NEVER eligible (claimed elsewhere); blocked and env-mismatched tickets are excluded before any ordering"
+  - id: urgency-before-number
+    type: state
+    predicate: "output order = (priority == high) first, then ascending numeric id"
+    confidence: "★"
+    from_force: priority-jumps-order
+    from_pattern: layered-selection
+    description: "Within the eligible set, priority: high tickets rank before all others; ties broken by ascending id — no other ordering input exists (weights rejected at resolve)"
+
+links:
+  - target: "contract:frontmatter-contract"
+    type: consumes
+  - target: "contract:cli-outputs"
+    type: consumes
+
+abstraction_notes:
+  included: ["the three-stage pipeline as observable phases", "eligibility and ordering rules as invariants"]
+  excluded: ["parse failures (loud-parse-errors aborts before selection)", "the steering-level proposal conversation (Level 4, out of tool scope)"]
+  justification: "Selection is stateless per invocation; the FSM documents stage precedence, the invariants carry the actual rules."
+  scope_limit: "Trace checking pending python stack adapter; eligibility/ordering rules verify via ticket-40 acceptance test (tkt ready vs hand-rolled awk on both repos)."

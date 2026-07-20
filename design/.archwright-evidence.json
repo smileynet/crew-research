@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "event": "demotion-candidate",
+      "key": "constraint:zero-migration",
+      "invariant": "zero-migration",
+      "confidence": "★★",
+      "assurance": null,
+      "fingerprints": [
+        "550e8191d5e166a1_0"
+      ],
+      "from_pattern": "pattern:intersection-contract",
+      "from_force": "exp-same-everywhere",
+      "message": "Script produced output — expected none",
+      "at": "2026-07-20T05:40:45+00:00",
+      "code_state": {
+        "commit": "620d00ae5e4c4d38b9055f39601aeac9e8d3b5d5",
+        "dirty": true
+      }
+    }
+  ],
+  "streaks": {
+    "constraint:skeleton-intersection-contract#skeleton-intersection-contract": 4
+  }
+}

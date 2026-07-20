@@ -1,0 +1,99 @@
+kind: contract
+id: cli-outputs
+from_patterns:
+  - "pattern:automate-or-drop"
+  - "pattern:layered-selection"
+from_model: "model:decay-watcher"
+confidence: "★"
+
+protects_experience: "exp-history-trustworthy"
+user_story: "Agents and CI consume tkt output mechanically: findings and frontiers arrive as structured JSON with contract exit codes, never as prose to re-parse."
+
+# Covers BOTH output legs from the model's contract candidates:
+#   query-output (producer: frontier-selector) — folded into this spec
+#   validate-findings (producer: decay-watcher)
+# Cluster exception: one spec, two legs — candidates remain separate identities.
+
+sub_schemas:
+  TicketRow:
+    fields:
+      id:
+        type: string
+        required: true
+        description: "Id text, as in the file"
+      title:
+        type: string
+        required: true
+      status:
+        type: enum
+        values: [open, in_progress, done]
+        required: true
+      blocked_by:
+        type: list
+        required: true
+      env:
+        type: string
+        required: false
+        description: "Present only when set in the file; consumers apply the either-default"
+      spec:
+        type: string
+        required: false
+      priority:
+        type: string
+        required: false
+      extensions:
+        type: map
+        required: false
+        description: "Unknown preserved fields, verbatim key→raw-text — query output must not drop them (preserve-or-fail extends to projections)"
+  Finding:
+    fields:
+      file:
+        type: string
+        required: true
+        description: "Ticket filename the finding names (loud-parse-errors: no anonymous findings)"
+      rule:
+        type: enum
+        values: [unparseable, missing-required-field, bad-status, id-filename-mismatch, dangling-blocked-by, cyclic-blocked-by, unchecked-acs-on-done]
+        required: true
+      message:
+        type: string
+        required: true
+      severity:
+        type: enum
+        values: [error, warning]
+        required: true
+        description: "error = contract violation (fails run); warning = decay finding (reported, exit 0 unless --strict)"
+
+events:
+  query-output:
+    producer: frontier-selector
+    consumers: [operator, downstream-tooling]
+    stability: public
+    payload:
+      rows:
+        type: list
+        required: true
+        description: "JSON lines, one TicketRow per ticket, frontier order when invoked as ready"
+  validate-findings:
+    producer: decay-watcher
+    consumers: [operator, ci]
+    stability: public
+    payload:
+      status:
+        type: enum
+        values: ["pass", "fail", "error"]
+        required: true
+        description: "Crew validation contract: pass|fail|error + exit 0/1/2"
+      findings:
+        type: list
+        required: true
+        description: "List of Finding"
+
+lifecycle:
+  - state: "produced"
+    by: "component:decay-watcher"
+    invariant: "status reflects worst finding severity; exit code matches status (0 pass, 1 fail, 2 crash)"
+
+links:
+  - target: "pattern:automate-or-drop"
+    type: produced-by
