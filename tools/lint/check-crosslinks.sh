@@ -104,11 +104,20 @@ for dir in "$SKILLS_DIR"/*/; do
 done
 
 # 5. Shell scripts must be executable (non-exec scripts invoked directly
-# silently no-op behind '|| true' — the inspect-session.sh incident class)
+# silently no-op behind '|| true' — the inspect-session.sh incident class).
+# Uses git ls-files to read stored mode (filesystem perms are unreliable on
+# Windows where core.filemode=false — all files appear 644 on disk).
 while IFS= read -r script; do
-  echo "  ❌ not executable: $script (chmod +x and git add to record the bit)"
-  errors=$((errors + 1))
-done < <(find "$ROOT_DIR/tools" -name "*.sh" ! -perm -u+x 2>/dev/null)
+  rel_path="${script#$ROOT_DIR/}"
+  mode=$(git -C "$ROOT_DIR" ls-files -s "$rel_path" 2>/dev/null | awk '{print $1}')
+  if [[ -z "$mode" ]]; then
+    echo "  ❌ not tracked: $script (git add with executable bit)"
+    errors=$((errors + 1))
+  elif [[ "$mode" != "100755" ]]; then
+    echo "  ❌ not executable (git mode $mode): $script (git update-index --chmod=+x and commit)"
+    errors=$((errors + 1))
+  fi
+done < <(find "$ROOT_DIR/tools" -name "*.sh" 2>/dev/null)
 
 echo ""
 echo "Lint: $errors error(s), $warnings warning(s)"
