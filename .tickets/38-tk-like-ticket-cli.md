@@ -1,7 +1,7 @@
 ---
 id: "38"
 title: "Explore: custom tk-like ticket CLI fitting both crew-research and archwright shapes"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: ""
@@ -32,11 +32,37 @@ Candidate behaviors the tool would own:
 
 ## Acceptance criteria (explore phase)
 
-- [ ] Spike verdict recorded: build / adopt existing / steering-only, with evidence
-- [ ] If build: follow-up ticket(s) with the design decisions pre-made; if not: frontier-work steering updated with whatever was learned
-- [ ] Existing tickets in both repos remain valid under whatever contract is chosen
+- [x] Spike verdict recorded: build / adopt existing / steering-only, with evidence
+- [x] If build: follow-up ticket(s) with the design decisions pre-made; if not: frontier-work steering updated with whatever was learned
+- [x] Existing tickets in both repos remain valid under whatever contract is chosen
 
 ## Out of scope
 
 - Migrating GitHub/GitLab issue sources (frontier-work steering already covers those)
 - Multi-agent task orchestration (taskboard skill territory)
+
+## Resolution (2026-07-20)
+
+**Verdict: BUILD** — minimal custom Python CLI (`tkt`), hybrid enforcement. Full spec
+with contract, requirements yardstick, and rejected-alternative evidence:
+`.memory/specs/ticket-cli-spec.md`. Follow-ups: ticket 40 (build, priority: high),
+ticket 41 (rollout), spec: ticket-cli.
+
+Spike answers:
+1. **Adopt tk? No.** Hands-on trial (temp dir, 2026-07-19): reads `deps` not
+   `blocked_by` (dependency-blind on all 77 existing tickets), hardcoded random `t-xxxx`
+   ids, int priorities, `closed` not `done`, zero git integration — and silently omits
+   tickets it can't parse (`priority: high` → invisible, exit 0). Wrap/fork also
+   rejected: mismatches are core data-model with no config surface; the one asset
+   (surgical field-preserving rewrites) is replicable. Raw trial:
+   `.scratch/research/tk-capabilities.md`.
+2. **Minimal shared contract:** crew's dialect (id/title/status/blocked_by) + optional
+   extensions (env/spec/priority) + new `in_progress` status; ids parsed as TEXT
+   (archwright's unquoted `id: 010` = YAML octal hazard); unknown fields preserved.
+   Verified against full field inventory of both repos — all 77 tickets valid unchanged.
+3. **Home:** crew-research `tools/tkt/` via `uv tool install` (recall pattern). Not a
+   known tool — no skills/steering of its own to self-deploy.
+4. **Enforcement layer:** hybrid. Mechanical rules (frontier, claim-allocation,
+   validation) → tool; steering-only rejected on direct evidence — 5 collisions across
+   both repos, one AFTER the manual protocol existed. Selection behavior and prose
+   conventions stay in steering; AC/evidence quality stays judgment (Level 3).
