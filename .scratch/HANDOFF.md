@@ -1,44 +1,45 @@
 ---
-created_at: 2026-07-19T21:12:30+00:00
-base_commit: 072d64d
-handoff_key: post-baseline-frontier
+created_at: 2026-07-21T21:16:00+00:00
+base_commit: 5f54275
+handoff_key: tkt-rollout
 ---
 
 # Handoff
 
 ## Objective
-Work the frontier (docs/plan.md ticket table). Ticket 38 (tk-like CLI explore) is the remaining user-flagged HIGH PRIORITY; 30/32/33 unblocked by 29 this session.
+tkt (git-native ticket CLI) shipped this session — ticket 40 done. Remaining workstream: 41 (rollout: steering, archwright adoption, renumber/edit/sync-plan) and 44 (black-box acceptance layer). Then general frontier.
 
 ## Constraints
-- agy FORBIDDEN on this machine (corp policy); deploys = `--tool kiro-cli --tool codex` only
-- **Judge-set boundary 2026-07-19:** all results before commit 69547a8 are OPUS-ONLY single-judge (codex leg was silently dead — untrusted temp dir). Post-fix runs are kiro+codex consensus. Never compare scores across that boundary; next full run will move for judge reasons, not skill reasons
-- Full `--all` runs now emit 3 SKIPs (image-* defs scoped to crush) — expected, not failures
-- Parallel sessions ACTIVE (2 rebases today, incl. a 37↔39 ticket collision resolved by renumber): fetch+rescan before allocating; 39 is max
+- CREW_ENV=corp (agy forbidden; deploys = kiro-cli + codex)
+- tkt interim invocation: `PYTHONPATH=tools/tkt python3 -m tkt.cli ...` (AGENTS.md Commands block has the full recipe incl. cross-repo form and birth-flow notes). `tk` on PATH is UNRELATED — never use it
+- Parallel Windows session active: fetch before allocating; use `tkt new` (it handles the race). Crew max id = 44, archwright max = 042
+- R17 (ticket-cli spec): every tkt command needs black-box coverage; white-box seams must be justified
 
 ## Prior Decisions
-- Ticket 29 landed: `adapters:` SKIP rows, live access probes (`EVAL_PROBE_TIMEOUT` 30s), per-trial judge recording, id/adapter row keys + null hash placeholders (33's seat), owed-run ledger `docs/development/deferred-runs.md`
-- Ticket 37 landed: archwright = KNOWN TOOL not extension (self-deploys symlinks; crew never copies). Registry `compositions/known-tools.yaml`; doctor/catalog consume; 5 conditional seams (arch-deepening, sdd, planning-cycles, grill, adr). Half of ticket 30 pre-done (ids+adapters+ledger) — see its Context note
-- `priority: high` frontmatter jumps frontier number order (in frontier-work skill now)
-- Archwright ticket 037 created (its repo, NEXT UP in its PLAN.md): deploy-skills.sh must stop overwriting crew's subagent-reliability.md (crew's copy authoritative meanwhile)
-- Guidance-sync applied: known-tool glossary term, deploy-toolkit doctor rows, 4 gotchas → user environment-gotchas.md (queue cleared)
+- Ticket 38 verdict: BUILD tkt; contract/requirements in `.memory/specs/ticket-cli-spec.md`
+- Archwright resolve 2026-07-20: D1a bounded renumber-retry, D2a stage-only-ticket-file, D3a distribution deferred to 41. Design artifacts: `design/patterns/` (6), `design/models/tkt-actors.*`, `design/specs/` (13) — checks GATE all tkt changes
+- Design Gate in AGENTS.md: tension/invariant/rejected-alternative questions route build tickets to archwright pipeline (calibration: 40 = 3×yes; 39/42/43 = 3×no)
+- Guidance-sync applied ×2: AGENTS.md tkt block, glossary `tkt` term, archwright reflections R11/R12, agents-md-authoring native-tests rule
 
 ## Current State
-Clean boundary — tree clean, all pushed (crew 072d64d; archwright f5f57c1). Nothing mid-flight. Ticket 38 not started.
+Clean boundary — tree clean (minus this handoff), all pushed both repos (crew 5f54275; archwright c499981+body). Nothing mid-flight. docs/plan.md is authoritative for ticket status.
 
 ## Next Steps
-1. Ticket 38 (tk-like CLI explore, HIGH PRIORITY) — spike-first: does existing tk cover claim protocol + frontier? 4 spike questions in the ticket; today's 37↔39 collision is fresh motivating evidence
-2. Ticket 32 (re-judge + interchange) — value UP: `--judge-only` can upgrade the entire opus-only backlog to real consensus without re-running agents; outputs retained, row keys landed
-3. Tickets 27/28/31/33/36 — parallel-friendly; 39 (WSL HOME doctor fix) belongs to the other session
-4. Ticket 23 measurement ≥2026-07-25: `mise run session:skills 7` vs pre-fix 78/271 (29%)
+1. Ticket 44 (black-box layer) or 41 (rollout) — both frontier, no priority flags. 44 is fresher context (test suite); 41 has cross-repo momentum (archwright#042 filed as receiving end, birth-run AC already ✅ both repos)
+2. Working tkt: run `archwright-check --static design/specs/` after any tools/tkt change — 12 checks gate it (currently 12/12 PASS)
+3. Ticket 23 measurement window opens ~2026-07-25 (`mise run session:skills 7` vs 78/271 baseline)
+4. Upstream (archwright repo sessions): #039 frontmatter split, #040 exclude unimplemented, #042 adoption — workarounds in reflections R11/R12 meanwhile
 
 ## Fog
-- Ticket 38 spike outcomes unknown (build vs adopt vs steering-only); its "where does it live" question leans on 37's known-tool pattern
-- crush-Bedrock live behavior on corp unverified (ticket 31 probes it; crush probe currently fails with default glm-5.2 model — Bedrock config may change that)
-- Ticket 28 flaky-vs-genuine still needs solo re-runs; NOTE: re-runs now judge with kiro+codex, so compare against the boundary caveat above
-- Personal-env owed work: image-def birth runs (30, ledger-tracked), agy/GLM judge legs (35)
+- Ticket 41's extension-registration decision (tier extension vs documented install) — deliberately deferred, decide with rollout evidence
+- Python stack adapter (trace-mode checking of tkt behavior specs) — archwright-repo Extension Protocol work, not ours
+
+## Recommended Updates
+- [ ] Redeploy tier (`mise run init -- --global ...`) so the agents-md-authoring skill edit reaches deployed machines
+- [ ] `.scratch/archwright-digest-tkt.md` — span digest presented + accepted; delete on next cleanup (design/ + tensions yaml carry the durable record)
 
 ## Evidence
-- Session commits: crew f98cd88..072d64d (~4); archwright f5f57c1
-- Ticket 29 verification: SKIP conformance + resume dedupe in `results/2026-07-19T18-24-55Z`; judge recording in `results/2026-07-19T18-55-08Z` (meta judges.live [kiro,codex]); dry-run 39-row schema check `2026-07-19T18-25-20Z`
-- codex-dead proof: zero codex sessions in `~/.codex/sessions/` for any judged-run window; 0-byte result replication before fix
-- Tried & failed: codex judge probe without `--skip-git-repo-check` (root cause); `ensure_judges_probed` inside `$(...)` (subshell state loss — both now in environment-gotchas)
+- tkt: `tools/tkt/` — `mise run test:tkt` = 13 passed; archwright-check 12/12 PASS; both corpora validate pass
+- Ticket 40 Resolution has full AC evidence; two impl bugs caught by tests pre-commit (soft-reset, self-counting rescan)
+- Tried & failed: tk adoption (contract mismatches, `.scratch/research/tk-capabilities.md`); size-proxy design-gate trigger (superseded by native-tests form)
+- Spike research corpus `.scratch/research/*.md` — gitignored, patterns cite with "regenerate if pruned" (deliberate)
