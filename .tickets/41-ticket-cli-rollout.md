@@ -34,8 +34,12 @@ behavior and prose conventions).
       demoted to fallback-when-tkt-absent
 - [ ] `tkt validate` runs green in both repos' CI-equivalent (`mise run validate` here;
       archwright's fixture suite or a mise task there)
-- [ ] One real allocation in each repo done via `tkt new` (the birth run is the test)
+- [ ] One real allocation in each repo done via `tkt new` (the birth run is the test —
+      black-box by construction; crew side already done: ticket 44, 2026-07-21)
 - [ ] Renumber command proven on a fixture reproducing the 37↔39 collision shape
+- [ ] R17 (black-box validation, `.memory/specs/ticket-cli-spec.md`): renumber,
+      sync-plan --check, and batch create each land with subprocess-level acceptance
+      tests (exit codes, output vs cli-outputs contract, file/git state — no internals)
 - [ ] Existing tickets in both repos still valid unchanged
 
 ## Out of scope

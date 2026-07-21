@@ -88,6 +88,14 @@ against docs/plan.md-style tables · R10 close helper (status flip + dated Resol
 + AC warning) · R11 JSON query · R12 renumber (filename + id + inbound blocked_by refs
 atomically) · R13 batch create under a spec.
 
+MUST (added 2026-07-21, ticket 44): R17 black-box validation — every tkt command ships
+with acceptance coverage invoked through the public CLI surface (installed console script
+or subprocess), asserting only on exit codes, output, files, and git state; structured
+outputs are machine-validated against `design/specs/cli-outputs.yaml` (the spec YAML is
+the oracle, never a hand-copied field list). White-box seams are allowed ONLY where
+black-box cannot reach deterministically, and each must be justified in the test. Applies
+to ticket 41's rollout commands and all future surface.
+
 COULD: R14 cross-repo blocked_by (`repo#NNN`) · R15 board view · R16 owed-run ledger
 linkage.
 
