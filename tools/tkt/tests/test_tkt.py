@@ -4,73 +4,22 @@ AC1 frontier parity vs independent computation (+ selection unit rules)
 AC2 stale-local allocation past origin's max
 AC3 byte-preservation round-trip on an archwright-style ticket
 AC4 validate: pass on clean/live corpora, loud fail on violation fixtures
-Plus: claim race -> renumber path (D1a), surgical single-file commits (D2a).
+Plus: surgical single-file commits (D2a). The claim race -> renumber path
+(D1a) lives in test_blackbox.py (hook-based, ticket 44).
 """
 
 from __future__ import annotations
 
 import json
 import os
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from conftest import CREW, git, make_ticket, run_tkt
 
-from tkt import gitio  # noqa: E402
-from tkt.cli import cmd_validate, frontier, main  # noqa: E402
+from tkt.cli import frontier  # noqa: E402  (path set up in conftest)
 from tkt.core import TicketParseError, parse_ticket, set_field, write_ticket  # noqa: E402
-
-CREW = Path(__file__).resolve().parents[3]  # crew-research root
-
-
-def git(repo: Path, *args: str) -> str:
-    r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, check=True)
-    return r.stdout.strip()
-
-
-def make_ticket(d: Path, tid: str, slug: str, status: str = "open", deps: str = "", extra: str = "") -> Path:
-    p = d / f"{tid}-{slug}.md"
-    p.write_text(
-        f'---\nid: "{tid}"\ntitle: "{slug}"\nstatus: {status}\nblocked_by: [{deps}]\n{extra}---\n\n# {slug}\n\n- [ ] TBD\n'
-    )
-    return p
-
-
-@pytest.fixture
-def repo_pair(tmp_path):
-    """Bare remote + two clones, each with a seeded .tickets/ corpus."""
-    remote = tmp_path / "remote.git"
-    subprocess.run(["git", "init", "--bare", "-q", "-b", "main", str(remote)], check=True)
-    clones = []
-    for name in ("a", "b"):
-        c = tmp_path / name
-        subprocess.run(["git", "clone", "-q", str(remote), str(c)], check=True)
-        git(c, "config", "user.email", "t@t")
-        git(c, "config", "user.name", "t")
-        clones.append(c)
-    a, b = clones
-    (a / ".tickets").mkdir()
-    make_ticket(a / ".tickets", "41", "seed", status="done")
-    git(a, "add", "-A")
-    git(a, "commit", "-qm", "seed")
-    git(a, "push", "-q", "origin", "HEAD:main")
-    git(b, "pull", "-q", "origin", "main")
-    for c in clones:
-        git(c, "branch", "-q", "--set-upstream-to=origin/main", "main")
-    return a, b
-
-
-def run_tkt(repo: Path, *argv: str, env: dict | None = None) -> tuple[int, str]:
-    e = {**os.environ, **(env or {})}
-    r = subprocess.run(
-        [sys.executable, "-m", "tkt.cli", *argv],
-        capture_output=True, text=True, cwd=str(repo),
-        env={**e, "PYTHONPATH": str(Path(__file__).resolve().parents[1])},
-    )
-    return r.returncode, r.stdout + r.stderr
 
 
 # ------------------------------------------------------------ AC1: frontier
@@ -125,35 +74,9 @@ def test_new_allocates_past_origin_max(repo_pair):
     assert (b / ".tickets" / "43-from-b.md").exists()
 
 
-def test_new_race_renumbers(repo_pair, monkeypatch):
-    """PUSH_REJECTED path: B loses the race after its fetch, auto-renumbers."""
-    a, b = repo_pair
-    raced = {"done": False}
-    real_fetch = gitio.fetch
-
-    def racing_fetch(repo):
-        real_fetch(repo)
-        if not raced["done"]:  # A wins the race AFTER B's first fetch+scan
-            raced["done"] = True
-            rc, out = run_tkt(a, "new", "sniped")
-            assert rc == 0 and "42-sniped" in out
-
-    monkeypatch.setattr(gitio, "fetch", racing_fetch)
-    rc = main(["new", "from-b"])  # in-process so the monkeypatch applies
-    assert rc == 0
-
-    names = sorted(p.name for p in (b / ".tickets").glob("*.md"))
-    assert "43-from-b.md" in names and "42-from-b.md" not in names, names
-    t = parse_ticket(b / ".tickets" / "43-from-b.md")
-    assert t.id == "43", "id field must be renumbered with the filename"
-
-
-@pytest.fixture(autouse=True)
-def _cwd_guard(request, monkeypatch):
-    """test_new_race_renumbers runs main() in-process from clone b."""
-    if "repo_pair" in request.fixturenames and "race" in request.node.name:
-        a, b = request.getfixturevalue("repo_pair")
-        monkeypatch.chdir(b)
+# The lost-race -> renumber path (D1a) is covered black-box in
+# test_blackbox.py::test_new_race_renumbers_end_to_end via a pre-receive hook
+# on the bare remote — real git semantics, no monkeypatching (ticket 44).
 
 
 # -------------------------------------------------- AC3: byte preservation
