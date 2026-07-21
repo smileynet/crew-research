@@ -1,7 +1,7 @@
 ---
 id: "41"
 title: "Roll out tkt: steering integration, archwright adoption, plan drift-check"
-status: open
+status: in_progress
 blocked_by: ["40"]
 env: either
 spec: "ticket-cli"
