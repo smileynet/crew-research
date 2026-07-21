@@ -268,6 +268,10 @@ _Avoid_: lockfile (no version pinning), registry (that's deprecated.yaml)
 `compositions/deprecated.yaml` — append-only registry of retired skill names (with replaced_by, reason, since). Deploys prune matching dirs even pre-manifest; lint blocks reusing a retired name. Retiring a skill = delete it + add its entry in the same commit.
 _Avoid_: blocklist, removal list (entries carry replacement pointers, not just bans)
 
+**tkt**:
+The git-native ticket CLI at `tools/tkt` implementing the shared crew/archwright frontmatter contract — frontier computation, one-step claim allocation (fetch→scan→create→commit→push), surgical rewrites, contract+decay validation. Design provenance: `design/patterns/`, `design/specs/`, ticket 38/40.
+_Avoid_: tk (an unrelated third-party binary on PATH — reads `deps` not `blocked_by` and silently hides tickets it can't parse), "the ticket tool" (ambiguous against tk)
+
 **Environment designation (CREW_ENV)**:
 Machine-local flag in gitignored `.mise.local.toml` marking a machine as `corp` (agy forbidden by company policy; crush via Bedrock/Claude-only) or `personal` (full tool access). Tooling consults it for policy blocks and deploy sets; tickets carry matching `env: corp|personal|either` frontmatter.
 _Avoid_: access flag (policy ≠ access), machine profile

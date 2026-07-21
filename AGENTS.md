@@ -40,6 +40,16 @@ docs/development/                 — Practices, spike records, results
 ## Commands
 
 ```bash
+# Tickets (tkt CLI — tools/tkt; interim invocation until ticket 44's install test lands)
+PYTHONPATH=tools/tkt python3 -m tkt.cli ready       # frontier: env-filtered, priority-aware
+PYTHONPATH=tools/tkt python3 -m tkt.cli new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
+PYTHONPATH=tools/tkt python3 -m tkt.cli claim <id>  # status→in_progress, pushed (visible WIP)
+PYTHONPATH=tools/tkt python3 -m tkt.cli close <id>  # status→done + dated Resolution stub
+PYTHONPATH=tools/tkt python3 -m tkt.cli validate    # contract + decay findings (JSON, exit 0/1)
+mise run test:tkt                                    # tkt test suite
+# NOTE: `tk` on PATH is an UNRELATED third-party tool — do not use it on .tickets/
+# (deps≠blocked_by, silently hides tickets with priority: high). Always tkt.
+
 # Deployment
 mise run init -- --project <path> --tier basic --tool kiro-cli
 mise run init -- --global --tier basic --tool kiro-cli
