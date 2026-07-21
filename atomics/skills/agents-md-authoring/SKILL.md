@@ -39,6 +39,7 @@ Beyond 150 lines, agents spend reasoning tokens parsing instructions instead of 
 - **Commands must be verifiable** — include expected output or exit code ("runs 47 tests, exits 0")
 - **Pair don'ts with dos** — not just "don't do X" but "do Y instead"
 - **Decision tables over prose** — "if X then Y" beats paragraphs
+- **Gate criteria use the source methodology's native tests, not proxies** — when a rule routes work to a methodology or tool, derive its trigger from that system's own decision concepts (e.g., "do two forces conflict?" from the design method itself), not from size or category proxies ("new subsystem", "big change"). Proxies over- and under-fire; native tests teach the underlying lens while gating
 - **Progressive disclosure** — AGENTS.md is the index; detail lives in linked files
 - **Agent audience only** — no user onboarding, no contribution guidelines, no marketing
 
