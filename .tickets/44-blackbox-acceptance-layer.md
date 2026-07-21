@@ -64,4 +64,20 @@ mean the thing users actually run and the shapes agents actually consume are unv
 
 ## Resolution (2026-07-21)
 
-TBD
+Built in commit 6bb0f5d. `tools/tkt/tests/test_blackbox.py` + shared `conftest.py`.
+
+- **Installed-artifact**: `uv tool install` into isolated UV_TOOL_DIR/UV_TOOL_BIN_DIR,
+  `tkt ready` + `tkt validate` run through PATH with PYTHONPATH scrubbed (source tree
+  cannot mask packaging breaks). Skips with reason when uv absent. In `mise run test:tkt`
+  (directory-scoped pytest picks it up).
+- **Contract**: `_check_schema` validates rows/findings against `cli-outputs.yaml`
+  parsed at test time — required fields, enum values, contract types, undeclared-field
+  drift check, optional-field present-only-when-set, extensions preservation, exit-code
+  coupling (0/pass, 1/fail, 2/crash). Vacuity-probed: catches missing-required,
+  bad-enum, wrong-type, undeclared; clean row passes.
+- **Race**: pre-receive hook on the bare remote promotes a pre-staged snipe ref onto
+  main and rejects B's first push — lost-race -> renumber runs subprocess-only through
+  real git. Asserts renumber output, remote main corpus, id-field rewrite, clean
+  validate. Monkeypatch variant removed (hook covers a strict superset).
+- Suite: 17 passed (was 13; -1 removed race test, +5 black-box). archwright-check
+  12/12 PASS after change.
