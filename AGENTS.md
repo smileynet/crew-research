@@ -208,3 +208,13 @@ When processing GitHub issues:
 - Do NOT create skills over 100 lines without justification
 - Do NOT mix user docs and agent-loadable content in the same file
 - Do NOT track eval results in git (gitignored)
+
+## Design Gate (archwright)
+
+Before implementing a ticket, ask three questions (archwright must be hydrated — see known-tools):
+
+1. **Tension** — do two forces in the ticket pull against each other (satisfying one naively violates the other)?
+2. **Durable invariants** — does it create guarantees that must stay true under inputs we don't control (concurrent sessions, hand edits, future contributors)?
+3. **Rejected alternatives** — will it reject a plausible approach a future session might re-propose?
+
+Any YES → propose an archwright pipeline run before building (human decides; artifacts land in `design/`, checks gate the implementation). All NO → build directly. Can't name the forces at all → that's fog: propose a grill/discovery session, not the pipeline. Precedent: ticket 40 (3× yes → pipeline caught 2 unspiked design holes); tickets 39/42/43 (3× no → correctly skipped).
