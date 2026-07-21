@@ -9,7 +9,6 @@ user_story: "A hand-edited ticket file is never mangled: tkt writes never round-
 check:
   method: grep
   target: "tools/tkt"
-  target_status: pending
   pattern: "yaml\\.dump|yaml\\.safe_dump|\\.dump\\("
   include: ["*.py"]
   expect: absent

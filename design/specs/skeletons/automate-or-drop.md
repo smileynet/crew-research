@@ -9,7 +9,6 @@ user_story: "tkt validate reports unchecked acceptance boxes on done tickets, so
 check:
   method: grep
   target: "tools/tkt"
-  target_status: pending
   pattern: "unchecked|checkbox|- \\[ \\]"
   include: ["*.py"]
   expect: present

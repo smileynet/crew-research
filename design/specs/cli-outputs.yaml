@@ -53,7 +53,7 @@ sub_schemas:
         description: "Ticket filename the finding names (loud-parse-errors: no anonymous findings)"
       rule:
         type: enum
-        values: [unparseable, missing-required-field, bad-status, id-filename-mismatch, dangling-blocked-by, cyclic-blocked-by, unchecked-acs-on-done]
+        values: [unparseable, missing-required-field, bad-status, bad-env, duplicate-id, id-filename-mismatch, dangling-blocked-by, cyclic-blocked-by, unchecked-acs-on-done]
         required: true
       message:
         type: string

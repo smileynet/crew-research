@@ -9,7 +9,6 @@ user_story: "A broken ticket file is a named error in every command, never a sil
 check:
   method: grep
   target: "tools/tkt"
-  target_status: pending
   pattern: "class TicketParseError"
   include: ["*.py"]
   expect: present

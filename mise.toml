@@ -10,6 +10,10 @@ bash tools/generator/generate.sh validate
 bash tools/lint/check-crosslinks.sh
 """
 
+[tasks."test:tkt"]
+description = "tkt CLI test suite (ticket 40 acceptance criteria)"
+run = "python3 -m pytest tools/tkt/tests/ -q"
+
 [tasks.generate]
 description = "Generate deployment for a tool"
 usage = 'arg "[tool]" help="Target tool" default="kiro-cli"'

@@ -9,7 +9,6 @@ user_story: "Ceremony decay (unchecked boxes on done tickets, dangling deps) is 
 check:
   method: grep
   target: "tools/tkt"
-  target_status: pending
   pattern: "unchecked-acs-on-done|dangling-blocked-by"
   include: ["*.py"]
   expect: present

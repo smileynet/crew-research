@@ -1,0 +1,17 @@
+[project]
+name = "tkt"
+version = "0.1.0"
+description = "Git-native ticket CLI for .tickets/ corpora (crew-research + archwright shared contract)"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = []
+
+[project.scripts]
+tkt = "tkt.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tkt"]

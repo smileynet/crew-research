@@ -17,9 +17,189 @@
         "commit": "620d00ae5e4c4d38b9055f39601aeac9e8d3b5d5",
         "dirty": true
       }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:skeleton-intersection-contract",
+      "invariant": "skeleton-intersection-contract",
+      "confidence": "—",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:16:11+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": false
+      }
+    },
+    {
+      "event": "demotion-candidate",
+      "key": "constraint:stage-only-ticket-file",
+      "invariant": "stage-only-ticket-file",
+      "confidence": "★★",
+      "assurance": "conformance",
+      "fingerprints": [
+        "b2ee48fbd4453dca_0"
+      ],
+      "from_pattern": "pattern:surgical-git-side-effects",
+      "from_force": "exp-safe-parallel-work",
+      "message": "Found 1 match(es) — expected none",
+      "at": "2026-07-21T16:47:29+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "demotion-candidate",
+      "key": "constraint:stage-only-ticket-file",
+      "invariant": "stage-only-ticket-file",
+      "confidence": "★★",
+      "assurance": "conformance",
+      "fingerprints": [
+        "1f58dfe0a3f66172_0",
+        "1f58dfe0a3f66172_1"
+      ],
+      "from_pattern": "pattern:surgical-git-side-effects",
+      "from_force": "exp-safe-parallel-work",
+      "message": "Found 2 match(es) — expected none",
+      "at": "2026-07-21T16:49:16+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:allocation-single-step",
+      "invariant": "allocation-single-step",
+      "confidence": "★",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:loud-parse-errors",
+      "invariant": "loud-parse-errors",
+      "confidence": "★",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:skeleton-automate-or-drop",
+      "invariant": "skeleton-automate-or-drop",
+      "confidence": "—",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:skeleton-git-native-claim",
+      "invariant": "skeleton-git-native-claim",
+      "confidence": "—",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:skeleton-layered-selection",
+      "invariant": "skeleton-layered-selection",
+      "confidence": "—",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:skeleton-preserve-or-fail",
+      "invariant": "skeleton-preserve-or-fail",
+      "confidence": "—",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:skeleton-surgical-git-side-effects",
+      "invariant": "skeleton-surgical-git-side-effects",
+      "confidence": "—",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "promotion-candidate",
+      "key": "constraint:validate-reports-decay",
+      "invariant": "validate-reports-decay",
+      "confidence": "★",
+      "reason": "pass-streak-5",
+      "fingerprints": [],
+      "at": "2026-07-21T16:49:24+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
+    },
+    {
+      "event": "demotion-candidate",
+      "key": "constraint:stage-only-ticket-file",
+      "invariant": "stage-only-ticket-file",
+      "confidence": "★★",
+      "assurance": "conformance",
+      "fingerprints": [
+        "c758ed61585c9944_0"
+      ],
+      "from_pattern": "pattern:surgical-git-side-effects",
+      "from_force": "exp-safe-parallel-work",
+      "message": "Found 1 match(es) — expected none",
+      "at": "2026-07-21T16:50:15+00:00",
+      "code_state": {
+        "commit": "711d991891917ea2d36322a4f5a8a2c637fcdf47",
+        "dirty": true
+      }
     }
   ],
   "streaks": {
-    "constraint:skeleton-intersection-contract#skeleton-intersection-contract": 4
+    "constraint:skeleton-intersection-contract#skeleton-intersection-contract": 15,
+    "constraint:allocation-single-step#allocation-single-step": 9,
+    "constraint:loud-parse-errors#loud-parse-errors": 9,
+    "constraint:skeleton-automate-or-drop#skeleton-automate-or-drop": 9,
+    "constraint:skeleton-git-native-claim#skeleton-git-native-claim": 9,
+    "constraint:skeleton-layered-selection#skeleton-layered-selection": 9,
+    "constraint:skeleton-preserve-or-fail#skeleton-preserve-or-fail": 9,
+    "constraint:skeleton-surgical-git-side-effects#skeleton-surgical-git-side-effects": 9,
+    "constraint:validate-reports-decay#validate-reports-decay": 9
   }
 }

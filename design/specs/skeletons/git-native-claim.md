@@ -9,7 +9,6 @@ user_story: "A new ticket id allocated on one machine never collides with anothe
 check:
   method: grep
   target: "tools/tkt"
-  target_status: pending
   pattern: "def cmd_new|def new_command|class NewCommand"
   include: ["*.py"]
   expect: present
