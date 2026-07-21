@@ -21,7 +21,10 @@ behavior and prose conventions).
 - Deferred SHOULDs from ticket 40: `tkt renumber` (R12 — filename + id + inbound
   blocked_by refs atomically), `tkt sync-plan --check` (R9 — drift-check ticket status vs
   docs/plan.md-style tables; generate later only if drift keeps recurring), batch create
-  under a spec (R13)
+  under a spec (R13). Consider `tkt edit <id> --blocked-by/--priority/...` alongside
+  renumber: field evidence 2026-07-21 — a wrong `--blocked-by` at new-time (arch 042
+  blocked on unrelated 040) had no tool-supported correction; hand-edit + second commit
+  was the workaround
 - Archwright adoption: receiving-end ticket exists — archwright#042 (filed 2026-07-21 by
   operator directive, allocated via `tkt new` from that repo). This ticket owns the crew
   side (steering, tool features); 042 owns archwright-side conventions/wiring

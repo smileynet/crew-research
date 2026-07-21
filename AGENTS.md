@@ -47,6 +47,10 @@ PYTHONPATH=tools/tkt python3 -m tkt.cli claim <id>  # status→in_progress, push
 PYTHONPATH=tools/tkt python3 -m tkt.cli close <id>  # status→done + dated Resolution stub
 PYTHONPATH=tools/tkt python3 -m tkt.cli validate    # contract + decay findings (JSON, exit 0/1)
 mise run test:tkt                                    # tkt test suite
+# Birth flow: `new` pushes a STUB claim immediately (id is yours once it prints "claimed");
+# write the real body afterward as a second commit. Get --blocked-by right at new-time —
+# post-claim frontmatter fixes are hand-edits until ticket 41 lands edit support.
+# Other repos: PYTHONPATH=~/code/crew-research/tools/tkt python3 -m tkt.cli ... (run from that repo's root)
 # NOTE: `tk` on PATH is an UNRELATED third-party tool — do not use it on .tickets/
 # (deps≠blocked_by, silently hides tickets with priority: high). Always tkt.
 
