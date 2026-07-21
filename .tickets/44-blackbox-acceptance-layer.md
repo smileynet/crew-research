@@ -1,7 +1,7 @@
 ---
 id: "44"
 title: "Black-box acceptance layer: installed-artifact, output contracts, hook-based race test"
-status: in_progress
+status: done
 blocked_by: ["40"]
 env: either
 spec: "ticket-cli"
@@ -48,16 +48,20 @@ mean the thing users actually run and the shapes agents actually consume are unv
 
 ## Acceptance criteria
 
-- [ ] Installed-artifact test: `tkt` console script installed into an isolated env and
+- [x] Installed-artifact test: `tkt` console script installed into an isolated env and
       smoke-verified (ready + validate) through PATH, wired into `mise run test:tkt`
       (skips with reason if uv/venv unavailable)
-- [ ] Contract test: query/ready/validate outputs machine-validated against
+- [x] Contract test: query/ready/validate outputs machine-validated against
       `design/specs/cli-outputs.yaml` field/enum/exit-code rules, spec YAML as the oracle
-- [ ] Race test runs via pre-receive hook (no monkeypatch); renumber output and final
+- [x] Race test runs via pre-receive hook (no monkeypatch); renumber output and final
       corpus state asserted black-box
-- [ ] All existing tests still pass; suite runs green via `mise run test:tkt`
+- [x] All existing tests still pass; suite runs green via `mise run test:tkt`
 
 ## Out of scope
 
 - Trace-mode behavior-spec checking (python stack adapter — archwright repo)
 - Black-box tests for ticket 41's new commands (they land with 41, under R17)
+
+## Resolution (2026-07-21)
+
+TBD
