@@ -22,9 +22,9 @@ behavior and prose conventions).
   blocked_by refs atomically), `tkt sync-plan --check` (R9 — drift-check ticket status vs
   docs/plan.md-style tables; generate later only if drift keeps recurring), batch create
   under a spec (R13)
-- Archwright adoption: install note in its AGENTS.md / plan conventions; verify `tkt`
-  handles its repo end-to-end (3-digit ids, `created:`/`closed:` legacy fields, PLAN.md
-  NEXT UP pointer stays prose)
+- Archwright adoption: receiving-end ticket exists — archwright#042 (filed 2026-07-21 by
+  operator directive, allocated via `tkt new` from that repo). This ticket owns the crew
+  side (steering, tool features); 042 owns archwright-side conventions/wiring
 - Extension registration decision: does `tkt` become a tier extension (auto-detect on
   PATH, like recall) or stay a documented install? Record the choice in the spec
 
@@ -34,8 +34,9 @@ behavior and prose conventions).
       demoted to fallback-when-tkt-absent
 - [ ] `tkt validate` runs green in both repos' CI-equivalent (`mise run validate` here;
       archwright's fixture suite or a mise task there)
-- [ ] One real allocation in each repo done via `tkt new` (the birth run is the test —
-      black-box by construction; crew side already done: ticket 44, 2026-07-21)
+- [x] One real allocation in each repo done via `tkt new` (the birth run is the test —
+      black-box by construction; crew: ticket 44; archwright: ticket 042 — 3-digit
+      padding inferred correctly, both pushed first-attempt, 2026-07-21)
 - [ ] Renumber command proven on a fixture reproducing the 37↔39 collision shape
 - [ ] R17 (black-box validation, `.memory/specs/ticket-cli-spec.md`): renumber,
       sync-plan --check, and batch create each land with subprocess-level acceptance
