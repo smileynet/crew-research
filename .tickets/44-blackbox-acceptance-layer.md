@@ -1,7 +1,7 @@
 ---
 id: "44"
 title: "Black-box acceptance layer: installed-artifact, output contracts, hook-based race test"
-status: open
+status: in_progress
 blocked_by: ["40"]
 env: either
 spec: "ticket-cli"
