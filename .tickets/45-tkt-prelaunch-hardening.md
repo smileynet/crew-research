@@ -1,7 +1,7 @@
 ---
 id: "45"
 title: "tkt pre-launch hardening: input validation + informative lost-race reporting"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: "ticket-cli"
