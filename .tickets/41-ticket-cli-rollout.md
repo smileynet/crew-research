@@ -1,7 +1,7 @@
 ---
 id: "41"
 title: "Roll out tkt: steering integration, archwright adoption, plan drift-check"
-status: in_progress
+status: done
 blocked_by: ["40", "45"]
 env: either
 spec: "ticket-cli"
@@ -50,23 +50,45 @@ the validated input paths).
 
 ## Acceptance criteria
 
-- [ ] frontier-work steering references tkt for ready/new/claim; manual protocol text
+- [x] frontier-work steering references tkt for ready/new/claim; manual protocol text
       demoted to fallback-when-tkt-absent
-- [ ] `tkt validate` runs green in both repos' CI-equivalent (`mise run validate` here;
+- [x] `tkt validate` runs green in both repos' CI-equivalent (`mise run validate` here;
       archwright's fixture suite or a mise task there)
 - [x] One real allocation in each repo done via `tkt new` (the birth run is the test —
       black-box by construction; crew: ticket 44; archwright: ticket 042 — 3-digit
       padding inferred correctly, both pushed first-attempt, 2026-07-21)
-- [ ] Renumber command proven on a fixture reproducing the 37↔39 collision shape;
+- [x] Renumber command proven on a fixture reproducing the 37↔39 collision shape;
       staged-set verification demonstrated (commit contains exactly the edit list)
-- [ ] R17 (black-box validation): renumber, edit, sync-plan --check (and batch if built)
+- [x] R17 (black-box validation): renumber, edit, sync-plan --check (and batch if built)
       each land with subprocess-level acceptance tests (exit codes, output vs
       cli-outputs contract, file/git state — no internals)
-- [ ] Existing tickets in both repos still valid unchanged
-- [ ] docs/plan.md drift found by sync-plan --check on first run is fixed (row 44 et al.)
+- [x] Existing tickets in both repos still valid unchanged
+- [x] docs/plan.md drift found by sync-plan --check on first run is fixed (row 44 et al.)
 
 ## Out of scope
 
 - Cross-repo blocked_by, board view, owed-run ledger (COULDs — new tickets if wanted)
 - Version floor R20 (COULD — trigger not met)
 - `external:` field interpretation (reserved in contract; sync is a future ticket)
+
+## Resolution (2026-07-22)
+
+Built across 3dd0d04 (spec/design/plan currency), 6048e0e (ticket 45 hardening,
+prerequisite), 7b457f2 (rollout commands + steering + install story).
+
+- Steering: frontier-work rewritten tkt-first; manual claim protocol is the
+  documented fallback-when-absent; tk warning retained
+- Validate green in both CI-equivalents: crew `mise run validate` runs tkt validate;
+  archwright `mise run validate:tickets` (f69f23d, their repo) — both corpora pass
+- Renumber: duplicate-id (37↔39 shape) fixture proven black-box incl. --file
+  disambiguation, refs-stay-while-occupied rule, quote-style preservation, cited-id
+  warning; staged-set verification asserted (commit == exactly old+new+ref files,
+  operator dirt excluded)
+- sync-plan --check: caught REAL drift on first production run (row 45), fixed;
+  PlanFinding leg added to cli-outputs.yaml (oracle-driven R17 test)
+- R17: 9 new black-box tests; suite 45 passed; archwright-check 12/12; links pass
+- Batch create (R13): spun off to ticket 46 — group-renumber retry loop nontrivial,
+  repeated `tkt new` documented acceptable (used for 46's own birth)
+- Install story: `uv tool install -e ./tools/tkt` documented (AGENTS.md), installed
+  on this machine, doctor hints when absent. Extension-registration decision recorded
+  in spec: documented install, NOT a tier extension (no conditional content)
