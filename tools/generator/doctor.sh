@@ -41,6 +41,12 @@ echo "Tools:"
 check_tool kiro-cli
 check_tool yq
 check_tool jq
+if command -v tkt &>/dev/null; then
+  echo "  ✅ tkt ($(command -v tkt))"
+else
+  echo "  ⚠️  tkt not on PATH — ticket workflows fall back to the manual protocol (install: uv tool install -e ./tools/tkt)"
+  warnings=$((warnings + 1))
+fi
 
 # Determine deployed tools from CREW_TOOLS env (default: kiro-cli)
 read -ra DEPLOYED_TOOLS <<< "${CREW_TOOLS:-kiro-cli}"

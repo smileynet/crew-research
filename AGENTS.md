@@ -40,17 +40,23 @@ docs/development/                 — Practices, spike records, results
 ## Commands
 
 ```bash
-# Tickets (tkt CLI — tools/tkt; interim invocation until ticket 44's install test lands)
-PYTHONPATH=tools/tkt python3 -m tkt.cli ready       # frontier: env-filtered, priority-aware
-PYTHONPATH=tools/tkt python3 -m tkt.cli new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
-PYTHONPATH=tools/tkt python3 -m tkt.cli claim <id>  # status→in_progress, pushed (visible WIP)
-PYTHONPATH=tools/tkt python3 -m tkt.cli close <id>  # status→done + dated Resolution stub
-PYTHONPATH=tools/tkt python3 -m tkt.cli validate    # contract + decay findings (JSON, exit 0/1)
-mise run test:tkt                                    # tkt test suite
-# Birth flow: `new` pushes a STUB claim immediately (id is yours once it prints "claimed");
-# write the real body afterward as a second commit. Get --blocked-by right at new-time —
-# post-claim frontmatter fixes are hand-edits until ticket 41 lands edit support.
-# Other repos: PYTHONPATH=~/code/crew-research/tools/tkt python3 -m tkt.cli ... (run from that repo's root)
+# Tickets (tkt CLI — tools/tkt)
+# Install once per machine: uv tool install -e ./tools/tkt   (editable — tracks the
+# checkout live; reinstall only after entry-point/metadata changes. Decision record in
+# .memory/specs/ticket-cli-spec.md). Fallback without install:
+# PYTHONPATH=tools/tkt python3 -m tkt.cli ...
+tkt ready                                     # frontier: env-filtered, priority-aware
+tkt new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
+tkt claim <id>   # status→in_progress, pushed (visible WIP; lost race names the winner)
+tkt close <id>   # status→done + dated Resolution stub
+tkt edit <id> [--blocked-by IDS] [--priority high|''] [--env E|''] [--spec S|''] [--title T]
+tkt renumber <old> <new> [--file NAME]  # birth-window only — cited ids are contracts
+tkt sync-plan --check [--strict] [plan] # drift vs docs/plan.md (0 clean / 1 drift / 2 crash)
+tkt validate                            # contract + decay findings (JSON, exit 0/1)
+mise run test:tkt                       # tkt test suite
+# Birth flow: `new` pushes a STUB claim immediately (id is yours once it prints
+# "claimed"); write the real body afterward as a second commit.
+# Works from any repo with .tickets/ (run from that repo's root).
 # NOTE: `tk` on PATH is an UNRELATED third-party tool — do not use it on .tickets/
 # (deps≠blocked_by, silently hides tickets with priority: high). Always tkt.
 

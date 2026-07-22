@@ -63,6 +63,24 @@ sub_schemas:
         values: [error, warning]
         required: true
         description: "error = contract violation (fails run); warning = decay finding (reported, exit 0 unless --strict)"
+  PlanFinding:
+    fields:
+      file:
+        type: string
+        required: true
+        description: "Ticket filename the drift names"
+      rule:
+        type: enum
+        values: [plan-status-drift, missing-plan-row]
+        required: true
+      message:
+        type: string
+        required: true
+      severity:
+        type: enum
+        values: [error, warning]
+        required: true
+        description: "error = done-state drift (fails run); warning = open ticket lacking a plan row"
 
 events:
   query-output:
@@ -88,6 +106,20 @@ events:
         type: list
         required: true
         description: "List of Finding"
+  sync-plan-findings:
+    producer: decay-watcher
+    consumers: [operator, ci]
+    stability: public
+    payload:
+      status:
+        type: enum
+        values: ["pass", "fail", "error"]
+        required: true
+        description: "R9 drift-check, report-only. Crew exit contract kept over Terraform's 2=drift scheme for intra-CLI consistency (decision record 2026-07-22): 0=no drift, 1=drift, 2=crash"
+      findings:
+        type: list
+        required: true
+        description: "List of PlanFinding"
 
 lifecycle:
   - state: "produced"

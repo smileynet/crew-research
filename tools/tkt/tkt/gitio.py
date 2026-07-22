@@ -60,6 +60,25 @@ def commit_single_file(repo: Path, file: Path, message: str) -> None:
     _run(repo, "commit", "--quiet", "-m", message, "--only", "--", str(rel))
 
 
+def commit_files(repo: Path, files: list[Path], message: str) -> None:
+    """Atomic multi-file commit for renumber/batch (pattern scope extension
+    2026-07-22): every path explicitly staged and tool-edited; the resulting
+    commit is verified to contain EXACTLY the edit list, loud failure + rollback
+    on mismatch. Bulk staging idioms remain banned."""
+    rels = sorted(str(f.relative_to(repo)) for f in files)
+    for rel in rels:
+        _run(repo, "add", "--", rel)
+    _run(repo, "commit", "--quiet", "-m", message, "--only", "--", *rels)
+    committed = sorted(
+        _run(repo, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD").stdout.split()
+    )
+    if committed != rels:
+        _run(repo, "reset", "--quiet", "HEAD~1")
+        raise GitError(
+            f"staged-set verification failed: commit contained {committed}, expected {rels} — rolled back"
+        )
+
+
 def push(repo: Path) -> bool:
     """Push; False = rejected (lost race), raise on other errors."""
     r = _run(repo, "push", "--quiet", check=False)

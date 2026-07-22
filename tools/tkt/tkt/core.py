@@ -195,3 +195,32 @@ def set_field(t: Ticket, key: str, raw_value: str) -> None:
             t.fm[idx] = (k, f" {raw_value}")
             return
     t.fm.append((key, f" {raw_value}"))
+
+
+def remove_field(t: Ticket, key: str) -> None:
+    """Drop an optional field entirely (edit's clear semantics)."""
+    t.fm = [(k, v) for k, v in t.fm if k != key]
+
+
+def requote_like(old_raw: str, new_text: str) -> str:
+    """Render new_text in the same quoting style the field already used —
+    archwright ids are unquoted (id: 010), crew ids are quoted (id: \"40\")."""
+    stripped = old_raw.strip()
+    if stripped.startswith('"'):
+        return f'"{new_text}"'
+    if stripped.startswith("'"):
+        return f"'{new_text}'"
+    return new_text
+
+
+def replace_ref_in_blocked_by(raw: str, old: str, new: str) -> str | None:
+    """Rewrite one id inside a raw blocked_by value, preserving each item's
+    quoting. Returns None if the old id isn't present."""
+    for pattern, repl in (
+        (rf'"{re.escape(old)}"', f'"{new}"'),
+        (rf"'{re.escape(old)}'", f"'{new}'"),
+        (rf"(?<![\w\"']){re.escape(old)}(?![\w\"'])", new),
+    ):
+        if re.search(pattern, raw):
+            return re.sub(pattern, repl, raw, count=1)
+    return None

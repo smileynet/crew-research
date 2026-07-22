@@ -23,6 +23,9 @@ from .core import (
     Ticket,
     TicketParseError,
     parse_ticket,
+    remove_field,
+    replace_ref_in_blocked_by,
+    requote_like,
     set_field,
     validate_free_text,
     validate_slug,
@@ -291,6 +294,192 @@ def cmd_close(args) -> int:
     return 0
 
 
+# ---------------------------------------------------------------- edit
+
+def cmd_edit(args) -> int:
+    """Surgical field corrections (R-evidence: arch 042 born with a wrong
+    blocker; hand-edit had no tool support). Set semantics; empty string
+    clears an optional field."""
+    d = tickets_dir()
+    t = _find(load_corpus(d), args.id)
+    changed = []
+
+    if args.title is not None:
+        if not args.title:
+            sys.exit("tkt: title is required and cannot be cleared")
+        if err := validate_free_text(args.title, "title"):
+            sys.exit(f"tkt: {err}")
+        set_field(t, "title", requote_like(t.get("title") or '""', args.title))
+        changed.append("title")
+    if args.blocked_by is not None:
+        deps = [x.strip() for x in args.blocked_by.split(",") if x.strip()]
+        for dep in deps:
+            if not ID_REF_RE.match(dep):
+                sys.exit(f"tkt: invalid blocked-by ref {dep!r}")
+        set_field(t, "blocked_by", "[" + ", ".join(f'"{x}"' for x in deps) + "]")
+        changed.append("blocked_by")
+    for name, value, choices in (
+        ("env", args.env, ENV_VALUES),
+        ("priority", args.priority, ("high",)),
+    ):
+        if value is None:
+            continue
+        if value == "":
+            remove_field(t, name)
+        elif value not in choices:
+            sys.exit(f"tkt: {name} must be one of {'/'.join(choices)} (or '' to clear)")
+        else:
+            set_field(t, name, value)
+        changed.append(name)
+    if args.spec is not None:
+        if args.spec == "":
+            remove_field(t, "spec")
+        else:
+            if err := validate_free_text(args.spec, "spec"):
+                sys.exit(f"tkt: {err}")
+            set_field(t, "spec", f'"{args.spec}"')
+        changed.append("spec")
+
+    if not changed:
+        sys.exit("tkt: nothing to edit — pass at least one field option")
+    write_ticket(t)
+    repo = gitio.repo_root(d)
+    gitio.commit_single_file(repo, t.path, f"chore(tickets): edit {t.id} ({', '.join(changed)})")
+    if gitio.has_remote(repo):
+        if not gitio.push(repo):
+            gitio.pull_rebase(repo)
+            if not gitio.push(repo):
+                sys.exit(f"tkt: push rejected twice for edit {t.id} — resolve upstream state manually")
+    print(f"edited {t.path.name}: {', '.join(changed)}")
+    return 0
+
+
+# ---------------------------------------------------------------- renumber
+
+def cmd_renumber(args) -> int:
+    """R12: filename + id field + inbound blocked_by refs move in ONE atomic
+    commit (commit_files verifies the staged set). Birth-window operation —
+    cited ids are external contracts; a cited old id draws a warning."""
+    if not re.fullmatch(r"\d+", args.new_id):
+        sys.exit(f"tkt: new id must be digits, got {args.new_id!r}")
+    d = tickets_dir()
+    repo = gitio.repo_root(d)
+    corpus = load_corpus(d)
+
+    holders = [t for t in corpus if t.id == args.old_id]
+    if not holders:
+        sys.exit(f"tkt: no ticket with id {args.old_id!r}")
+    if len(holders) > 1 and not args.file:
+        names = ", ".join(t.path.name for t in holders)
+        sys.exit(f"tkt: id {args.old_id!r} is held by {len(holders)} files ({names}) — pass --file")
+    src = holders[0] if len(holders) == 1 else next(
+        (t for t in holders if t.path.name == args.file), None)
+    if src is None:
+        sys.exit(f"tkt: --file {args.file!r} does not hold id {args.old_id!r}")
+
+    if any(t.id == args.new_id for t in corpus):
+        sys.exit(f"tkt: id {args.new_id!r} already exists locally")
+    if gitio.has_remote(repo):
+        gitio.fetch(repo)
+        taken = {n.split("-", 1)[0] for n in gitio.remote_ticket_names(repo)}
+        if args.new_id in taken:
+            sys.exit(f"tkt: id {args.new_id!r} already exists on origin")
+
+    # cited-id warning: prose references won't follow a renumber
+    cited = []
+    plan = repo / "docs" / "plan.md"
+    if plan.is_file() and re.search(rf"^\|\s*{re.escape(args.old_id)}\s*\|", plan.read_text(), re.M):
+        cited.append("docs/plan.md")
+    for t in corpus:
+        if t is not src and re.search(rf"\b{re.escape(args.old_id)}\b", t.body):
+            cited.append(t.path.name)
+    if cited:
+        print(f"warning: {args.old_id} looks cited in {', '.join(cited)} — "
+              "prose/commit references will NOT follow this renumber", file=sys.stderr)
+
+    slug = src.path.name.split("-", 1)[1]  # keep .md suffix
+    old_path = src.path
+    new_path = d / f"{args.new_id}-{slug}"
+    set_field(src, "id", requote_like(src.get("id") or "", args.new_id))
+    src.path = new_path
+    write_ticket(src)
+    old_path.unlink()
+
+    # inbound refs: rewritten only when the old id is vacant after the move
+    edited = [old_path, new_path]
+    refs_updated = 0
+    if len(holders) == 1:
+        for t in corpus:
+            if t is src or args.old_id not in t.blocked_by:
+                continue
+            new_raw = replace_ref_in_blocked_by(t.get("blocked_by") or "", args.old_id, args.new_id)
+            if new_raw is not None:
+                set_field(t, "blocked_by", new_raw.strip())
+                write_ticket(t)
+                edited.append(t.path)
+                refs_updated += 1
+    else:
+        print(f"note: another file still holds id {args.old_id} — inbound refs left pointing at it",
+              file=sys.stderr)
+
+    gitio.commit_files(repo, edited, f"chore(tickets): renumber {args.old_id} -> {args.new_id}")
+    if gitio.has_remote(repo):
+        if not gitio.push(repo):
+            gitio.pull_rebase(repo)
+            if not gitio.push(repo):
+                sys.exit(f"tkt: push rejected twice for renumber — resolve upstream state manually")
+    print(f"renumbered {args.old_id} -> {new_path.name} ({refs_updated} inbound ref(s) updated)")
+    return 0
+
+
+# ---------------------------------------------------------------- sync-plan
+
+PLAN_ROW = re.compile(r"^\|\s*(\d+)\s*\|[^|]*\|([^|]*)\|\s*$", re.M)
+
+
+def cmd_sync_plan(args) -> int:
+    """R9 drift-check: ticket status vs a docs/plan.md-style `| NN | title |
+    status |` table. Report-only (crew exit contract: 0=no drift, 1=drift,
+    2=crash). Rows whose ticket no longer exists are archived history; open
+    tickets missing a row are warnings."""
+    d = tickets_dir()
+    repo = gitio.repo_root(d)
+    plan = Path(args.plan) if args.plan else repo / "docs" / "plan.md"
+    if not plan.is_file():
+        sys.exit(f"tkt: no plan file at {plan}")
+
+    corpus = {t.id: t for t in load_corpus(d)}
+    findings: list[dict] = []
+    rows: dict[str, bool] = {}
+    for tid, status_cell in PLAN_ROW.findall(plan.read_text(encoding="utf-8")):
+        rows[tid] = "✅" in status_cell
+
+    for tid, plan_done in rows.items():
+        t = corpus.get(tid)
+        if t is None:
+            continue  # archived history
+        ticket_done = t.status == "done"
+        if plan_done != ticket_done:
+            findings.append({
+                "file": t.path.name, "rule": "plan-status-drift",
+                "message": f"plan says {'done' if plan_done else 'not done'}, "
+                           f"ticket is {t.status}",
+                "severity": "error",
+            })
+    for tid, t in corpus.items():
+        if t.status != "done" and tid not in rows:
+            findings.append({
+                "file": t.path.name, "rule": "missing-plan-row",
+                "message": f"{t.status} ticket has no plan row", "severity": "warning",
+            })
+
+    errors = [f for f in findings if f["severity"] == "error"]
+    warnings = [f for f in findings if f["severity"] == "warning"]
+    status = "fail" if errors or (args.strict and warnings) else "pass"
+    print(json.dumps({"status": status, "findings": findings}, indent=2))
+    return 1 if status == "fail" else 0
+
+
 # ---------------------------------------------------------------- validate
 
 def _cycles(tickets: dict[str, list[str]]) -> list[str]:
@@ -387,6 +576,27 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("close", help="mark done, append dated Resolution stub, warn unchecked ACs")
     p.add_argument("id")
     p.set_defaults(fn=cmd_close)
+
+    p = sub.add_parser("edit", help="surgical field corrections; '' clears an optional field")
+    p.add_argument("id")
+    p.add_argument("--title")
+    p.add_argument("--blocked-by", dest="blocked_by", metavar="IDS", help="comma-separated ids ('' clears)")
+    p.add_argument("--env")
+    p.add_argument("--spec")
+    p.add_argument("--priority")
+    p.set_defaults(fn=cmd_edit)
+
+    p = sub.add_parser("renumber", help="move a ticket to a new id: filename + id + inbound refs, one atomic commit")
+    p.add_argument("old_id")
+    p.add_argument("new_id")
+    p.add_argument("--file", help="disambiguate when two files hold the same id")
+    p.set_defaults(fn=cmd_renumber)
+
+    p = sub.add_parser("sync-plan", help="drift-check ticket status vs a plan table (report-only)")
+    p.add_argument("--check", action="store_true", required=True, help="report drift (the only mode)")
+    p.add_argument("--strict", action="store_true", help="warnings also fail")
+    p.add_argument("plan", nargs="?", help="plan file (default: docs/plan.md)")
+    p.set_defaults(fn=cmd_sync_plan)
 
     p = sub.add_parser("validate", help="contract + decay findings as JSON (exit 0 pass / 1 fail)")
     p.add_argument("--strict", action="store_true", help="warnings also fail")

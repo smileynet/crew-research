@@ -8,7 +8,9 @@ description = "Validate all compositions and cross-links"
 run = """
 bash tools/generator/generate.sh validate
 bash tools/lint/check-crosslinks.sh
+python3 -m tkt.cli validate > /dev/null && echo "✅ tickets valid"
 """
+env = { PYTHONPATH = "tools/tkt" }
 
 [tasks."test:tkt"]
 description = "tkt CLI test suite (ticket 40 acceptance criteria)"
