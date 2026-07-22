@@ -1,7 +1,7 @@
 ---
 id: "48"
 title: "guidance-sync reviews edits/deprecations, not just additions"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 ---
@@ -34,16 +34,20 @@ Scope includes proposing coordinated changes to related artifacts: adjacent skil
 
 ## Acceptance criteria
 
-- [ ] Research findings documented: prior art on agent-guidance pruning, doc-decay best
+- [x] Research findings documented: prior art on agent-guidance pruning, doc-decay best
       practices, and existing in-repo deletion mechanisms (sources cited)
-- [ ] Proposed skill changes presented with findings and decided by operator
-- [ ] guidance-sync SKILL.md updated per decision (<100 lines; references/ if over)
-- [ ] Related-artifact changes applied or explicitly rejected: adjacent skills,
+- [x] Proposed skill changes presented with findings and decided by operator
+- [x] guidance-sync SKILL.md updated per decision (<100 lines; references/ if over)
+- [x] Related-artifact changes applied or explicitly rejected: adjacent skills,
       AGENTS.md, tools
-- [ ] Redeployed to this machine's tools; a subsequent /guidance-sync run exercises the
+- [x] Redeployed to this machine's tools; a subsequent /guidance-sync run exercises the
       edit/deprecate path
 
 ## Out of scope
 
 - Automated periodic session-history review (ticket 34 owns that)
 - Building new lint/tooling beyond what the decided changes require
+
+## Resolution (2026-07-22)
+
+TBD
