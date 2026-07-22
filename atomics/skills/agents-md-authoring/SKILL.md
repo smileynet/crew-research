@@ -58,7 +58,7 @@ If G1-G5 don't all pass, fix before presenting.
 ## When Trimming an Existing AGENTS.md
 
 1. Count lines. If >150, identify sections that explain rather than instruct.
-2. Extract explanations → `docs/` files, replace with link.
+2. Extract explanations → `docs/` files, replace with link. **Extraction means writing the file**: create the target doc with the removed content, then link it. A link to a file that doesn't exist — or content that simply vanishes — is deletion, not extraction. Preserve named pitfalls and project-specific rules somewhere reachable.
 3. Convert prose constraints to table rows.
 4. Remove anything the agent can discover from the codebase (don't document what `package.json` already says).
 5. Re-count. Still over? Cut the least-actionable content.

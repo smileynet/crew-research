@@ -34,7 +34,9 @@ tasks:
       Score 4: Under 40 lines, includes what was fixed, evidence (test count, push confirmation), and next steps or "none".
       BONUS (score 5): Includes base_commit, handoff_key, concise format matching the template, no bloat.
 
-trials: 3
+# 2026-07-22 (ticket 28): trials 3->5 — variance remedy per steering-pointer precedent;
+# def classified FLAKY (straddles gate across runs at unchanged content).
+trials: 5
 threshold: 4
 delta_threshold: 0.75
 timeout: 120

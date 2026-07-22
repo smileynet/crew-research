@@ -38,7 +38,9 @@ tasks:
       Score 4: Explicitly states "cannot build a loop locally," lists specific asks: HAR file, network logs, error logs with timestamps, permission to add production instrumentation, screen recording. Does NOT hypothesize.
       BONUS (score 5): All of score 4, plus suggests intermediate strategies (add logging to narrow the window, A/B between browser versions), and explicitly refuses to fix without a loop.
 
-trials: 3
+# 2026-07-22 (ticket 28): trials 3->5 — variance remedy per steering-pointer precedent;
+# def classified FLAKY (straddles gate across runs at unchanged content).
+trials: 5
 threshold: 4
 delta_threshold: 0.5
 timeout: 120

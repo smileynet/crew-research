@@ -35,6 +35,18 @@ Prior: 2026-07-17 baseline 26/35 (74.3%); t12 25/35 (71.4%).
 
 **Known-gap re-justification (was 8, now 5):** small-model-code-edit cleared (passed); steering-pointer cleared (5-trial fix); architecture-deepening + feedback-loop-effectiveness fixed by tickets. Remaining: the 4 stable rows above + feedback-loop-tighten (downgraded from "fixed" to flaky-at-threshold pending ticket 28).
 
+### Ticket 28 dispositions (amended 2026-07-22)
+
+Solo re-runs at unchanged content (2× each; judge caveat: kiro-only — codex/crush probes failed, agy absent on corp; 07-19 run was multi-judge):
+
+| Def | Re-run results | Classification | Remedy |
+|-----|---------------|----------------|--------|
+| agents-md-authoring-effectiveness | FAIL 3.83 / FAIL 3.66 — trim task flat 3 in 9 straight trials across both judge configs | GENUINE | Skill content fix: trim step 2 now requires WRITING extraction files ("a link to a file that doesn't exist is deletion, not extraction"). Post-fix verify: PASS 4.33/delta 1.33, trim task [4,5,4] (run 2026-07-22T23-28-34Z) |
+| handoff-decaying-resolution | PASS delta 0.83 / PASS delta 0.83 (thr 0.75) | FLAKY at delta gate (0.67/0.83/0.83) | trials 3→5. a03798e content regression RULED OUT: 0/6 with-skill outputs contained the Recommended Updates nudge — its skip-condition works on simple fixture sessions; 07-19 delta compression came from baseline rise (judge-set boundary 69547a8 suspected) |
+| feedback-loop-tighten-effectiveness | PASS 4.44 / PASS 4.33 (thr 4) | FLAKY at score threshold (3.88/4.44/3.77/4.44/4.33) | trials 3→5; leaves the known-gap set |
+
+Known-gap set is now the 4 stable rows only (type-error-diagnosis, prototype-branch-picking, code-review-security, cross-tool-planning-with-skills).
+
 ## Phase 2 — Activation: 19/20 live defs pass
 
 Run `activation-2026-07-18T21-56-19Z` (200 tasks, post-ticket-24 detection: Strategy 1 live). Overall TPR .96, FPR .05, verdict PASS.

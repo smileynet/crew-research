@@ -33,4 +33,18 @@ Determine flaky-vs-genuine for the three defs that failed the 2026-07-19 baselin
 
 ## Resolution (2026-07-22)
 
-TBD
+Six solo re-runs at unchanged content (2× per def; kiro-only judge — codex/crush probes
+failed on corp, noted as comparability caveat vs the multi-judge 07-19 run):
+
+- **agents-md** GENUINE: FAIL 3.83/3.66, trim task flat 3 in 9 straight trials across
+  both judge configs. Fix: skill trim step 2 now requires writing the extraction files.
+  Post-fix verify PASS 4.33/delta 1.33, trim task [4,5,4] (2026-07-22T23-28-34Z).
+- **handoff-decaying** FLAKY at delta gate (0.67/0.83/0.83 vs 0.75): trials 3→5.
+  a03798e regression RULED OUT — 0/6 with-skill outputs contained the nudge section
+  (skip-condition works); 07-19 delta compression traced to baseline rise, judge-set
+  boundary suspected.
+- **feedback-loop-tighten** FLAKY at threshold (3.88/4.44/3.77/4.44/4.33 vs 4):
+  trials 3→5; leaves the known-gap set (now the 4 stable rows).
+
+Baseline record amended (`docs/development/eval-baseline-2026-07-19.md` § Ticket 28
+dispositions). Runs: results/2026-07-22T{21-57-08,22-12-03,…,23-28-34}Z.
