@@ -35,4 +35,13 @@ Redesign the two failing negative tasks in `activation-git-protocol` so the def 
 
 ## Resolution (2026-07-22)
 
-TBD
+Both change-producing negatives replaced with read-only tasks ("Explain the difference
+between a mutex and a semaphore.", "Why might this SQL query be slow: ..."), per the
+root-cause shape: tasks that produce changes legitimately end in commit territory, so
+they tested restraint against a trigger the skill is SUPPOSED to fire on. Dated
+comparability note added to the def (ticket 14 precedent — FPR history before
+2026-07-22 not comparable).
+
+Evidence: two consecutive solo runs PASS — `activation-2026-07-22T21-34-30Z` and
+`activation-2026-07-22T21-39-52Z`, both TP=5 FP=0 TN=5 FN=0 (TPR 1.00, FPR 0, accuracy
+1.00). The stable FP and the flaky FP are both gone; positives unaffected.

@@ -3,6 +3,12 @@ name: activation-git-protocol
 skill: git-protocol
 category: activation
 
+# 2026-07-22 (ticket 27): two negative tasks replaced — "Add a health check endpoint to
+# the service." and "Create a Makefile for building the Go project." both instructed the
+# agent to PRODUCE changes, and any change-producing task can legitimately end in commit
+# territory (FPs were verified genuine skill loads, not detection artifacts; with -a the
+# load is arguably correct behavior). Negatives are now read-only/Q&A. FPR history
+# before this date is not comparable.
 tasks:
   - input: "Commit these changes and push to the feature branch."
     expect_activation: true
@@ -18,11 +24,11 @@ tasks:
     expect_activation: false
   - input: "Write a recursive Fibonacci function in Python."
     expect_activation: false
-  - input: "Add a health check endpoint to the service."
+  - input: "Explain the difference between a mutex and a semaphore."
     expect_activation: false
   - input: "What's the best way to handle file uploads in a web app?"
     expect_activation: false
-  - input: "Create a Makefile for building the Go project."
+  - input: "Why might this SQL query be slow: SELECT * FROM orders WHERE created_at > '2024-01-01'?"
     expect_activation: false
 
 threshold: 3.5
