@@ -16,6 +16,14 @@ env = { PYTHONPATH = "tools/tkt" }
 description = "tkt CLI test suite (ticket 40 acceptance criteria)"
 run = "python3 -m pytest tools/tkt/tests/ -q"
 
+[tasks."check:design"]
+description = "Archwright design gates: static constraint checks + link resolution"
+run = """
+python3 "$HOME/code/archwright/tools/archwright-check.py" --static design/specs/ | grep -E "FAIL|ERROR" && exit 1
+python3 "$HOME/code/archwright/tools/archwright-check.py" --static design/specs/ | grep -cE "✓ PASS" | xargs -I{} echo "✅ {} static checks pass"
+python3 "$HOME/code/archwright/tools/archwright-validate.py" --links design/ | tail -1
+"""
+
 [tasks.generate]
 description = "Generate deployment for a tool"
 usage = 'arg "[tool]" help="Target tool" default="kiro-cli"'

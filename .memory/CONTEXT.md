@@ -272,6 +272,10 @@ _Avoid_: blocklist, removal list (entries carry replacement pointers, not just b
 The git-native ticket CLI at `tools/tkt` implementing the shared crew/archwright frontmatter contract — frontier computation, one-step claim allocation (fetch→scan→create→commit→push), surgical rewrites, contract+decay validation. Design provenance: `design/patterns/`, `design/specs/`, ticket 38/40.
 _Avoid_: tk (an unrelated third-party binary on PATH — reads `deps` not `blocked_by` and silently hides tickets it can't parse), "the ticket tool" (ambiguous against tk)
 
+**Birth window**:
+The period between a ticket's creation and its id being cited elsewhere (other tickets, plan rows, prose, commits). `tkt renumber` is safe only inside it — cited ids are external contracts that renumber cannot rewrite (the tool warns).
+_Avoid_: grace period (implies time-based), provisional id (the id is real, just uncited)
+
 **Environment designation (CREW_ENV)**:
 Machine-local flag in gitignored `.mise.local.toml` marking a machine as `corp` (agy forbidden by company policy; crush via Bedrock/Claude-only) or `personal` (full tool access). Tooling consults it for policy blocks and deploy sets; tickets carry matching `env: corp|personal|either` frontmatter.
 _Avoid_: access flag (policy ≠ access), machine profile
