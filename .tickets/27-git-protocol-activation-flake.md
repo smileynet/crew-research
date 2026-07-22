@@ -1,7 +1,7 @@
 ---
 id: "27"
 title: "activation-git-protocol negative tasks stop flaking at the FPR gate"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: "t09-baseline-followups"
