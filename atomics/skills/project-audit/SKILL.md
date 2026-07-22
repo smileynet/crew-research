@@ -44,7 +44,7 @@ Check whether the crew-research deployment still matches project reality.
 - Is `.references/` in `.gitignore`?
 - Are reference repos documented in AGENTS.md?
 
-### 8. Unprocessed Decisions
+### 7. Unprocessed Decisions
 - Check for `decisions.md`, `DECISIONS.md`, `docs/decisions.md`
 - If found: flag for processing into `.memory/adr/` (ADR-worthy) or `.memory/CONTEXT.md` (terms)
 - Check `.memory/decisions.md` — should entries be promoted to ADRs?

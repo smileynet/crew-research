@@ -179,7 +179,7 @@ Get-ScheduledTask -TaskName "RecallIngest" | Select State
 - Companion files in `references/` load progressively (only when needed) — for STEERING skills, deploys place them in the tool's skills tree with links rewritten, never under `steering/references/` (ADR 0009)
 - Practices in `docs/development/` are source research; skills are distilled deployment
 - Cross-link: skill declares `practice: slug`, practice declares `skills: [slug]`
-- **Retiring a skill:** add it to `compositions/deprecated.yaml` (name, replaced_by, reason, since) in the same commit that deletes it — deploys prune retired names from user machines; lint blocks name reuse
+- **Retiring a skill:** add it to `compositions/deprecated.yaml` (name, replaced_by, reason, since) in the same commit that deletes it — deploys prune retired names from user machines; lint blocks name reuse. Scope: deprecated.yaml covers skill NAMES only — steering and eager-context content decay is handled by guidance-sync's prune probe (P6) and `/project-audit`
 
 ### Eval-Proven Patterns
 

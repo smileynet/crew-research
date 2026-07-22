@@ -39,6 +39,7 @@ Direct: `python tools/session-analyzer/skill_usage.py --days N` (JSON to stdout)
 - **Compare like windows:** compliance measured over N days compares against a baseline of similar N (weekday mix shifts usage).
 - **Skill fixed mid-window?** Restart the clock — activations before the fix don't count for the fixed version (frontmatter/body breakage precedent: multi-agent-validation).
 - Report rates WITH raw counts (42/98, not "43%") — small denominators must be visible.
+- **Retirement route:** a confirmed retirement verdict lands as a `compositions/deprecated.yaml` entry (delete skill + registry entry in the same commit, per AGENTS.md). Activation data is the evidence; deprecated.yaml is the mechanism.
 
 ## When to run
 

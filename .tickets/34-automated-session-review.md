@@ -23,6 +23,7 @@ An exploration (spike first, tool second) of the automated counterpart to `/guid
 - **Session→project mapping:** session JSONL `.json` sidecar carries `cwd` — the router key for project-local vs global proposals (a finding about a skill deployed FROM crew-research is global; a finding about a project's own tools/ is local)
 - **Verified 2026-07-19:** session JSONLs don't embed injected steering text — probe heuristics match real conversation content
 - **Cost consideration:** LLM-based probe passes over 100s of sessions are expensive — consider cheap heuristic prefilters (correction phrasings, error/retry bursts, repeated command shapes) that queue candidate sessions for LLM review, mirroring the P1–P4 probes
+- **Deletion testing (from ticket 48 research, 2026-07-22):** the archived-sessions variant is the natural home for outcome-based prune evidence — a rule never involved in any correction across a window is a deletion candidate; a correction that recurs after a rule was removed argues restore-and-promote-to-hook. Research: `.scratch/research/agent-guidance-pruning.md` (regenerate if pruned)
 
 ## Acceptance criteria (exploration — findings over features)
 
