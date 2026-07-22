@@ -218,8 +218,9 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 42 | Lint executable check false positive on Windows (core.filemode=false) | ✅ done |
 | 43 | WSL bashrc should export WIN_USERNAME for deploy reliability | ✅ done |
 | 44 | Black-box acceptance layer for tkt (installed-artifact, output contracts, hook-based race) | ✅ done 2026-07-21 — test_blackbox.py + conftest; uv-installed smoke, cli-outputs.yaml as oracle (vacuity-probed), pre-receive-hook race replaces monkeypatch; suite 13→17 |
-| 45 | tkt pre-launch hardening: input validation + informative lost-race reporting | open — R18/R19 (slug traversal, reserved names, title escaping, winner-state race reporting); blocks 41 |
+| 45 | tkt pre-launch hardening: input validation + informative lost-race reporting | ✅ done 2026-07-22 — R18 allowlist+reserved-names before any fs op, round-trip title validation (reject > escape), R19 two-layer race detection (pre-flight + push-CAS backstop); found byte-identical-SHA race hole; suite 17→36 |
 | 39 | doctor.sh checks WSL $HOME instead of the Windows deploy home | open |
+| 46 | tkt batch create under a spec (R13) | open — spun off 41 (group-renumber loop nontrivial; repeated new is acceptable interim) |
 
 **Frontier (2026-07-21, post-40):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
