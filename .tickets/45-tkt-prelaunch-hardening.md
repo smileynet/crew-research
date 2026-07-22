@@ -1,7 +1,7 @@
 ---
 id: "45"
 title: "tkt pre-launch hardening: input validation + informative lost-race reporting"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: "ticket-cli"
@@ -42,16 +42,36 @@ R19, added 2026-07-22). Research: `.scratch/research/cli-input-validation.md`,
 
 ## Acceptance criteria
 
-- [ ] Hostile slugs rejected with a clear message BEFORE any file is created; the
+- [x] Hostile slugs rejected with a clear message BEFORE any file is created; the
       hostile-fixture set runs black-box (R17) and nothing lands outside `.tickets/`
-- [ ] Round-trip property: any accepted `tkt new`/`tkt edit` output re-parses clean
+- [x] Round-trip property: any accepted `tkt new`/`tkt edit` output re-parses clean
       (`tkt validate` green immediately after creation with hostile-but-legal titles)
-- [ ] Lost claim race reports winner state with exit 1 (contested outcome), not exit 2
+- [x] Lost claim race reports winner state with exit 1 (contested outcome), not exit 2
       (crash); black-box test via pre-receive hook or competing clone
-- [ ] Existing suite still green via `mise run test:tkt`
+- [x] Existing suite still green via `mise run test:tkt`
 
 ## Out of scope
 
 - Version floor (R20 — COULD, trigger not met)
 - Unicode normalization / superscript device-name variants (research open question;
   revisit if a real fixture appears)
+
+## Resolution (2026-07-22)
+
+Built in commit 6048e0e. `tests/test_hardening.py` (19 tests), suite 17→36.
+
+- R18: `validate_slug` (allowlist + Windows reserved, cargo-style cross-platform)
+  and `validate_free_text` run BEFORE any fs op; path-containment belt-and-braces.
+  Design deviation from ticket text: titles with quotes/backslashes are REJECTED,
+  not escaped — the raw-text engine (preserve-or-fail) never interprets escape
+  sequences, so escaping-on-write would misread on every consumer. Reject > lie.
+- R19: TWO detection layers. Pre-flight fetch check (primary) + push-CAS backstop
+  (pre-receive-hook tested for the residual fetch→push window). Race root cause
+  discovered during testing: same-second claims from identical git identities
+  produce byte-identical commit SHAs — push reports 'up-to-date' and BOTH sessions
+  believe they won. Push-rejection alone was never a sufficient CAS; the
+  pre-flight check is load-bearing, not an optimization.
+- Loser ends clean: no stray commit, clean tree, fast-forwarded to winner state,
+  exit 1 with winner's status named. Unrelated-traffic rebase path preserved.
+- Suite 36 passed; archwright-check 12/12 (one transient FAIL was a fixture word
+  tripping the layered-selection 'score' grep — fixture renamed).
