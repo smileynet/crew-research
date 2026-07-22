@@ -53,6 +53,10 @@ tkt edit <id> [--blocked-by IDS] [--priority high|''] [--env E|''] [--spec S|'']
 tkt renumber <old> <new> [--file NAME]  # birth-window only — cited ids are contracts
 tkt sync-plan --check [--strict] [plan] # drift vs docs/plan.md (0 clean / 1 drift / 2 crash)
 tkt validate                            # contract + decay findings (JSON, exit 0/1)
+#   NOTE: warnings on pre-tkt done tickets carrying the "not individually verified at
+#   close" caveat (8 as of 2026-07-22) are deliberate — don't re-triage them.
+#   .tickets/ files ARE the tkt format — tkt operates in place; no import/convert step
+#   exists. Missing env: = "either" by design.
 mise run test:tkt                       # tkt test suite
 # Birth flow: `new` pushes a STUB claim immediately (id is yours once it prints
 # "claimed"); write the real body afterward as a second commit.
