@@ -1,7 +1,7 @@
 ---
 id: "27"
 title: "activation-git-protocol negative tasks stop flaking at the FPR gate"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: "t09-baseline-followups"
@@ -24,11 +24,15 @@ Redesign the two failing negative tasks in `activation-git-protocol` so the def 
 
 ## Acceptance criteria
 
-- [ ] Negative tasks replaced with ones that don't naturally lead to committing work (pure Q&A / read-only tasks)
-- [ ] 2 consecutive solo runs of the def PASS (FPR ≤ 0.2 both times)
-- [ ] Task-change note in the def (history comparability flag, per the ticket 14 precedent)
+- [x] Negative tasks replaced with ones that don't naturally lead to committing work (pure Q&A / read-only tasks)
+- [x] 2 consecutive solo runs of the def PASS (FPR ≤ 0.2 both times)
+- [x] Task-change note in the def (history comparability flag, per the ticket 14 precedent)
 
 ## Out of scope
 
 - Loosening the FPR gate
 - Detection strategy changes (ticket 24 settled these)
+
+## Resolution (2026-07-22)
+
+TBD
