@@ -1,45 +1,45 @@
 ---
-created_at: 2026-07-21T21:16:00+00:00
-base_commit: 5f54275
+created_at: 2026-07-22T18:33:00+00:00
+base_commit: f71bdeb
 handoff_key: tkt-rollout
 ---
 
 # Handoff
 
 ## Objective
-tkt (git-native ticket CLI) shipped this session — ticket 40 done. Remaining workstream: 41 (rollout: steering, archwright adoption, renumber/edit/sync-plan) and 44 (black-box acceptance layer). Then general frontier.
+tkt workstream COMPLETE — 44 (black-box layer), 45 (hardening), 41 (rollout) all done 2026-07-22. Next: general frontier (`tkt ready`); 27 proposed and accepted in principle, not yet claimed.
 
 ## Constraints
-- CREW_ENV=corp (agy forbidden; deploys = kiro-cli + codex)
-- tkt interim invocation: `PYTHONPATH=tools/tkt python3 -m tkt.cli ...` (AGENTS.md Commands block has the full recipe incl. cross-repo form and birth-flow notes). `tk` on PATH is UNRELATED — never use it
-- Parallel Windows session active: fetch before allocating; use `tkt new` (it handles the race). Crew max id = 44, archwright max = 042
-- R17 (ticket-cli spec): every tkt command needs black-box coverage; white-box seams must be justified
+- CREW_ENV=corp (deploys = kiro-cli + codex, no agy)
+- `tkt` now on PATH (editable install) — use it directly; `tk` is UNRELATED, never use
+- Eval tickets (27/28) involve background runs — eval-execution steering rules apply (setsid, artifact-based liveness)
 
 ## Prior Decisions
-- Ticket 38 verdict: BUILD tkt; contract/requirements in `.memory/specs/ticket-cli-spec.md`
-- Archwright resolve 2026-07-20: D1a bounded renumber-retry, D2a stage-only-ticket-file, D3a distribution deferred to 41. Design artifacts: `design/patterns/` (6), `design/models/tkt-actors.*`, `design/specs/` (13) — checks GATE all tkt changes
-- Design Gate in AGENTS.md: tension/invariant/rejected-alternative questions route build tickets to archwright pipeline (calibration: 40 = 3×yes; 39/42/43 = 3×no)
-- Guidance-sync applied ×2: AGENTS.md tkt block, glossary `tkt` term, archwright reflections R11/R12, agents-md-authoring native-tests rule
+- Id architecture (ticket 41 research, recorded in `.memory/specs/ticket-cli-spec.md` Decision record): sequential ids KEPT; hash ids + dual-id REJECTED with revisit triggers; `external:` typed-ref field reserved for GitHub correlation (alignment impossible by construction); distribution = documented editable install, NOT tier extension
+- Push rejection is NOT a sufficient claim CAS — byte-identical-SHA hole found in 45; two-layer defense (pre-flight fetch + push-CAS backstop) is load-bearing. Gotcha promoted to global environment-gotchas
+- Multi-file tool commits sanctioned (pattern surgical-git-side-effects scope extension): explicit paths + staged-set verification
+- Batch create (R13) spun to ticket 46 — group-renumber loop nontrivial; repeated `tkt new` acceptable
+- Guidance-sync ×2 applied: Design Gate "research before recommending" rule (AGENTS.md), fixture-vocabulary grep note (archwright steering), `mise run check:design`, birth-window glossary term
 
 ## Current State
-Clean boundary — tree clean (minus this handoff), all pushed both repos (crew 5f54275; archwright c499981+body). Nothing mid-flight. docs/plan.md is authoritative for ticket status.
+Clean boundary — tree clean, all pushed (crew f71bdeb; archwright 9baad02). Nothing mid-flight. docs/plan.md authoritative for ticket status; `tkt sync-plan --check` clean. Tier redeployed to both tools this session (frontier-work tkt-first steering live). Suite: 45 passed; archwright-check 12/12.
 
 ## Next Steps
-1. Ticket 44 (black-box layer) or 41 (rollout) — both frontier, no priority flags. 44 is fresher context (test suite); 41 has cross-repo momentum (archwright#042 filed as receiving end, birth-run AC already ✅ both repos)
-2. Working tkt: run `archwright-check --static design/specs/` after any tools/tkt change — 12 checks gate it (currently 12/12 PASS)
-3. Ticket 23 measurement window opens ~2026-07-25 (`mise run session:skills 7` vs 78/271 baseline)
-4. Upstream (archwright repo sessions): #039 frontmatter split, #040 exclude unimplemented, #042 adoption — workarounds in reflections R11/R12 meanwhile
+1. Ticket 27 (activation-git-protocol negative-task FPR flake) — proposed as next; read ticket 24's run evidence + the two flaking negative task definitions first
+2. Ticket 23 measurement window opens ~2026-07-25 (`mise run session:skills 7` vs 78/271 baseline)
+3. Archwright session: adoption prompt handed to operator for archwright#042 (tkt on PATH, validate:tickets task exists at f69f23d, R11/R12 reflections may be obsolete)
+4. Windows session catch-up: `git pull` + tier redeploy + optionally `uv tool install -e ./tools/tkt`
 
 ## Fog
-- Ticket 41's extension-registration decision (tier extension vs documented install) — deliberately deferred, decide with rollout evidence
-- Python stack adapter (trace-mode checking of tkt behavior specs) — archwright-repo Extension Protocol work, not ours
+- Ticket 27 root cause unknown until task definitions are read: reword tasks vs FPR-gate flake allowance — don't pre-commit
+- `external:` field interpretation (GitHub sync) deliberately unbuilt — future ticket when a bridge is a real need; one-way local-authoritative when built
 
 ## Recommended Updates
-- [ ] Redeploy tier (`mise run init -- --global ...`) so the agents-md-authoring skill edit reaches deployed machines
-- [ ] `.scratch/archwright-digest-tkt.md` — span digest presented + accepted; delete on next cleanup (design/ + tensions yaml carry the durable record)
+- [ ] Delete `.scratch/archwright-digest-tkt.md` on next cleanup (carried from 07-21; design/ holds the durable record)
+- [ ] `.scratch/research/*.md` (11 files) are gitignored spike corpus cited by spec/patterns with "regenerate if pruned" — deliberate, keep until a cleanup pass questions them
 
 ## Evidence
-- tkt: `tools/tkt/` — `mise run test:tkt` = 13 passed; archwright-check 12/12 PASS; both corpora validate pass
-- Ticket 40 Resolution has full AC evidence; two impl bugs caught by tests pre-commit (soft-reset, self-counting rescan)
-- Tried & failed: tk adoption (contract mismatches, `.scratch/research/tk-capabilities.md`); size-proxy design-gate trigger (superseded by native-tests form)
-- Spike research corpus `.scratch/research/*.md` — gitignored, patterns cite with "regenerate if pruned" (deliberate)
+- Tickets 41/44/45 Resolutions carry full AC evidence; plan rows current (sync-plan pass)
+- tkt: `tools/tkt/` — 45 tests; new commands edit/renumber/sync-plan; contract `design/specs/cli-outputs.yaml` (+PlanFinding leg)
+- Tried & failed this session: hash-id migration (endorsed then rejected — GitHub alignment impossible, our contention profile doesn't warrant it); title escaping (rejected for round-trip honesty — raw-text engine never interprets escapes)
+- sync-plan caught real drift (row 45) on first production run — R9's reason-to-exist demonstrated
