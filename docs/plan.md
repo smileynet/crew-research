@@ -201,7 +201,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 24 | Activation detection uses live output capture | ✅ done (2026-07-19) — output tees to .eval-output, Strategy 1 live (probe-verified); full run 19/20 defs, TPR .96/FPR .05 PASS; sole FAIL = git-protocol agent flake (verified genuine skill load, not detection) → ticket 27 |
 | 25 | mcp-partitioning activation + effectiveness evals | ✅ done (2026-07-19) — activation TPR 1.00/FPR 0 (10/10); effectiveness with-skill 5.00/delta 2.56; suite now 36 judged + 21 activation defs |
 | 26 | Eval baseline record reflects post-baseline fix batch | ✅ done (2026-07-19) — 28/35 judged (80.0%, was 26/35) @ 28ed513, 10.2h; known gaps 8→5 re-justified; record: `docs/development/eval-baseline-2026-07-19.md`; 2 new near-threshold FAILs → ticket 28 |
-| 27 | activation-git-protocol negative tasks stop flaking at FPR gate | open — found in ticket 24's no-regression run; 2 negative tasks naturally lead to commit territory |
+| 27 | activation-git-protocol negative tasks stop flaking at FPR gate | ✅ done 2026-07-22 — change-producing negatives replaced with read-only Q&A + comparability note; 2 consecutive solo runs TPR 1.00/FPR 0 PASS |
 | 28 | Near-threshold judged failures triaged (agents-md, handoff-decaying, fl-tighten) | open — found in ticket 26's baseline run; flaky-vs-genuine per steering-pointer precedent |
 | 29 | Deferred eval protocol (adapter scoping, access probes, judge visibility, owed-run ledger) | ✅ done 2026-07-19 — SKIP rows, live-probe judge set, per-trial judge recording, id/adapter row keys + hash placeholders, ledger seeded. Discovery: codex judge leg was silently dead in ALL prior runs (untrusted temp dir) — local "consensus" was opus-only; fixed |
 | 30 | image-* defs conform (ids, adapter scoping, deferred birth run) | open, blocked by 29 — upstream 5a23e45 defs lack immutable ids and would blind-run under kiro-cli |
@@ -221,6 +221,8 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 45 | tkt pre-launch hardening: input validation + informative lost-race reporting | ✅ done 2026-07-22 — R18 allowlist+reserved-names before any fs op, round-trip title validation (reject > escape), R19 two-layer race detection (pre-flight + push-CAS backstop); found byte-identical-SHA race hole; suite 17→36 |
 | 39 | doctor.sh checks WSL $HOME instead of the Windows deploy home | open |
 | 46 | tkt batch create under a spec (R13) | open — spun off 41 (group-renumber loop nontrivial; repeated new is acceptable interim) |
+| 47 | tkt new prints 'claimed' but leaves status: open — align message with behavior | open — filed from archwright lane 2026-07-22 |
+| 48 | guidance-sync reviews edits/deprecations, not just additions | ✅ done 2026-07-22 — P6 prune probe + net-delta metric + routing to owned mechanisms; 4-subagent research; related edits: session-analysis, AGENTS.md, project-audit, ticket 34 |
 
 **Frontier (2026-07-21, post-40):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
