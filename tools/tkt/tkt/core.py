@@ -17,6 +17,44 @@ ENV_VALUES = ("corp", "personal", "either")
 REQUIRED_FIELDS = ("id", "title", "status", "blocked_by")
 KNOWN_FIELDS = REQUIRED_FIELDS + ("env", "spec", "priority")
 
+# --- R18 input validation (spec 2026-07-22; research: cli-input-validation.md) ---
+# Allowlist validated BEFORE any filesystem operation. No dots/slashes by
+# construction, so traversal and extension tricks are excluded at the charset.
+SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+ID_REF_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+# Windows reserved device names, rejected on ALL platforms (cargo's approach).
+WINDOWS_RESERVED = frozenset(
+    {"con", "prn", "aux", "nul"}
+    | {f"com{i}" for i in range(1, 10)}
+    | {f"lpt{i}" for i in range(1, 10)}
+)
+
+
+def validate_slug(slug: str) -> str | None:
+    """Return an error message, or None if the slug is safe."""
+    if not SLUG_RE.match(slug):
+        return (
+            f"invalid slug {slug!r} — allowed: lowercase letters, digits, dashes,"
+            " starting with a letter or digit"
+        )
+    if slug.lower() in WINDOWS_RESERVED:
+        return f"invalid slug {slug!r} — reserved device name on Windows"
+    return None
+
+
+def validate_free_text(value: str, what: str = "title") -> str | None:
+    """Return an error message, or None if the value round-trips safely.
+
+    The raw-text frontmatter engine (preserve-or-fail) never interprets escape
+    sequences, so escaping-on-write would misread on every consumer. The tool
+    instead REFUSES to emit what it cannot round-trip: double quotes,
+    backslashes, and newlines in free-text values are rejected at input.
+    """
+    for ch, name in (('"', "double quote"), ("\\", "backslash"), ("\n", "newline")):
+        if ch in value:
+            return f"{what} contains a {name} — not representable in tkt frontmatter"
+    return None
+
 FENCE = re.compile(r"^---\s*$")
 KEY_LINE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
 

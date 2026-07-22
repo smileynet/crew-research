@@ -71,6 +71,21 @@ def push(repo: Path) -> bool:
     raise GitError(f"git push: {r.stderr.strip()}")
 
 
+def show_upstream_file(repo: Path, rel: str) -> str | None:
+    """Content of a file on the remote default branch, or None if absent."""
+    branch = default_remote_branch(repo)
+    if not branch:
+        return None
+    r = _run(repo, "show", f"{branch}:{rel}", check=False)
+    return r.stdout if r.returncode == 0 else None
+
+
+def discard_file_changes(repo: Path, rel: str) -> None:
+    """Discard local changes to ONE path, restoring the HEAD version
+    (explicit-pathspec discipline — never a tree-wide reset)."""
+    _run(repo, "checkout", "HEAD", "--", rel)
+
+
 def undo_commit_keep_file(repo: Path) -> None:
     """Roll back the claim commit after a lost race (file kept, UNTRACKED —
     a mixed reset; staged content would block the pull --rebase that follows)."""

@@ -18,11 +18,14 @@ from pathlib import Path
 
 from .core import (
     ENV_VALUES,
+    ID_REF_RE,
     STATUS_VALUES,
     Ticket,
     TicketParseError,
     parse_ticket,
     set_field,
+    validate_free_text,
+    validate_slug,
     write_ticket,
 )
 from . import gitio
@@ -135,10 +138,20 @@ def _new_ticket_text(tid: str, title: str, args) -> str:
 
 def cmd_new(args) -> int:
     """Mint-to-announce, one command: fetch -> scan -> create -> commit -> push."""
+    # R18: validate every argument BEFORE any filesystem operation.
+    if err := validate_slug(args.slug):
+        sys.exit(f"tkt: {err}")
+    title = args.title or args.slug.replace("-", " ")
+    for value, what in ((title, "title"), (args.spec or "", "spec")):
+        if err := validate_free_text(value, what):
+            sys.exit(f"tkt: {err}")
+    for dep in (args.blocked_by or "").split(","):
+        if dep.strip() and not ID_REF_RE.match(dep.strip()):
+            sys.exit(f"tkt: invalid blocked-by ref {dep.strip()!r}")
+
     d = tickets_dir()
     repo = gitio.repo_root(d)
     remote = gitio.has_remote(repo)
-    title = args.title or args.slug.replace("-", " ")
     path = None
     proposed = None
     first_proposed = None
@@ -153,6 +166,8 @@ def cmd_new(args) -> int:
 
         if path is None:
             path = d / f"{tid}-{args.slug}.md"
+            if path.resolve().parent != d.resolve():  # belt-and-braces after allowlist
+                sys.exit(f"tkt: slug {args.slug!r} escapes .tickets/")
             path.write_text(_new_ticket_text(tid, title, args), encoding="utf-8")
             proposed = first_proposed = tid
         elif tid != proposed:
@@ -189,13 +204,56 @@ def _find(corpus: list[Ticket], tid: str) -> Ticket:
     sys.exit(f"tkt: no ticket with id {tid!r}")
 
 
-def _commit_and_push(repo: Path, t: Ticket, verb: str) -> None:
+def _upstream_status(repo: Path, t: Ticket) -> str | None:
+    upstream = gitio.show_upstream_file(repo, str(t.path.relative_to(repo)))
+    m = re.search(r"^status:\s*(\S+)", upstream or "", re.M)
+    return m.group(1) if m else None
+
+
+def _preflight_race_check(repo: Path, t: Ticket, verb: str, lost_states: set[str]) -> None:
+    """R19 primary detection: fetch and inspect upstream BEFORE editing.
+
+    Two same-second claims can produce byte-identical commits (same tree,
+    parent, author, timestamp -> same SHA), making the push-CAS vacuously
+    'succeed' for both parties. Checking upstream first closes that hole and
+    reports the winner without ever dirtying the local file.
+    """
+    if not gitio.has_remote(repo):
+        return
+    gitio.fetch(repo)
+    status = _upstream_status(repo, t)
+    if status in lost_states:
+        sys.exit(f"tkt: lost {verb} race — {t.id} is already {status} upstream (pull to sync)")
+
+
+def _commit_and_push(repo: Path, t: Ticket, verb: str, lost_states: set[str]) -> None:
+    """Commit the lifecycle edit and push, reporting a lost race informatively.
+
+    R19 backstop: git's push rejection IS the claim CAS for the residual
+    fetch->push window. On rejection, inspect the upstream ticket — if its
+    status reached a lost-state, someone else won; roll back the local edit,
+    report the winner's state, exit 1 (a contested outcome, not a crash).
+    Unrelated-traffic rejections rebase and retry once.
+    """
     gitio.commit_single_file(repo, t.path, f"chore(tickets): {verb} {t.id}")
-    if gitio.has_remote(repo):
-        if not gitio.push(repo):
-            gitio.pull_rebase(repo)
-            if not gitio.push(repo):
-                sys.exit(f"tkt: push rejected twice for {verb} {t.id} — resolve upstream state manually")
+    if not gitio.has_remote(repo):
+        return
+    for attempt in (1, 2):
+        if gitio.push(repo):
+            return
+        gitio.fetch(repo)
+        upstream_status = _upstream_status(repo, t)
+        if upstream_status in lost_states:
+            rel = str(t.path.relative_to(repo))
+            gitio.undo_commit_keep_file(repo)
+            gitio.discard_file_changes(repo, rel)  # tree clean again
+            gitio.pull_rebase(repo)  # fast-forwards to the winner's state
+            sys.exit(
+                f"tkt: lost {verb} race — {t.id} is already {upstream_status} upstream"
+            )
+        if attempt == 1:
+            gitio.pull_rebase(repo)  # unrelated traffic; our commit rebases cleanly
+    sys.exit(f"tkt: push rejected twice for {verb} {t.id} — resolve upstream state manually")
 
 
 def cmd_claim(args) -> int:
@@ -203,9 +261,12 @@ def cmd_claim(args) -> int:
     t = _find(load_corpus(d), args.id)
     if t.status != "open":
         sys.exit(f"tkt: {t.id} is {t.status}, not open")
+    repo = gitio.repo_root(d)
+    lost = {"in_progress", "done"}
+    _preflight_race_check(repo, t, "claim", lost)
     set_field(t, "status", "in_progress")
     write_ticket(t)
-    _commit_and_push(gitio.repo_root(d), t, "claim")
+    _commit_and_push(repo, t, "claim", lost_states=lost)
     print(f"claimed {t.path.name} (in_progress pushed)")
     return 0
 
@@ -215,6 +276,9 @@ def cmd_close(args) -> int:
     t = _find(load_corpus(d), args.id)
     if t.status == "done":
         sys.exit(f"tkt: {t.id} is already done")
+    repo = gitio.repo_root(d)
+    lost = {"done"}
+    _preflight_race_check(repo, t, "close", lost)
     set_field(t, "status", "done")
     if "## Resolution" not in t.body:
         t.body = t.body.rstrip("\n") + f"\n\n## Resolution ({date.today().isoformat()})\n\nTBD\n"
@@ -222,7 +286,7 @@ def cmd_close(args) -> int:
     unchecked = len(UNCHECKED_AC.findall(t.body))
     if unchecked:
         print(f"warning: {unchecked} unchecked acceptance box(es) — fill in before trusting history", file=sys.stderr)
-    _commit_and_push(gitio.repo_root(d), t, "close")
+    _commit_and_push(repo, t, "close", lost_states=lost)
     print(f"closed {t.path.name} (dated Resolution stub appended)")
     return 0
 
