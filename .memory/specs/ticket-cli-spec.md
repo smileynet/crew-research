@@ -74,6 +74,20 @@ Contract rules:
    additive. Motivating incident: archwright 005 implemented twice concurrently.
 4. **Loud errors:** any file in `.tickets/` the tool can't parse is a hard error naming
    the file — never silent omission (tk's disqualifying behavior).
+5. **`external:` is a reserved field** (added 2026-07-22, ticket 41 research). Shape:
+   list of typed refs `[{system, id, url?}]`; scalar sugar (`github: 123`) is legal and
+   normalized to the list shape at read time. `id` is a string (Jira keys aren't
+   numbers). Carried today by unknown-field preservation — the tool interprets NOTHING
+   until a sync feature is a real ticket; sync, when built, is one-way local-authoritative
+   (matches CREW_TICKET_SYNC close-propagation). Prior art: Jira remote links
+   (globalId separate from display url), Linear attachments — bare URLs and
+   one-field-per-system both rejected (field-zoo evidence: gh-jira-issue-sync needed six
+   custom fields for one integration).
+6. **Status vocabulary is frozen contract** (added 2026-07-22). The three statuses model
+   hand-offs, not activity taxonomy; additions require a spec change here, never
+   convention drift. Anti-pattern evidence: Atlassian now hard-caps workflow
+   customization (700 fields/150 types) after the "custom field zoo" emerged from
+   individually-reasonable additions.
 
 ## Requirements (yardstick — full JTBD/evidence tables in the raw notes)
 
@@ -83,11 +97,6 @@ migration, unknown fields preserved · R4 sequential NN-slug ids kept · R5 surg
 frontmatter edits · R6 no silent omission · R7 validate (dangling/cyclic blocked_by,
 id↔filename, unchecked ACs on done, boolean-key YAML casualties).
 
-SHOULD: R8 visible claim (`in_progress` + pushed commit) · R9 plan-projection drift-check
-against docs/plan.md-style tables · R10 close helper (status flip + dated Resolution stub
-+ AC warning) · R11 JSON query · R12 renumber (filename + id + inbound blocked_by refs
-atomically) · R13 batch create under a spec.
-
 MUST (added 2026-07-21, ticket 44): R17 black-box validation — every tkt command ships
 with acceptance coverage invoked through the public CLI surface (installed console script
 or subprocess), asserting only on exit codes, output, files, and git state; structured
@@ -96,9 +105,75 @@ the oracle, never a hand-copied field list). White-box seams are allowed ONLY wh
 black-box cannot reach deterministically, and each must be justified in the test. Applies
 to ticket 41's rollout commands and all future surface.
 
+MUST (added 2026-07-22, ticket 45): R18 input validation — user arguments are validated
+BEFORE any filesystem operation (CVE-class root cause: validate-after-first-write).
+Slugs: allowlist `^[a-z0-9][a-z0-9-]*$` (verified against both corpora: zero existing
+violations). Windows reserved device names (CON, PRN, AUX, NUL, COM1-9, LPT1-9) rejected
+case-insensitively and extension-blind on ALL platforms (cargo's approach); trailing
+dots/spaces rejected. Titles and other free-text frontmatter values: always double-quoted
+with `\` and `"` escaped (charset-allowlist for identifier fields, escape-and-emit for
+free text). Hostile-input fixtures required per R17.
+
+SHOULD: R8 visible claim (`in_progress` + pushed commit) · R9 plan-projection drift-check
+against docs/plan.md-style tables (report-only; crew exit contract 0=no-drift/1=drift/
+2=crash — Terraform's 2=drift scheme rejected for intra-CLI consistency with validate) ·
+R10 close helper (status flip + dated Resolution stub + AC warning) · R11 JSON query ·
+R12 renumber (filename + id + inbound blocked_by refs atomically; **birth-window
+operation** — cited ids are external contracts, so renumbering a ticket that has been
+referenced in prose/commits warns that those references won't follow) · R13 batch create
+under a spec · R19 informative lost-claim-race reporting (on push rejection, re-fetch and
+report the winner's state — "42 already in_progress upstream" — as a normal outcome, not
+a raw git error; DynamoDB ALL_OLD model).
+
 COULD: R14 cross-repo blocked_by (`repo#NNN`) · R15 board view · R16 owed-run ledger
-linkage.
+linkage · R20 repo-declared tool version floor checked at startup (terraform
+required_version / nextest pattern; trigger to build: >2 regular machines or a skew
+incident).
 
 UX constraints: files are the database (git-native, hand-editable); **ceremony decays**
 (created/closed dates and checkboxes demonstrably rot untooled — automate a field or
 drop it from the contract); the body is the spec (tool never manages prose).
+
+## Decision record — id architecture & distribution (ticket 41 research, 2026-07-21/22)
+
+Research corpus: `.scratch/research/{git-native-tracker-renumber, github-issue-alignment,
+dual-id-systems, external-correlation-fields, ticketing-pitfalls, atomic-multifile-commits,
+python-cli-distribution, projection-drift-check, cli-input-validation,
+concurrent-claim-semantics, tool-version-skew}.md` (gitignored — regenerate if pruned).
+
+- **Sequential ids KEPT; hash ids rejected** at current scale. Every mature distributed
+  tracker uses hash/random ids (git-bug, Fossil, jj), and Beads was forced to migrate
+  sequential→hash under heavy multi-agent contention — but our profile is 2 sessions,
+  0 collisions since tkt's push-to-claim landed, and the collision machinery is built and
+  race-tested. **Revisit trigger:** regular concurrent writers >3 OR collisions recur
+  despite tkt. Migration path if triggered: grandfather numeric ids (ids are opaque text
+  — zero migration), new ids 4-char base36 containing ≥1 letter, `created:` field written
+  at new-time for ordering.
+- **Dual-id (stable uuid under the display number) rejected.** Decision rule from prior
+  art (Jira id/key, GitLab id/iid, YouTrack): the second id earns its cost when entities
+  cross namespaces, allocation authorities multiply (import/federation/merge), or alias
+  history must survive. tkt matches the skip case on every axis (single namespace,
+  push-CAS single allocator, human-centric refs). Markdown+git is already the portable
+  migration substrate (archive-and-freeze is the documented cheapest exit). **Revisit
+  trigger:** federation, import/merge, or cross-repo refs beyond `repo#NNN`.
+- **GitHub alignment is impossible by construction** — the create-issue API takes no
+  number, the counter is shared with PRs/discussions, deletion gaps are permanent. All
+  surveyed bridges MAP ids (git-bug metadata; gh-issue-sync renames provisional local ids
+  to the real number after push — i.e., renumber IS the future bridge primitive).
+  Correlation happens via the reserved `external:` field, never id-space alignment.
+- **Distribution: documented editable install** — `uv tool install -e ./tools/tkt`
+  (verified uv 0.11.8). Live source tracking eliminates snapshot staleness; caveats
+  documented: entry-point/metadata changes need reinstall, binary breaks if the checkout
+  moves. NOT a tier extension: extensions gate conditional content on a prerequisite, and
+  tkt has none — frontier-work steering ships regardless with a manual fallback. doctor
+  hints when tkt is absent from PATH.
+- **Multi-file tool commits sanctioned for renumber/batch** (extends D2a, pattern
+  `surgical-git-side-effects`): every path explicitly staged AND tool-edited, staged set
+  verified equal to the tool's edit list (`git diff --cached --name-status`) before
+  commit, loud failure on mismatch. Bulk-staging idioms remain banned. Prior-art
+  consensus: atomic = one logical change regardless of file count; agent commit tooling
+  explicitly bans `add -A`/`add .`.
+- **Portable-substrate invariant** (design test for future features): content lives in
+  files in the repo; the tool is a view. API-gated trackers exclude agents and newcomers;
+  this is why tkt exists. Any feature that makes the files less self-describing or
+  hand-editable fails this test.

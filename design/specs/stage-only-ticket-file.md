@@ -21,7 +21,7 @@ links:
 
 ## Rule
 
-tkt source never invokes git bulk staging in either idiom: subprocess list form (`"add", "-A"` / `"add", "."` / `"add", "--all"` / `"commit", "-a"`) or shell-string form (`git add -A` etc.). Staging always takes one explicit path variable.
+tkt source never invokes git bulk staging in either idiom: subprocess list form (`"add", "-A"` / `"add", "."` / `"add", "--all"` / `"commit", "-a"`) or shell-string form (`git add -A` etc.). Staging always takes explicit path variables — one path for single-ticket actions (new/claim/close); multiple explicit tool-edited paths are permitted for atomic multi-file actions (renumber/batch), which must verify the staged set equals their edit list before committing (pattern scope extension 2026-07-22).
 
 ## Rationale
 
