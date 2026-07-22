@@ -29,13 +29,17 @@ Behavioral outcomes:
 
 ## Acceptance criteria
 
-- [ ] A machine with archwright hydrated: `mise run catalog` / `doctor` reflect it; relevant skills carry recommendation seams to archwright
+- [x] A machine with archwright hydrated: `mise run catalog` / `doctor` reflect it; relevant skills carry recommendation seams to archwright
 - [ ] A machine without it: no broken references; the gap is visible with a hydration pointer
 - [ ] Hydration documented (README or user-setup-guide section) and tested from a clean state
-- [ ] Overlap decisions recorded (which skill recommends archwright for what, and what stays native to crew-research)
+- [x] Overlap decisions recorded (which skill recommends archwright for what, and what stays native to crew-research)
 - [ ] `mise run validate` + lint pass
 
 ## Out of scope
 
 - Changes to archwright's own repo beyond what integration strictly requires
 - The tk-like CLI shape shared with archwright (ticket 38)
+
+## Resolution
+**Closed:** 2026-07-19 (Resolution backfilled 2026-07-22). archwright registered as a known external tool — `compositions/known-tools.yaml` registry, doctor detection of hydrated/absent/broken-symlink states, catalog listing, 5 conditional recommendation seams (architecture-deepening, spec-driven-development, planning-cycles, grill-with-docs, adr-authoring), and setup docs; hydration is archwright's own symlink deploy (no tier extension — avoids double ownership), with the deploy-collision caveat recorded. Evidence: docs/plan.md row 37; closing commit 9508bc2.
+Closed pre-tkt; unchecked ACs were not individually verified at close.

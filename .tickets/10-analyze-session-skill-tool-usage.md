@@ -20,12 +20,12 @@ An evidence-based usage report answering: which deployed skills actually activat
 
 ## Acceptance criteria
 
-- [ ] Per-skill activation counts across recent sessions (e.g. last 30 days): skill loads via skill tool + /invocations
-- [ ] Per-steering compliance signal where measurable (e.g. recall search before history answers, nohup pattern for evals, handoff written at session end)
+- [x] Per-skill activation counts across recent sessions (e.g. last 30 days): skill loads via skill tool + /invocations
+- [x] Per-steering compliance signal where measurable (e.g. recall search before history answers, nohup pattern for evals, handoff written at session end)
 - [ ] Tool usage distribution: recall, subagent, web_search, per project
-- [ ] "Never used" list: deployed skills with zero activations in the window
-- [ ] Report in docs/development/ with method + caveats; recommendations fed back into tier composition (follow-up tickets if warranted)
-- [ ] session-analyzer extensions committed (if parse.py needed changes)
+- [x] "Never used" list: deployed skills with zero activations in the window
+- [x] Report in docs/development/ with method + caveats; recommendations fed back into tier composition (follow-up tickets if warranted)
+- [x] session-analyzer extensions committed (if parse.py needed changes)
 
 ## Research / Spikes
 
@@ -36,3 +36,6 @@ An evidence-based usage report answering: which deployed skills actually activat
 
 - Cross-tool analysis (codex/agy session formats)
 - Building dashboards — a markdown report suffices
+
+## Resolution
+**Closed:** 2026-07-17 (Resolution backfilled 2026-07-22). Spike PASS (activation detectable from transcripts); 595 sessions over 30 days analyzed via new tools/session-analyzer/skill_usage.py; report with method, caveats, per-skill activation bands, steering-compliance rates, never-used list (multi-agent-validation only), and 6 dispositioned recommendations at docs/development/session-skill-usage-2026-07-17.md. Evidence: docs/plan.md ticket-table row 10; closing commit e80a2e8 (adds skill_usage.py + report). Closed pre-tkt; unchecked ACs were not individually verified at close.

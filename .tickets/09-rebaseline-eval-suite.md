@@ -20,12 +20,15 @@ A full-suite eval run against the post-review skill set, producing the reference
 
 ## Acceptance criteria
 
-- [ ] `mise run eval` full run completes without wedging (background, observed via sleep cycles)
-- [ ] `mise run eval:activation` full run completes
-- [ ] Results summarized: pass/fail counts, per-eval deltas vs 2026-07-15 run where comparable
-- [ ] Failures triaged: real regression vs known gap (each classified)
-- [ ] Baseline recorded in docs/development/ with date + commit hash
+- [x] `mise run eval` full run completes without wedging (background, observed via sleep cycles)
+- [x] `mise run eval:activation` full run completes
+- [x] Results summarized: pass/fail counts, per-eval deltas vs 2026-07-15 run where comparable
+- [x] Failures triaged: real regression vs known gap (each classified)
+- [x] Baseline recorded in docs/development/ with date + commit hash
 
 ## Out of scope
 
 - Fixing regressions found (new tickets per finding)
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). Clean post-review baseline established: 26/35 judged pass (74.3%), 19/20 live activation defs pass, 9 failures each triaged (genuine gap / known cross-model gap / flaky), zero new genuine regressions; record with date + commit hash at docs/development/eval-baseline-2026-07-17.md. Evidence: docs/plan.md ticket-table row 09; closing commit 88b9352; baseline record verifies each criterion (deltas computed vs the t12 rerun — the closest comparable run, as only 12 definitions overlapped the 2026-07-15 baseline).

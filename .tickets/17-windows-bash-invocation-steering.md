@@ -40,3 +40,6 @@ Would `references/windows.md` benefit from a "Git Bash Invocation" section, e.g.
 
 Two live failures in one session despite prior documentation in project lessons —
 suggests steering-level (always-loaded) placement earns its budget here.
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). Explore ticket resolved by adding a Git Bash Invocation section (script-file rule, PowerShell interpolation hazards, cross-interpreter /tmp caveat) to project-conventions references/windows.md. Evidence: docs/plan.md row 17 (line 194) and closing commit 385aa09.

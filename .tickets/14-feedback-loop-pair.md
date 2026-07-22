@@ -20,10 +20,10 @@ Diagnose why `feedback-loop-effectiveness` (3.11 < 3.5) and `feedback-loop-tight
 
 ## Acceptance criteria
 
-- [ ] Root cause documented: content gap vs criteria mismatch vs merge dilution (read failing trial outputs, cite specifics)
-- [ ] Skill fixed (or eval criteria corrected if they measure the wrong thing — record which)
-- [ ] Both evals pass on a fresh run
-- [ ] Skill stays ≤100 lines
+- [x] Root cause documented: content gap vs criteria mismatch vs merge dilution (read failing trial outputs, cite specifics)
+- [x] Skill fixed (or eval criteria corrected if they measure the wrong thing — record which)
+- [x] Both evals pass on a fresh run
+- [x] Skill stays ≤100 lines
 
 ## Out of scope
 
@@ -38,3 +38,6 @@ Diagnose why `feedback-loop-effectiveness` (3.11 < 3.5) and `feedback-loop-tight
 **Fix:** injected real bugs via new per-task fixtures (`defu-null-bug`: seedless reduce → real TypeError; `defu-nested-arrays-bug[-with-test]`: nested array concat skipped, suite stays green). Harness gained per-task `fixture:` override (backwards-compatible). Task wordings updated to match the real bugs; criteria unchanged in spirit. Pre-2026-07-18 history for this def measured an impossible task — not longitudinally comparable (noted in def header).
 
 **feedback-loop-tighten-effectiveness (3.88 vs 4):** only task1 (memory leak) dragged (3.33). Trial outputs measure and accelerate but never state a numeric PASS/FAIL criterion or the baseline → ONE change → re-measure differential structure. The skill body was red/green-centric; continuous-metric signals were uncovered. Fix: added continuous-signal loop guidance to SKILL.md (92 lines).
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). Root cause was fixture-task mismatch (tasks described nonexistent bugs), not merge dilution; fixed via per-task bug-injected fixtures plus a continuous-signal section in the skill (92 lines), after which both evals pass at 4.44/4.44. Evidence: docs/plan.md row 14 (line 191) and closing commit ee9f56b.

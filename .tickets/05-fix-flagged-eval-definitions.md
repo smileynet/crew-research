@@ -31,3 +31,6 @@ Every active eval definition executes with real inputs (no null-input tasks, no 
 ## Out of scope
 
 - Re-baselining the whole suite (ticket 09)
+
+## Resolution
+**Closed:** 2026-07-16 (Resolution backfilled 2026-07-22). All 7 flagged eval definitions fixed or retired — multi-turn rewritten single-turn, missing fixtures embedded/added, descriptions matched to conditions, hello-world ceiling replaced, handoff-improves-continuity retired; validation runs 4✅/1❌ with zero harness warnings and zero null inputs (the ❌ is genuine skill signal). Evidence: docs/plan.md follow-up table row 05 ("✅ done (815fbe2 + validation runs: 4✅/1❌)"); work commit 815fbe2, status→done in 5d4fff5.

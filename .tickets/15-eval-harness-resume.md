@@ -20,11 +20,14 @@ spec: "session-improvements-2026-07-17"
 
 ## Acceptance criteria
 
-- [ ] `--skip-completed <dir>`: definitions with a scores.jsonl entry in <dir> are skipped with a logged reason; new scores append into <dir> (or a merged copy)
-- [ ] Interrupt-then-resume produces one dir with all 35 entries (test with --dry-run: run 3 defs, interrupt, resume, verify single scores.jsonl)
+- [x] `--skip-completed <dir>`: definitions with a scores.jsonl entry in <dir> are skipped with a logged reason; new scores append into <dir> (or a merged copy)
+- [x] Interrupt-then-resume produces one dir with all 35 entries (test with --dry-run: run 3 defs, interrupt, resume, verify single scores.jsonl)
 - [ ] Bare `--all` behavior unchanged
-- [ ] Usage line documents the flag
+- [x] Usage line documents the flag
 
 ## Out of scope
 
 - Checkpointing mid-definition (trial granularity)
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). Added `--skip-completed <dir>` to run.sh: already-scored definitions are skipped and new scores append into the same results dir, verified via dry-run truncate-resume (35/35 unique entries, meta preserved, idempotent); usage header documents the flag. Evidence: docs/plan.md row 15 (line 192) and closing commit 267422a. Closed pre-tkt; unchecked ACs were not individually verified at close.

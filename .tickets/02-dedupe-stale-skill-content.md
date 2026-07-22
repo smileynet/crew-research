@@ -31,3 +31,6 @@ Skills that reference each other or share domains agree with each other. No skil
 ## Out of scope
 
 - Line-count reductions beyond what dedup naturally achieves (ticket 03)
+
+## Resolution
+**Closed:** 2026-07-16 (Resolution backfilled 2026-07-22). Cross-skill contradictions resolved — troubleshooting-protocol merged into feedback-loop-debugging (user decision), study-reference/study-all-references unified to one output path and schema, research-output made the canonical research format, dead pointers and duplicate sections removed; validate + lint 0 errors. Evidence: docs/plan.md follow-up table row 02 ("✅ done (5cd6bb5)"); work commit 5cd6bb5, status→done in 3217828.

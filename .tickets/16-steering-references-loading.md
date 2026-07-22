@@ -21,10 +21,10 @@ A decision plus implementation for how steering companion files deploy. Today ev
 
 ## Acceptance criteria
 
-- [ ] Decision recorded as an ADR (this changes deployment semantics — hard to reverse quietly)
-- [ ] Implementation matches the decision; redeploy is idempotent
-- [ ] Always-on line count measured before/after and recorded
-- [ ] Skills whose bodies link references still resolve (lint passes)
+- [x] Decision recorded as an ADR (this changes deployment semantics — hard to reverse quietly)
+- [x] Implementation matches the decision; redeploy is idempotent
+- [x] Always-on line count measured before/after and recorded
+- [x] Skills whose bodies link references still resolve (lint passes)
 
 ## Out of scope
 

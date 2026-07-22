@@ -28,3 +28,6 @@ An eval-spawned agent session writes only inside its temp workdir. Repo files (R
 ## Out of scope
 
 - Re-running the full suite (ticket 09)
+
+## Resolution
+**Closed:** 2026-07-16 (Resolution backfilled 2026-07-22). Leak root-caused to run-model-comparison.sh running closecode and its kiro judge with cwd = repo root (run.sh was blamed by proximity); fixed in 2b699cc with mktemp-d subshell isolation and judge runs without `-a`, 5 validation runs left git status clean, and the never-edit-run.sh-mid-run lesson landed in eval-execution steering. Evidence: docs/plan.md ticket-table row 11; fix commit 2b699cc; ticket-close commit 5d4fff5 (all four ACs verified in-ticket at close).

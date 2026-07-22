@@ -25,9 +25,9 @@ The recall skill activates when the user asks about past decisions or prior sess
 
 ## Acceptance criteria
 
-- [ ] Root cause identified with evidence (per-hypothesis test results)
-- [ ] Fix applied: skill description/body rework, OR def retired with rationale + steering-side measurement plan
-- [ ] If skill reworked: `activation-recall` TPR ≥ 3/5, FPR ≤ 1/5 on a fresh run
+- [x] Root cause identified with evidence (per-hypothesis test results)
+- [x] Fix applied: skill description/body rework, OR def retired with rationale + steering-side measurement plan
+- [x] If skill reworked: `activation-recall` TPR ≥ 3/5, FPR ≤ 1/5 on a fresh run (N/A — def retired, not reworked)
 
 ## Resolution (2026-07-18)
 

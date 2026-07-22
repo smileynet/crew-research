@@ -22,14 +22,18 @@ The mechanism for running a multi-adapter eval suite on machines with partial to
 
 ## Acceptance criteria
 
-- [ ] Defs support `adapters: [name, ...]` frontmatter; when the running adapter isn't listed, run.sh emits a SKIP row with reason (`needs adapter: X`) in output and scores.jsonl — skips excluded from pass/fail tallies and from `--skip-completed` completion (a SKIP is not a completed def)
-- [ ] Adapter access probe: cheap liveness check (tiny prompt, ~15s timeout) once per run per adapter, replacing bare `command -v` for both agent invocation and judge inclusion; no-access → SKIP-with-reason (defs) / exclusion (judges)
-- [ ] Judge participation persisted per trial in scores.jsonl (names + count); baseline records state the judge set used
-- [ ] scores.jsonl rows are self-describing: each row carries the def's immutable `id` and the run's `adapter` (today rows have only mutable `name`; cross-adapter joins and rename survival need the id — this is the row-level key ticket 32's interchange builds on)
-- [ ] Committed owed-run ledger (`docs/development/deferred-runs.md`): def, required adapter, reason, owed-since, filled-when-run; seeded with the 3 image defs
+- [x] Defs support `adapters: [name, ...]` frontmatter; when the running adapter isn't listed, run.sh emits a SKIP row with reason (`needs adapter: X`) in output and scores.jsonl — skips excluded from pass/fail tallies and from `--skip-completed` completion (a SKIP is not a completed def)
+- [x] Adapter access probe: cheap liveness check (tiny prompt, ~15s timeout) once per run per adapter, replacing bare `command -v` for both agent invocation and judge inclusion; no-access → SKIP-with-reason (defs) / exclusion (judges)
+- [x] Judge participation persisted per trial in scores.jsonl (names + count); baseline records state the judge set used
+- [x] scores.jsonl rows are self-describing: each row carries the def's immutable `id` and the run's `adapter` (today rows have only mutable `name`; cross-adapter joins and rename survival need the id — this is the row-level key ticket 32's interchange builds on)
+- [x] Committed owed-run ledger (`docs/development/deferred-runs.md`): def, required adapter, reason, owed-since, filled-when-run; seeded with the 3 image defs
 - [ ] Conformance: at least one deliberately non-matching def SKIPs (not fails, not passes) in a test run
 
 ## Out of scope
 
 - Getting crush/agy access on this machine
 - The image defs' own content fixes (ticket 30)
+
+## Resolution
+**Closed:** 2026-07-19 (Resolution backfilled 2026-07-22). Deferred eval protocol shipped in run.sh — adapter-scoped defs emit SKIP-with-reason rows (excluded from tallies and `--skip-completed`), live access probes replace bare `command -v` for agents and judges, per-trial judge sets persisted, rows carry immutable `id` + `adapter`, and the owed-run ledger (`docs/development/deferred-runs.md`) was seeded with the 3 image defs; along the way discovered the codex judge leg had been silently dead in all prior runs (untrusted temp dir) and fixed it. Evidence: docs/plan.md row 29; closing commit 69547a8 (run.sh +214 lines: `emit_skip`, `probe_tool`/`ensure_agent_probed`, id/adapter/judges row fields, deferred-runs.md added).
+Closed pre-tkt; unchecked ACs were not individually verified at close.

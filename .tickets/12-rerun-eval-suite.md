@@ -24,11 +24,11 @@ Run `mise run eval` (all active definitions, 3 trials) to validate that threshol
 
 ## Acceptance criteria
 
-- [ ] Full eval suite completes (all active definitions, no score-1.0 infrastructure failures)
-- [ ] Pass rate ≥ 30% (up from 9%)
-- [ ] No new regressions (evals that passed before don't fail now)
+- [x] Full eval suite completes (all active definitions, no score-1.0 infrastructure failures)
+- [x] Pass rate ≥ 30% (up from 9%)
+- [x] No new regressions (evals that passed before don't fail now)
 - [ ] Results committed to `tools/evals/results/` with comparison notes
-- [ ] 38 score-1.0 evals from prior run now produce real scores (not rate-limit failures)
+- [x] 38 score-1.0 evals from prior run now produce real scores (not rate-limit failures)
 
 ## Research / Spikes
 
@@ -39,3 +39,6 @@ Run `mise run eval` (all active definitions, 3 trials) to validate that threshol
 
 - Writing new eval definitions
 - Changing skill content based on results (that's a separate ticket)
+
+## Resolution
+**Closed:** 2026-07-17 (Resolution backfilled 2026-07-22). Threshold calibration validated: 25/35 pass (71.4%, target ≥30%), 0 new regressions across the 12 overlapping definitions, 0 score-1.0 infrastructure failures (the 38 rate-limit artifacts eliminated); comparison notes in docs/eval-results-2026-07-17.md. Evidence: docs/plan.md ticket-table row 12; closing commit b37724f; results record's own acceptance check. The unchecked AC was satisfied in modified form at close — comparison notes committed but raw results kept local per gitignore policy (results dirs are untracked by convention).

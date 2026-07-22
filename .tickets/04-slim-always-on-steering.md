@@ -19,13 +19,16 @@ Every line of always-on steering earns its place on every turn. Duplicated rules
 
 ## Acceptance criteria
 
-- [ ] Batch-5 steering total ≤500 always-on lines (from 812)
-- [ ] No rule stated more than once per file
-- [ ] tool-installation.md not deployed globally (project-level or on-demand reference)
-- [ ] context-budget-awareness no longer contradicts the system prompt's context_awareness section
-- [ ] ai-generation-hygiene eval (activation-ai-generation-hygiene) still passes after trim
-- [ ] Redeployed; doctor healthy
+- [x] Batch-5 steering total ≤500 always-on lines (from 812)
+- [x] No rule stated more than once per file
+- [x] tool-installation.md not deployed globally (project-level or on-demand reference)
+- [x] context-budget-awareness no longer contradicts the system prompt's context_awareness section
+- [x] ai-generation-hygiene eval (activation-ai-generation-hygiene) still passes after trim
+- [x] Redeployed; doctor healthy
 
 ## Out of scope
 
 - Changing WHAT the rules say (only how many times / where they're said)
+
+## Resolution
+**Closed:** 2026-07-17 (Resolution backfilled 2026-07-22). Always-on steering slimmed 812→387 deployed lines (target ≤500) — each rule stated once per file, tool-installation demoted to project level, context-budget-awareness system-prompt conflict resolved, OS-gated steering refs in init.sh; activation-ai-generation-hygiene TPR .80 / FPR 0 / accuracy .90; redeploy idempotent, doctor healthy. Evidence: docs/plan.md follow-up table row 04 ("✅ done — batch-5 total 387 lines"); closing commit 2d4c164.

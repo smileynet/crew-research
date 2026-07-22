@@ -21,9 +21,12 @@ Global deploy prune removes only skill directories crew-research itself deployed
 
 ## Acceptance criteria
 
-- [ ] Deploy writes `~/.kiro/.crew-skills` manifest
-- [ ] Skill dir in manifest but not in tier → pruned (tier removal works)
-- [ ] Skill dir in neither manifest nor tier → warned, kept
-- [ ] Symlink behavior unchanged (kept, noted)
-- [ ] doctor.sh warns about unmanaged skill dirs
-- [ ] Negative test: simulated foreign skill dir survives a full deploy
+- [x] Deploy writes `~/.kiro/.crew-skills` manifest
+- [x] Skill dir in manifest but not in tier → pruned (tier removal works)
+- [x] Skill dir in neither manifest nor tier → warned, kept
+- [x] Symlink behavior unchanged (kept, noted)
+- [x] doctor.sh warns about unmanaged skill dirs
+- [x] Negative test: simulated foreign skill dir survives a full deploy
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). init.sh prune became manifest-based (`~/.kiro/.crew-skills`): only skills crew-research deployed are pruned when they leave the tier, unmanaged dirs are warned and kept (symlinks still kept and noted), and doctor.sh surfaces unmanaged skill dirs — verified in both directions per the closing commit. Evidence: docs/plan.md row 20 (line 197) and closing commit bea4bfd (diff shows manifest write, warn-keep branch, symlink keep, doctor warning; message records "verified both directions").

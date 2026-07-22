@@ -20,12 +20,15 @@ The recall CLI a user (or the steering) invokes has every command the documentat
 
 ## Acceptance criteria
 
-- [ ] `recall import --help` works on the installed CLI (reinstalled from repo source)
-- [ ] Version bumped (source + `recall --version` agree, > 0.1.0)
-- [ ] All install instructions point at the repo path (or a renamed unsquatted package): README, cheatsheet skill, user-setup-guide, tiers' install_hint
-- [ ] recall spot check passes: `recall search` + `recall import` round-trip on a temp wing
-- [ ] Decision recorded: keep spike/FINDINGS.md in place or promote to docs/development/ (scripts prunable)
+- [x] `recall import --help` works on the installed CLI (reinstalled from repo source)
+- [x] Version bumped (source + `recall --version` agree, > 0.1.0)
+- [x] All install instructions point at the repo path (or a renamed unsquatted package): README, cheatsheet skill, user-setup-guide, tiers' install_hint
+- [x] recall spot check passes: `recall search` + `recall import` round-trip on a temp wing
+- [x] Decision recorded: keep spike/FINDINGS.md in place or promote to docs/development/ (scripts prunable)
 
 ## Out of scope
 
 - New recall features
+
+## Resolution
+**Closed:** 2026-07-17 (Resolution backfilled 2026-07-22). Recall CLI reinstalled from repo source at 0.2.0, import+search round-trip verified on a temp wing, all install docs (README, cheatsheet, cli-reference, both tier install_hints, user-setup-guide) point at ./tools/recall with squatted-PyPI warning, spike findings promoted to docs/development/. Evidence: docs/plan.md ticket-table row 07; closing commit 1af6756 (commit body verifies each criterion).

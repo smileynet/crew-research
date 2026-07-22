@@ -24,7 +24,7 @@ Add `export WIN_USERNAME=<windows-user>` to the WSL `~/.bashrc` so that `init.sh
 
 ## Acceptance criteria
 
-- [ ] WSL `~/.bashrc` contains `export WIN_USERNAME=uosmi`
+- [x] WSL `~/.bashrc` contains `export WIN_USERNAME=uosmi`
 - [ ] `wsl -- bash -c 'echo $WIN_USERNAME'` returns `uosmi`
 - [ ] Deploy via `wsl -- bash -c '... init.sh --global ...'` targets `/mnt/c/Users/uosmi/.kiro` without needing a manual `export`
 
@@ -32,3 +32,7 @@ Add `export WIN_USERNAME=<windows-user>` to the WSL `~/.bashrc` so that `init.sh
 
 - Fixing why `cmd.exe /C "echo %USERNAME%"` returns empty (Windows/WSL interop issue — unreliable in non-interactive shells)
 - Making init.sh auto-detect without WIN_USERNAME (ticket 39 may address this for doctor.sh)
+
+## Resolution
+**Closed:** 2026-07-20 (Resolution backfilled 2026-07-22). `export WIN_USERNAME` added to the WSL `~/.bashrc` so init.sh/doctor.sh resolve the Windows home (`/mnt/c/Users/uosmi`) instead of falling back to the WSL home during deploys. Evidence: docs/plan.md row 43 ("✅ done"); close commit 711d991 ("both fixes applied and verified" — the fix for this ticket is off-repo machine state).
+Closed pre-tkt; unchecked ACs were not individually verified at close.

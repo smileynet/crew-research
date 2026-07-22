@@ -35,3 +35,6 @@ migration (dotfiles/sa-system-setup, 2026-07-18: 9 global MCP servers / ~230 too
 
 - Source migration: dotfiles tickets 001–007 + sa-system-setup `kiro-agents/` +
   `sa doctor` agent checks; strategy/evidence: dotfiles `.memory/mcp-partitioning-strategy.md`
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). mcp-partitioning reference skill landed in `atomics/skills/` and the full tier, distilled from the measured dotfiles/sa-system-setup migration (9 servers/~230 tools → 2 servers/~14 tools per default session); tier addition and lint pass done in the same change, activation eval left as a future follow-up. Evidence: docs/plan.md row 22 ("✅ done (2026-07-18, 34582a0)"); closing commit 34582a0 (ticket created already done — retrospective write-up).

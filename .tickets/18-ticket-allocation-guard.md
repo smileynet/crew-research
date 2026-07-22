@@ -40,3 +40,6 @@ Would frontier-work steering benefit from a "Creating Tickets" section, e.g.:
   `06d74a2` unioned the two implementations
 - Cost: ~30 min of merge-conflict resolution + duplicated implementation effort;
   benefit of the collision (two designs to union) was accidental, not free
+
+## Resolution
+**Closed:** 2026-07-18 (Resolution backfilled 2026-07-22). Explore ticket resolved by adding a Creating Tickets section to frontier-work steering: fetch-and-rescan before allocating an ID, push promptly as a claim, reconcile collisions immediately, optional lane frontmatter. Evidence: docs/plan.md row 18 (line 195) and closing commit 385aa09.

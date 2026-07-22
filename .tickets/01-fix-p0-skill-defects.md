@@ -32,3 +32,6 @@ Skills with broken or contradictory content render correctly and follow repo con
 
 - Line-budget reductions (ticket 03)
 - Content deduplication across skills (ticket 02)
+
+## Resolution
+**Closed:** 2026-07-16 (Resolution backfilled 2026-07-22). P0 skill defects and one-line fixes repaired — Diátaxis table filled, ADR path corrected to `.memory/adr/`, project-notes linked, scope boundary declared, duplicate check folded, metadata.practice uniform across 53 skills; lint 0 errors, deploy idempotent. Evidence: docs/plan.md follow-up table row 01 ("✅ done (e0fde71)"); closing commit e0fde71.

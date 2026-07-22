@@ -20,11 +20,14 @@ Every tier skill is under 100 lines (or carries a documented justification), wit
 
 ## Acceptance criteria
 
-- [ ] All 7 listed skills ≤100 lines OR have a justification comment in frontmatter
-- [ ] Moved content lives in references/ and is linked from the body (lint: 0 orphan warnings for these skills)
-- [ ] Skills with existing effectiveness evals re-run and still pass (grill, spec-driven-development at minimum)
-- [ ] Redeployed and `mise run doctor` healthy
+- [x] All 7 listed skills ≤100 lines OR have a justification comment in frontmatter
+- [x] Moved content lives in references/ and is linked from the body (lint: 0 orphan warnings for these skills)
+- [x] Skills with existing effectiveness evals re-run and still pass (grill, spec-driven-development at minimum)
+- [x] Redeployed and `mise run doctor` healthy
 
 ## Out of scope
 
 - Steering files (ticket 04 — different budget model, always-on cost)
+
+## Resolution
+**Closed:** 2026-07-17 (Resolution backfilled 2026-07-22). All 7 over-budget skills trimmed to ≤100 lines via progressive loading (overflow moved to references/); validate + lint clean, redeployed with doctor healthy, and grill + spec-driven-development evals re-passed post-trim with 0 regressions. Evidence: docs/plan.md follow-up table row 03 ("✅ done (c54b412 — all 7 ≤100; grill+sdd evals re-passed post-trim)"); work commit c54b412, status→done in b37724f.
