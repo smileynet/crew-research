@@ -30,6 +30,9 @@ Notes:
 - Precedence on server-name collision: agent config > workspace mcp.json > global mcp.json.
 - Config changes apply to NEW sessions only; running sessions keep loaded servers.
 - Auto-approval hardening: `allowedTools` with read-glob patterns (`@server/get_*`, `@server/list_*`, `@server/search*`); writes stay prompt-gated.
+- `allowedTools` is trust only (auto-approve, no prompt) — it never restricts availability; `tools` does that. (Official docs, validated 2026-06.)
+- Subagent trust does NOT inherit from the parent — a crew stage calling a tool outside its own `allowedTools` stalls on an approval prompt. Worker agents used as crew roles need `allowedTools` covering every tool they use.
+- AIM-managed machines rewrite agent configs on load: `@creds-agent` appended to `tools`/`allowedTools`, `creds-agent` added to `mcpServers`, JSON reformatted (Jackson style, no trailing newline). Append-only — hand-authored entries survive. Commit the churn; never symlink agent configs (AIM writes through the link).
 - Non-interactive probes fail fast on approval prompts — pass `--trust-tools=@server/<specific-tool>` (never `--trust-all-tools`).
 - kiro-cli survives SIGTERM; wrap probes in `timeout -k <grace> <limit>`.
 - kiro-cli atomically rewrites `~/.kiro/settings/cli.json` every session — that file is content-managed (copy, diff), never symlinked.

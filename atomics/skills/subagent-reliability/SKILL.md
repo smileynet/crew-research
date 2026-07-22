@@ -20,8 +20,11 @@ Subagent calls are unreliable. Expect failures and design around them.
 | Timeout | ConnectorError / Connection timed out | Occasional |
 | Partial response | Starts output then cuts off | Rare |
 | Silent success | Returns but missed key content (no way to detect) | Unknown |
+| Approval stall | Stage sits idle, no error, no output — worker hit a permission prompt for a tool not in its `allowedTools` | Config-dependent |
 
 **Root cause (validated):** failures correlate with **prompt size**, not task complexity. Dispatch prompts under ~1K tokens with work happening via tool calls succeed (~93%); prompts with 5-10K+ tokens of inlined data fail (~90%).
+
+**Approval stalls are a config bug, not a dispatch bug** (kiro-cli docs, validated 2026-06): trust never inherits from the parent — a subagent auto-approves only what its OWN `allowedTools` covers, and the parent's `toolsSettings.crew.trustedAgents` trusts the spawn, not the tools. Before dispatching, verify each worker's `allowedTools` covers every tool it will use (alongside the mcpServers check).
 
 ## The Core Rule: Write-Then-Read
 

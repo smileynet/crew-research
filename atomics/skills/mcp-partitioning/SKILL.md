@@ -47,6 +47,10 @@ Some tools atomically rewrite their config files (write-temp-then-rename), destr
 - **Symlink-managed**: files only you edit — drift detection = link check
 - **Content-managed**: files the tool rewrites — deploy by copy, detect drift by content diff. A symlink check here produces chronic false alarms that train you to ignore the real signal.
 
+**Agent configs are content-managed** (observed 2026-07-22): on AIM-managed machines, AIM's credential-sandbox tooling rewrites `.kiro/agents/*.json` on load — appends `@creds-agent` to `tools` and `allowedTools`, adds a `creds-agent` entry to `mcpServers`, and reformats the JSON (Jackson style, no trailing newline). It appends rather than replaces, so hand-authored entries survive. Never symlink agent configs — AIM writes through the link back into your source repo.
+
 ## Deploy Semantics (team distribution)
 
 When shipping agent configs as team defaults: copy-if-missing, skip-if-identical, and **never overwrite a differing file without an explicit force flag + backup** — users customize agents, and a silent clobber destroys their work.
+
+On AIM-managed machines, skip-if-identical never matches after the target's first session (AIM churn, above). Drift checks must compare semantically — source entries present in the live file, ignoring `@creds-agent` additions and formatting — not byte-identical.
