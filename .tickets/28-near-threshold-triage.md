@@ -1,7 +1,7 @@
 ---
 id: "28"
 title: "Near-threshold judged failures triaged: agents-md, handoff-decaying, feedback-loop-tighten"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: "t09-baseline-followups"
@@ -21,12 +21,16 @@ Determine flaky-vs-genuine for the three defs that failed the 2026-07-19 baselin
 
 ## Acceptance criteria
 
-- [ ] Each def re-run solo ≥2× at unchanged content; classify: flaky (variance straddles threshold) vs genuine (stable miss)
-- [ ] handoff-decaying: diff the a03798e handoff-skill change against the def's rubric before classifying — rule content regression in or out explicitly
-- [ ] Flaky defs get variance remedy (trials increase per steering-pointer precedent) or rubric/task fix; genuine ones get a content fix or `known_gap` with rationale
-- [ ] Baseline record 2026-07-19 amended with dispositions
+- [x] Each def re-run solo ≥2× at unchanged content; classify: flaky (variance straddles threshold) vs genuine (stable miss)
+- [x] handoff-decaying: diff the a03798e handoff-skill change against the def's rubric before classifying — rule content regression in or out explicitly
+- [x] Flaky defs get variance remedy (trials increase per steering-pointer precedent) or rubric/task fix; genuine ones get a content fix or `known_gap` with rationale
+- [x] Baseline record 2026-07-19 amended with dispositions
 
 ## Out of scope
 
 - Threshold/gate changes
 - The 4 stable known gaps (type-error, prototype, code-review-security, cross-tool-planning)
+
+## Resolution (2026-07-22)
+
+TBD
