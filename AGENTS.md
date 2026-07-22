@@ -99,55 +99,7 @@ mise run release -- <version>             # changelog roll, tag, push, GH releas
 
 ## Windows / WSL Deployment
 
-On Windows, **only init.sh requires WSL** (the generator is bash). Everything else — recall, daily work, scheduled tasks — runs natively.
-
-### Step 1: Deploy skills (WSL — one-time)
-
-```bash
-# Prerequisites (WSL)
-sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
-  -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
-
-# Deploy — run from PowerShell. The single quotes are load-bearing: with double
-# quotes PowerShell expands $USER/$HOME/$(...) itself (empty or wrong values) and
-# the deploy silently degrades (e.g. recall extension skipped). The quoted PATH
-# export matters too — the inherited Windows PATH contains spaces and parens.
-# Tool set: corp machines (CREW_ENV=corp) deploy kiro-cli + codex only (no agy —
-# company policy); personal machines add --tool agy.
-wsl -- bash -c 'export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && cd /mnt/c/Users/$USER/code/crew-research && bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex'
-
-# If your WSL username differs from your Windows username, resolve it first:
-wsl -- bash -c 'WIN_USERNAME=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d "\r") && export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH" && cd /mnt/c/Users/$WIN_USERNAME/code/crew-research && bash tools/generator/init.sh --global --tier full --tool kiro-cli --tool codex'
-```
-
-### Step 2: Trust mise config (Windows — one-time)
-
-```powershell
-mise trust C:\Users\<user>\code\crew-research\mise.toml
-```
-
-### Step 3: Recall (Windows — native, no WSL)
-
-```powershell
-# Install recall (from a crew-research clone — PyPI "recall" is squatted)
-uv tool install .\tools\recall
-
-# Register scheduled ingestion (every 4h)
-$action = New-ScheduledTaskAction -Execute "pwsh.exe" `
-  -Argument "-NoProfile -NonInteractive -File `"$env:USERPROFILE\code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1`""
-$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 4)
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
-Register-ScheduledTask -TaskName "RecallIngest" -Action $action -Trigger $trigger -Settings $settings
-
-# Add staleness hook to PowerShell profile (fires on shell open if >4h stale)
-# Append this line to $PROFILE:
-. $env:USERPROFILE\code\crew-research\tools\recall\profile-hook.ps1
-```
-
-**Staleness hooks** ensure recall ingestion runs on shell open if >4h stale:
-- PowerShell: `Invoke-RecallIngestIfStale` in `$PROFILE` — native Windows, fires background job
-- Linux/macOS: `_recall_ingest_if_stale` in `~/.bashrc` — fires nohup background ingestion
-- Source: `tools/recall/profile-hook.ps1` (Windows), `tools/recall/bashrc-hook.sh` (Unix)
+On Windows, **only init.sh requires WSL** (the generator is bash) — everything else, including recall, runs natively. Full setup flow (yq prerequisite, the deploy command with its load-bearing single quotes, username-mismatch variant, mise trust, recall scheduled task + profile hook) is owned by `.kiro/steering/user-setup-guide.md` § "Windows / WSL Setup" — do not duplicate it here. Tool set reminder: corp machines (CREW_ENV=corp) deploy kiro-cli + codex only (no agy); personal machines add `--tool agy`.
 
 ## Recall Operations
 
