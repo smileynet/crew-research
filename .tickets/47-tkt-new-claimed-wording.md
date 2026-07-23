@@ -1,7 +1,7 @@
 ---
 id: "47"
 title: "tkt new prints 'claimed' but leaves status: open — align message with behavior"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
