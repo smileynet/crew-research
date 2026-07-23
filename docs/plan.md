@@ -223,6 +223,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 46 | tkt batch create under a spec (R13) | open — spun off 41 (group-renumber loop nontrivial; repeated new is acceptable interim) |
 | 47 | tkt new prints 'claimed' but leaves status: open — align message with behavior | open — filed from archwright lane 2026-07-22 |
 | 48 | guidance-sync reviews edits/deprecations, not just additions | ✅ done 2026-07-22 — P6 prune probe + net-delta metric + routing to owned mechanisms; 4-subagent research; related edits: session-analysis, AGENTS.md, project-audit, ticket 34 |
+| 49 | tkt ergonomics: close --note + --brief output | open — P4 repetition evidence from guidance-sync 07-22/07-23; presentation-only, JSON contract unchanged |
 
 **Frontier (2026-07-21, post-40):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
