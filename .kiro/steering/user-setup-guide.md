@@ -87,6 +87,7 @@ Extensions add capabilities that require external tools. They deploy automatical
 
 ```bash
 uv tool install ./tools/recall            # install from a crew-research clone
+uv tool install -e ./tools/tkt            # editable — tracks the checkout live
 mise run init -- --global --tier basic    # recall auto-activates
 mise run init -- --skip-extension recall  # opt out if desired
 ```
@@ -95,11 +96,14 @@ mise run init -- --skip-extension recall  # opt out if desired
 |-----------|-------------|--------------|
 | `recall` | Cross-session memory — remembers decisions, past work, preferences | `recall` CLI on PATH |
 
-**When to suggest:** If the user works on long-lived projects, frequently resumes work across sessions, or asks about past decisions — suggest installing `recall` CLI.
+**When to suggest recall:** If the user works on long-lived projects, frequently resumes work across sessions, or asks about past decisions.
 
-**Install recall prerequisite:**
+**When to suggest tkt:** If the user works on multi-session features, uses `.tickets/` for work tracking, or asks about ticket management. `tkt` is the purpose-built ticket CLI for the `.tickets/` contract — it handles dependency graphs, frontier detection, ID allocation races, and plan sync.
+
+**Install both (recommended for full tier):**
 ```bash
 uv tool install ./tools/recall   # from a crew-research clone (PyPI "recall" is a squatted unrelated package)
+uv tool install -e ./tools/tkt   # editable — tracks the checkout live; reinstall only after entry-point/metadata changes
 ```
 
 ## Troubleshooting

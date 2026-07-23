@@ -67,6 +67,9 @@ Extensions add capabilities with external tool dependencies. They auto-deploy wh
 # Install cross-session memory (the prerequisite)
 uv tool install ./tools/recall   # from a crew-research clone — PyPI "recall" is an unrelated squatted package
 
+# Install ticket management CLI
+uv tool install -e ./tools/tkt   # editable — tracks the checkout live
+
 # Deploy tier — recall extension activates automatically
 mise run init -- --global --tier basic --tool kiro-cli
 # Extensions: recall ✅
@@ -74,11 +77,17 @@ mise run init -- --global --tier basic --tool kiro-cli
 # Now the agent remembers past decisions
 recall import .memory/ --wing my_project  # index project knowledge
 recall search "what did we decide about X"
+
+# Now the agent manages tickets with dependency tracking
+tkt ready                          # show frontier (next unblocked tickets)
+tkt new my-feature --title "..."   # create a ticket
+tkt close 01                       # mark done
 ```
 
 | Extension | What it adds | Prerequisite |
 |-----------|-------------|--------------|
 | `recall` | Cross-session memory — searches past decisions, imports project knowledge | `recall` CLI on PATH |
+| `tkt` | Ticket management — frontier detection, dependency graphs, plan sync | `tkt` CLI on PATH |
 
 Extensions auto-detect. To skip: `--skip-extension recall`.
 
