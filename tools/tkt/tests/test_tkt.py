@@ -74,6 +74,59 @@ def test_new_allocates_past_origin_max(repo_pair):
     assert (b / ".tickets" / "43-from-b.md").exists()
 
 
+# ---------------------------------------------- ticket 47: new-vs-claim wording
+
+def test_new_output_and_status_agree(repo_pair):
+    """`new` output must not read as an in_progress transition (ticket 47):
+    the word 'claimed' is reserved for claim; new says 'allocated' and names
+    the resulting status, which must match the frontmatter."""
+    a, _ = repo_pair
+    rc, out = run_tkt(a, "new", "wording-check")
+    assert rc == 0, out
+    assert out.startswith("allocated "), out
+    assert "status: open" in out, "output must name the resulting status"
+    assert not out.startswith("claimed"), "bare 'claimed' is reserved for the claim command"
+    body = (a / ".tickets" / "42-wording-check.md").read_text()
+    assert "status: open" in body, "frontmatter must agree with the output line"
+
+
+# ---------------------------------------------- ticket 49: close --note, --brief
+
+def test_close_note_writes_resolution(repo_pair):
+    a, _ = repo_pair
+    make_ticket(a / ".tickets", "002", "note-close")
+    git(a, "add", "-A")
+    git(a, "commit", "-qm", "seed")
+    git(a, "push", "-q")
+    rc, out = run_tkt(a, "close", "002", "--note", "Fixed by doing X; evidence: suite green.")
+    assert rc == 0 and "Resolution written" in out, out
+    body = (a / ".tickets" / "002-note-close.md").read_text()
+    resolution = body.split("## Resolution (")[1]
+    assert "Fixed by doing X; evidence: suite green." in resolution
+    assert "TBD" not in resolution, "--note must replace the TBD stub"
+
+
+def test_brief_output_and_exit_parity(repo_pair):
+    """--brief is presentation only: same exit code, one line per finding,
+    terminal status line. JSON mode stays the default and parseable."""
+    a, _ = repo_pair
+    # clean corpus: pass both modes, exit 0
+    rc_json, out_json = run_tkt(a, "validate")
+    rc_brief, out_brief = run_tkt(a, "validate", "--brief")
+    assert rc_json == rc_brief == 0
+    assert json.loads(out_json)["status"] == "pass"
+    assert out_brief.strip().splitlines()[-1].startswith("pass (")
+    # violating corpus: fail both modes, exit 1, finding line present
+    make_ticket(a / ".tickets", "099", "bad-dep", deps='"777"')
+    rc_json, out_json = run_tkt(a, "validate")
+    rc_brief, out_brief = run_tkt(a, "validate", "--brief")
+    assert rc_json == rc_brief == 1
+    assert json.loads(out_json)["status"] == "fail"
+    lines = out_brief.strip().splitlines()
+    assert any("099-bad-dep.md" in l for l in lines), out_brief
+    assert lines[-1].startswith("fail (")
+
+
 # The lost-race -> renumber path (D1a) is covered black-box in
 # test_blackbox.py::test_new_race_renumbers_end_to_end via a pre-receive hook
 # on the bare remote — real git semantics, no monkeypatching (ticket 44).

@@ -184,11 +184,11 @@ def cmd_new(args) -> int:
 
         gitio.commit_single_file(repo, path, f"chore(tickets): new {tid} {args.slug}")
         if not remote:
-            print(f"created {path.name} (no remote — claim is local only)")
+            print(f"created {path.name} (no remote — id claim is local only, status: open)")
             return 0
         if gitio.push(repo):
             note = f" (renumbered {first_proposed}→{proposed})" if proposed != first_proposed else ""
-            print(f"claimed {path.name}{note}")
+            print(f"allocated {path.name}{note} (pushed — id claimed, status: open)")
             return 0
         # lost race: undo claim commit (file kept, untracked), reconcile, retry
         gitio.undo_commit_keep_file(repo)
@@ -284,13 +284,15 @@ def cmd_close(args) -> int:
     _preflight_race_check(repo, t, "close", lost)
     set_field(t, "status", "done")
     if "## Resolution" not in t.body:
-        t.body = t.body.rstrip("\n") + f"\n\n## Resolution ({date.today().isoformat()})\n\nTBD\n"
+        if args.note and (err := validate_free_text(args.note, "note")):
+            sys.exit(f"tkt: {err}")
+        t.body = t.body.rstrip("\n") + f"\n\n## Resolution ({date.today().isoformat()})\n\n{args.note or 'TBD'}\n"
     write_ticket(t)
     unchecked = len(UNCHECKED_AC.findall(t.body))
     if unchecked:
         print(f"warning: {unchecked} unchecked acceptance box(es) — fill in before trusting history", file=sys.stderr)
     _commit_and_push(repo, t, "close", lost_states=lost)
-    print(f"closed {t.path.name} (dated Resolution stub appended)")
+    print(f"closed {t.path.name} (dated Resolution {'written' if args.note else 'stub appended'})")
     return 0
 
 
@@ -476,11 +478,19 @@ def cmd_sync_plan(args) -> int:
     errors = [f for f in findings if f["severity"] == "error"]
     warnings = [f for f in findings if f["severity"] == "warning"]
     status = "fail" if errors or (args.strict and warnings) else "pass"
-    print(json.dumps({"status": status, "findings": findings}, indent=2))
+    _print_findings(status, findings, brief=args.brief)
     return 1 if status == "fail" else 0
 
 
-# ---------------------------------------------------------------- validate
+def _print_findings(status: str, findings: list[dict], brief: bool) -> None:
+    """--brief is presentation only: JSON stays the default contract shape;
+    exit codes are decided by the caller either way."""
+    if not brief:
+        print(json.dumps({"status": status, "findings": findings}, indent=2))
+        return
+    for f in findings:
+        print(f"{f['severity']}: {f['file']} [{f['rule']}] {f['message']}")
+    print(f"{status} ({len(findings)} finding(s))")
 
 def _cycles(tickets: dict[str, list[str]]) -> list[str]:
     state: dict[str, int] = {}
@@ -546,7 +556,7 @@ def cmd_validate(args) -> int:
     errors = [f for f in findings if f["severity"] == "error"]
     warnings = [f for f in findings if f["severity"] == "warning"]
     status = "fail" if errors or (args.strict and warnings) else "pass"
-    print(json.dumps({"status": status, "findings": findings}, indent=2))
+    _print_findings(status, findings, brief=args.brief)
     return 1 if status == "fail" else 0
 
 
@@ -560,7 +570,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--json", action="store_true")
     p.set_defaults(fn=cmd_ready)
 
-    p = sub.add_parser("new", help="allocate + claim a new ticket (fetch, scan, create, commit, push)")
+    p = sub.add_parser("new", help="allocate a new ticket id (fetch, scan, create, commit, push); pushed = id claimed, status stays open")
     p.add_argument("slug")
     p.add_argument("--title")
     p.add_argument("--spec")
@@ -575,6 +585,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("close", help="mark done, append dated Resolution stub, warn unchecked ACs")
     p.add_argument("id")
+    p.add_argument("--note", help="resolution text (replaces the TBD stub; omit to edit the file afterward)")
     p.set_defaults(fn=cmd_close)
 
     p = sub.add_parser("edit", help="surgical field corrections; '' clears an optional field")
@@ -595,11 +606,13 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("sync-plan", help="drift-check ticket status vs a plan table (report-only)")
     p.add_argument("--check", action="store_true", required=True, help="report drift (the only mode)")
     p.add_argument("--strict", action="store_true", help="warnings also fail")
+    p.add_argument("--brief", action="store_true", help="one line per finding instead of JSON (exit codes unchanged)")
     p.add_argument("plan", nargs="?", help="plan file (default: docs/plan.md)")
     p.set_defaults(fn=cmd_sync_plan)
 
     p = sub.add_parser("validate", help="contract + decay findings as JSON (exit 0 pass / 1 fail)")
     p.add_argument("--strict", action="store_true", help="warnings also fail")
+    p.add_argument("--brief", action="store_true", help="one line per finding instead of JSON (exit codes unchanged)")
     p.set_defaults(fn=cmd_validate)
 
     p = sub.add_parser("query", help="all tickets as JSON lines")

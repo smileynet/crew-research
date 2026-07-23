@@ -96,6 +96,9 @@ events:
     producer: decay-watcher
     consumers: [operator, ci]
     stability: public
+    # --brief (ticket 49) is presentation-only: alternate human-readable stdout,
+    # flag-gated; this JSON payload stays the default shape and exit codes are
+    # identical in both modes.
     payload:
       status:
         type: enum
@@ -110,6 +113,7 @@ events:
     producer: decay-watcher
     consumers: [operator, ci]
     stability: public
+    # --brief (ticket 49): presentation-only alternate stdout; JSON default + exit codes unchanged.
     payload:
       status:
         type: enum

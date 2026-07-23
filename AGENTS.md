@@ -48,11 +48,11 @@ docs/development/                 — Practices, spike records, results
 tkt ready                                     # frontier: env-filtered, priority-aware
 tkt new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
 tkt claim <id>   # status→in_progress, pushed (visible WIP; lost race names the winner)
-tkt close <id>   # status→done + dated Resolution stub
+tkt close <id> [--note "..."]  # status→done; --note writes the Resolution (else TBD stub)
 tkt edit <id> [--blocked-by IDS] [--priority high|''] [--env E|''] [--spec S|''] [--title T]
 tkt renumber <old> <new> [--file NAME]  # birth-window only — cited ids are contracts
-tkt sync-plan --check [--strict] [plan] # drift vs docs/plan.md (0 clean / 1 drift / 2 crash)
-tkt validate                            # contract + decay findings (JSON, exit 0/1)
+tkt sync-plan --check [--strict] [--brief] [plan] # drift vs docs/plan.md (0 clean / 1 drift / 2 crash)
+tkt validate [--brief]                  # contract + decay findings (JSON, exit 0/1; --brief = one line per finding)
 #   NOTE: warnings on pre-tkt done tickets carrying the "not individually verified at
 #   close" caveat (8 as of 2026-07-22) are deliberate — don't re-triage them.
 #   .tickets/ files ARE the tkt format — tkt operates in place; no import/convert step
