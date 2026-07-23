@@ -1,7 +1,7 @@
 ---
 id: "47"
 title: "tkt new prints 'claimed' but leaves status: open — align message with behavior"
-status: in_progress
+status: done
 blocked_by: []
 ---
 
@@ -29,10 +29,14 @@ Either way: one word = one meaning across `new`/`claim` output.
 
 ## Acceptance criteria
 
-- [ ] `tkt new` output cannot be read as an in_progress transition (wording or behavior aligned)
-- [ ] Help text for `new` matches what it actually does to `status`
-- [ ] R17 black-box coverage asserts the output line + resulting frontmatter status agree
+- [x] `tkt new` output cannot be read as an in_progress transition (wording or behavior aligned)
+- [x] Help text for `new` matches what it actually does to `status`
+- [x] R17 black-box coverage asserts the output line + resulting frontmatter status agree
 
 ## Out of scope
 
 - Any status vocabulary change (frozen contract per ticket-cli-spec.md)
+
+## Resolution (2026-07-23)
+
+Option 1 (wording): new prints 'allocated NN (pushed — id claimed, status: open)'; bare 'claimed' reserved for claim; help text literal. Test: test_new_output_and_status_agree asserts output+frontmatter agreement. Commit df5e83d.
