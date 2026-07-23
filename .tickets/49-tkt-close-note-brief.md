@@ -1,7 +1,7 @@
 ---
 id: "49"
 title: "tkt ergonomics: close --note and --brief output for validate/sync-plan"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: "ticket-cli"
