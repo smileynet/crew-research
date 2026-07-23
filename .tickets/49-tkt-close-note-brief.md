@@ -1,7 +1,7 @@
 ---
 id: "49"
 title: "tkt ergonomics: close --note and --brief output for validate/sync-plan"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: "ticket-cli"
@@ -40,11 +40,15 @@ Two small ergonomics additions to tkt, both traced to repeated manual work
 
 ## Acceptance criteria
 
-- [ ] `tkt close <id> --note "text"` writes the note into the Resolution section;
+- [x] `tkt close <id> --note "text"` writes the note into the Resolution section;
       without the flag, current TBD-stub behavior is byte-identical
-- [ ] `tkt validate --brief` and `tkt sync-plan --check --brief` print one line per
+- [x] `tkt validate --brief` and `tkt sync-plan --check --brief` print one line per
       finding + a final status line; exit codes match JSON mode exactly
-- [ ] JSON output without `--brief` is byte-identical to current (contract tests pass)
-- [ ] Static checks pass (`mise run check:design`); cli-outputs contract updated if
+- [x] JSON output without `--brief` is byte-identical to current (contract tests pass)
+- [x] Static checks pass (`mise run check:design`); cli-outputs contract updated if
       stdout shape is contracted
-- [ ] Test suite extended to cover both flags; `mise run test:tkt` green
+- [x] Test suite extended to cover both flags; `mise run test:tkt` green
+
+## Resolution (2026-07-23)
+
+close --note writes Resolution (validate_free_text-checked); validate/sync-plan --brief = presentation-only alternate stdout, JSON default + exit codes unchanged (contract notes in cli-outputs.yaml). Tests: note resolution + brief/JSON exit parity; suite 48 passed. Commit df5e83d.
