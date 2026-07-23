@@ -26,7 +26,7 @@ bash run.sh --adapter crush --definition <name>   # run under another tool (kiro
 - Defs support per-task `fixture:` overriding the def-level fixture (real injected bugs — see `fixtures/defu-null-bug.yaml`).
 - Definition schema and criteria style: `tools/evals/README.md` + the `eval-criteria` skill.
 - **Adapter scoping + access probes (ticket 29):** defs with `adapters: [x]` SKIP under other adapters; agent and judges are access-probed with a real prompt (`EVAL_PROBE_TIMEOUT`, default 30s) — PATH ≠ access. SKIP rows carry a reason, don't count as pass/fail/completed, and owe a run in `docs/development/deferred-runs.md`.
-- **Judge participation is recorded** per trial (`task_scores[].judges`) and per run (`meta.json` → `judges.live/excluded`). Pre-2026-07-19 results have NO judge recording and were opus-only on this machine (crush never scored; codex silently died in untrusted temp dirs — fixed) — don't compare consensus scores across that boundary.
+- **Judge participation is recorded** per trial (`task_scores[].judges`) and per run (`meta.json` → `judges.live/excluded`). Pre-2026-07-19 results have NO judge recording and were opus-only on this machine (crush never scored; codex silently died in untrusted temp dirs — fixed) — don't compare consensus scores across that boundary. **Corp machines typically judge kiro-only** (codex/crush access probes fail, agy absent — observed 2026-07-22, ticket 28): check `judges.live` before comparing scores across machines or against multi-judge baselines.
 
 ## Reading scores.jsonl (one JSON line per definition)
 
@@ -36,7 +36,7 @@ bash run.sh --adapter crush --definition <name>   # run under another tool (kiro
 | `status` | PASS/FAIL — with-skill avg vs `threshold`, delta vs `delta_threshold`; SKIP = not run (see `reason`) |
 | `judges` | union of judges that scored this def; per-trial sets in `task_scores[].judges` |
 | `with_score` / `without_score` / `delta` | condition averages; delta is the skill's contribution |
-| `task_scores[]` | per-task, per-condition `avg` + raw trial `scores` — **start here when a def fails** |
+| `task_scores[]` | per-task, per-condition `avg` + raw trial `scores` — **start here when a def fails**. `task` indices are 0-based (task 1 = the SECOND task in the def) |
 | `activation_rate` | share of with-skill trials where the skill actually loaded |
 | `skill_hash` / `def_hash` / `env_id` | null placeholders until ticket 33 lands identity hashes |
 | trial score `0` | usually a timeout (output cut mid-stream), not a judged zero — read the output file |

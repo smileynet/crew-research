@@ -31,7 +31,7 @@ tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 
 ## Estimate completion
 
-- Each judged eval ≈ 6-67 min, median ~17 min (12 sessions: 3 trials × 2 conditions × 2 tasks, plus 4-model consensus judging)
+- Each judged eval ≈ 6-67 min, median ~17 min (12 sessions: 3 trials × 2 conditions × 2 tasks, plus consensus judging — the live judge set is machine-dependent and recorded in `meta.json` → `judges.live/excluded`; corp machines typically judge kiro-only)
 - Full judged suite (35 evals) ≈ 8-10 hours
 - Single activation def (10 tasks) ≈ 12 min
 

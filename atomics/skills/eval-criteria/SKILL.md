@@ -52,6 +52,10 @@ BONUS (score 5): What excellence looks like.
 
 Score reasoning quality, not vocabulary. An agent that correctly resolves a source conflict using natural language ("official docs beat community answers because the maintainers control the source") should score the same as one using formal framework terms ("L4 > L6"). The framework makes reasoning visible; the reasoning is what matters.
 
+## Activation Task Design (activation defs)
+
+Negative tasks (`expect_activation: false`) must stay OUT of the skill's legitimate downstream territory, not just its trigger vocabulary. A task that instructs the agent to produce changes can legitimately end in commit territory — loading git-protocol there is correct behavior, and the "negative" flakes at the FPR gate. Use read-only/Q&A negatives for skills whose triggers include post-change workflow (incident: activation-git-protocol, ticket 27 — two verified-genuine FPs from change-producing negatives).
+
 ## Naming Convention
 
 `{skill}-{verb}-{noun}` — e.g., `planning-cycles-produces-phases`, `code-review-checks-security`
