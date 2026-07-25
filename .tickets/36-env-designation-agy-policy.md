@@ -1,7 +1,7 @@
 ---
 id: "36"
 title: "Environment designation (CREW_ENV) + agy policy enforcement on corp"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: ""
@@ -22,13 +22,17 @@ Make the corp/personal environment split mechanical: a machine-local flag that t
 
 ## Acceptance criteria
 
-- [ ] `init.sh`: `--tool agy` with `CREW_ENV=corp` refuses with a policy message (hard error, not warning); unset CREW_ENV → proceed with a notice
-- [ ] `doctor.sh`: on corp, flags any agy artifacts (~/.gemini presence, .crew-skills-agy) as policy violations
-- [ ] Eval + proof harnesses: agy judge/agent legs are policy-blocked when `CREW_ENV=corp` (before any `command -v` or access probe), with the distinct reason string
-- [ ] Docs: AGENTS.md + user-setup-guide document the CREW_ENV convention and per-env deploy commands (corp: `--tool kiro-cli --tool codex`; personal adds `--tool agy --tool crush`)
-- [ ] Conformance: on this machine, an attempted agy deploy fails with the policy error; a kiro-cli+codex deploy succeeds unchanged
+- [x] `init.sh`: `--tool agy` with `CREW_ENV=corp` refuses with a policy message (hard error, not warning); unset CREW_ENV → proceed with a notice
+- [x] `doctor.sh`: on corp, flags any agy artifacts (~/.gemini presence, .crew-skills-agy) as policy violations
+- [x] Eval + proof harnesses: agy judge/agent legs are policy-blocked when `CREW_ENV=corp` (before any `command -v` or access probe), with the distinct reason string
+- [x] Docs: AGENTS.md + user-setup-guide document the CREW_ENV convention and per-env deploy commands (corp: `--tool kiro-cli --tool codex`; personal adds `--tool agy --tool crush`)
+- [x] Conformance: on this machine, an attempted agy deploy fails with the policy error; a kiro-cli+codex deploy succeeds unchanged
 
 ## Out of scope
 
 - crush/Bedrock configuration (ticket 31)
 - Generalizing to arbitrary policy rules (one flag, one banned tool — build no framework; rule-of-two)
+
+## Resolution (2026-07-25)
+
+Mechanical enforcement shipped: init.sh exits 1 on --tool agy under CREW_ENV=corp (before any FS op; unset env = notice); doctor policy section flags agy binary/~/.gemini/manifest (conformance: fires on planted .crew-skills-agy, silent when clean); eval run.sh blocks --adapter agy at startup and excludes the agy judge leg BEFORE command -v with reason 'policy-blocked (CREW_ENV=corp)'; run-proof.sh blocks agy leg and explicit --tool agy. Docs: AGENTS.md deployment note + user-setup-guide Environment Designation section. kiro-cli+codex deploy verified unchanged.
