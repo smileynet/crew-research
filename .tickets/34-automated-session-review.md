@@ -1,7 +1,7 @@
 ---
 id: "34"
 title: "Explore: automated periodic session-history review for self-improvement opportunities"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: ""
