@@ -224,6 +224,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 47 | tkt new prints 'claimed' but leaves status: open | ✅ done 2026-07-23 — wording fix (option 1): 'allocated … status: open'; bare 'claimed' reserved for claim; output/frontmatter agreement tested |
 | 48 | guidance-sync reviews edits/deprecations, not just additions | ✅ done 2026-07-22 — P6 prune probe + net-delta metric + routing to owned mechanisms; 4-subagent research; related edits: session-analysis, AGENTS.md, project-audit, ticket 34 |
 | 49 | tkt ergonomics: close --note + --brief output | ✅ done 2026-07-23 — presentation-only --brief (JSON contract unchanged); close --note replaces TBD stub; suite 48 |
+| 50 | tkt close/edit --ac N,N enumerated box-checking | open — blanket --check-acs REJECTED (rubber-stamp guard); enumeration preserves the audit moment (guidance-sync 07-25) |
 
 **Frontier (2026-07-21, post-40):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
