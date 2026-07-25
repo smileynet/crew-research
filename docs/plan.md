@@ -207,7 +207,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 30 | image-* defs conform (ids, adapter scoping, deferred birth run) | open, blocked by 29 — upstream 5a23e45 defs lack immutable ids and would blind-run under kiro-cli |
 | 31 | crush deployment completeness (deploy + idempotency + docs; probes deferred) | open — capability landed upstream but not deployed here; docs have zero crush coverage |
 | 32 | Results support async completion: re-judge mode + interchange | open, blocked by 29 — outputs already retained (feasible); needs row keys, --judge-only, export/import |
-| 33 | Result identity hashes (skill/def/env drift detection + --changed-only) | open, blocked by 29 — makes staleness computed not remembered (a03798e + ticket-14 precedents) |
+| 33 | Result identity hashes | ✅ done 2026-07-25 — identity.sh shared module, per-def execution-time hashes in rows, check-staleness.sh drift kinds, --changed-only; conformance: each component flips exactly its kind |
 | 34 | Explore: automated session-history self-improvement review | open — /guidance-sync's archived-sessions counterpart; spike-first; global findings route through crew-research |
 | 35 | Model cost/quality benchmarking (judges first: agreement vs 2026-07-19 consensus) | open — prefer cheaper models where quality holds; corp candidates incl. Bedrock Claude via crush (haiku-4.5) |
 | 36 | CREW_ENV designation + agy policy enforcement on corp | open — agy = company-policy violation on corp (artifacts removed 2026-07-19); init/doctor/harness hard-blocks |

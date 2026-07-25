@@ -172,7 +172,7 @@ Key properties (verified 2026-07-19):
 | ~~Judge participation unrecorded~~ | — | DONE ticket 29 (2026-07-19): `judges` per row + per trial |
 | No re-judge mode | can't upgrade old scores when more judges become reachable | ticket 32: `--judge-only <results-dir>` writing a versioned scores file (never overwrite) |
 | `results/` is gitignored, no interchange format | runs from other machines (e.g., crush-capable) can't merge | ticket 32: export/import bundle or committed summary format; owed runs tracked in `docs/development/deferred-runs.md` |
-| No result identity hashes | "does this result reflect current skill/def/model state?" requires git archaeology (a03798e confound precedent) | ticket 33: per-row `skill_hash`/`def_hash`/`env_id` (null placeholders emitted since ticket 29) + staleness checker + `--changed-only` |
+| No result identity hashes | — | DONE ticket 33 (2026-07-25): per-row `skill_hash` (skills + steering across all conditions), `def_hash` (def yaml + all fixtures incl. per-task), `env_id` (adapter:tool_version:model:judges string) — computed per def at execution time (catches a03798e-shaped mid-run drift); one hash impl in `harness/identity.sh` (v1-sha256-12, relative paths ⇒ machine-independent); `check-staleness.sh <dir> [--brief]` reports CURRENT/SKILL-DRIFT/DEF-DRIFT/ENV-DRIFT (env recomputes the version segment only — judges aren't probed, model is a user param); `run.sh --changed-only <baseline-dir>` skips defs whose 3 components match the baseline row. Rows predating the fields report UNHASHED (informational). Model identity limit documented: observable id + tool version only |
 
 ## Result Fields (meta.json)
 

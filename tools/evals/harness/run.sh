@@ -23,7 +23,11 @@ MODEL=""
 ENGINE=""
 JUDGE_CONFIG="$JUDGES_DIR/default.yaml"
 RESUME_DIR=""
+CHANGED_ONLY_DIR=""
 PROBE_TIMEOUT="${EVAL_PROBE_TIMEOUT:-30}"
+
+# Identity hashes (ticket 33): one hashing implementation shared with check-staleness.sh
+source "$SCRIPT_DIR/identity.sh"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -34,6 +38,7 @@ while [[ $# -gt 0 ]]; do
     --isolated) ISOLATED=true; shift ;;
     --trials) TRIALS="$2"; shift 2 ;;
     --model) MODEL="$2"; shift 2 ;;
+    --changed-only) CHANGED_ONLY_DIR="$2"; shift 2 ;;
     --engine) ENGINE="$2"; shift 2 ;;
     --judge) JUDGE_CONFIG="$2"; shift 2 ;;
     --skip-completed) RESUME_DIR="$2"; shift 2 ;;
@@ -52,6 +57,12 @@ done
 
 # Validate trials
 [[ "$TRIALS" -gt 0 ]] 2>/dev/null || { echo "Error: --trials must be > 0" >&2; exit 1; }
+
+# Validate changed-only baseline
+if [[ -n "$CHANGED_ONLY_DIR" ]]; then
+  [[ -f "$CHANGED_ONLY_DIR/scores.jsonl" ]] || { echo "Error: --changed-only dir has no scores.jsonl: $CHANGED_ONLY_DIR" >&2; exit 2; }
+fi
+CHANGED_ONLY_CURRENT=()
 
 # Load adapter
 ADAPTER_FILE="$ADAPTERS_DIR/$ADAPTER.yaml"
@@ -488,6 +499,32 @@ run_eval() {
   # probing would silently repeat on every judging call
   ensure_judges_probed
 
+  # Identity hashes (ticket 33): computed HERE, per def at execution time — not
+  # once at run start — so a mid-run merge (the a03798e incident) stamps defs
+  # before/after it with different hashes.
+  local row_skill_hash row_def_hash row_env_id
+  row_skill_hash=$(identity_skill_hash "$def_file")
+  row_def_hash=$(identity_def_hash "$def_file")
+  row_env_id=$(identity_env_id "$ADAPTER" "$TOOL_VERSION" "$MODEL" ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"})
+
+  # --changed-only: skip defs whose baseline row matches all three components.
+  # The baseline row remains the valid result; no new row is emitted.
+  if [[ -n "$CHANGED_ONLY_DIR" ]]; then
+    local base_line
+    base_line=$(grep "\"name\":\"$name\"" "$CHANGED_ONLY_DIR/scores.jsonl" | tail -1)
+    if [[ -n "$base_line" ]]; then
+      local b_skill b_def b_env
+      b_skill=$(sed -n 's/.*"skill_hash":"\([^"]*\)".*/\1/p' <<< "$base_line")
+      b_def=$(sed -n 's/.*"def_hash":"\([^"]*\)".*/\1/p' <<< "$base_line")
+      b_env=$(sed -n 's/.*"env_id":"\([^"]*\)".*/\1/p' <<< "$base_line")
+      if [[ "$b_skill" == "$row_skill_hash" && "$b_def" == "$row_def_hash" && "$b_env" == "$row_env_id" ]]; then
+        CHANGED_ONLY_CURRENT+=("$name")
+        echo "  ⏭  $name — current vs baseline (skill/def/env all match), skipped"
+        return
+      fi
+    fi
+  fi
+
   local skill=$(yq '.skill // ""' "$def_file")
   local threshold=$(yq '.threshold // 4' "$def_file")
   local delta_threshold=$(yq '.delta_threshold // .acceptance.min_delta // 0' "$def_file")
@@ -783,7 +820,7 @@ run_eval() {
   if [[ ${#row_judges[@]} -gt 0 ]]; then
     judges_union=$(printf '%s\n' "${!row_judges[@]}" | sort | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}')
   fi
-  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"skill_hash\":null,\"def_hash\":null,\"env_id\":null,\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
+  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"skill_hash\":\"$row_skill_hash\",\"def_hash\":\"$row_def_hash\",\"env_id\":\"$row_env_id\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
   if [[ $is_comparison -eq 1 ]]; then
     local primary_cond="" baseline_cond=""
     for cond in "${condition_names[@]}"; do
@@ -813,6 +850,10 @@ done
 echo ""
 echo "---"
 echo "Results: $PASSED passed, $FAILED failed, $SKIPPED skipped ($TOTAL run)"
+if [[ -n "$CHANGED_ONLY_DIR" ]]; then
+  echo "Changed-only: ${#CHANGED_ONLY_CURRENT[@]} def(s) current vs $CHANGED_ONLY_DIR, not re-run"
+  [[ ${#CHANGED_ONLY_CURRENT[@]} -gt 0 ]] && printf '  = %s\n' "${CHANGED_ONLY_CURRENT[@]}"
+fi
 
 # Live judge set as JSON (empty if judging never happened this run)
 JUDGES_LIVE_JSON="[]"
@@ -831,6 +872,7 @@ cat > "$META_FILE" << EOF
   "timestamp": "$TIMESTAMP",
   "commit": "$COMMIT",
   "config": {"trials": $TRIALS, "judge": "$JUDGE_MODEL", "adapter": "$ADAPTER", "dry_run": $DRY_RUN},
+  "identity": {"algorithm": "$IDENTITY_HASH_VERSION", "changed_only_baseline": "${CHANGED_ONLY_DIR:-null}", "skipped_as_current": ${#CHANGED_ONLY_CURRENT[@]}},
   "judges": {"live": $JUDGES_LIVE_JSON, "excluded": "$JUDGES_EXCLUDED_ESCAPED"},
   "summary": {"total": $TOTAL, "passed": $PASSED, "failed": $FAILED, "skipped": $SKIPPED, "avg_score": 0}
 }

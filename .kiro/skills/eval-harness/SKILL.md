@@ -38,7 +38,7 @@ bash run.sh --adapter crush --definition <name>   # run under another tool (kiro
 | `with_score` / `without_score` / `delta` | condition averages; delta is the skill's contribution |
 | `task_scores[]` | per-task, per-condition `avg` + raw trial `scores` — **start here when a def fails**. `task` indices are 0-based (task 1 = the SECOND task in the def) |
 | `activation_rate` | share of with-skill trials where the skill actually loaded |
-| `skill_hash` / `def_hash` / `env_id` | null placeholders until ticket 33 lands identity hashes |
+| `skill_hash` / `def_hash` / `env_id` | identity components (ticket 33) — recomputable fingerprints of skill+steering content, def+fixtures, and adapter:version:model:judges. `bash check-staleness.sh <run-dir> [--brief]` reports drift kind per def (CURRENT / SKILL-DRIFT / DEF-DRIFT / ENV-DRIFT); pre-2026-07-25 rows report UNHASHED. `run.sh --changed-only <baseline-dir>` re-runs only drifted defs |
 | trial score `0` | usually a timeout (output cut mid-stream), not a judged zero — read the output file |
 
 Trial outputs: `outputs/{def}-{condition}-task{N}-trial{M}.txt`. A def failing with high baseline = task may be doable without the skill; failing with 0-score trials = check for timeout spirals (possibly an impossible task — verify the fixture actually contains the described bug).
