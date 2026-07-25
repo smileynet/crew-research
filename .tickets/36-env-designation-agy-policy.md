@@ -1,7 +1,7 @@
 ---
 id: "36"
 title: "Environment designation (CREW_ENV) + agy policy enforcement on corp"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: ""
