@@ -1,7 +1,7 @@
 ---
 id: "33"
 title: "Result identity hashes: detect which eval results reflect current skill/def/model state"
-status: in_progress
+status: done
 blocked_by: ["29"]
 env: either
 spec: "eval-harness"
@@ -29,13 +29,17 @@ Plus a checker: `check-staleness.sh <results-dir>` (or a run.sh flag) that recom
 
 ## Acceptance criteria
 
-- [ ] Every scores.jsonl row carries `skill_hash`, `def_hash`, `env_id` (short sha256 prefixes fine); meta.json records the hash algorithm/version
-- [ ] Staleness checker reports per-def drift kind against current tree; exit codes per validation contract (0 all current, 1 drift found)
-- [ ] Mid-run drift detectable: hashes computed per def at execution time, not once at run start (catches the a03798e-shaped incident)
-- [ ] Conformance (anti-vacuous): editing a skill file, a fixture, and running under a different adapter each flips exactly the expected component in the checker's report
-- [ ] Optional stretch: `--changed-only <baseline-results-dir>` runs only drifted defs; skipped-as-current defs reported
+- [x] Every scores.jsonl row carries `skill_hash`, `def_hash`, `env_id` (short sha256 prefixes fine); meta.json records the hash algorithm/version
+- [x] Staleness checker reports per-def drift kind against current tree; exit codes per validation contract (0 all current, 1 drift found)
+- [x] Mid-run drift detectable: hashes computed per def at execution time, not once at run start (catches the a03798e-shaped incident)
+- [x] Conformance (anti-vacuous): editing a skill file, a fixture, and running under a different adapter each flips exactly the expected component in the checker's report
+- [x] Optional stretch: `--changed-only <baseline-results-dir>` runs only drifted defs; skipped-as-current defs reported
 
 ## Out of scope
 
 - True model-weights identity (unobservable)
 - Retroactively hashing old result dirs (they predate the fields; the 2026-07-19 baseline is the last unhashed reference set)
+
+## Resolution (2026-07-25)
+
+Shipped: identity.sh shared hash module (v1-sha256-12, relative paths = machine-independent), per-def execution-time hashing in run.sh rows, check-staleness.sh with CURRENT/SKILL-DRIFT/DEF-DRIFT/ENV-DRIFT kinds + validation-contract exit codes, meta.json algorithm record, --changed-only stretch. Conformance verified live: skill edit -> SKILL-DRIFT only, fixture edit -> DEF-DRIFT only, adapter flip -> ENV-DRIFT only, clean tree -> pass exit 0; --changed-only skips current def and reruns after skill edit. Model-identity limit documented in identity.sh + spec.
