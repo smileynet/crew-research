@@ -30,6 +30,8 @@ Direct: `python tools/session-analyzer/skill_usage.py --days N` (JSON to stdout)
 | `recall_check_compliance` | convenience block (added ticket 23): same counters plus precomputed `rate` and the baseline string — cite this in compliance reports |
 
 **Measurement soundness:** session JSONLs do NOT embed injected steering text (verified 2026-07-19: zero matches for steering markers in stored transcripts) — compliance regexes match real conversation content, not the steering that teaches the phrases.
+
+**Transcript format (verified 2026-07-25, ticket 34 spike):** user prompts are `kind: Prompt` JSONL lines (`data.content[].data`); there are NO "USER MESSAGE BEGIN" wrappers in stored transcripts (317/319 sessions — only interactive sessions with injected context embed them). `skill_usage.py::user_prompts()` predates this and matches ~nothing — port it to Prompt-line parsing before reusing (compliance counters are unaffected: they scan raw text). Working extractor: `.scratch/spike-34/prefilter.py::iter_messages`.
 | `steering_compliance.eval_run_sessions` vs `.eval_run_with_nohup` | eval-execution steering compliance |
 | `sessions_per_project` | denominator context — low-session projects give noisy rates |
 

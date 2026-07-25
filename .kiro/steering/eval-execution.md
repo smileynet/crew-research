@@ -5,6 +5,7 @@ When running evals (`mise run eval`, `mise run eval:one`, or the harness directl
 ## Always use background execution
 
 Evals take 5-15 minutes each. A full suite (100+) takes hours. Never run inline.
+(Exception: `--dry-run` finishes in seconds — inline is fine.)
 
 ```bash
 setsid nohup bash tools/evals/harness/run.sh [args] > /tmp/full-eval-run.log 2>&1 < /dev/null &
