@@ -70,10 +70,10 @@ foreach ($entry in $Projects) {
     }
 
     if ($DryRun) {
-        Write-Host "  [dry-run] recall import $path --wing $wing --force"
+        Write-Host "  [dry-run] recall import $path --wing $wing"
     } else {
         Write-Host "  Importing $wing..."
-        $output = & recall import $path --wing $wing --force 2>&1
+        $output = & recall import $path --wing $wing 2>&1
         $output | ForEach-Object { Write-Host "    $_" }
     }
 }

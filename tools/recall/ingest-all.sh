@@ -71,10 +71,10 @@ for entry in "${PROJECTS[@]}"; do
   fi
 
   if [[ "$DRY_RUN" == true ]]; then
-    echo "  [dry-run] recall import $path --wing $wing --force"
+    echo "  [dry-run] recall import $path --wing $wing"
   else
     echo "  Importing $wing..."
-    recall import "$path" --wing "$wing" --force 2>&1 | sed 's/^/    /'
+    recall import "$path" --wing "$wing" 2>&1 | sed 's/^/    /'
   fi
 done
 

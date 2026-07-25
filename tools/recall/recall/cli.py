@@ -177,16 +177,19 @@ def cmd_import(args):
 
     conn = store.get_connection()
 
-    # --force: delete existing imports from this source dir
+    # Wing: explicit override > directory name (resolved before --force so delete is scoped)
+    wing = args.wing or source_dir.name.replace("-", "_").replace(".", "")
+
+    # --force: delete existing imports for THIS WING only
     if args.force:
         deleted = conn.execute(
-            "DELETE FROM drawers WHERE source LIKE ?", (f"import:%",)
+            "DELETE FROM drawers WHERE source LIKE ? AND wing = ?", ("import:%", wing)
         ).rowcount
         # Rebuild FTS for deleted rows
         if deleted:
             conn.execute("INSERT INTO drawers_fts(drawers_fts) VALUES('rebuild')")
         conn.commit()
-        print(f"  Force: deleted {deleted} existing import chunks")
+        print(f"  Force: deleted {deleted} existing import chunks for wing '{wing}'")
 
     md_files = sorted(source_dir.rglob("*.md"))
     md_files = [f for f in md_files if f.name != "index.md"]
@@ -198,9 +201,6 @@ def cmd_import(args):
     total_chunks = 0
     files_imported = 0
     files_skipped = 0
-
-    # Wing: explicit override > directory name
-    wing = args.wing or source_dir.name.replace("-", "_").replace(".", "")
 
     print(f"\n  Importing: {source_dir}")
     print(f"  Wing: {wing}")
