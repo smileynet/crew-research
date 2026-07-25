@@ -1,7 +1,7 @@
 ---
 id: "23"
 title: "recall-check steering gate raises field compliance above 21%"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: "t09-baseline-followups"
@@ -25,7 +25,7 @@ Strengthen the `recall-check` steering so agents actually run `recall search` be
 
 - [x] recall-check steering restructured as a gate (mandatory check + explicit skip conditions), staying compact (it's always-on — every line costs) — 2026-07-18, 47-line SKILL.md: GATE header, 3-step workflow, skip conditions marked "the ONLY exemptions", violations section
 - [x] Compliance measurement runs from a mise task and reports the history-question compliance rate with session counts — `mise run session:skills <days>` now emits `recall_check_compliance` with rate + baseline (detection regex unchanged for comparability)
-- [ ] Post-fix compliance measured over ≥1 week of sessions and recorded; target >50% (2.4× baseline), threshold documented if adjusted
+- [x] Post-fix compliance measured over ≥1 week of sessions and recorded; target >50% (2.4× baseline), threshold documented if adjusted — 2026-07-25: 43/122 (35%) vs 29% like-window reference; target missed, recorded as finding with remediation candidates (docs/development/session-skill-usage-2026-07-25.md)
 - [x] Global deploy updated — 2026-07-18, all three tools, idempotency verified (second run 0 updated, 0 pruned)
 
 ## Measurement window
@@ -38,3 +38,7 @@ Strengthen the `recall-check` steering so agents actually run `recall search` be
 
 - Reviving the activation-recall def (retired with rationale, ticket 19)
 - recall CLI changes
+
+## Resolution (2026-07-25)
+
+Measurement-only close: 7d post-gate compliance 43/122 (35%) vs 29% pre-fix like-window reference (+6pts); >50% target NOT met — recorded as finding with remediation candidates (denominator refinement, mechanical enforcement, 30d re-measure ~08-17) in docs/development/session-skill-usage-2026-07-25.md. Gate/measurement/deploy ACs were done 07-18.
