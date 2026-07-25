@@ -1,7 +1,7 @@
 ---
 id: "34"
 title: "Explore: automated periodic session-history review for self-improvement opportunities"
-status: in_progress
+status: open
 blocked_by: []
 env: either
 spec: ""
@@ -27,7 +27,7 @@ An exploration (spike first, tool second) of the automated counterpart to `/guid
 
 ## Acceptance criteria (exploration — findings over features)
 
-- [ ] Spike verdict: can P1 (corrections) and P2 (friction) signals be detected from archived JSONLs with acceptable precision on a sampled window? (pattern-match candidates + LLM confirmation on a sample; report hit rates)
+- [x] Spike verdict: can P1 (corrections) and P2 (friction) signals be detected from archived JSONLs with acceptable precision on a sampled window? (pattern-match candidates + LLM confirmation on a sample; report hit rates) — 2026-07-25 YES: P1 2 candidates/316 sessions, precision 1/2, one keyword-free correction missed in 5-session FN probe (recall is the weak axis); P2 16 candidates, 3/6 sampled genuine (FP classes identified + fixable: fetched-doc tracebacks, log-noise repeats, deliberate probes). Digest: .scratch/session-review-spike-digest.md
 - [ ] Routing design: how a finding maps to project-local vs crew-research-global, and what artifact each produces (local: proposal file/ticket in that repo; global: crew-research ticket)
 - [ ] Scheduling per grill Q03 (2026-07-19): MANUAL mise task first (also the spike vehicle, runs collect+synthesize end-to-end); architecture supports the future daily-collect (cheap heuristics -> candidate queue) / weekly-synthesize (batched LLM -> one deduped digest) pairing; cron graduation only after precision proves out. Artifact: digest file, human triages; the pipeline NEVER creates tickets
 - [ ] Recommendation: build/defer/fold-into-session-analysis, with evidence
