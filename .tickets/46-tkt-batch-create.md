@@ -1,7 +1,7 @@
 ---
 id: "46"
 title: "tkt batch create under a spec (R13)"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: "ticket-cli"
