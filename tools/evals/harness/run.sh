@@ -60,6 +60,12 @@ done
 # Validate trials
 [[ "$TRIALS" -gt 0 ]] 2>/dev/null || { echo "Error: --trials must be > 0" >&2; exit 1; }
 
+# Policy gate (ticket 36): agy agent leg never runs on corp — before any probe
+if [[ "$ADAPTER" == "agy" && "${CREW_ENV:-}" == "corp" ]]; then
+  echo "Error: policy-blocked (CREW_ENV=corp) — agy may not run on corp machines (company policy)." >&2
+  exit 1
+fi
+
 # Validate changed-only baseline
 if [[ -n "$CHANGED_ONLY_DIR" ]]; then
   [[ -f "$CHANGED_ONLY_DIR/scores.jsonl" ]] || { echo "Error: --changed-only dir has no scores.jsonl: $CHANGED_ONLY_DIR" >&2; exit 2; }
@@ -230,6 +236,12 @@ ensure_judges_probed() {
   local tool short
   for tool in kiro-cli codex crush agy; do
     short="${tool%%-*}"   # kiro-cli -> kiro
+    # Policy gate (ticket 36): agy never runs on corp — checked BEFORE command -v
+    # so the reason string can't be conflated with an access failure
+    if [[ "$tool" == "agy" && "${CREW_ENV:-}" == "corp" ]]; then
+      JUDGES_EXCLUDED="${JUDGES_EXCLUDED:+$JUDGES_EXCLUDED, }$short (policy-blocked (CREW_ENV=corp))"
+      continue
+    fi
     if probe_tool "$tool"; then
       LIVE_JUDGES+=("$short")
     else

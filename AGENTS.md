@@ -65,6 +65,10 @@ mise run test:tkt                       # tkt test suite
 # (deps≠blocked_by, silently hides tickets with priority: high). Always tkt.
 
 # Deployment
+# CREW_ENV (gitignored .mise.local.toml) gates the tool set: corp = kiro-cli + codex
+# (agy policy-blocked mechanically: init refuses, doctor flags artifacts, harnesses
+# exclude legs with reason "policy-blocked (CREW_ENV=corp)"); personal adds agy.
+# Detail: .kiro/steering/user-setup-guide.md § Environment Designation.
 mise run init -- --project <path> --tier basic --tool kiro-cli
 mise run init -- --global --tier basic --tool kiro-cli
 mise run init -- --skip-extension recall   # deploy without recall

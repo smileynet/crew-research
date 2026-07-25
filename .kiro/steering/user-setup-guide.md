@@ -117,6 +117,19 @@ uv tool install -e ./tools/tkt   # editable — tracks the checkout live; reinst
 | mise config not trusted (Windows) | Run `mise trust` in the project directory |
 | yq not found (Windows/WSL) | `sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq` |
 
+## Environment Designation (CREW_ENV)
+
+Each machine declares its environment in gitignored `.mise.local.toml`:
+
+```toml
+[env]
+CREW_ENV = "corp"      # or "personal"
+```
+
+- **corp** — agy is FORBIDDEN (company policy, mechanically enforced): init.sh hard-refuses `--tool agy`, doctor flags agy artifacts as policy violations, eval/proof harnesses exclude agy legs with reason `policy-blocked (CREW_ENV=corp)` (distinct from access failures). Deploy set: `--tool kiro-cli --tool codex`.
+- **personal** — full tool access. Deploy set adds `--tool agy` (and `--tool crush` when configured).
+- **unset** — tooling proceeds with a notice; set the flag to make policy mechanical.
+
 ## Windows / WSL Setup
 
 On Windows, crew-research deploys via WSL bash. The init script auto-detects WSL and writes to the Windows home (`C:\Users\<user>\`) so all tools can read the files.

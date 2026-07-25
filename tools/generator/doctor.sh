@@ -227,9 +227,25 @@ if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx codex; then
   fi
 fi
 
+# Policy check (ticket 36): on corp machines agy artifacts are violations —
+# always checked, regardless of what CREW_TOOLS declares
+if [[ "${CREW_ENV:-}" == "corp" ]]; then
+  agy_violations=()
+  command -v agy &>/dev/null && agy_violations+=("agy binary on PATH ($(command -v agy))")
+  [[ -d "$HOME/.gemini" ]] && agy_violations+=("~/.gemini/ exists")
+  [[ -f "$HOME/.agents/skills/.crew-skills-agy" ]] && agy_violations+=("~/.agents/skills/.crew-skills-agy manifest")
+  if [[ ${#agy_violations[@]} -gt 0 ]]; then
+    echo ""
+    echo "Policy (CREW_ENV=corp):"
+    for v in "${agy_violations[@]}"; do
+      echo "  ❌ POLICY VIOLATION: $v — agy is forbidden on corp machines (company policy); remove it"
+      errors=$((errors + 1))
+    done
+  fi
+fi
+
 # Check agy deployment (if in CREW_TOOLS)
-if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then
-  echo ""
+if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then  echo ""
   echo "Global (agy):"
   check_tool agy
   agy_desktop_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)

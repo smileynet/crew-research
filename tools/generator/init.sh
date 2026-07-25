@@ -53,6 +53,18 @@ fi
 # Resolve tier from env if not overridden on CLI (default still basic)
 [[ "$TIER" == "basic" && -n "${CREW_TIER:-}" ]] && TIER="$CREW_TIER"
 
+# Policy gate (ticket 36): agy is FORBIDDEN on corp machines (CREW_ENV=corp) —
+# company policy, not an access limitation. Hard error BEFORE any filesystem
+# operation; unset CREW_ENV proceeds with a notice.
+if printf '%s\n' "${TOOLS[@]}" | grep -qx agy; then
+  if [[ "${CREW_ENV:-}" == "corp" ]]; then
+    echo "Error: policy-blocked (CREW_ENV=corp) — agy may not be deployed on corp machines (company policy). Remove --tool agy." >&2
+    exit 1
+  elif [[ -z "${CREW_ENV:-}" ]]; then
+    echo "Notice: CREW_ENV unset — proceeding with agy. Mark this machine in .mise.local.toml ([env] CREW_ENV = \"corp\"|\"personal\") to make the policy mechanical."
+  fi
+fi
+
 # Validate
 TIER_FILE="$TIERS_DIR/$TIER.yaml"
 [[ -f "$TIER_FILE" ]] || { echo "Error: unknown tier '$TIER'" >&2; exit 1; }

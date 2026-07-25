@@ -32,13 +32,25 @@ echo "Results: $RESULT_DIR"
 echo ""
 
 # Determine tools to run
+# Policy gate (ticket 36): agy never runs on corp (CREW_ENV=corp) — checked
+# BEFORE command -v so the exclusion reads as policy, not access
+agy_policy_blocked=false
+[[ "${CREW_ENV:-}" == "corp" ]] && agy_policy_blocked=true
 TOOLS=()
 if [[ "$TOOL" == "all" ]]; then
   command -v kiro-cli &>/dev/null && TOOLS+=("kiro-cli")
   command -v codex &>/dev/null && TOOLS+=("codex")
-  command -v agy &>/dev/null && TOOLS+=("agy")
+  if [[ "$agy_policy_blocked" == true ]]; then
+    echo "  agy: policy-blocked (CREW_ENV=corp) — excluded"
+  else
+    command -v agy &>/dev/null && TOOLS+=("agy")
+  fi
   command -v crush &>/dev/null && TOOLS+=("crush")
 else
+  if [[ "$TOOL" == "agy" && "$agy_policy_blocked" == true ]]; then
+    echo "Error: policy-blocked (CREW_ENV=corp) — agy may not run on corp machines (company policy)." >&2
+    exit 1
+  fi
   TOOLS+=("$TOOL")
 fi
 
