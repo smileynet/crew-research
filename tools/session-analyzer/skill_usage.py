@@ -52,9 +52,24 @@ def session_cwd(jsonl_path):
 
 
 def user_prompts(text):
-    """Yield user message content strings from raw JSONL text."""
-    for m in re.finditer(r'USER MESSAGE BEGIN ---\\n(.*?)\\n--- USER MESSAGE END', text):
-        yield m.group(1)
+    """Yield user message content strings from raw JSONL text.
+
+    Transcripts store user prompts as `kind: Prompt` JSONL lines with
+    content under data.content[].data (verified 2026-07-25, ticket 34 spike:
+    317/319 sessions carry NO 'USER MESSAGE BEGIN' wrappers — the previous
+    wrapper regex matched ~nothing on the current format)."""
+    for line in text.splitlines():
+        if '"Prompt"' not in line:
+            continue
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if d.get("kind") != "Prompt":
+            continue
+        for c in (d.get("data") or {}).get("content") or []:
+            if isinstance(c, dict) and isinstance(c.get("data"), str):
+                yield c["data"]
 
 
 def main():
@@ -66,6 +81,19 @@ def main():
     deployed = sorted(
         p.parent.name for p in (Path.home() / ".kiro" / "skills").glob("*/SKILL.md")
     )
+    # Slash/user invocations arrive in transcripts as the EXPANDED skill body,
+    # not a literal "/slug" (verified 2026-07-25: 0 literal-slash prompts vs 114
+    # H1-headed prompts in 7d) — map each deployed skill's H1 to its slug.
+    skill_h1 = {}
+    for slug in deployed:
+        p = Path.home() / ".kiro" / "skills" / slug / "SKILL.md"
+        try:
+            for line in p.read_text(errors="ignore").splitlines():
+                if line.startswith("# "):
+                    skill_h1[line.strip()] = slug
+                    break
+        except OSError:
+            continue
 
     activations = Counter()          # skill -> sessions with any activation signal
     activation_kind = defaultdict(Counter)  # skill -> signal kind counts
@@ -97,6 +125,12 @@ def main():
             session_skills.add(m.group(1))
             activation_kind[m.group(1)]["native_tool"] += 1
         for prompt in user_prompts(text):
+            first = prompt.strip().splitlines()[0].strip() if prompt.strip() else ""
+            slug = skill_h1.get(first)
+            if slug:
+                session_skills.add(slug)
+                activation_kind[slug]["slash_invoke"] += 1
+                continue
             sm = SLASH.match(prompt)
             if sm and sm.group(1) in deployed:
                 session_skills.add(sm.group(1))
