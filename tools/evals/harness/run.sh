@@ -24,6 +24,7 @@ ENGINE=""
 JUDGE_CONFIG="$JUDGES_DIR/default.yaml"
 RESUME_DIR=""
 CHANGED_ONLY_DIR=""
+JUDGE_ONLY_DIR=""
 PROBE_TIMEOUT="${EVAL_PROBE_TIMEOUT:-30}"
 
 # Identity hashes (ticket 33): one hashing implementation shared with check-staleness.sh
@@ -39,6 +40,7 @@ while [[ $# -gt 0 ]]; do
     --trials) TRIALS="$2"; shift 2 ;;
     --model) MODEL="$2"; shift 2 ;;
     --changed-only) CHANGED_ONLY_DIR="$2"; shift 2 ;;
+    --judge-only) JUDGE_ONLY_DIR="$2"; shift 2 ;;
     --engine) ENGINE="$2"; shift 2 ;;
     --judge) JUDGE_CONFIG="$2"; shift 2 ;;
     --skip-completed) RESUME_DIR="$2"; shift 2 ;;
@@ -92,7 +94,12 @@ echo ""
 
 # Collect definitions
 DEFS=()
-if [[ -n "$DEFINITION" ]]; then
+if [[ -n "$JUDGE_ONLY_DIR" ]]; then
+  # Re-judge mode (ticket 32): defs come from the results dir's scores.jsonl
+  [[ -d "$JUDGE_ONLY_DIR" ]] || JUDGE_ONLY_DIR="$RESULTS_DIR/$JUDGE_ONLY_DIR"
+  [[ -f "$JUDGE_ONLY_DIR/scores.jsonl" && -d "$JUDGE_ONLY_DIR/outputs" ]] || { echo "Error: --judge-only dir needs scores.jsonl + outputs/: $JUDGE_ONLY_DIR" >&2; exit 2; }
+  DEFS=()
+elif [[ -n "$DEFINITION" ]]; then
   DEFS=("$DEFINITIONS_DIR/$DEFINITION.yaml")
 elif [[ "$RUN_ALL" == true ]]; then
   # Exclude retired/ and activation-* (activation defs lack criteria; run-activation.sh is their harness)
@@ -101,7 +108,7 @@ else
   echo "Specify --definition <name> or --all" >&2; exit 1
 fi
 
-[[ ${#DEFS[@]} -gt 0 ]] || { echo "No definitions found." >&2; exit 1; }
+[[ ${#DEFS[@]} -gt 0 || -n "$JUDGE_ONLY_DIR" ]] || { echo "No definitions found." >&2; exit 1; }
 
 # Resume mode: skip definitions already scored in a prior run's dir, append into that dir
 if [[ -n "$RESUME_DIR" ]]; then
@@ -127,11 +134,16 @@ if [[ -n "$RESUME_DIR" ]]; then
   echo ""
 fi
 
-echo "Running ${#DEFS[@]} eval(s)..."
-echo ""
+if [[ -z "$JUDGE_ONLY_DIR" ]]; then
+  echo "Running ${#DEFS[@]} eval(s)..."
+  echo ""
+fi
 
-# Results setup — resume mode appends into the prior run's dir
-if [[ -n "$RESUME_DIR" ]]; then
+# Results setup — resume mode appends into the prior run's dir; judge-only
+# writes NEW files into the source dir (original scores.jsonl is never touched)
+if [[ -n "$JUDGE_ONLY_DIR" ]]; then
+  RUN_DIR="$JUDGE_ONLY_DIR"
+elif [[ -n "$RESUME_DIR" ]]; then
   RUN_DIR="$RESUME_DIR"
 else
   RUN_DIR="$RESULTS_DIR/$TIMESTAMP"
@@ -145,8 +157,8 @@ fi
 
 TOTAL=0; PASSED=0; FAILED=0; SKIPPED=0
 SCORES_FILE="$RUN_DIR/scores.jsonl"
-# Resume mode appends to existing scores; fresh runs start clean
-[[ -n "$RESUME_DIR" ]] || : > "$SCORES_FILE"
+# Resume mode appends to existing scores; judge-only never touches the original; fresh runs start clean
+[[ -n "$RESUME_DIR" || -n "$JUDGE_ONLY_DIR" ]] || : > "$SCORES_FILE"
 
 # Emit a SKIP row: pending-with-reason, never silent (extension-protocol principle).
 # SKIPs are excluded from pass/fail tallies and do NOT count as completed for --skip-completed.
@@ -837,6 +849,133 @@ run_eval() {
   score_line="$score_line,\"task_scores\":$task_scores_json}"
   echo "$score_line" >> "$SCORES_FILE"
 }
+
+# Re-judge an existing run's retained outputs (ticket 32). Criteria come from
+# the def at the RECORDED commit (meta.json), scored by the CURRENTLY reachable
+# judge set. Writes scores-rejudge-{ts}.jsonl + meta-rejudge-{ts}.json alongside
+# the originals — never overwrites — and prints a verdict delta per def.
+run_judge_only() {
+  local src="$JUDGE_ONLY_DIR"
+  local out_scores="$src/scores-rejudge-$TIMESTAMP.jsonl"
+  local recorded_commit
+  recorded_commit=$(sed -n 's/.*"commit": *"\([^"]*\)".*/\1/p' "$src/meta.json" 2>/dev/null | head -1)
+  local repo_root; repo_root=$(_identity_repo_root)
+  local tmp_defs; tmp_defs=$(mktemp -d -t "rejudge-defs-XXXX")
+
+  ensure_judges_probed
+  echo "Re-judging $(basename "$src") — recorded commit: ${recorded_commit:-unknown} | judges live: ${LIVE_JUDGES[*]:-none}"
+  echo ""
+  : > "$out_scores"
+  local changed=0 total=0
+
+  while IFS= read -r row; do
+    [[ -z "$row" ]] && continue
+    grep -q '"status":"SKIP"' <<< "$row" && continue
+    local name orig_status orig_score
+    name=$(sed -n 's/.*"name":"\([^"]*\)".*/\1/p' <<< "$row")
+    orig_status=$(sed -n 's/.*"status":"\([^"]*\)".*/\1/p' <<< "$row")
+    orig_score=$(sed -n 's/.*"score":\([0-9.]*\).*/\1/p' <<< "$row")
+    total=$((total + 1))
+
+    # Def at the recorded commit; fall back to the current tree with a marker
+    local def_file="$tmp_defs/$name.yaml" criteria_source="commit:$recorded_commit"
+    if [[ -z "$recorded_commit" ]] || ! git -C "$repo_root" show "$recorded_commit:tools/evals/definitions/$name.yaml" > "$def_file" 2>/dev/null; then
+      criteria_source="current-tree"
+      cp "$DEFINITIONS_DIR/$name.yaml" "$def_file" 2>/dev/null || cp "$DEFINITIONS_DIR/retired/$name.yaml" "$def_file" 2>/dev/null || {
+        echo "  ⚠️  $name — def not found at recorded commit or current tree; skipped" >&2
+        continue
+      }
+    fi
+    local threshold delta_threshold
+    threshold=$(yq '.threshold // 4' "$def_file")
+    delta_threshold=$(yq '.delta_threshold // .acceptance.min_delta // 0' "$def_file")
+
+    # Aggregate re-judged scores per condition from retained outputs
+    local -A csum=() ccount=()
+    local -A row_judges=()
+    local task_scores_json="[" first_task=true
+    local out_file
+    for out_file in "$src/outputs/$name-"*.txt; do
+      [[ -f "$out_file" ]] || continue
+      local base cond task_idx
+      base=$(basename "$out_file" .txt)
+      task_idx=$(sed -n 's/.*-task\([0-9]*\)-trial[0-9]*$/\1/p' <<< "$base")
+      [[ -z "$task_idx" ]] && continue
+      cond=$(sed -n "s/^$name-\(.*\)-task[0-9]*-trial[0-9]*$/\1/p" <<< "$base")
+      [[ -z "$cond" ]] && continue
+      local criteria ideal judged score jjson
+      criteria=$(yq ".tasks[$task_idx].criteria // .criteria" "$def_file")
+      ideal=$(yq ".tasks[$task_idx].ideal // \"\"" "$def_file")
+      judged=$(judge_output "$(cat "$out_file")" "$criteria" "$ideal")
+      score=$(parse_score "$judged")
+      jjson=$(parse_judges "$judged")
+      local jn
+      for jn in $(sed 's/[]["]//g;s/,/ /g' <<< "$jjson"); do row_judges[$jn]=1; done
+      [[ "$score" -ge 1 && "$score" -le 5 ]] 2>/dev/null || score=0
+      csum[$cond]=$(echo "${csum[$cond]:-0} + $score" | bc)
+      ccount[$cond]=$(( ${ccount[$cond]:-0} + 1 ))
+      [[ "$first_task" == true ]] || task_scores_json="$task_scores_json,"
+      first_task=false
+      task_scores_json="$task_scores_json{\"task\":$task_idx,\"condition\":\"$cond\",\"score\":$score,\"judges\":$jjson,\"file\":\"$(basename "$out_file")\"}"
+    done
+    task_scores_json="$task_scores_json]"
+
+    [[ ${#ccount[@]} -eq 0 ]] && { echo "  ⚠️  $name — no outputs found; skipped" >&2; continue; }
+
+    # Recompute verdict: dual-run uses with/baseline avgs + delta; single uses avg
+    local with_avg="null" base_avg="null" delta="null" new_status cond
+    for cond in "${!ccount[@]}"; do
+      local avg; avg=$(echo "scale=2; ${csum[$cond]} / ${ccount[$cond]}" | bc | sed 's/^\./0./')
+      if [[ "$cond" == "baseline" ]]; then base_avg="$avg"; else with_avg="$avg"; fi
+    done
+    if [[ "$base_avg" != "null" ]]; then
+      delta=$(echo "scale=2; $with_avg - $base_avg" | bc | sed 's/^\./0./;s/^-\./-0./')
+      if (( $(echo "$with_avg >= $threshold" | bc) )) && (( $(echo "$delta >= $delta_threshold" | bc) )); then new_status="PASS"; else new_status="FAIL"; fi
+    else
+      if (( $(echo "$with_avg >= $threshold" | bc) )); then new_status="PASS"; else new_status="FAIL"; fi
+    fi
+
+    local judges_union="[]"
+    if [[ ${#row_judges[@]} -gt 0 ]]; then
+      judges_union=$(printf '%s\n' "${!row_judges[@]}" | sort | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}')
+    fi
+    # Carry identity + join keys from the original row (outputs are unchanged)
+    local orig_id orig_adapter orig_skill orig_def orig_env
+    orig_id=$(sed -n 's/.*"id":\("\?[^",}]*"\?\),.*/\1/p' <<< "$row" | head -1)
+    orig_adapter=$(sed -n 's/.*"adapter":"\([^"]*\)".*/\1/p' <<< "$row")
+    orig_skill=$(sed -n 's/.*"skill_hash":\("\?[^",}]*"\?\).*/\1/p' <<< "$row")
+    orig_def=$(sed -n 's/.*"def_hash":\("\?[^",}]*"\?\).*/\1/p' <<< "$row")
+    orig_env=$(sed -n 's/.*"env_id":\("\?[^",}]*"\?\).*/\1/p' <<< "$row")
+
+    echo "{\"id\":${orig_id:-null},\"name\":\"$name\",\"adapter\":\"$orig_adapter\",\"judges\":$judges_union,\"skill_hash\":${orig_skill:-null},\"def_hash\":${orig_def:-null},\"env_id\":${orig_env:-null},\"status\":\"$new_status\",\"score\":$with_avg,\"with_score\":$with_avg,\"without_score\":$base_avg,\"delta\":$delta,\"original_status\":\"$orig_status\",\"original_score\":${orig_score:-null},\"criteria_source\":\"$criteria_source\",\"rejudge_of\":\"scores.jsonl\",\"task_scores\":$task_scores_json}" >> "$out_scores"
+
+    local marker="="
+    [[ "$new_status" != "$orig_status" ]] && { marker="≠"; changed=$((changed + 1)); }
+    echo "  $marker $name: ${orig_score:-?} ($orig_status) -> $with_avg ($new_status) | judges: $(sed 's/[]["]//g' <<< "$judges_union")"
+  done < "$src/scores.jsonl"
+
+  rm -rf "$tmp_defs"
+
+  cat > "$src/meta-rejudge-$TIMESTAMP.json" << EOF
+{
+  "rejudge_of": "scores.jsonl",
+  "timestamp": "$TIMESTAMP",
+  "recorded_commit": "${recorded_commit:-unknown}",
+  "identity": {"algorithm": "$IDENTITY_HASH_VERSION"},
+  "judges": {"live": $(printf '%s\n' ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"} | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}'), "excluded": "${JUDGES_EXCLUDED//\"/\\\"}"},
+  "summary": {"rejudged": $total, "verdict_changed": $changed}
+}
+EOF
+  echo ""
+  echo "Re-judged $total def(s), $changed verdict change(s)."
+  echo "Wrote: $out_scores"
+  return 0
+}
+
+if [[ -n "$JUDGE_ONLY_DIR" ]]; then
+  run_judge_only
+  exit $?
+fi
 
 # Execute
 for def in "${DEFS[@]}"; do

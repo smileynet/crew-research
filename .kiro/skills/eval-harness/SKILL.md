@@ -19,6 +19,10 @@ bash run.sh --all                            # full suite (~8-10h, 39 defs)
 bash run.sh --all --dry-run                  # fast, no agents/judges (plumbing test)
 bash run.sh --all --skip-completed <dir>     # RESUME: skip defs already in <dir>/scores.jsonl, append into it
 bash run.sh --definition <name> --trials 5   # more trials (default 3)
+bash run.sh --judge-only <results-dir>       # re-score retained outputs with today's judge set -> scores-rejudge-{ts}.jsonl (original untouched; criteria from the recorded commit)
+bash run.sh --all --changed-only <baseline-dir>   # run only defs whose identity hashes drifted vs the baseline run
+bash interchange.sh export <results-dir>     # bundle a run for another machine (validates join keys)
+bash interchange.sh import <bundle.tar.gz>   # unpack into results/ with provenance; rejects bundles missing id/adapter keys
 bash run.sh --adapter crush --definition <name>   # run under another tool (kiro-cli default); --model overrides the agent model
 ```
 
