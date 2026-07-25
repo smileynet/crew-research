@@ -220,7 +220,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 44 | Black-box acceptance layer for tkt (installed-artifact, output contracts, hook-based race) | ✅ done 2026-07-21 — test_blackbox.py + conftest; uv-installed smoke, cli-outputs.yaml as oracle (vacuity-probed), pre-receive-hook race replaces monkeypatch; suite 13→17 |
 | 45 | tkt pre-launch hardening: input validation + informative lost-race reporting | ✅ done 2026-07-22 — R18 allowlist+reserved-names before any fs op, round-trip title validation (reject > escape), R19 two-layer race detection (pre-flight + push-CAS backstop); found byte-identical-SHA race hole; suite 17→36 |
 | 39 | doctor.sh checks WSL $HOME instead of the Windows deploy home | open |
-| 46 | tkt batch create under a spec (R13) | open — spun off 41 (group-renumber loop nontrivial; repeated new is acceptable interim) |
+| 46 | tkt batch create under a spec (R13) | ✅ done 2026-07-25 — cmd_batch: one fetch-scan, N files one verified commit, group renumber on lost race (black-box hook test); repeated-new frontmatter equivalence; suite 51 |
 | 47 | tkt new prints 'claimed' but leaves status: open | ✅ done 2026-07-23 — wording fix (option 1): 'allocated … status: open'; bare 'claimed' reserved for claim; output/frontmatter agreement tested |
 | 48 | guidance-sync reviews edits/deprecations, not just additions | ✅ done 2026-07-22 — P6 prune probe + net-delta metric + routing to owned mechanisms; 4-subagent research; related edits: session-analysis, AGENTS.md, project-audit, ticket 34 |
 | 49 | tkt ergonomics: close --note + --brief output | ✅ done 2026-07-23 — presentation-only --brief (JSON contract unchanged); close --note replaces TBD stub; suite 48 |

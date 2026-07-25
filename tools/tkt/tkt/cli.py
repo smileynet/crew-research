@@ -198,6 +198,88 @@ def cmd_new(args) -> int:
     sys.exit(f"tkt: allocation failed after {MAX_ATTEMPTS} attempts (push repeatedly rejected)")
 
 
+def cmd_batch(args) -> int:
+    """R13: allocate N sequential ids in ONE fetch-scan; N files, ONE commit
+    (staged-set verified), one push claiming the group. A lost race renumbers
+    the WHOLE group and retries (bounded, same as cmd_new)."""
+    # R18: validate every argument BEFORE any filesystem operation.
+    items = []  # (slug, title)
+    for raw in args.items:
+        slug, _, title = raw.partition(":")
+        if err := validate_slug(slug):
+            sys.exit(f"tkt: {err}")
+        title = title.strip() or slug.replace("-", " ")
+        if err := validate_free_text(title, "title"):
+            sys.exit(f"tkt: {err}")
+        items.append((slug, title))
+    if len({s for s, _ in items}) != len(items):
+        sys.exit("tkt: duplicate slugs in batch")
+    if err := validate_free_text(args.spec or "", "spec"):
+        sys.exit(f"tkt: {err}")
+    for dep in (args.blocked_by or "").split(","):
+        if dep.strip() and not ID_REF_RE.match(dep.strip()):
+            sys.exit(f"tkt: invalid blocked-by ref {dep.strip()!r}")
+
+    d = tickets_dir()
+    repo = gitio.repo_root(d)
+    remote = gitio.has_remote(repo)
+    paths: list = []          # parallel to items
+    proposed: list = []       # tids, parallel to items
+    first_proposed: list = []
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        if remote:
+            gitio.fetch(repo)
+        ours = {p.resolve() for p in paths}
+        names = [p.name for p in d.glob("*.md") if p.resolve() not in ours]
+        if remote:
+            names += gitio.remote_ticket_names(repo)
+        width = _id_width(names)
+        base = _max_id(names) + 1
+        tids = [str(base + i).zfill(width) for i in range(len(items))]
+
+        if not paths:
+            for tid, (slug, title) in zip(tids, items):
+                path = d / f"{tid}-{slug}.md"
+                if path.resolve().parent != d.resolve():  # belt-and-braces after allowlist
+                    sys.exit(f"tkt: slug {slug!r} escapes .tickets/")
+                path.write_text(_new_ticket_text(tid, title, args), encoding="utf-8")
+                paths.append(path)
+            proposed = first_proposed = tids
+        elif tids != proposed:
+            # lost race: renumber the WHOLE group to the new id block
+            new_paths = []
+            for path, tid, (slug, _) in zip(paths, tids, items):
+                new_path = d / f"{tid}-{slug}.md"
+                t = parse_ticket(path)
+                set_field(t, "id", f'"{tid}"')
+                t.path = new_path
+                write_ticket(t)
+                path.unlink()
+                new_paths.append(new_path)
+            paths, proposed = new_paths, tids
+
+        label = f"{tids[0]}-{tids[-1]}" if len(tids) > 1 else tids[0]
+        gitio.commit_files(repo, paths, f"chore(tickets): batch new {label} ({len(items)} tickets)")
+        if not remote:
+            for path in paths:
+                print(f"created {path.name} (no remote — id claim is local only, status: open)")
+            return 0
+        if gitio.push(repo):
+            note = "" if proposed == first_proposed else f" (group renumbered {first_proposed[0]}-{first_proposed[-1]}→{proposed[0]}-{proposed[-1]})"
+            for path in paths:
+                print(f"allocated {path.name} (pushed — id claimed, status: open)")
+            print(f"batch: {len(items)} tickets, one commit{note}")
+            return 0
+        # lost race: undo the group commit (files kept, untracked), reconcile, retry
+        gitio.undo_commit_keep_file(repo)
+        gitio.pull_rebase(repo)
+
+    for path in paths:
+        path.unlink()
+    sys.exit(f"tkt: batch allocation failed after {MAX_ATTEMPTS} attempts (push repeatedly rejected)")
+
+
 # ---------------------------------------------------------------- lifecycle
 
 def _find(corpus: list[Ticket], tid: str) -> Ticket:
@@ -578,6 +660,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--priority", choices=["high"])
     p.add_argument("--blocked-by", dest="blocked_by", metavar="IDS", help="comma-separated ids")
     p.set_defaults(fn=cmd_new)
+
+    p = sub.add_parser("batch", help="allocate N sequential ids in one commit/push; lost race renumbers the whole group")
+    p.add_argument("items", nargs="+", metavar="slug[:title]")
+    p.add_argument("--spec")
+    p.add_argument("--env", choices=list(ENV_VALUES))
+    p.add_argument("--priority", choices=["high"])
+    p.add_argument("--blocked-by", dest="blocked_by", metavar="IDS", help="comma-separated ids (applies to every ticket in the batch)")
+    p.set_defaults(fn=cmd_batch)
 
     p = sub.add_parser("claim", help="mark open ticket in_progress (pushed = visible WIP)")
     p.add_argument("id")

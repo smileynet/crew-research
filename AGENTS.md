@@ -47,6 +47,7 @@ docs/development/                 — Practices, spike records, results
 # PYTHONPATH=tools/tkt python3 -m tkt.cli ...
 tkt ready                                     # frontier: env-filtered, priority-aware
 tkt new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
+tkt batch <slug[:title]>... [--spec S] [--blocked-by IDS]  # N ids, ONE commit/push; lost race renumbers the group
 tkt claim <id>   # status→in_progress, pushed (visible WIP; lost race names the winner)
 tkt close <id> [--note "..."]  # status→done; --note writes the Resolution (else TBD stub)
 tkt edit <id> [--blocked-by IDS] [--priority high|''] [--env E|''] [--spec S|''] [--title T]

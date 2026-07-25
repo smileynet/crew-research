@@ -222,3 +222,83 @@ def test_new_race_renumbers_end_to_end(repo_pair, tmp_path):
     # and the renumbered corpus still validates clean
     rc, out = run_tkt(b, "validate")
     assert rc == 0 and json.loads(out)["status"] == "pass", out
+
+
+# ------------------------------------------------- 4. batch create (ticket 46, R13)
+
+def test_batch_one_commit_one_push(repo_pair):
+    """N tickets land as ONE commit whose tree touches exactly the N files."""
+    a, _ = repo_pair
+    before = git(a, "rev-list", "--count", "HEAD")
+    rc, out = run_tkt(a, "batch", "alpha:First thing", "beta", "gamma:Third thing", "--spec", "batch-spec")
+    assert rc == 0, out
+    after = git(a, "rev-list", "--count", "HEAD")
+    assert int(after) == int(before) + 1, "batch must produce exactly one commit"
+    committed = sorted(git(a, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD").splitlines())
+    assert committed == [
+        ".tickets/42-alpha.md", ".tickets/43-beta.md", ".tickets/44-gamma.md",
+    ], committed
+    # sequential ids, shared spec, bare slug gets derived title
+    body = (a / ".tickets" / "43-beta.md").read_text()
+    assert 'id: "43"' in body and 'title: "beta"' in body and 'spec: "batch-spec"' in body
+    # output follows the ticket-47 wording convention (never bare 'claimed')
+    assert "allocated 42-alpha.md" in out and "status: open" in out, out
+    rc, out = run_tkt(a, "validate")
+    assert rc == 0 and json.loads(out)["status"] == "pass", out
+
+
+def test_batch_race_renumbers_whole_group(repo_pair, tmp_path):
+    """Lost race -> the WHOLE group renumbers past the winner, still one commit."""
+    a, b = repo_pair
+    remote = tmp_path / "remote.git"
+
+    # A's winning claim of 42, pre-staged on a side ref (promoted by the hook
+    # AFTER b's fetch+scan — the mid-flight snipe)
+    make_ticket(a / ".tickets", "42", "sniped")
+    git(a, "add", "--", ".tickets/42-sniped.md")
+    git(a, "commit", "-qm", "chore(tickets): new 42 sniped")
+    git(a, "push", "-q", "origin", "HEAD:refs/heads/snipe")
+
+    hook = remote / "hooks" / "pre-receive"
+    hook.write_text(RACE_HOOK)
+    hook.chmod(0o755)
+
+    rc, out = run_tkt(b, "batch", "one:One", "two:Two")
+    assert rc == 0, out
+    assert "renumbered" in out and "43" in out and "44" in out, out
+
+    # remote main holds the winner + the renumbered group
+    names = git(remote, "ls-tree", "-r", "--name-only", "main", "--", ".tickets/").splitlines()
+    names = sorted(n.rsplit("/", 1)[-1] for n in names)
+    assert names == ["41-seed.md", "42-sniped.md", "43-one.md", "44-two.md"], names
+
+    # the group commit is still a single commit touching exactly the two files
+    committed = sorted(git(b, "diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD").splitlines())
+    assert committed == [".tickets/43-one.md", ".tickets/44-two.md"], committed
+
+    # ids renumbered inside the files; corpus validates
+    assert 'id: "44"' in (b / ".tickets" / "44-two.md").read_text()
+    rc, out = run_tkt(b, "validate")
+    assert rc == 0 and json.loads(out)["status"] == "pass", out
+
+
+def test_batch_equivalent_to_repeated_new(repo_pair, tmp_path):
+    """Same corpus end-state as N tkt new calls (filenames + frontmatter),
+    modulo commit granularity."""
+    a, b = repo_pair
+    rc, out = run_tkt(a, "batch", "p:P", "q:Q", "--spec", "s", "--blocked-by", "41")
+    assert rc == 0, out
+    git(b, "pull", "-q")  # b now sees a's batch — drop it to rebuild via new
+    # rebuild the same two tickets in a THIRD clone shape: use tmp_path clone of the pre-batch state
+    # simplest equivalence: compare a's batch files against what cmd_new produces field-for-field
+    batch_p = (a / ".tickets" / "42-p.md").read_text()
+    batch_q = (a / ".tickets" / "43-q.md").read_text()
+    rc, out = run_tkt(b, "new", "r", "--title", "P", "--spec", "s", "--blocked-by", "41")
+    assert rc == 0, out
+    new_r = (b / ".tickets" / "44-r.md").read_text()
+    # frontmatter shape identical modulo id/title/slug
+    normalize = lambda s, tid, title: s.replace(f'id: "{tid}"', 'id: "ID"').replace(f'title: "{title}"', 'title: "T"')
+    def frontmatter(s):
+        return s.split("---")[1]
+    assert frontmatter(normalize(batch_p, "42", "P")) == frontmatter(normalize(new_r, "44", "P"))
+    assert frontmatter(normalize(batch_q, "43", "Q")) == frontmatter(normalize(new_r, "44", "P"))
