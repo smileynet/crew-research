@@ -192,14 +192,14 @@
     }
   ],
   "streaks": {
-    "constraint:skeleton-intersection-contract#skeleton-intersection-contract": 30,
-    "constraint:allocation-single-step#allocation-single-step": 24,
-    "constraint:loud-parse-errors#loud-parse-errors": 24,
-    "constraint:skeleton-automate-or-drop#skeleton-automate-or-drop": 24,
-    "constraint:skeleton-git-native-claim#skeleton-git-native-claim": 24,
-    "constraint:skeleton-preserve-or-fail#skeleton-preserve-or-fail": 24,
-    "constraint:skeleton-surgical-git-side-effects#skeleton-surgical-git-side-effects": 24,
-    "constraint:validate-reports-decay#validate-reports-decay": 24,
-    "constraint:skeleton-layered-selection#skeleton-layered-selection": 7
+    "constraint:skeleton-intersection-contract#skeleton-intersection-contract": 34,
+    "constraint:allocation-single-step#allocation-single-step": 28,
+    "constraint:loud-parse-errors#loud-parse-errors": 28,
+    "constraint:skeleton-automate-or-drop#skeleton-automate-or-drop": 28,
+    "constraint:skeleton-git-native-claim#skeleton-git-native-claim": 28,
+    "constraint:skeleton-preserve-or-fail#skeleton-preserve-or-fail": 28,
+    "constraint:skeleton-surgical-git-side-effects#skeleton-surgical-git-side-effects": 28,
+    "constraint:validate-reports-decay#validate-reports-decay": 28,
+    "constraint:skeleton-layered-selection#skeleton-layered-selection": 11
   }
 }
