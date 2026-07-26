@@ -1,6 +1,7 @@
 """cli.py — recall CLI: search, add, ingest, prime, status."""
 
 import argparse
+import hashlib
 import os
 import re
 import sys
@@ -180,14 +181,14 @@ def cmd_import(args):
     # Wing: explicit override > directory name (resolved before --force so delete is scoped)
     wing = args.wing or source_dir.name.replace("-", "_").replace(".", "")
 
-    # --force: delete existing imports for THIS WING only
+    # --force: delete existing imports AND manifest for THIS WING only
     if args.force:
         deleted = conn.execute(
             "DELETE FROM drawers WHERE source LIKE ? AND wing = ?", ("import:%", wing)
         ).rowcount
-        # Rebuild FTS for deleted rows
         if deleted:
             conn.execute("INSERT INTO drawers_fts(drawers_fts) VALUES('rebuild')")
+        store.delete_sources_for_wing(conn, wing)
         conn.commit()
         print(f"  Force: deleted {deleted} existing import chunks for wing '{wing}'")
 
@@ -198,8 +199,30 @@ def cmd_import(args):
         print(f"  No .md files found in {source_dir}")
         return
 
+    # Build set of current file paths (relative) for orphan detection
+    current_rel_paths = set()
+    for md_file in md_files:
+        rel_path = str(md_file.relative_to(source_dir))
+        current_rel_paths.add(rel_path)
+
+    # Phase 1: Detect deleted files (in manifest but not on disk)
+    existing_sources = store.get_sources_for_wing(conn, wing)
+    files_deleted = 0
+    for src in existing_sources:
+        if src["path"] not in current_rel_paths:
+            source_key = f"import:{wing}:{src['path']}"
+            conn.execute("DELETE FROM drawers WHERE source = ?", (source_key,))
+            store.delete_source(conn, src["path"], wing)
+            files_deleted += 1
+
+    if files_deleted:
+        conn.execute("INSERT INTO drawers_fts(drawers_fts) VALUES('rebuild')")
+        conn.commit()
+
+    # Phase 2: Hash-gate import for new and changed files
     total_chunks = 0
     files_imported = 0
+    files_updated = 0
     files_skipped = 0
 
     print(f"\n  Importing: {source_dir}")
@@ -208,21 +231,29 @@ def cmd_import(args):
     print()
 
     for md_file in md_files:
-        rel_path = md_file.relative_to(source_dir)
+        rel_path = str(md_file.relative_to(source_dir))
         source_key = f"import:{wing}:{rel_path}"
-
-        # Idempotency: skip if already imported (unless --force already cleared)
-        if not args.force:
-            row = conn.execute(
-                "SELECT 1 FROM drawers WHERE source = ? LIMIT 1", (source_key,)
-            ).fetchone()
-            if row:
-                files_skipped += 1
-                continue
 
         text = md_file.read_text(encoding="utf-8", errors="replace")
         if not text.strip():
             continue
+
+        # Compute content hash
+        content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        file_size = len(text.encode("utf-8"))
+
+        # Hash-gate: compare against manifest
+        stored_hash = store.get_source_hash(conn, rel_path, wing)
+        if stored_hash == content_hash:
+            files_skipped += 1
+            continue
+
+        # File is new or changed — delete old chunks if updating
+        if stored_hash is not None:
+            conn.execute("DELETE FROM drawers WHERE source = ?", (source_key,))
+            files_updated += 1
+        else:
+            files_imported += 1
 
         # Parse frontmatter shallowly
         title, type_ = _parse_frontmatter(text)
@@ -232,10 +263,13 @@ def cmd_import(args):
         # Chunk
         chunks = chunker.chunk_markdown(text)
         if not chunks:
+            # File has no extractable chunks — record in manifest with 0
+            store.upsert_source(conn, rel_path, wing, content_hash, file_size, 0)
+            conn.commit()
             continue
 
         # Derive room from path
-        parts = list(rel_path.parts)
+        parts = list(Path(rel_path).parts)
         room = parts[0] if len(parts) > 1 else "general"
 
         embeddings = embedder.embed_documents(chunks)
@@ -253,10 +287,23 @@ def cmd_import(args):
 
         store.upsert_batch(conn, rows)
         total_chunks += len(chunks)
-        files_imported += 1
+
+        # Update manifest
+        store.upsert_source(conn, rel_path, wing, content_hash, file_size, len(chunks))
+        conn.commit()
 
     conn.close()
-    print(f"  Done: {files_imported} files, {total_chunks} chunks imported, {files_skipped} skipped (already filed)")
+    parts = []
+    if files_imported:
+        parts.append(f"{files_imported} new")
+    if files_updated:
+        parts.append(f"{files_updated} updated")
+    if files_skipped:
+        parts.append(f"{files_skipped} unchanged")
+    if files_deleted:
+        parts.append(f"{files_deleted} deleted")
+    summary = ", ".join(parts) if parts else "no changes"
+    print(f"  Done: {summary} ({total_chunks} chunks indexed)")
 
 
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?\n)---\s*\n", re.DOTALL)

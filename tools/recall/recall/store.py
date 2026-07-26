@@ -15,7 +15,7 @@ import os
 DB_PATH = Path(os.environ.get("RECALL_DB", str(Path.home() / ".recall" / "recall.sqlite3")))
 _TOKEN_RE = re.compile(r"\w{2,}", re.UNICODE)
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 
 def _ensure_db() -> sqlite3.Connection:
@@ -39,6 +39,17 @@ def _ensure_db() -> sqlite3.Connection:
         CREATE TABLE IF NOT EXISTS meta (
             key TEXT PRIMARY KEY,
             value TEXT
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS sources (
+            path TEXT NOT NULL,
+            wing TEXT NOT NULL,
+            content_hash TEXT NOT NULL,
+            file_size INTEGER,
+            last_indexed_at INTEGER NOT NULL,
+            chunk_count INTEGER NOT NULL,
+            PRIMARY KEY (path, wing)
         )
     """)
     conn.execute("INSERT OR IGNORE INTO meta VALUES ('schema_version', ?)", (str(SCHEMA_VERSION),))
@@ -95,6 +106,26 @@ def _migrate(conn: sqlite3.Connection):
         conn.commit()
         if migrated:
             print(f"  [migration v3] Scoped {migrated} import source keys with wing prefix")
+
+    if current < 4:
+        # v4: add sources manifest table for hash-gate imports.
+        # The CREATE TABLE IF NOT EXISTS in _ensure_db() handles new DBs;
+        # this migration just bumps the version for existing DBs.
+        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+        if "sources" not in tables:
+            conn.execute("""
+                CREATE TABLE sources (
+                    path TEXT NOT NULL,
+                    wing TEXT NOT NULL,
+                    content_hash TEXT NOT NULL,
+                    file_size INTEGER,
+                    last_indexed_at INTEGER NOT NULL,
+                    chunk_count INTEGER NOT NULL,
+                    PRIMARY KEY (path, wing)
+                )
+            """)
+        conn.execute("UPDATE meta SET value = '4' WHERE key = 'schema_version'")
+        conn.commit()
 
 
 def get_connection() -> sqlite3.Connection:
@@ -217,3 +248,47 @@ def status(conn: sqlite3.Connection) -> dict:
 def is_file_ingested(conn: sqlite3.Connection, source_file: str) -> bool:
     row = conn.execute("SELECT 1 FROM drawers WHERE source_file = ? LIMIT 1", (source_file,)).fetchone()
     return row is not None
+
+
+# --- Sources manifest helpers ---
+
+def get_source_hash(conn: sqlite3.Connection, path: str, wing: str) -> Optional[str]:
+    """Return the stored content_hash for a source path+wing, or None if not tracked."""
+    row = conn.execute(
+        "SELECT content_hash FROM sources WHERE path = ? AND wing = ?", (path, wing)
+    ).fetchone()
+    return row[0] if row else None
+
+
+def upsert_source(conn: sqlite3.Connection, path: str, wing: str,
+                  content_hash: str, file_size: int, chunk_count: int):
+    """Insert or update a source manifest entry."""
+    now = int(time.time())
+    conn.execute("""
+        INSERT INTO sources (path, wing, content_hash, file_size, last_indexed_at, chunk_count)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(path, wing) DO UPDATE SET
+            content_hash = excluded.content_hash,
+            file_size = excluded.file_size,
+            last_indexed_at = excluded.last_indexed_at,
+            chunk_count = excluded.chunk_count
+    """, (path, wing, content_hash, file_size, now, chunk_count))
+
+
+def get_sources_for_wing(conn: sqlite3.Connection, wing: str) -> list[dict]:
+    """Return all source entries for a wing."""
+    rows = conn.execute(
+        "SELECT path, content_hash, chunk_count FROM sources WHERE wing = ?", (wing,)
+    ).fetchall()
+    return [{"path": r[0], "content_hash": r[1], "chunk_count": r[2]} for r in rows]
+
+
+def delete_source(conn: sqlite3.Connection, path: str, wing: str):
+    """Remove a source manifest entry."""
+    conn.execute("DELETE FROM sources WHERE path = ? AND wing = ?", (path, wing))
+
+
+def delete_sources_for_wing(conn: sqlite3.Connection, wing: str) -> int:
+    """Remove all source manifest entries for a wing. Returns count deleted."""
+    cursor = conn.execute("DELETE FROM sources WHERE wing = ?", (wing,))
+    return cursor.rowcount
