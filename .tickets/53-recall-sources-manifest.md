@@ -1,7 +1,7 @@
 ---
 id: "53"
 title: "Sources manifest + hash-gate for recall imports"
-status: open
+status: done
 blocked_by: ["52"]
 env: either
 spec: "recall-import-fix"
@@ -58,3 +58,7 @@ Import logic:
 
 - Session ingest change detection (ticket 54)
 - Chunk-level embedding cache (ticket 55)
+
+## Resolution (2026-07-26)
+
+Sources table (schema v4) + hash-gate import: SHA-256 content hashes skip unchanged, detect changes, clean deletions. --force clears manifest+chunks. All AC verified via test cycle.
