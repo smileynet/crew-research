@@ -120,8 +120,10 @@ recall status
 recall search "what did we decide about X"
 
 # Add a new project to automatic ingestion
-# Auto-discovered from ~/code ($USERPROFILE\code on Windows)
+# Auto-discovered from ~/code + D:\code (Windows); override with -ProjectsRoot
 # Override: -ProjectsRoot parameter (Windows) or RECALL_PROJECTS_ROOT env (Unix)
+# Development: `uv tool install -e ./tools/recall` (editable — source edits take
+# effect immediately; non-editable install requires reinstall after changes)
 
 # Verify scheduled task
 Get-ScheduledTask -TaskName "RecallIngest" | Select State
