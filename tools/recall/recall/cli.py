@@ -209,7 +209,7 @@ def cmd_import(args):
 
     for md_file in md_files:
         rel_path = md_file.relative_to(source_dir)
-        source_key = f"import:{rel_path}"
+        source_key = f"import:{wing}:{rel_path}"
 
         # Idempotency: skip if already imported (unless --force already cleared)
         if not args.force:

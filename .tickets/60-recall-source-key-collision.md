@@ -1,7 +1,7 @@
 ---
 id: "60"
 title: "Recall import: source key collision fix (wing-scoped keys)"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "recall-import-fix"

@@ -15,7 +15,7 @@ import os
 DB_PATH = Path(os.environ.get("RECALL_DB", str(Path.home() / ".recall" / "recall.sqlite3")))
 _TOKEN_RE = re.compile(r"\w{2,}", re.UNICODE)
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 def _ensure_db() -> sqlite3.Connection:
@@ -79,6 +79,22 @@ def _migrate(conn: sqlite3.Connection):
             conn.execute("ALTER TABLE drawers ADD COLUMN title TEXT")
         conn.execute("UPDATE meta SET value = '2' WHERE key = 'schema_version'")
         conn.commit()
+
+    if current < 3:
+        # v3: scope import source keys with wing to prevent cross-wing collisions.
+        # Old format: "import:path/to/file.md"
+        # New format: "import:{wing}:path/to/file.md"
+        # Only migrate rows that use the old format (no second colon after "import:").
+        migrated = conn.execute("""
+            UPDATE drawers
+            SET source = 'import:' || wing || ':' || SUBSTR(source, 8)
+            WHERE source LIKE 'import:%'
+              AND source NOT LIKE 'import:%:%'
+        """).rowcount
+        conn.execute("UPDATE meta SET value = '3' WHERE key = 'schema_version'")
+        conn.commit()
+        if migrated:
+            print(f"  [migration v3] Scoped {migrated} import source keys with wing prefix")
 
 
 def get_connection() -> sqlite3.Connection:
