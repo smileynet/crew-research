@@ -48,7 +48,7 @@ else
   if [[ -d "$PROJECTS_ROOT" ]]; then
     while IFS= read -r mem_dir; do
       project_dir="$(dirname "$mem_dir")"
-      wing="$(basename "$project_dir")"
+      wing="$(basename "$project_dir" | tr '-' '_')"
       PROJECTS+=("$mem_dir:$wing")
     done < <(find "$PROJECTS_ROOT" -maxdepth 2 -name '.memory' -type d 2>/dev/null)
   fi

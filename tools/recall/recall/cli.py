@@ -404,6 +404,11 @@ def main():
     if hasattr(args, "wing") and args.wing is None and args.command in ("add", "prime"):
         args.wing = Path.cwd().name.replace("-", "_")
 
+    # Normalize wing name: hyphens → underscores (prevents split wings from
+    # inconsistent callers; the convention is underscore everywhere).
+    if hasattr(args, "wing") and args.wing:
+        args.wing = args.wing.replace("-", "_")
+
     commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "import": cmd_import, "prime": cmd_prime, "status": cmd_status}
     commands[args.command](args)
 

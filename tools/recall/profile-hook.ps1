@@ -51,7 +51,7 @@ function Invoke-RecallIngestIfStale {
             $root = Join-Path $UserProfile "code"
             Get-ChildItem -Path $root -Directory -Depth 1 -Filter ".memory" -ErrorAction SilentlyContinue |
                 ForEach-Object {
-                    $wing = $_.Parent.Name
+                    $wing = $_.Parent.Name -replace '-', '_'
                     & recall import $_.FullName --wing $wing 2>&1
                 }
             $sessions = Join-Path $UserProfile ".kiro\sessions\cli"

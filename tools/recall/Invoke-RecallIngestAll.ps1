@@ -48,7 +48,7 @@ if (Test-Path $ProjectsRoot) {
     Get-ChildItem -Path $ProjectsRoot -Directory -Depth 1 -Filter ".memory" -ErrorAction SilentlyContinue |
         ForEach-Object {
             $projectDir = $_.Parent.FullName
-            $wing = $_.Parent.Name
+            $wing = $_.Parent.Name -replace '-', '_'
             $Projects += @{ Path = $_.FullName; Wing = $wing }
         }
 }
