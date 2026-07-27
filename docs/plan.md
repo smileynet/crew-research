@@ -227,8 +227,22 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 50 | tkt close/edit --ac N,N enumerated box-checking | open — blanket --check-acs REJECTED (rubber-stamp guard); enumeration preserves the audit moment (guidance-sync 07-25) |
 | 55 | Chunk-level embedding cache for recall imports | open — remnant of the 51-61 recall workstream (other lane) |
 | 62 | doctor: git-bash uv tools check | open — filed from the Windows lane 2026-07-27 |
+| 64 | Research: sync-plan --fix for status-only plan drift | open — research-first (R9 report-only must be weighed, not bypassed); P4 recurrence 3 sessions |
 
-**Frontier (2026-07-21, post-40):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
+**Frontier (2026-07-27, current):** 35, 50, 55, 62, 64 (+30 personal-only). Task graph — no blocked_by edges outstanding; all five are independently workable:
+
+| Ticket | Lane | Ready? | Note |
+|--------|------|--------|------|
+| 35 | corp (this machine) | needs budget nod | fully unblocked otherwise: account decided (sabiggin-isengard/us-west-2, ticket 31), `--judge-only` + interchange built (ticket 32), identity hashes for env_id (ticket 33). Shadow study = ~300-400 Bedrock judgments |
+| 50 | either | yes | tkt `--ac N,N` enumerated box-checking; blanket variant already rejected in-ticket |
+| 55 | either | yes | last remnant of the recall 51-63 workstream (other lane owns that context) |
+| 62 | Windows | yes, wrong machine | Git Bash/MSYS2 uv-tool detection in doctor |
+| 64 | either | yes | research + spec decision only; implementation ticket filed downstream if accepted |
+| 30 | **personal** | env-blocked | image-* birth runs need GLM (corp Bedrock Claude has vision, premise fails) |
+
+Closed since the 07-21 snapshot: 23, 27, 28, 31, 32, 33, 34, 36, 39, 41, 44, 45, 46, 47, 48, 49 + the recall workstream 51-61, 63 (other lanes). Deferred threads unchanged: t09 rec #2/#5 (~2026-08-17).
+
+**Frontier (2026-07-21, post-40 — superseded):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
 
 **Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
 
