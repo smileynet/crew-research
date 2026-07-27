@@ -1,7 +1,7 @@
 ---
 id: "54"
 title: "Session size tracking + active-file skip for recall ingest"
-status: open
+status: done
 blocked_by: ["53"]
 env: either
 spec: "recall-import-fix"
@@ -49,3 +49,7 @@ Ingest logic change:
 
 - Incremental append-only ingestion (only ingest NEW messages since last run) — this is a possible optimization but full re-ingest of changed sessions is simpler and correct
 - Chunk-level embedding cache (ticket 55)
+
+## Resolution (2026-07-27)
+
+Size tracking via sources table + active-file skip (5m mtime threshold). Growing sessions re-ingested, active sessions deferred, unchanged skipped. All AC verified.
