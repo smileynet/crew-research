@@ -14,7 +14,7 @@ env = { PYTHONPATH = "tools/tkt" }
 
 [tasks."test:tkt"]
 description = "tkt CLI test suite (ticket 40 acceptance criteria)"
-run = "python3 -m pytest tools/tkt/tests/ -q"
+run = "uv run --directory tools/tkt --with pytest pytest tests/ -q"
 
 [tasks."test:recall"]
 description = "recall CLI unit + integration test suite"
