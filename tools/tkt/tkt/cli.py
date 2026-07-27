@@ -16,6 +16,15 @@ import sys
 from datetime import date
 from pathlib import Path
 
+# Fix Windows console encoding — cp1252 can't encode emoji (✅ etc.) from ticket files
+if sys.platform == "win32":
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            try:
+                _stream.reconfigure(encoding="utf-8", errors="replace")
+            except (AttributeError, OSError):
+                pass
+
 from .core import (
     ENV_VALUES,
     ID_REF_RE,
@@ -290,7 +299,7 @@ def _find(corpus: list[Ticket], tid: str) -> Ticket:
 
 
 def _upstream_status(repo: Path, t: Ticket) -> str | None:
-    upstream = gitio.show_upstream_file(repo, str(t.path.relative_to(repo)))
+    upstream = gitio.show_upstream_file(repo, t.path.relative_to(repo).as_posix())
     m = re.search(r"^status:\s*(\S+)", upstream or "", re.M)
     return m.group(1) if m else None
 
@@ -329,7 +338,7 @@ def _commit_and_push(repo: Path, t: Ticket, verb: str, lost_states: set[str]) ->
         gitio.fetch(repo)
         upstream_status = _upstream_status(repo, t)
         if upstream_status in lost_states:
-            rel = str(t.path.relative_to(repo))
+            rel = t.path.relative_to(repo).as_posix()
             gitio.undo_commit_keep_file(repo)
             gitio.discard_file_changes(repo, rel)  # tree clean again
             gitio.pull_rebase(repo)  # fast-forwards to the winner's state

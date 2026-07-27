@@ -177,7 +177,7 @@ def test_sync_plan_check_reports_drift(repo_pair):
     make_ticket(d, "42", "drifted", status="done")   # plan says open -> drift
     make_ticket(d, "43", "unlisted")                  # open, no plan row -> warning
     (a / "docs").mkdir()
-    (a / "docs" / "plan.md").write_text(PLAN)
+    (a / "docs" / "plan.md").write_text(PLAN, encoding="utf-8")
     # NOTE: seed ticket 41 is done in the fixture corpus; plan row agrees
 
     rc, out = run_tkt(a, "sync-plan", "--check")
@@ -201,7 +201,7 @@ def test_sync_plan_check_reports_drift(repo_pair):
 def test_sync_plan_clean_and_strict(repo_pair):
     a, _ = repo_pair
     (a / "docs").mkdir()
-    (a / "docs" / "plan.md").write_text("| 41 | seed | ✅ done |\n")
+    (a / "docs" / "plan.md").write_text("| 41 | seed | ✅ done |\n", encoding="utf-8")
     rc, out = run_tkt(a, "sync-plan", "--check")
     assert rc == 0 and json.loads(out)["status"] == "pass", out
 

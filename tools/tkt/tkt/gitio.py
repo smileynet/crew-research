@@ -55,9 +55,9 @@ def remote_ticket_names(repo: Path) -> list[str]:
 
 def commit_single_file(repo: Path, file: Path, message: str) -> None:
     """Stage exactly one explicit path and commit only that pathspec (D2a)."""
-    rel = file.relative_to(repo)
-    _run(repo, "add", "--", str(rel))
-    _run(repo, "commit", "--quiet", "-m", message, "--only", "--", str(rel))
+    rel = file.relative_to(repo).as_posix()
+    _run(repo, "add", "--", rel)
+    _run(repo, "commit", "--quiet", "-m", message, "--only", "--", rel)
 
 
 def commit_files(repo: Path, files: list[Path], message: str) -> None:
@@ -65,7 +65,7 @@ def commit_files(repo: Path, files: list[Path], message: str) -> None:
     2026-07-22): every path explicitly staged and tool-edited; the resulting
     commit is verified to contain EXACTLY the edit list, loud failure + rollback
     on mismatch. Bulk staging idioms remain banned."""
-    rels = sorted(str(f.relative_to(repo)) for f in files)
+    rels = sorted(f.relative_to(repo).as_posix() for f in files)
     for rel in rels:
         _run(repo, "add", "--", rel)
     _run(repo, "commit", "--quiet", "-m", message, "--only", "--", *rels)

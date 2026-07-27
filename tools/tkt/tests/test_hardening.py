@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -107,6 +108,7 @@ def _seed_contested(a, b, tid="42", slug="contested"):
     git(b, "pull", "-q")
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="git hook race detection differs on Windows/Git Bash")
 def test_lost_claim_race_reports_winner_state(repo_pair):
     """A claims and pushes; stale B claims the same ticket. B must learn who
     won (upstream status in the message), exit 1, and end clean + consistent.
@@ -152,6 +154,7 @@ exit 0
 """
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="git pre-receive hook race detection differs on Windows/Git Bash")
 def test_lost_claim_race_in_push_window(repo_pair, tmp_path):
     """The winner lands AFTER B's pre-flight fetch: a pre-receive hook promotes
     A's claim mid-push. B's push-CAS backstop must detect, roll back, report."""

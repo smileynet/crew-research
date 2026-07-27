@@ -30,6 +30,7 @@ CONTRACT_SPEC = CREW / "design" / "specs" / "cli-outputs.yaml"
 # ----------------------------------------------- 1. installed-artifact smoke
 
 @pytest.mark.skipif(shutil.which("uv") is None, reason="uv not on PATH — cannot test installed artifact")
+@pytest.mark.skipif(sys.platform == "win32", reason="uv trampoline exe resolution differs on Windows/MSYS2")
 def test_installed_console_script_smoke(repo_pair, tmp_path):
     """The `uv tool install` -> `tkt` binary path works (the `npx cdk` failure
     class: entry-point/packaging breaks are invisible to module-mode tests)."""

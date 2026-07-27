@@ -36,9 +36,11 @@ def make_ticket(d: Path, tid: str, slug: str, status: str = "open", deps: str = 
 def run_tkt(repo: Path, *argv: str, env: dict | None = None) -> tuple[int, str]:
     """Run tkt as a subprocess (module mode) — the black-box boundary."""
     e = {**os.environ, **(env or {})}
+    e["PYTHONUTF8"] = "1"  # ensure child process uses UTF-8 stdout (Windows cp1252 fix)
     r = subprocess.run(
         [sys.executable, "-m", "tkt.cli", *argv],
-        capture_output=True, text=True, cwd=str(repo),
+        capture_output=True, text=True, encoding="utf-8",
+        cwd=str(repo),
         env={**e, "PYTHONPATH": str(TKT_PKG)},
     )
     return r.returncode, r.stdout + r.stderr
@@ -55,6 +57,9 @@ def repo_pair(tmp_path):
         subprocess.run(["git", "clone", "-q", str(remote), str(c)], check=True)
         git(c, "config", "user.email", "t@t")
         git(c, "config", "user.name", "t")
+        # Deterministic cross-platform behavior
+        git(c, "config", "core.autocrlf", "false")
+        git(c, "config", "core.filemode", "false")
         clones.append(c)
     a, b = clones
     (a / ".tickets").mkdir()
