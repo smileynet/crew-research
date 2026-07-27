@@ -343,7 +343,19 @@ fi
 if command -v recall &>/dev/null; then
   echo ""
   echo "Recall:"
-  health_json=$(recall health --json 2>/dev/null)
+  # On MSYS2/Git Bash, uv-installed Python tools can't resolve their venv —
+  # use PowerShell fallback (same pattern as _check_prereq).
+  # Note: || true prevents set -e from killing the script on recall failure.
+  health_json=$(recall health --json 2>/dev/null) || true
+  if [[ -z "$health_json" ]]; then
+    case "$(uname -s)" in
+      MINGW*|MSYS*)
+        if command -v powershell.exe &>/dev/null; then
+          health_json=$(MSYS_NO_PATHCONV=1 powershell.exe -NoProfile -NonInteractive -Command "recall health --json" 2>/dev/null | tr -d '\r') || true
+        fi
+        ;;
+    esac
+  fi
 
   if [[ -n "$health_json" ]] && echo "$health_json" | jq empty 2>/dev/null; then
     total_chunks=$(echo "$health_json" | jq -r '.total_chunks')
