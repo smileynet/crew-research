@@ -1,7 +1,7 @@
 ---
 id: "35"
 title: "Model cost/quality benchmarking: prefer cheaper models where quality holds"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: "eval-harness"
