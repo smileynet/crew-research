@@ -69,6 +69,10 @@ run = "bash tools/lint/check-crosslinks.sh"
 description = "Run all proofs against kiro-cli"
 run = "bash tools/proofs/harness/run.sh --adapter kiro-cli --all"
 
+[tasks."proof:recall"]
+description = "Run recall import/search correctness proofs (G-K series)"
+run = "uv tool run --from recall python tools/proofs/recall/run-recall-proofs.py"
+
 [tasks.validate-deployment]
 description = "End-to-end deployment validation"
 run = "bash tools/evals/harness/validate-deployment.sh"
