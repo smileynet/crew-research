@@ -262,3 +262,115 @@ def test_frontier_parity_archwright_corpus():
         key=lambda t: (t.priority != "high", t.numeric_key()),
     )
     assert [t.id for t in frontier(corpus)] == [t.id for t in expected]
+
+
+# ─── ticket 50: --ac enumerated box-checking ──────────────────────────
+
+def test_close_ac_flips_specified_boxes(repo_pair):
+    """--ac 1,3 flips exactly boxes 1 and 3; remaining trigger warning."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    p = d / "42-feature.md"
+    p.write_text(
+        '---\nid: "42"\ntitle: "feature"\nstatus: open\nblocked_by: []\n---\n\n'
+        "# feature\n\n## Acceptance criteria\n\n"
+        "- [ ] First AC\n- [ ] Second AC\n- [ ] Third AC\n"
+    )
+    git(a, "add", "-A")
+    git(a, "commit", "-qm", "add ticket")
+    git(a, "push", "-q")
+
+    code, out = run_tkt(a, "close", "42", "--ac", "1,3")
+    assert code == 0
+    content = p.read_text()
+    assert "- [x] First AC" in content
+    assert "- [ ] Second AC" in content
+    assert "- [x] Third AC" in content
+    # Warning for the 1 remaining unchecked box
+    assert "1 unchecked" in out
+
+
+def test_edit_ac_flips_box_without_status_change(repo_pair):
+    """tkt edit --ac 2 flips box 2 without changing status."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    p = d / "42-task.md"
+    p.write_text(
+        '---\nid: "42"\ntitle: "task"\nstatus: open\nblocked_by: []\n---\n\n'
+        "# task\n\n## AC\n\n- [ ] Alpha\n- [ ] Beta\n- [ ] Gamma\n"
+    )
+    git(a, "add", "-A")
+    git(a, "commit", "-qm", "add ticket")
+    git(a, "push", "-q")
+
+    code, out = run_tkt(a, "edit", "42", "--ac", "2")
+    assert code == 0
+    content = p.read_text()
+    assert "- [ ] Alpha" in content
+    assert "- [x] Beta" in content
+    assert "- [ ] Gamma" in content
+    assert "status: open" in content  # unchanged
+
+
+def test_ac_out_of_range_is_hard_error(repo_pair):
+    """Out-of-range index aborts without modifying the file."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    p = d / "42-bounded.md"
+    p.write_text(
+        '---\nid: "42"\ntitle: "bounded"\nstatus: open\nblocked_by: []\n---\n\n'
+        "# bounded\n\n- [ ] Only one box\n"
+    )
+    git(a, "add", "-A")
+    git(a, "commit", "-qm", "add ticket")
+    git(a, "push", "-q")
+
+    original = p.read_text()
+    code, out = run_tkt(a, "close", "42", "--ac", "5")
+    assert code != 0
+    assert "out of range" in out.lower()
+    # File must be untouched
+    assert p.read_text() == original
+
+
+def test_ac_non_numeric_is_hard_error(repo_pair):
+    """Non-numeric --ac value aborts."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    p = d / "42-num.md"
+    p.write_text(
+        '---\nid: "42"\ntitle: "num"\nstatus: open\nblocked_by: []\n---\n\n- [ ] box\n'
+    )
+    git(a, "add", "-A")
+    git(a, "commit", "-qm", "add")
+    git(a, "push", "-q")
+
+    code, out = run_tkt(a, "edit", "42", "--ac", "abc")
+    assert code != 0
+    assert "not a valid index" in out.lower()
+
+
+def test_ac_preserves_other_bytes(repo_pair):
+    """Only the named checkbox lines change — rest is byte-identical."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    p = d / "42-preserve.md"
+    body = (
+        '---\nid: "42"\ntitle: "preserve"\nstatus: open\nblocked_by: []\n---\n\n'
+        "# preserve\n\nSome prose above.\n\n## AC\n\n"
+        "- [ ] First\n- [ ] Second\n\nProse below.\n"
+    )
+    p.write_text(body)
+    git(a, "add", "-A")
+    git(a, "commit", "-qm", "add")
+    git(a, "push", "-q")
+
+    code, _ = run_tkt(a, "edit", "42", "--ac", "1")
+    assert code == 0
+    result = p.read_text()
+    # Only box 1 flipped
+    assert "- [x] First" in result
+    assert "- [ ] Second" in result
+    # Prose unchanged
+    assert "Some prose above." in result
+    assert "Prose below." in result

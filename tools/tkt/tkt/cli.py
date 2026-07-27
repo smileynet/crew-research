@@ -44,6 +44,49 @@ from . import gitio
 
 MAX_ATTEMPTS = 3
 UNCHECKED_AC = re.compile(r"^\s*- \[ \]", re.M)
+AC_BOX = re.compile(r"^(\s*- \[)( \])(.*)$", re.M)
+
+
+def _flip_ac_boxes(body: str, indices: list[int]) -> str:
+    """Check the specified 1-based AC boxes in the body.
+
+    Finds ALL checkbox lines (- [ ] ...) in file order, validates that the
+    requested indices are in range, and flips those from [ ] to [x].
+    Returns the modified body. Exits hard on out-of-range or non-numeric.
+    """
+    # Find all unchecked boxes with their positions
+    matches = list(AC_BOX.finditer(body))
+    unchecked = [(i, m) for i, m in enumerate(matches, 1) if m.group(2) == " ]"]
+
+    if not unchecked:
+        sys.exit("tkt: no unchecked acceptance boxes to flip")
+
+    total = len(unchecked)
+    for idx in indices:
+        if idx < 1 or idx > total:
+            sys.exit(f"tkt: --ac index {idx} out of range (1-{total})")
+
+    # Build replacement: flip specified indices
+    # Work backwards to preserve positions
+    target_matches = [unchecked[idx - 1][1] for idx in sorted(indices, reverse=True)]
+    for m in target_matches:
+        start, end = m.start(2), m.end(2)
+        body = body[:start] + "x]" + body[end:]
+
+    return body
+
+
+def _parse_ac_indices(raw: str) -> list[int]:
+    """Parse comma-separated 1-based indices. Hard error on non-numeric."""
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    indices = []
+    for p in parts:
+        if not p.isdigit():
+            sys.exit(f"tkt: --ac value {p!r} is not a valid index (must be numeric)")
+        indices.append(int(p))
+    if not indices:
+        sys.exit("tkt: --ac requires at least one index")
+    return indices
 
 
 def tickets_dir(cwd: Path | None = None) -> Path:
@@ -378,6 +421,10 @@ def cmd_close(args) -> int:
         if args.note and (err := validate_free_text(args.note, "note")):
             sys.exit(f"tkt: {err}")
         t.body = t.body.rstrip("\n") + f"\n\n## Resolution ({date.today().isoformat()})\n\n{args.note or 'TBD'}\n"
+    # --ac: flip specified boxes BEFORE computing the unchecked warning
+    if args.ac:
+        indices = _parse_ac_indices(args.ac)
+        t.body = _flip_ac_boxes(t.body, indices)
     write_ticket(t)
     unchecked = len(UNCHECKED_AC.findall(t.body))
     if unchecked:
@@ -432,6 +479,10 @@ def cmd_edit(args) -> int:
                 sys.exit(f"tkt: {err}")
             set_field(t, "spec", f'"{args.spec}"')
         changed.append("spec")
+    if args.ac:
+        indices = _parse_ac_indices(args.ac)
+        t.body = _flip_ac_boxes(t.body, indices)
+        changed.append("ac")
 
     if not changed:
         sys.exit("tkt: nothing to edit — pass at least one field option")
@@ -685,6 +736,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("close", help="mark done, append dated Resolution stub, warn unchecked ACs")
     p.add_argument("id")
     p.add_argument("--note", help="resolution text (replaces the TBD stub; omit to edit the file afterward)")
+    p.add_argument("--ac", metavar="N,N", help="check enumerated AC boxes (1-based, comma-separated); no blanket --all by design")
     p.set_defaults(fn=cmd_close)
 
     p = sub.add_parser("edit", help="surgical field corrections; '' clears an optional field")
@@ -694,6 +746,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--env")
     p.add_argument("--spec")
     p.add_argument("--priority")
+    p.add_argument("--ac", metavar="N,N", help="check enumerated AC boxes (1-based, comma-separated)")
     p.set_defaults(fn=cmd_edit)
 
     p = sub.add_parser("renumber", help="move a ticket to a new id: filename + id + inbound refs, one atomic commit")
