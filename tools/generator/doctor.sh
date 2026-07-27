@@ -310,38 +310,86 @@ fi
 
 # Check recall import status + ingest freshness
 if command -v recall &>/dev/null; then
-  # Ingest staleness: recall-session-start steering depends on <24h-old ingest
-  if [[ -f ~/.recall/last_ingest ]]; then
-    now=$(date +%s)
-    ingest_mtime=$(stat -c %Y ~/.recall/last_ingest 2>/dev/null || stat -f %m ~/.recall/last_ingest 2>/dev/null || echo 0)
-    age_h=$(( (now - ingest_mtime) / 3600 ))
-    if [[ $age_h -gt 24 ]]; then
-      echo "  ⚠️  recall ingest stale (${age_h}h old — run: recall ingest ~/.kiro/sessions/cli)"
+  echo ""
+  echo "Recall:"
+  health_json=$(recall health --json 2>/dev/null)
+
+  if [[ -n "$health_json" ]] && echo "$health_json" | jq empty 2>/dev/null; then
+    total_chunks=$(echo "$health_json" | jq -r '.total_chunks')
+    import_chunks=$(echo "$health_json" | jq -r '.import_chunks')
+    session_chunks=$(echo "$health_json" | jq -r '.session_chunks')
+    wing_count=$(echo "$health_json" | jq -r '.wing_count')
+    covered=$(echo "$health_json" | jq -r '.covered_projects')
+    discoverable=$(echo "$health_json" | jq -r '.discoverable_projects')
+    last_ingest_ts=$(echo "$health_json" | jq -r '.last_ingest_ts // empty')
+    duplicates=$(echo "$health_json" | jq -r '.duplicates | length')
+    missing_list=$(echo "$health_json" | jq -r '.missing_projects[]' 2>/dev/null)
+
+    # Overall health summary
+    echo "  ✅ ${total_chunks} chunks (${import_chunks} import, ${session_chunks} session), ${wing_count} wings"
+
+    # Import coverage check
+    if [[ "$covered" -eq "$discoverable" && "$discoverable" -gt 0 ]]; then
+      echo "  ✅ import coverage: ${covered}/${discoverable} projects"
+    elif [[ "$discoverable" -eq 0 ]]; then
+      echo "  ⚠️  no discoverable projects found"
       warnings=$((warnings + 1))
     else
-      echo "  ✅ recall ingest fresh (${age_h}h old)"
+      echo "  ⚠️  import coverage gap: ${covered}/${discoverable} projects imported"
+      # Show up to 5 missing
+      echo "$missing_list" | head -5 | while IFS= read -r m; do
+        [[ -n "$m" ]] && echo "     missing: $m"
+      done
+      missing_n=$(echo "$missing_list" | wc -l)
+      [[ $missing_n -gt 5 ]] && echo "     (+$((missing_n - 5)) more)"
+      warnings=$((warnings + 1))
     fi
-  else
-    echo "  ⚠️  recall never ingested (~/.recall/last_ingest missing — run: recall ingest ~/.kiro/sessions/cli)"
-    warnings=$((warnings + 1))
-  fi
-  if ! crontab -l 2>/dev/null | grep -q "recall ingest"; then
-    echo "  ⚠️  no cron entry for recall ingest (memory goes stale without it)"
-    warnings=$((warnings + 1))
-  fi
 
-  if [[ -d "$PROJECT/.memory" ]]; then
-    mem_files=$(find "$PROJECT/.memory" -name "*.md" | wc -l)
-    if [[ $mem_files -gt 0 ]]; then
-      wing_name=$(basename "$PROJECT" | tr '-' '_')
-      wing_count=$(recall status 2>/dev/null | grep "$wing_name" | sed -n 's/.*(\([0-9][0-9]*\)).*/\1/p' | head -1)
-      if [[ ${wing_count:-0} -gt 0 ]]; then
-        echo "  ✅ recall: $wing_name wing has ${wing_count} chunks"
+    # Duplicate/split wing detection
+    if [[ "$duplicates" -gt 0 ]]; then
+      dup_detail=$(echo "$health_json" | jq -r '.duplicates[] | join(", ")')
+      echo "  ⚠️  wing duplicates detected (hyphen/underscore split):"
+      echo "$dup_detail" | while IFS= read -r d; do echo "     $d"; done
+      warnings=$((warnings + 1))
+    fi
+
+    # Ingest freshness
+    if [[ -n "$last_ingest_ts" ]]; then
+      now=$(date +%s)
+      age_h=$(( (now - last_ingest_ts) / 3600 ))
+      if [[ $age_h -gt 24 ]]; then
+        echo "  ⚠️  ingest stale (${age_h}h old — run: recall ingest ~/.kiro/sessions/cli)"
+        warnings=$((warnings + 1))
       else
-        echo "  ⚠️  recall: .memory/ has $mem_files files but not imported (run: recall import .memory/ --wing $wing_name)"
+        echo "  ✅ ingest fresh (${age_h}h old)"
+      fi
+    else
+      echo "  ⚠️  recall never ingested (run: recall ingest ~/.kiro/sessions/cli)"
+      warnings=$((warnings + 1))
+    fi
+
+    # Cron / scheduled task check
+    if [[ "$(uname -s)" == "Linux" || "$(uname -s)" == "Darwin" ]]; then
+      if ! crontab -l 2>/dev/null | grep -q "recall"; then
+        echo "  ⚠️  no cron entry for recall (memory goes stale without scheduled ingestion)"
         warnings=$((warnings + 1))
       fi
     fi
+
+    # Current project wing check
+    if [[ -d "$PROJECT/.memory" ]]; then
+      wing_name=$(basename "$PROJECT" | tr '-' '_')
+      wing_chunks=$(echo "$health_json" | jq -r ".wings.\"$wing_name\" // 0")
+      if [[ "$wing_chunks" -gt 0 ]]; then
+        echo "  ✅ project wing '$wing_name': ${wing_chunks} chunks"
+      else
+        echo "  ⚠️  project .memory/ not imported (run: recall import .memory/ --wing $wing_name)"
+        warnings=$((warnings + 1))
+      fi
+    fi
+  else
+    echo "  ⚠️  recall health --json failed (recall may need upgrade)"
+    warnings=$((warnings + 1))
   fi
 fi
 

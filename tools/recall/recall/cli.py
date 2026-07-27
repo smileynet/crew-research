@@ -425,6 +425,127 @@ def cmd_prime(args):
     conn.close()
 
 
+def cmd_health(args):
+    """Output machine-readable health data for doctor.sh consumption."""
+    import json as json_mod
+    from . import store
+
+    conn = store.get_connection()
+
+    # Total chunks
+    total = conn.execute("SELECT COUNT(*) FROM drawers").fetchone()[0]
+
+    # Per-wing breakdown
+    wing_rows = conn.execute(
+        "SELECT wing, COUNT(*) FROM drawers GROUP BY wing ORDER BY wing"
+    ).fetchall()
+    wings = {w: c for w, c in wing_rows}
+
+    # Import vs session split
+    import_count = conn.execute(
+        "SELECT COUNT(*) FROM drawers WHERE source LIKE 'import:%'"
+    ).fetchone()[0]
+    session_count = conn.execute(
+        "SELECT COUNT(*) FROM drawers WHERE source LIKE 'ingest:%'"
+    ).fetchone()[0]
+    agent_count = conn.execute(
+        "SELECT COUNT(*) FROM drawers WHERE source = 'agent-write'"
+    ).fetchone()[0]
+
+    # Wings with import chunks (from sources table)
+    import_wings = conn.execute(
+        "SELECT DISTINCT wing FROM sources WHERE path LIKE 'import:%' OR path NOT LIKE 'ingest:%'"
+    ).fetchall()
+    # Simpler: wings that have import: source entries in drawers
+    import_wing_names = [r[0] for r in conn.execute(
+        "SELECT DISTINCT wing FROM drawers WHERE source LIKE 'import:%'"
+    ).fetchall()]
+
+    # Duplicate/split wing detection (names differing only by hyphen/underscore)
+    all_wing_names = list(wings.keys())
+    duplicates = _detect_wing_duplicates(all_wing_names)
+
+    # Staleness: last ingest timestamp
+    marker_path = Path.home() / ".recall" / "last_ingest"
+    last_ingest_ts = None
+    if marker_path.exists():
+        try:
+            last_ingest_ts = int(marker_path.read_text().strip())
+        except (ValueError, OSError):
+            pass
+
+    # Import freshness per wing (from sources table)
+    stale_wings = []
+    if args.projects_root:
+        roots = args.projects_root
+    else:
+        roots = [str(Path.home() / "code")]
+        d_code = Path("D:/code")
+        if d_code.is_dir():
+            roots.append(str(d_code))
+
+    discoverable_projects = []
+    for root in roots:
+        root_path = Path(root)
+        if not root_path.is_dir():
+            continue
+        for mem_dir in root_path.iterdir():
+            if mem_dir.is_dir() and (mem_dir / ".memory").is_dir():
+                wing_name = mem_dir.name.replace("-", "_").replace(".", "")
+                discoverable_projects.append(wing_name)
+
+    # Coverage: which discoverable projects have import wings
+    covered = [p for p in discoverable_projects if p in import_wing_names]
+    missing = [p for p in discoverable_projects if p not in import_wing_names]
+
+    conn.close()
+
+    health = {
+        "total_chunks": total,
+        "import_chunks": import_count,
+        "session_chunks": session_count,
+        "agent_chunks": agent_count,
+        "wing_count": len(wings),
+        "wings": wings,
+        "import_wings": import_wing_names,
+        "duplicates": duplicates,
+        "last_ingest_ts": last_ingest_ts,
+        "discoverable_projects": len(discoverable_projects),
+        "covered_projects": len(covered),
+        "missing_projects": missing,
+        "stale_wings": stale_wings,
+    }
+
+    if args.json:
+        print(json_mod.dumps(health, indent=2))
+    else:
+        # Human-readable summary
+        print(f"\n  Recall Health")
+        print(f"  {'─' * 40}")
+        print(f"  Total chunks:  {total:,} ({import_count:,} import, {session_count:,} session, {agent_count:,} agent)")
+        print(f"  Wings:         {len(wings)}")
+        print(f"  Coverage:      {len(covered)}/{len(discoverable_projects)} projects imported")
+        if missing:
+            print(f"  Missing:       {', '.join(missing[:5])}" + (f" (+{len(missing)-5} more)" if len(missing) > 5 else ""))
+        if duplicates:
+            print(f"  ⚠ Duplicates:  {duplicates}")
+        if last_ingest_ts:
+            age_hours = (time.time() - last_ingest_ts) / 3600
+            print(f"  Last ingest:   {age_hours:.1f}h ago")
+        else:
+            print(f"  Last ingest:   never")
+        print()
+
+
+def _detect_wing_duplicates(wing_names: list[str]) -> list[list[str]]:
+    """Find wing names that would collide after normalization."""
+    normalized = {}
+    for name in wing_names:
+        key = name.replace("-", "_").replace(".", "_").lower()
+        normalized.setdefault(key, []).append(name)
+    return [names for names in normalized.values() if len(names) > 1]
+
+
 def cmd_status(args):
     from . import store
 
@@ -491,6 +612,12 @@ def main():
     # status
     sub.add_parser("status", help="Show indexed content")
 
+    # health
+    p = sub.add_parser("health", help="Report recall health (for doctor.sh)")
+    p.add_argument("--json", action="store_true", help="Output machine-readable JSON")
+    p.add_argument("--projects-root", nargs="*", default=None,
+                   help="Override project root dirs for coverage check")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -505,7 +632,7 @@ def main():
     if hasattr(args, "wing") and args.wing:
         args.wing = args.wing.replace("-", "_")
 
-    commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "import": cmd_import, "prime": cmd_prime, "status": cmd_status}
+    commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "import": cmd_import, "prime": cmd_prime, "status": cmd_status, "health": cmd_health}
     commands[args.command](args)
 
 
