@@ -96,6 +96,8 @@ mise run recall:ingest               # ingest all projects + sessions
 mise run recall:status               # show indexed content
 recall search "query"                # semantic search
 recall import .memory/ --wing name   # import a single project's knowledge
+recall health --json                 # machine-readable health (coverage, duplicates, freshness)
+mise run proof:recall                # recall correctness proofs (G-K series)
 
 # Release (versioning: SemVer, tags + CHANGELOG — see release-protocol skill)
 mise run release -- <version> --dry-run   # preview
@@ -121,7 +123,7 @@ recall search "what did we decide about X"
 
 # Add a new project to automatic ingestion
 # Auto-discovered from ~/code + D:\code (Windows); override with -ProjectsRoot
-# Override: -ProjectsRoot parameter (Windows) or RECALL_PROJECTS_ROOT env (Unix)
+# Override: -ProjectsRoot parameter (Windows) or RECALL_PROJECTS_ROOT env (Unix, colon-separated)
 # Development: `uv tool install -e ./tools/recall` (editable — source edits take
 # effect immediately; non-editable install requires reinstall after changes)
 
