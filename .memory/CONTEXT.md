@@ -276,6 +276,17 @@ _Avoid_: tk (an unrelated third-party binary on PATH — reads `deps` not `block
 The period between a ticket's creation and its id being cited elsewhere (other tickets, plan rows, prose, commits). `tkt renumber` is safe only inside it — cited ids are external contracts that renumber cannot rewrite (the tool warns).
 _Avoid_: grace period (implies time-based), provisional id (the id is real, just uncited)
 
-**Environment designation (CREW_ENV)**:
-Machine-local flag in gitignored `.mise.local.toml` marking a machine as `corp` (agy forbidden by company policy; crush via Bedrock/Claude-only) or `personal` (full tool access). Tooling consults it for policy blocks and deploy sets; tickets carry matching `env: corp|personal|either` frontmatter.
+**Environment designation (CREW_ENV)**:Machine-local flag in gitignored `.mise.local.toml` marking a machine as `corp` (agy forbidden by company policy; crush via Bedrock/Claude-only) or `personal` (full tool access). Tooling consults it for policy blocks and deploy sets; tickets carry matching `env: corp|personal|either` frontmatter.
 _Avoid_: access flag (policy ≠ access), machine profile
+
+**Identity hash (eval result)**:
+A recomputable fingerprint stamped on each scores.jsonl row so staleness is computed, not remembered. Three separate components keep drift KIND visible: `skill_hash` (skills + steering across all conditions), `def_hash` (def yaml + all fixtures), `env_id` (adapter:tool_version:model:judges — a readable string, not a hash). Computed per def at execution time; `check-staleness.sh` reports CURRENT / SKILL-DRIFT / DEF-DRIFT / ENV-DRIFT.
+_Avoid_: "result hash" (implies one opaque value — the separation is the point)
+
+**Shadow study**:
+Offline model-comparison method: candidate models re-judge RETAINED outputs from a completed run and are scored on agreement with the recorded consensus (median shift + bias bounds), with no live judge-config change. A qualifying candidate joins as an extra leg on probation before any incumbent is dropped.
+_Avoid_: A/B test (no live traffic split), benchmark (that's capability floors — the small-model-* defs)
+
+**Session review (candidate collection)**:
+The archived-sessions counterpart of `/guidance-sync`: `mise run session:review` prefilters transcripts for P1 corrections and P2 friction, optionally LLM-confirms them, and emits a per-project digest for HUMAN triage. It never creates tickets. Findings route by cwd — crew-research = global lane (proposals become crew-research tickets), other projects = local lane.
+_Avoid_: session analysis (that's activation/compliance metrics — `session:skills`), retrospective (that's for teams)
