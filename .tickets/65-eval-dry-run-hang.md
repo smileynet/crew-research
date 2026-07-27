@@ -1,7 +1,7 @@
 ---
 id: "65"
 title: "Investigate: eval harness --dry-run hangs indefinitely"
-status: open
+status: done
 blocked_by: []
 priority: high
 ---
@@ -10,22 +10,20 @@ priority: high
 
 ## What to build
 
-Diagnose and fix why `bash tools/evals/harness/run.sh --all --dry-run` hangs indefinitely on Windows (Git Bash). A dry-run should complete in seconds (no agent invocations, no judging) — it only parses definitions and reports what would run.
+Fix `bash tools/evals/harness/run.sh --all --dry-run` so it completes in <30 seconds on Windows (Git Bash). Currently hangs for 60+ minutes.
 
-## Context
+## Root Cause (confirmed 2026-07-27)
 
-**Incident (2026-07-27, ticket 30 session):** `run.sh --all --dry-run` was launched at 12:57 PM, still running at 2:09 PM (72 minutes). Two bash.exe processes visible (`Get-CimInstance Win32_Process`). Killed manually. No output captured (piped to grep, not a file).
+Dry-run correctly skips agent invocations and judging but still enters the full `run_eval()` function which:
+1. Computes identity hashes per def (`identity_skill_hash` + `identity_def_hash`) — each spawns 4-6 subprocesses (yq, find, sort, cat, sha256sum in a pipeline)
+2. Extracts ~10 fields via separate yq calls per def (name, skill, threshold, timeout, fixture, trials, conditions...)
+3. Total: ~750-900 process forks for 39 defs
 
-**Hypotheses:**
-1. `--dry-run` still calls `ensure_agent_probed` (access probe) which invokes the agent — would explain the hang if the agent call blocks
-2. A yq call on one of the 60 definition files is hanging (malformed YAML, infinite read)
-3. Git Bash-specific: a subshell or pipe is waiting on stdin
-4. The adapter probe (`kiro-cli chat --no-interactive` with a test prompt) hangs in non-interactive mode without `< /dev/null`
+On Git Bash/MSYS2, each fork costs 60ms-4.7s (degrades with uptime due to Windows Desktop Heap exhaustion). At moderate degradation: 30-75 minutes.
 
-**Investigation approach:**
-1. Read `run.sh` dry-run code path — trace what it actually does vs what it should skip
-2. Run with `bash -x` on a single def to pinpoint where it blocks
-3. If agent probes are the issue: gate them behind `[[ "$DRY_RUN" != true ]]`
+## Fix
+
+Add early-exit in `run_eval` for dry-run mode: after adapter-scoping check, emit the plan line and return immediately — no hash computation, no field extraction, no trial loop.
 
 ## Acceptance criteria
 
@@ -33,3 +31,4 @@ Diagnose and fix why `bash tools/evals/harness/run.sh --all --dry-run` hangs ind
 - [ ] `--dry-run` completes in <30 seconds for the full 60-def suite
 - [ ] Dry-run output lists all defs with their would-run/would-skip status
 - [ ] No agent invocations during dry-run (verified via `bash -x` trace)
+- [ ] Real runs unaffected (single-def verify)

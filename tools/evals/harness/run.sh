@@ -510,14 +510,31 @@ parse_judges() {
 # Run a single eval (standard or dual-run)
 run_eval() {
   local def_file="$1"
-  local name=$(yq '.name' "$def_file")
-  local def_id=$(yq '.id // ""' "$def_file")
+
+  # Batch-extract frontmatter fields in one yq call (ticket 65: reduces forks on MSYS2).
+  # For dry-run, this single call provides everything needed for the plan report.
+  # Uses pipe delimiter (not @tsv) because IFS=$'\t' collapses consecutive tabs (empty fields).
+  local _fields
+  _fields=$(yq '[.name, (.id // ""), (.adapters // [] | join(",")), (.skill // "")] | join("|")' "$def_file")
+  local name def_id def_adapters _skill_field
+  IFS="|" read -r name def_id def_adapters _skill_field <<< "$_fields"
   [[ "$def_id" == "null" ]] && def_id=""
+  [[ "$def_adapters" == "null" ]] && def_adapters=""
+  [[ "$_skill_field" == "null" ]] && _skill_field=""
 
   # Adapter scoping: a def listing adapters runs ONLY under those adapters
-  local def_adapters=$(yq '.adapters // [] | join(",")' "$def_file")
-  if [[ -n "$def_adapters" && "$def_adapters" != "null" && ",$def_adapters," != *",$ADAPTER,"* ]]; then
+  if [[ -n "$def_adapters" && ",$def_adapters," != *",$ADAPTER,"* ]]; then
     emit_skip "$name" "$def_id" "needs adapter: $def_adapters"
+    return
+  fi
+
+  # Dry-run early exit (ticket 65): discovery phase complete — report and return.
+  # Skips hash computation, field extraction, agent/judge probes, and trial loop
+  # which collectively spawn 750-900 forks (hanging on Windows/MSYS2).
+  if [[ "$DRY_RUN" == true ]]; then
+    echo "  ✓ $name (skill: ${_skill_field:-none}, adapter: $ADAPTER) — would run"
+    TOTAL=$((TOTAL + 1))
+    PASSED=$((PASSED + 1))
     return
   fi
 
