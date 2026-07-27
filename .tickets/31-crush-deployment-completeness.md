@@ -1,7 +1,7 @@
 ---
 id: "31"
 title: "crush deployment complete on this machine: deploy, idempotency, docs; live probes deferred"
-status: in_progress
+status: done
 blocked_by: []
 env: corp
 spec: ""
@@ -24,13 +24,17 @@ Finish the crush deployment story that upstream 5a23e45 started: actually deploy
 
 ## Acceptance criteria
 
-- [ ] `init.sh --global --tier full --tool crush` deploys; second run is `0 updated, 0 pruned` (idempotency invariant)
-- [ ] `.crew-skills-crush` manifest exists; a follow-up codex/agy deploy shows `0 updated, 0 pruned` (no cross-tool flap)
-- [ ] doctor reports crush healthy (or documents why partial)
-- [ ] Docs updated: AGENTS.md, README table, deploy-toolkit skill, user-setup-guide with crush paths + verify command
-- [ ] Crush configured against Bedrock on corp (AWS_REGION/profile per user choice); live sentinel probe passes locally (no longer deferred); Bedrock model list + caching-disabled cost caveat documented in the deploy-toolkit or a references/ file
+- [x] `init.sh --global --tier full --tool crush` deploys; second run is `0 updated, 0 pruned` (idempotency invariant)
+- [x] `.crew-skills-crush` manifest exists; a follow-up codex/agy deploy shows `0 updated, 0 pruned` (no cross-tool flap)
+- [x] doctor reports crush healthy (or documents why partial)
+- [x] Docs updated: AGENTS.md, README table, deploy-toolkit skill, user-setup-guide with crush paths + verify command
+- [x] Crush configured against Bedrock on corp (AWS_REGION/profile per user choice); live sentinel probe passes locally (no longer deferred); Bedrock model list + caching-disabled cost caveat documented in the deploy-toolkit or a references/ file
 
 ## Out of scope
 
 - crush model access on this machine
 - Eval defs (tickets 29/30)
+
+## Resolution (2026-07-27)
+
+Deployed + verified: init crush run1 '1 updated', run2 '0 updated 0 pruned' (idempotent); .crew-skills-crush manifest present; follow-up codex + crush redeploys both 0/0 (no cross-tool flap); doctor 'Global (crush): 39 skills, AGENTS.md present'. Live sentinel probe PASSED: crush run --model bedrock/us.anthropic.claude-haiku-4-5-20251001-v1:0 -> OK (account 563171622587/us-west-2 per operator choice). Gotcha documented: bedrock/ + us. inference-profile prefix required (bare model id fails). Docs: AGENTS.md, README (commands + table row), deploy-toolkit + references/crush-bedrock.md (model list, caching-disabled cost caveat), user-setup-guide corp deploy set.
