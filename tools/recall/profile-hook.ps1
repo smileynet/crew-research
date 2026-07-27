@@ -47,13 +47,21 @@ function Invoke-RecallIngestIfStale {
         if ($Script -and (Test-Path $Script)) {
             & pwsh -NoProfile -NonInteractive -File $Script *> (Join-Path $UserProfile "recall-ingest.log")
         } else {
-            # Inline fallback: discover and import
-            $root = Join-Path $UserProfile "code"
-            Get-ChildItem -Path $root -Directory -Depth 1 -Filter ".memory" -ErrorAction SilentlyContinue |
-                ForEach-Object {
-                    $wing = $_.Parent.Name -replace '-', '_'
-                    & recall import $_.FullName --wing $wing 2>&1
-                }
+            # Inline fallback: discover and import from multiple roots
+            $roots = @((Join-Path $UserProfile "code"))
+            if (Test-Path "D:\code") { $roots += "D:\code" }
+            $seen = @{}
+            foreach ($root in $roots) {
+                if (-not (Test-Path $root)) { continue }
+                Get-ChildItem -Path $root -Directory -Depth 1 -Filter ".memory" -ErrorAction SilentlyContinue |
+                    ForEach-Object {
+                        $wing = $_.Parent.Name -replace '-', '_'
+                        if (-not $seen.ContainsKey($wing)) {
+                            $seen[$wing] = $true
+                            & recall import $_.FullName --wing $wing 2>&1
+                        }
+                    }
+            }
             $sessions = Join-Path $UserProfile ".kiro\sessions\cli"
             if (Test-Path $sessions) {
                 & recall ingest $sessions 2>&1

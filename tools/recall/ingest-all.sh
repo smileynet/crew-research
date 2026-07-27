@@ -7,7 +7,8 @@
 #   bash ingest-all.sh --dry-run    # show what would run
 #
 # Configuration:
-#   RECALL_PROJECTS_ROOT  — root dir to scan for projects (default: /mnt/c/Users/$USER/code)
+#   RECALL_PROJECTS_ROOT  — colon-separated root dirs to scan for projects
+#                           (default: ~/code; on WSL also /mnt/d/code if it exists)
 #   RECALL_SESSIONS_DIR   — kiro session transcripts dir (auto-detected)
 #   RECALL_STALE_HOURS    — hours before considering stale (default: 4)
 #
@@ -39,24 +40,46 @@ fi
 PROJECTS_ROOT="${RECALL_PROJECTS_ROOT:-$WIN_HOME/code}"
 SESSIONS_DIR="${RECALL_SESSIONS_DIR:-$WIN_HOME/.kiro/sessions/cli}"
 
-# Projects to import. Auto-discovers all dirs with .memory/ under PROJECTS_ROOT.
-# Override by setting RECALL_PROJECTS as colon-separated "path:wing" pairs.
+# Projects to import. Auto-discovers all dirs with .memory/ under each root.
+# RECALL_PROJECTS_ROOT supports colon-separated paths (like PATH):
+#   RECALL_PROJECTS_ROOT=/home/user/code:/mnt/d/code
+# Override individual projects by setting RECALL_PROJECTS as semicolon-separated
+# "path:wing" pairs.
 if [[ -n "${RECALL_PROJECTS:-}" ]]; then
   IFS=';' read -ra PROJECTS <<< "$RECALL_PROJECTS"
 else
+  # Build list of roots to scan
+  IFS=':' read -ra ROOTS <<< "$PROJECTS_ROOT"
+
+  # Auto-discover additional roots on WSL (/mnt/d/code, /mnt/e/code, etc.)
+  # if no explicit RECALL_PROJECTS_ROOT was set
+  if [[ -z "${RECALL_PROJECTS_ROOT:-}" ]]; then
+    for drive_mount in /mnt/d /mnt/e /mnt/f; do
+      if [[ -d "$drive_mount/code" ]]; then
+        ROOTS+=("$drive_mount/code")
+      fi
+    done
+  fi
+
   PROJECTS=()
-  if [[ -d "$PROJECTS_ROOT" ]]; then
+  declare -A SEEN_WINGS=()
+  for root in "${ROOTS[@]}"; do
+    if [[ ! -d "$root" ]]; then continue; fi
     while IFS= read -r mem_dir; do
       project_dir="$(dirname "$mem_dir")"
       wing="$(basename "$project_dir" | tr '-' '_')"
-      PROJECTS+=("$mem_dir:$wing")
-    done < <(find "$PROJECTS_ROOT" -maxdepth 2 -name '.memory' -type d 2>/dev/null)
-  fi
+      # Deduplicate: first root wins if same wing name exists
+      if [[ -z "${SEEN_WINGS[$wing]:-}" ]]; then
+        SEEN_WINGS[$wing]=1
+        PROJECTS+=("$mem_dir:$wing")
+      fi
+    done < <(find "$root" -maxdepth 2 -name '.memory' -type d 2>/dev/null)
+  done
 fi
 
 # ─── Import project knowledge ─────────────────────────────────
 echo "$LOG_PREFIX Starting recall ingestion"
-echo "  Projects root: $PROJECTS_ROOT"
+echo "  Projects roots: ${ROOTS[*]:-$PROJECTS_ROOT}"
 echo "  Sessions dir:  $SESSIONS_DIR"
 echo "  Projects found: ${#PROJECTS[@]}"
 echo ""
