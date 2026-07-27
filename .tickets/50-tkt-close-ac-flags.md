@@ -1,7 +1,7 @@
 ---
 id: "50"
 title: "tkt close --ac N,N: enumerated AC box-checking (blanket --check-acs rejected)"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "ticket-cli"
@@ -35,16 +35,20 @@ killing the repeated python one-liner (5× in the 2026-07-25 goal session).
 
 ## Acceptance criteria
 
-- [ ] `tkt close <id> --ac 1,3` flips exactly boxes 1 and 3 (file order), then closes;
+- [x] `tkt close <id> --ac 1,3` flips exactly boxes 1 and 3 (file order), then closes;
       remaining unchecked boxes still trigger the warning
-- [ ] `tkt edit <id> --ac 2` flips box 2 without a status change
-- [ ] Out-of-range or non-numeric index = hard error, no file modification
-- [ ] No blanket variant exists; help text states enumeration is deliberate (link the
+- [x] `tkt edit <id> --ac 2` flips box 2 without a status change
+- [x] Out-of-range or non-numeric index = hard error, no file modification
+- [x] No blanket variant exists; help text states enumeration is deliberate (link the
       rejection rationale)
-- [ ] Byte-preservation: only the named checkbox lines change (existing test pattern)
-- [ ] Suite extended; `mise run test:tkt` green
+- [x] Byte-preservation: only the named checkbox lines change (existing test pattern)
+- [x] Suite extended; `mise run test:tkt` green
 
 ## Out of scope
 
 - Any `--all`/`--check-acs` bulk flag (rejected, see above)
 - AC text editing (this is check-state only)
+
+## Resolution (2026-07-27)
+
+Implemented _flip_ac_boxes + _parse_ac_indices. Wired into close (flip before warning) and edit. 5 tests pass. No --all by design.
