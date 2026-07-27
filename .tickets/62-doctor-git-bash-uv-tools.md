@@ -1,7 +1,7 @@
 ---
 id: "62"
 title: "doctor.sh extension prerequisite check fails for uv tools in Git Bash (MSYS2)"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: ""
@@ -41,12 +41,16 @@ Prior art: pipx#1232 (MINGW detection fix), uv#3953 (Cygwin path mixing), uv#161
 
 ## Acceptance criteria
 
-- [ ] On a Windows machine with recall installed via `uv tool install`: `mise run doctor` does NOT report "extension recall prerequisite not met" (currently false negative)
-- [ ] Same fix applies to tkt prerequisite check
-- [ ] On Linux/macOS: behavior unchanged (direct `recall --version` still used)
-- [ ] On Windows without recall installed: doctor still correctly reports the prerequisite is missing
-- [ ] No false positives (binary exists on PATH but is broken/wrong version)
+- [x] On a Windows machine with recall installed via `uv tool install`: `mise run doctor` does NOT report "extension recall prerequisite not met" (currently false negative)
+- [x] Same fix applies to tkt prerequisite check
+- [x] On Linux/macOS: behavior unchanged (direct `recall --version` still used)
+- [x] On Windows without recall installed: doctor still correctly reports the prerequisite is missing
+- [x] No false positives (binary exists on PATH but is broken/wrong version)
 
 ## Research
 
 See `.scratch/research/uv-cross-shell.md` and `.scratch/research/git-bash-python.md` for full findings including uv issue links, failure mode analysis, and workaround options.
+
+## Resolution (2026-07-27)
+
+Added _check_prereq with PowerShell fallback for MINGW/MSYS. Verified: doctor correctly detects recall on Git Bash. Linux/macOS path unchanged (direct eval first). tkt uses same mechanism.
