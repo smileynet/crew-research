@@ -1,7 +1,7 @@
 ---
 id: "58"
 title: "Recall proofs: idempotency, wing isolation, name normalization"
-status: open
+status: done
 blocked_by: ["56"]
 env: either
 spec: "recall-import-fix"
@@ -68,3 +68,7 @@ Proofs go in `tools/proofs/definitions/` as YAML definitions with the recall-spe
 
 - Eval definitions for recall search quality (existing `recall-search-precision.yaml` covers agent routing; these proofs cover the storage layer)
 - Performance benchmarks (not a correctness concern at current scale)
+
+## Resolution (2026-07-26)
+
+5 proofs (G-K) covering idempotency, force isolation, normalization, cross-wing search, and search-after-force. All pass via mise run proof:recall. Proof H catches the ticket 52 bug.
