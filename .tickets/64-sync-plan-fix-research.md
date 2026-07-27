@@ -1,7 +1,7 @@
 ---
 id: "64"
 title: "Research: sync-plan --fix for status-only plan drift (R9 report-only decision weighed first)"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "ticket-cli"
@@ -67,3 +67,7 @@ rewrites one plan row. Volume this session alone: 3 rows + 2 added rows.
 
 - Implementing `--fix` in this ticket
 - Any mode that rewrites plan narrative text
+
+## Resolution (2026-07-27)
+
+ACCEPTED with Ruff-model scoping. Decision recorded as R9a in ticket-cli-spec.md. Implementation ticket: 66.
