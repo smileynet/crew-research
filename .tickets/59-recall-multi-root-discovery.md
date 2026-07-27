@@ -1,7 +1,7 @@
 ---
 id: "59"
 title: "Recall ingestion: multi-root project discovery"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "recall-import-fix"
@@ -50,3 +50,7 @@ Option A is simplest — change the parameter type from `[string]` to `[string[]
 
 - Watching for new roots appearing (manual re-register if a new drive is added)
 - Per-project import overrides (e.g., skip specific projects)
+
+## Resolution (2026-07-26)
+
+All three scripts support multi-root discovery with wing deduplication. 34 projects discovered across both roots in dry-run verification.
