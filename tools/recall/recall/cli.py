@@ -90,22 +90,33 @@ def cmd_ingest(args):
         project_path = None
         project_name = None
 
+    # Active-file skip threshold: files modified less than 5 minutes ago
+    # are likely still being written (session in progress).
+    ACTIVE_THRESHOLD_SECONDS = 300
+
     total_chunks = 0
     files_processed = 0
     files_skipped = 0
+    files_updated = 0
+    files_deferred = 0
 
     print(f"\n  Ingesting: {source_dir}")
     print(f"  Files: {len(all_files)} JSONL ({len(jsonl_files)} v2, {len(v3_files)} v3)")
     print()
 
     for i, f in enumerate(all_files):
-        if store.is_file_ingested(conn, f.name if f.name != "messages.jsonl" else f.parent.name):
-            files_skipped += 1
+        is_v3 = (f.name == "messages.jsonl")
+        source_label = f.parent.name if is_v3 else f.name
+
+        # Active-file skip: defer files with very recent mtime
+        file_mtime = f.stat().st_mtime
+        age_seconds = time.time() - file_mtime
+        if age_seconds < ACTIVE_THRESHOLD_SECONDS:
+            files_deferred += 1
             continue
 
         # Determine wing from session metadata
         wing = "global"
-        is_v3 = (f.name == "messages.jsonl")
         if is_v3:
             session_id = f.parent.name  # sess_<uuid>
             cwd = normalize.extract_cwd_from_session(f.parent, session_id)
@@ -121,16 +132,41 @@ def cmd_ingest(args):
         if project_path and cwd and Path(cwd).resolve() != project_path:
             continue
 
+        # Size-tracking via sources table: compare current file size
+        current_size = f.stat().st_size
+        source_path_key = f"ingest:{source_label}"
+        stored_hash = store.get_source_hash(conn, source_path_key, wing)
+
+        if stored_hash is not None:
+            # Entry exists — check if file grew (stored "hash" is actually size for sessions)
+            stored_size = int(stored_hash) if stored_hash.isdigit() else 0
+            if current_size <= stored_size:
+                files_skipped += 1
+                continue
+            # File grew — delete old chunks and re-ingest
+            conn.execute(
+                "DELETE FROM drawers WHERE source = ? AND wing = ?",
+                (f"ingest:{source_label}", wing)
+            )
+            conn.commit()
+            files_updated += 1
+        else:
+            files_processed += 1
+
         messages = normalize.detect_and_parse(f)
         if not messages:
+            # Record in manifest to avoid re-checking empty files
+            store.upsert_source(conn, source_path_key, wing, str(current_size), current_size, 0)
+            conn.commit()
             continue
 
         chunks = chunker.chunk_messages(messages)
         if not chunks:
+            store.upsert_source(conn, source_path_key, wing, str(current_size), current_size, 0)
+            conn.commit()
             continue
 
         embeddings = embedder.embed_documents(chunks)
-        source_label = f.parent.name if is_v3 else f.name
         rows = []
         for chunk, emb in zip(chunks, embeddings):
             room = chunker.classify_room(chunk, keywords)
@@ -138,13 +174,26 @@ def cmd_ingest(args):
 
         store.upsert_batch(conn, rows)
         total_chunks += len(chunks)
-        files_processed += 1
 
-        if (files_processed) % 10 == 0:
-            print(f"  [{files_processed}] {total_chunks} chunks...")
+        # Record in sources manifest (use size as "hash" for sessions)
+        store.upsert_source(conn, source_path_key, wing, str(current_size), current_size, len(chunks))
+        conn.commit()
+
+        if (files_processed + files_updated) % 10 == 0:
+            print(f"  [{files_processed + files_updated}] {total_chunks} chunks...")
 
     conn.close()
-    print(f"\n  Done: {files_processed} files, {total_chunks} chunks ingested, {files_skipped} skipped (already filed)")
+    parts = []
+    if files_processed:
+        parts.append(f"{files_processed} new")
+    if files_updated:
+        parts.append(f"{files_updated} updated")
+    if files_skipped:
+        parts.append(f"{files_skipped} unchanged")
+    if files_deferred:
+        parts.append(f"{files_deferred} deferred (active)")
+    summary = ", ".join(parts) if parts else "no files"
+    print(f"\n  Done: {summary} ({total_chunks} chunks ingested)")
 
     # Auto-import .memory/ if project has one
     memory_dir = None
