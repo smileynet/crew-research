@@ -126,7 +126,9 @@ recall search "what did we decide about X"
 # Auto-discovered from ~/code + D:\code (Windows); override with -ProjectsRoot
 # Override: -ProjectsRoot parameter (Windows) or RECALL_PROJECTS_ROOT env (Unix, colon-separated)
 # Development: `uv tool install -e ./tools/recall` (editable — source edits take
-# effect immediately; non-editable install requires reinstall after changes)
+# effect immediately). TRAP: non-editable + `uv tool install --force` reuses the
+# CACHED wheel for an unchanged version — new commands silently missing; use
+# `--force --reinstall` (incident 2026-07-27: post-pull recall lacked `health`)
 
 # Verify scheduled task
 Get-ScheduledTask -TaskName "RecallIngest" | Select State
