@@ -1,7 +1,7 @@
 ---
 id: "63"
 title: "Add pytest unit test suite for recall (normalize + migration + CLI smoke)"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 ---
@@ -41,3 +41,7 @@ A proper pytest test suite for the recall CLI tool covering the highest-risk unt
 - Coverage gates or CI setup
 - tkt test improvements (separate ticket if needed)
 - Performance/scale testing
+
+## Resolution (2026-07-27)
+
+50 tests pass via mise run test:recall (13s). Covers normalize.py (3 parsers), store.py (migration v1-v4 + sources CRUD), and all CLI commands (subprocess smoke). Mock embedder fixture for speed.
