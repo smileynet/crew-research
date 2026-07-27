@@ -1,7 +1,7 @@
 ---
 id: "39"
 title: "doctor.sh checks WSL $HOME instead of the Windows deploy home"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: ""
@@ -31,3 +31,7 @@ Port init.sh's `DEPLOY_HOME` detection (init.sh lines 14-20: WSL → `/mnt/c/Use
 
 - Making doctor runnable natively on Windows (it stays bash)
 - agy policy checks (ticket 36)
+
+## Resolution (2026-07-27)
+
+Added DEPLOY_HOME detection (same logic as init.sh). All deployment-artifact checks use DEPLOY_HOME; tool availability checks use native PATH. Non-WSL behavior unchanged. Bash syntax clean.
