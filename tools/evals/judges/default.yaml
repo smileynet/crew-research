@@ -1,17 +1,44 @@
 # Judge configuration — multi-model consensus scoring
-# All 4 models judge each output; final score = median of all judges
+# All live judges score each output; final score = median of all judges
+#
+# JUDGE TIER POLICY (operator, 2026-07-27 — ticket 35)
+# Grading and judging always use the best available model, or at minimum one
+# capability tier above the model being judged. Cost is NOT a lever on this role.
+# Consequences, deliberately accepted:
+#   - each leg runs its VENDOR FAMILY's frontier model (diversity across families is
+#     what makes the consensus meaningful; tier is set within each family, not by
+#     collapsing every leg onto one model)
+#   - a cheap-judge swap is a rejected alternative, not an open question — see
+#     .memory/adr/0010-judge-tier-policy.md before re-proposing one
+#   - changing any leg's model changes env_id, so prior baselines read as ENV-DRIFT
+#     (by design — recompare via `run.sh --judge-only <results-dir>`)
+# Budget note: kiro leg = kiro credits; crush/bedrock legs = AWS account
+# 563171622587 (us-west-2), where prompt caching is DISABLED.
+#
+# Ceiling escalation: claude-fable-5 is the only tier above opus-5. It carries a
+# no-customer-data/ITAR/PII restriction (our fixtures are synthetic, so it is
+# permissible) at 4.40x credits. Required when the agent under test itself runs
+# opus-5; otherwise opus-5 satisfies the policy.
 mode: consensus
 temperature: 0
 scoring: reasoning-before-score
 rubric: 5-point-likert
 trials: 1
 
+# Each leg's model is read by run.sh. null = tool default (which must itself be the
+# family frontier — verify on tool upgrades rather than assuming).
 judges:
   - tool: kiro-cli
-    model: claude-opus-4.6
+    model: claude-opus-5
   - tool: codex
-    model: gpt-5.5
+    # Intended pin: gpt-5.6-sol (codex's frontier tier). NOT pinned yet — codex cannot
+    # be probed from the agent sandbox (codex-wrapper fails writing its AWS config temp
+    # file), so the id is unverified against codex's own catalog. Pinning an invalid id
+    # would silently shrink the judge panel to an excluded leg. Verify with
+    # `codex exec -m gpt-5.6-sol "Reply with exactly: OK"` on a machine where codex runs,
+    # then set it here.
+    model: null
   - tool: crush
-    model: glm-5.2
+    model: glm-5.2          # personal env; on corp set CREW_CRUSH_JUDGE_MODEL to a bedrock/us.* id
   - tool: agy
-    model: null  # uses default model
+    model: null             # Gemini frontier default; policy-blocked on corp (ticket 36)

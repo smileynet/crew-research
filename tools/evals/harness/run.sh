@@ -83,8 +83,18 @@ INVOKE_NO_AGENT_CMD=$(yq '.invoke.command_no_agent' "$ADAPTER_FILE")
 DEFAULT_TIMEOUT=$(yq '.invoke.timeout // 90' "$ADAPTER_FILE")
 SKILL_LOCATION=$(yq '.skill.location' "$ADAPTER_FILE")
 
-# Load judge config
-JUDGE_MODEL=$(yq '.judges[0].model // .model // "claude-opus-4.6"' "$JUDGE_CONFIG")
+# Load judge config. Every leg's model comes from the config — the judge tier policy
+# (ticket 35) is only enforceable if no leg silently rides a tool default.
+JUDGE_MODEL=$(yq '.judges[0].model // .model // "claude-opus-5"' "$JUDGE_CONFIG")
+judge_model_for() {  # judge_model_for <tool> : model id, or "" for tool default
+  local m
+  m=$(yq ".judges[] | select(.tool == \"$1\") | .model" "$JUDGE_CONFIG" 2>/dev/null | head -1)
+  [[ "$m" == "null" ]] && m=""
+  echo "$m"
+}
+JUDGE_MODEL_CODEX=$(judge_model_for codex)
+JUDGE_MODEL_CRUSH="${CREW_CRUSH_JUDGE_MODEL:-$(judge_model_for crush)}"
+JUDGE_MODEL_AGY=$(judge_model_for agy)
 JUDGE_MODE=$(yq '.mode // "single"' "$JUDGE_CONFIG")
 JUDGE_TEMP=$(yq '.temperature' "$JUDGE_CONFIG")
 
@@ -201,7 +211,7 @@ probe_tool() {
     case "$tool" in
       kiro-cli) out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" kiro-cli chat --no-interactive --wrap never "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
       codex)    out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" codex exec -s read-only --skip-git-repo-check "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
-      crush)    out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" crush run --quiet --model "${MODEL:-glm-5.2}" "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
+      crush)    out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" crush run --quiet --model "${MODEL:-${JUDGE_MODEL_CRUSH:-glm-5.2}}" "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
       agy)      out=$(cd "$probe_dir" && timeout "$PROBE_TIMEOUT" agy --print "Reply with exactly: OK" </dev/null 2>/dev/null | strip_ansi) || true ;;
     esac
     rm -rf "$probe_dir"
@@ -423,10 +433,10 @@ REASON: <one sentence>"
       codex)
         # --skip-git-repo-check: codex exec silently dies in untrusted temp dirs
         # (discovered 2026-07-19 — the leg produced zero scores in every prior run)
-        (cd "$judge_dir" && timeout 60 codex exec -s read-only --skip-git-repo-check "$(cat "$prompt_file")" </dev/null 2>/dev/null | strip_ansi > "$judge_dir/result-codex.txt") &
+        (cd "$judge_dir" && timeout 60 codex exec -s read-only --skip-git-repo-check ${JUDGE_MODEL_CODEX:+-m "$JUDGE_MODEL_CODEX"} "$(cat "$prompt_file")" </dev/null 2>/dev/null | strip_ansi > "$judge_dir/result-codex.txt") &
         pids+=($!) ;;
       crush)
-        (cd "$judge_dir" && timeout 60 crush run --quiet --model glm-5.2 "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
+        (cd "$judge_dir" && timeout 60 crush run --quiet ${JUDGE_MODEL_CRUSH:+--model "$JUDGE_MODEL_CRUSH"} "$(cat "$prompt_file")" 2>/dev/null > "$judge_dir/result-crush.txt") &
         pids+=($!) ;;
       agy)
         (cd "$judge_dir" && timeout 60 agy --print "$(cat "$prompt_file")" 2>/dev/null | strip_ansi > "$judge_dir/result-agy.txt") &
