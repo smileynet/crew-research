@@ -546,6 +546,101 @@ def _detect_wing_duplicates(wing_names: list[str]) -> list[list[str]]:
     return [names for names in normalized.values() if len(names) > 1]
 
 
+def cmd_forget(args):
+    """Remove all data for a specific wing."""
+    from . import store
+
+    conn = store.get_connection()
+    wing = args.wing
+
+    # Count what would be deleted
+    count = conn.execute("SELECT COUNT(*) FROM drawers WHERE wing = ?", (wing,)).fetchone()[0]
+
+    if count == 0:
+        print(f"  No data found for wing '{wing}'")
+        conn.close()
+        return
+
+    if args.dry_run:
+        print(f"  [dry-run] Would delete {count} chunks from wing '{wing}'")
+        conn.close()
+        return
+
+    # Confirmation prompt for large deletions
+    if count > 100 and not args.yes:
+        response = input(f"  Delete {count} chunks from wing '{wing}'? [y/N] ")
+        if response.lower() not in ("y", "yes"):
+            print("  Aborted.")
+            conn.close()
+            return
+
+    # Delete chunks + sources manifest entries
+    conn.execute("DELETE FROM drawers WHERE wing = ?", (wing,))
+    store.delete_sources_for_wing(conn, wing)
+    conn.execute("INSERT INTO drawers_fts(drawers_fts) VALUES('rebuild')")
+    conn.commit()
+    conn.close()
+
+    print(f"  Deleted {count} chunks from wing '{wing}'")
+
+
+def cmd_gc(args):
+    """Remove data older than a specified number of days."""
+    from . import store
+
+    conn = store.get_connection()
+    days = args.older_than
+
+    # Calculate cutoff date
+    import datetime
+    cutoff = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S")
+
+    # Count what would be deleted
+    count = conn.execute(
+        "SELECT COUNT(*) FROM drawers WHERE created_at < ?", (cutoff,)
+    ).fetchone()[0]
+
+    if count == 0:
+        print(f"  No chunks older than {days} days")
+        conn.close()
+        return
+
+    # Wings affected
+    affected_wings = conn.execute(
+        "SELECT DISTINCT wing FROM drawers WHERE created_at < ?", (cutoff,)
+    ).fetchall()
+    wing_count = len(affected_wings)
+
+    if args.dry_run:
+        print(f"  [dry-run] Would delete {count} chunks older than {days} days (across {wing_count} wings)")
+        conn.close()
+        return
+
+    # Confirmation prompt for large deletions
+    if count > 100 and not args.yes:
+        response = input(f"  Delete {count} chunks older than {days} days (across {wing_count} wings)? [y/N] ")
+        if response.lower() not in ("y", "yes"):
+            print("  Aborted.")
+            conn.close()
+            return
+
+    # Delete old chunks
+    conn.execute("DELETE FROM drawers WHERE created_at < ?", (cutoff,))
+    # Clean up sources manifest entries that no longer have chunks
+    conn.execute("""
+        DELETE FROM sources WHERE NOT EXISTS (
+            SELECT 1 FROM drawers
+            WHERE drawers.source = 'import:' || sources.wing || ':' || sources.path
+               OR drawers.source = sources.path
+        )
+    """)
+    conn.execute("INSERT INTO drawers_fts(drawers_fts) VALUES('rebuild')")
+    conn.commit()
+    conn.close()
+
+    print(f"  Deleted {count} chunks older than {days} days (across {wing_count} wings)")
+
+
 def cmd_status(args):
     from . import store
 
@@ -618,6 +713,29 @@ def main():
     p.add_argument("--projects-root", nargs="*", default=None,
                    help="Override project root dirs for coverage check")
 
+    # forget
+    p = sub.add_parser("forget", help="Remove all data for a wing",
+                       epilog="Examples:\n"
+                              "  recall forget --wing old_project           # delete a wing\n"
+                              "  recall forget --wing test_wing --dry-run   # preview deletion\n"
+                              "  recall forget --wing big_project --yes     # skip confirmation\n",
+                       formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--wing", required=True, help="Wing to remove (required)")
+    p.add_argument("--dry-run", action="store_true", help="Show what would be deleted")
+    p.add_argument("--yes", "-y", action="store_true", help="Skip confirmation prompt")
+
+    # gc
+    p = sub.add_parser("gc", help="Remove old data by age",
+                       epilog="Examples:\n"
+                              "  recall gc --older-than 90                  # delete chunks >90 days old\n"
+                              "  recall gc --older-than 180 --dry-run       # preview\n"
+                              "  recall gc --older-than 30 --yes            # skip confirmation\n",
+                       formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--older-than", type=int, required=True,
+                   help="Delete chunks older than N days")
+    p.add_argument("--dry-run", action="store_true", help="Show what would be deleted")
+    p.add_argument("--yes", "-y", action="store_true", help="Skip confirmation prompt")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -632,7 +750,7 @@ def main():
     if hasattr(args, "wing") and args.wing:
         args.wing = args.wing.replace("-", "_")
 
-    commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "import": cmd_import, "prime": cmd_prime, "status": cmd_status, "health": cmd_health}
+    commands = {"search": cmd_search, "add": cmd_add, "ingest": cmd_ingest, "import": cmd_import, "prime": cmd_prime, "status": cmd_status, "health": cmd_health, "forget": cmd_forget, "gc": cmd_gc}
     commands[args.command](args)
 
 
