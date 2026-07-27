@@ -1,7 +1,7 @@
 ---
 id: "57"
 title: "Recall doctor improvements: coverage, duplicates, health reporting"
-status: open
+status: done
 blocked_by: ["56"]
 env: either
 spec: "recall-import-fix"
@@ -44,3 +44,7 @@ If a project's `.memory/` files have mtimes newer than its wing's last import ti
 
 - Adding a `recall health` subcommand to the CLI (could be done here or separately)
 - Fixing the `recall status` display itself (cosmetic — not blocking)
+
+## Resolution (2026-07-27)
+
+Added recall health --json subcommand. Rewrote doctor.sh recall checks to use JSON data. New: coverage gaps, duplicate wings, health summary. Zero false positives on healthy machine.
