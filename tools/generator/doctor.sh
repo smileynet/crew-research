@@ -19,6 +19,16 @@ while [[ $# -gt 0 ]]; do
 done
 PROJECT=$(cd "$PROJECT" && pwd)
 
+# Detect deploy HOME: when running in WSL, tools on Windows read from the
+# Windows user home (/mnt/c/Users/$USER), not the WSL home (/home/$USER).
+DEPLOY_HOME="$HOME"
+if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+  WIN_USER="${WIN_USERNAME:-$USER}"
+  if [[ -d "/mnt/c/Users/$WIN_USER" ]]; then
+    DEPLOY_HOME="/mnt/c/Users/$WIN_USER"
+  fi
+fi
+
 echo "Doctor: $PROJECT"
 echo ""
 
@@ -53,9 +63,9 @@ read -ra DEPLOYED_TOOLS <<< "${CREW_TOOLS:-kiro-cli}"
 
 # Check global deployment
 echo ""
-echo "Global (~/.kiro/):"
-steering_count=$(find ~/.kiro/steering -name "*.md" 2>/dev/null | wc -l || true)
-skill_count=$(find ~/.kiro/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
+echo "Global ($DEPLOY_HOME/.kiro/):"
+steering_count=$(find "$DEPLOY_HOME/.kiro/steering" -name "*.md" 2>/dev/null | wc -l || true)
+skill_count=$(find "$DEPLOY_HOME/.kiro/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
 
 if [[ $skill_count -gt 0 ]]; then
   echo "  ✅ $steering_count steering, $skill_count skills"
@@ -77,7 +87,7 @@ if [[ -f "$KNOWN_TOOLS_FILE" ]]; then
     kt_glob=$(yq -r ".tools[$i].detect.skill_glob" "$KNOWN_TOOLS_FILE")
     kt_hydrate=$(yq -r ".tools[$i].hydrate" "$KNOWN_TOOLS_FILE")
     kt_found=0; kt_broken=0
-    for d in ~/.kiro/skills/$kt_glob; do
+    for d in "$DEPLOY_HOME"/.kiro/skills/$kt_glob; do
       [[ -e "$d" || -L "$d" ]] || continue
       kt_found=$((kt_found + 1))
       # Broken symlink = repo moved/deleted after deploy
@@ -97,8 +107,8 @@ fi
 # --- Tier manifest reconciliation ---
 # Which tier? --tier flag > deployment marker > best guess by skill count.
 if [[ -z "$TIER" ]]; then
-  if [[ -f ~/.kiro/.crew-tier ]]; then
-    TIER=$(cat ~/.kiro/.crew-tier)
+  if [[ -f "$DEPLOY_HOME/.kiro/.crew-tier" ]]; then
+    TIER=$(cat "$DEPLOY_HOME/.kiro/.crew-tier")
   else
     basic_n=$(yq -r '.skills | length' "$TIERS_DIR/basic.yaml" 2>/dev/null || echo 0)
     [[ $skill_count -gt $basic_n ]] && TIER="full" || TIER="basic"
@@ -116,12 +126,12 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
     [[ -z "$s" || "$s" == "null" ]] && continue
     tools_scope=$(yq -r '.metadata.tools // [] | join(",")' <(sed -n '/^---$/,/^---$/p' "$SKILLS_DIR/$s/SKILL.md" 2>/dev/null) 2>/dev/null || echo "")
     [[ -n "$tools_scope" && ! "$tools_scope" =~ kiro-cli ]] && continue
-    [[ -f ~/.kiro/steering/"$s".md ]] || missing_steering+=("$s")
+    [[ -f "$DEPLOY_HOME/.kiro/steering/$s.md" ]] || missing_steering+=("$s")
   done < <(yq -r '.steering[]' "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
 
   while IFS= read -r s; do
     [[ -z "$s" || "$s" == "null" ]] && continue
-    [[ -f ~/.kiro/skills/"$s"/SKILL.md ]] || missing_skills+=("$s")
+    [[ -f "$DEPLOY_HOME/.kiro/skills/$s/SKILL.md" ]] || missing_skills+=("$s")
   done < <(yq -r '.skills[]' "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
 
   # Extensions: if the prerequisite passes, its steering/skills must be deployed
@@ -132,11 +142,11 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
     if eval "$prereq" &>/dev/null; then
       while IFS= read -r s; do
         [[ -z "$s" || "$s" == "null" ]] && continue
-        [[ -f ~/.kiro/steering/"$s".md ]] || missing_steering+=("$s (ext:$ext_name)")
+        [[ -f "$DEPLOY_HOME/.kiro/steering/$s.md" ]] || missing_steering+=("$s (ext:$ext_name)")
       done < <(yq -r ".extensions[$i].steering[]" "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
       while IFS= read -r s; do
         [[ -z "$s" || "$s" == "null" ]] && continue
-        [[ -f ~/.kiro/skills/"$s"/SKILL.md ]] || missing_skills+=("$s (ext:$ext_name)")
+        [[ -f "$DEPLOY_HOME/.kiro/skills/$s/SKILL.md" ]] || missing_skills+=("$s (ext:$ext_name)")
       done < <(yq -r ".extensions[$i].skills[]" "$TIERS_DIR/$TIER.yaml" 2>/dev/null)
     else
       echo "  ⚠️  extension '$ext_name' prerequisite not met ($prereq) — its files not expected"
@@ -151,26 +161,26 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
     echo "     fix: mise run init -- --global --tier $TIER"
   fi
 
-  # Unmanaged drift: regular files in ~/.kiro/steering not owned by the tier.
+  # Unmanaged drift: regular files in $DEPLOY_HOME/.kiro/steering not owned by the tier.
   # init.sh's prune deletes these on the next deploy — symlinks survive.
   expected_steering=$( { yq -r '.steering[]' "$TIERS_DIR/$TIER.yaml"; yq -r '.extensions[].steering[]' "$TIERS_DIR/$TIER.yaml" 2>/dev/null; } 2>/dev/null | grep -v '^null$')
-  for f in ~/.kiro/steering/*.md; do
+  for f in "$DEPLOY_HOME"/.kiro/steering/*.md; do
     [[ -f "$f" ]] || continue
     [[ -L "$f" ]] && continue
     base=$(basename "$f" .md)
     if ! grep -qx "$base" <<< "$expected_steering"; then
-      echo "  ⚠️  unmanaged steering file: $(basename "$f") — next deploy will PRUNE it; convert to a symlink to survive (ln -sf <source> ~/.kiro/steering/$(basename "$f"))"
+      echo "  ⚠️  unmanaged steering file: $(basename "$f") — next deploy will PRUNE it; convert to a symlink to survive"
       warnings=$((warnings + 1))
     fi
   done
 
   # Unmanaged skill dirs: kept by init.sh's manifest-based prune (ticket 20),
   # but surfaced here so their ownership is explicit. Symlinks are the
-  # recommended convention for other projects deploying into ~/.kiro/skills.
-  if [[ -f ~/.kiro/.crew-skills ]]; then
-    managed_skills=$(cat ~/.kiro/.crew-skills)
+  # recommended convention for other projects deploying into $DEPLOY_HOME/.kiro/skills.
+  if [[ -f "$DEPLOY_HOME/.kiro/.crew-skills" ]]; then
+    managed_skills=$(cat "$DEPLOY_HOME/.kiro/.crew-skills")
     deprecated_names=$(yq -r '.skills[].name' "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
-    for d in ~/.kiro/skills/*/; do
+    for d in "$DEPLOY_HOME"/.kiro/skills/*/; do
       [[ -d "$d" ]] || continue
       [[ -L "${d%/}" ]] && continue
       sbase=$(basename "$d")
@@ -207,7 +217,7 @@ done
 [[ $fm_bad -eq 0 ]] && echo "  ✅ all source skills have frontmatter (name + description)"
 
 # Check for unresolved params in global
-if grep -r '{{params' ~/.kiro/skills/ 2>/dev/null | grep -q .; then
+if grep -r '{{params' "$DEPLOY_HOME/.kiro/skills/" 2>/dev/null | grep -q .; then
   echo "  ⚠️  Unresolved {{params}} in global files (re-run global deploy)"
   warnings=$((warnings + 1))
 fi
@@ -217,8 +227,8 @@ if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx codex; then
   echo ""
   echo "Global (codex):"
   check_tool codex
-  codex_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
-  codex_agents_md="${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
+  codex_skills=$(find "$DEPLOY_HOME/.agents/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
+  codex_agents_md="${CODEX_HOME:-$DEPLOY_HOME/.codex}/AGENTS.md"
   if [[ $codex_skills -gt 0 && -f "$codex_agents_md" ]]; then
     echo "  ✅ $codex_skills skills, AGENTS.md present"
   else
@@ -232,8 +242,8 @@ fi
 if [[ "${CREW_ENV:-}" == "corp" ]]; then
   agy_violations=()
   command -v agy &>/dev/null && agy_violations+=("agy binary on PATH ($(command -v agy))")
-  [[ -d "$HOME/.gemini" ]] && agy_violations+=("~/.gemini/ exists")
-  [[ -f "$HOME/.agents/skills/.crew-skills-agy" ]] && agy_violations+=("~/.agents/skills/.crew-skills-agy manifest")
+  [[ -d "$DEPLOY_HOME/.gemini" ]] && agy_violations+=("~/.gemini/ exists")
+  [[ -f "$DEPLOY_HOME/.agents/skills/.crew-skills-agy" ]] && agy_violations+=("~/.agents/skills/.crew-skills-agy manifest")
   if [[ ${#agy_violations[@]} -gt 0 ]]; then
     echo ""
     echo "Policy (CREW_ENV=corp):"
@@ -248,14 +258,14 @@ fi
 if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx agy; then  echo ""
   echo "Global (agy):"
   check_tool agy
-  agy_desktop_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
-  agy_cli_skills=$(find ~/.gemini/antigravity-cli/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
-  if [[ $agy_desktop_skills -gt 0 && -f "$HOME/.gemini/AGENTS.md" ]]; then
+  agy_desktop_skills=$(find "$DEPLOY_HOME/.agents/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
+  agy_cli_skills=$(find "$DEPLOY_HOME/.gemini/antigravity-cli/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
+  if [[ $agy_desktop_skills -gt 0 && -f "$DEPLOY_HOME/.gemini/AGENTS.md" ]]; then
     echo "  ✅ $agy_desktop_skills skills (~/.agents/skills), $agy_cli_skills skills (CLI), AGENTS.md present"
   else
     echo "  ❌ agy not fully deployed (run: mise run init -- --global)"
-    [[ $agy_desktop_skills -eq 0 ]] && echo "     missing: ~/.agents/skills/"
-    [[ ! -f "$HOME/.gemini/AGENTS.md" ]] && echo "     missing: ~/.gemini/AGENTS.md"
+    [[ $agy_desktop_skills -eq 0 ]] && echo "     missing: $DEPLOY_HOME/.agents/skills/"
+    [[ ! -f "$DEPLOY_HOME/.gemini/AGENTS.md" ]] && echo "     missing: $DEPLOY_HOME/.gemini/AGENTS.md"
     errors=$((errors + 1))
   fi
 fi
@@ -265,8 +275,8 @@ fi
 if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx crush; then
   echo ""
   echo "Global (crush):"
-  crush_skills=$(find ~/.agents/skills -name "SKILL.md" 2>/dev/null | wc -l || true)
-  crush_agents_md="${CRUSH_HOME:-$HOME/.config/crush}/AGENTS.md"
+  crush_skills=$(find "$DEPLOY_HOME/.agents/skills" -name "SKILL.md" 2>/dev/null | wc -l || true)
+  crush_agents_md="${CRUSH_HOME:-$DEPLOY_HOME/.config/crush}/AGENTS.md"
   if [[ $crush_skills -gt 0 && -f "$crush_agents_md" ]]; then
     echo "  ✅ $crush_skills skills (~/.agents/skills), AGENTS.md present"
   else
