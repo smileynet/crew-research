@@ -80,3 +80,9 @@ for s, c in sorted(d.items()):
 ## Retiring a definition
 
 Move to `definitions/retired/` with a `# RETIRED <date>: <why>` comment block after the `id:` line. Never delete — `id:` is the longitudinal key. Retired defs are excluded from `--all` automatically.
+
+
+## Hard Rules
+
+- **`--dry-run` must complete in seconds** — it's a discovery/plumbing check, never computation. If adding code to `run_eval`, gate it: `[[ "$DRY_RUN" != true ]]` before any per-def hash, directory traversal, or agent call. On Windows/MSYS2, each process fork costs 0.06-4.7s (Desktop Heap degradation); 39 defs × N forks compounds fast. Incident: 2026-07-27, 72-min hang from ungated identity hash computation (ticket 65).
+- **Never edit `run.sh` while a run is executing** (bash re-reads mid-execution).

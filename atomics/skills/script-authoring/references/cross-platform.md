@@ -26,3 +26,26 @@ run = "bash tools/generator/init.sh"
 usage = 'arg "[tool]" default="kiro-cli"'
 run = "bash tools/generator/generate.sh ${usage_tool?}"
 ```
+
+
+## Bash parsing pitfalls
+
+### IFS and empty fields
+
+`IFS=$'\t' read -r` (and any whitespace IFS) **collapses consecutive delimiters**. Empty fields between two tabs vanish silently:
+
+```bash
+# BROKEN: empty field 3 disappears, field 4 lands in var 3
+input="a\tb\t\td"
+IFS=$'\t' read -r v1 v2 v3 v4 <<< "$(printf '%b' "$input")"
+# v1=a, v2=b, v3=d, v4=""  ← WRONG
+
+# FIX: use a non-whitespace delimiter
+input="a|b||d"
+IFS="|" read -r v1 v2 v3 v4 <<< "$input"
+# v1=a, v2=b, v3="", v4=d  ← CORRECT
+```
+
+When using `yq` to extract multiple fields for shell consumption: use `join("|")` with `IFS="|"`, not `@tsv` with `IFS=$'\t'`. Any field that can be empty will cause silent misalignment with `@tsv`.
+
+Incident: ticket 65 (2026-07-27) — skill names landed in the adapters variable, causing 30/39 defs to incorrectly SKIP during dry-run.
