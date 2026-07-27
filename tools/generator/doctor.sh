@@ -47,6 +47,27 @@ check_tool() {
   fi
 }
 
+# Extension prerequisite check — on Git Bash/MSYS2, uv-installed Python tools
+# fail to resolve their venv site-packages (MSYS path corruption). Use
+# PowerShell as a fallback to run the version command correctly.
+_check_prereq() {
+  local cmd="$1"
+  # Try directly first (works on Linux/macOS/WSL and native Windows shells)
+  if eval "$cmd" &>/dev/null 2>&1; then
+    return 0
+  fi
+  # On MSYS2/Git Bash: fallback to PowerShell which resolves uv tools correctly
+  case "$(uname -s)" in
+    MINGW*|MSYS*)
+      if command -v powershell.exe &>/dev/null; then
+        powershell.exe -NoProfile -NonInteractive -Command "$cmd" &>/dev/null 2>&1
+        return $?
+      fi
+      ;;
+  esac
+  return 1
+}
+
 echo "Tools:"
 check_tool kiro-cli
 check_tool yq
@@ -139,7 +160,7 @@ if [[ -f "$TIERS_DIR/$TIER.yaml" ]]; then
   for ((i=0; i<ext_count; i++)); do
     ext_name=$(yq -r ".extensions[$i].name" "$TIERS_DIR/$TIER.yaml")
     prereq=$(yq -r ".extensions[$i].prerequisite.command" "$TIERS_DIR/$TIER.yaml")
-    if eval "$prereq" &>/dev/null; then
+    if _check_prereq "$prereq"; then
       while IFS= read -r s; do
         [[ -z "$s" || "$s" == "null" ]] && continue
         [[ -f "$DEPLOY_HOME/.kiro/steering/$s.md" ]] || missing_steering+=("$s (ext:$ext_name)")
