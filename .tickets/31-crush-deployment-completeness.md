@@ -1,7 +1,7 @@
 ---
 id: "31"
 title: "crush deployment complete on this machine: deploy, idempotency, docs; live probes deferred"
-status: open
+status: in_progress
 blocked_by: []
 env: corp
 spec: ""
