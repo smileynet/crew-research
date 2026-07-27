@@ -14,6 +14,7 @@ Parses `~/.kiro/sessions/cli` transcripts. Both tasks REQUIRE `--days`:
 ```bash
 mise run session:skills -- --days 30    # skill activation + steering compliance (main report)
 mise run session:parse -- --days 30     # raw transcript parse (--output FILE for JSON to disk)
+mise run session:review 7               # self-improvement candidates (P1 corrections / P2 friction) -> digest for HUMAN triage; --confirm adds LLM verdicts; never creates tickets
 ```
 
 Direct: `python tools/session-analyzer/skill_usage.py --days N` (JSON to stdout).

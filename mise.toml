@@ -92,6 +92,11 @@ description = "Skill activation + steering compliance report from session logs"
 usage = 'arg "[days]" help="Days to analyze" default="30"'
 run = "python tools/session-analyzer/skill_usage.py --days ${usage_days?}"
 
+[tasks."session:review"]
+description = "Collect self-improvement candidates (corrections/friction) from session archives — digest for human triage, never creates tickets"
+usage = 'arg "[days]" help="Days to analyze" default="7"'
+run = "python tools/session-analyzer/session_review.py --days ${usage_days?}"
+
 [tasks."add-skill"]
 description = "Install a project-level skill to a project's .kiro/skills/"
 usage = 'arg "<name>" help="Skill slug to install"'
