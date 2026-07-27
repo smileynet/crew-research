@@ -183,6 +183,7 @@ When processing GitHub issues:
 - Do NOT create skills over 100 lines without justification
 - Do NOT mix user docs and agent-loadable content in the same file
 - Do NOT track eval results in git (gitignored)
+- Do NOT set a custom agent (e.g. `recall_agent`) as `chat.defaultAgent` — custom agents restrict shell/tools; `kiro_default` uses `tools: [*]` which is correct for primary sessions
 
 ## Design Gate (archwright)
 
