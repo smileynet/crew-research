@@ -129,10 +129,21 @@ recall search "what did we decide about X"
 # effect immediately). TRAP: non-editable + `uv tool install --force` reuses the
 # CACHED wheel for an unchanged version — new commands silently missing; use
 # `--force --reinstall` (incident 2026-07-27: post-pull recall lacked `health`)
+# Fallback if recall on PATH breaks (locked venv on Windows):
+#   uv run --directory tools/recall recall <args>
 
 # Verify scheduled task
 Get-ScheduledTask -TaskName "RecallIngest" | Select State
 # Linux: crontab -l | grep recall
+
+# Testing (unit + integration: 50 tests, ~13s)
+mise run test:recall
+# or: uv run --directory tools/recall --extra test pytest tests/ -q
+# Proofs (correctness invariants with real embedder: 5 proofs, ~30s)
+mise run proof:recall
+# NOTE: mise tasks use `uv run --directory tools/recall` (project venv from
+# pyproject.toml). Do NOT use `uv tool run --from recall` — that resolves from
+# PyPI where "recall" is a squatted unrelated package.
 ```
 
 ## Skill Authoring Rules
