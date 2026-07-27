@@ -27,8 +27,8 @@ Add early-exit in `run_eval` for dry-run mode: after adapter-scoping check, emit
 
 ## Acceptance criteria
 
-- [ ] Root cause identified and documented
-- [ ] `--dry-run` completes in <30 seconds for the full 60-def suite
-- [ ] Dry-run output lists all defs with their would-run/would-skip status
-- [ ] No agent invocations during dry-run (verified via `bash -x` trace)
-- [ ] Real runs unaffected (single-def verify)
+- [x] Root cause identified and documented
+- [x] `--dry-run` completes in <30 seconds for the full 60-def suite
+- [x] Dry-run output lists all defs with their would-run/would-skip status
+- [x] No agent invocations during dry-run (verified via `bash -x` trace)
+- [x] Real runs unaffected (single-def verify)

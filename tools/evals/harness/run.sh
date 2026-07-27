@@ -514,6 +514,7 @@ run_eval() {
   # Batch-extract frontmatter fields in one yq call (ticket 65: reduces forks on MSYS2).
   # For dry-run, this single call provides everything needed for the plan report.
   # Uses pipe delimiter (not @tsv) because IFS=$'\t' collapses consecutive tabs (empty fields).
+  # Safe: names/skills are slugs (alphanumeric + hyphens); adapters are tool names. No pipes.
   local _fields
   _fields=$(yq '[.name, (.id // ""), (.adapters // [] | join(",")), (.skill // "")] | join("|")' "$def_file")
   local name def_id def_adapters _skill_field
@@ -534,7 +535,6 @@ run_eval() {
   if [[ "$DRY_RUN" == true ]]; then
     echo "  ✓ $name (skill: ${_skill_field:-none}, adapter: $ADAPTER) — would run"
     TOTAL=$((TOTAL + 1))
-    PASSED=$((PASSED + 1))
     return
   fi
 
@@ -1027,7 +1027,11 @@ done
 
 echo ""
 echo "---"
-echo "Results: $PASSED passed, $FAILED failed, $SKIPPED skipped ($TOTAL run)"
+if [[ "$DRY_RUN" == true ]]; then
+  echo "Dry-run: $TOTAL would run, $SKIPPED would skip"
+else
+  echo "Results: $PASSED passed, $FAILED failed, $SKIPPED skipped ($TOTAL run)"
+fi
 if [[ -n "$CHANGED_ONLY_DIR" ]]; then
   echo "Changed-only: ${#CHANGED_ONLY_CURRENT[@]} def(s) current vs $CHANGED_ONLY_DIR, not re-run"
   [[ ${#CHANGED_ONLY_CURRENT[@]} -gt 0 ]] && printf '  = %s\n' "${CHANGED_ONLY_CURRENT[@]}"

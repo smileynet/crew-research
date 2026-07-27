@@ -26,10 +26,10 @@ Bring the three image-handling defs from upstream 5a23e45 (`image-greedy-tool-de
 
 ## Acceptance criteria
 
-- [ ] All three defs carry immutable `id:` + `adapters:` scoping; lint clean (incl. fixing the existing warning: `image-handling: references/tool-dispatch.md not linked from SKILL.md body`)
-- [ ] kiro-cli `--all` run shows them as SKIP-with-reason, not run and not counted
-- [ ] Deferred-run ledger entries created (owed: crush birth run per def)
-- [ ] Baseline record corrected: judged counts restated (≥29/39 with 3 pending-by-adapter), regression rule unambiguous about SKIPped defs
+- [x] All three defs carry immutable `id:` + `adapters:` scoping; lint clean (incl. fixing the existing warning: `image-handling: references/tool-dispatch.md not linked from SKILL.md body`)
+- [x] kiro-cli `--all` run shows them as SKIP-with-reason, not run and not counted
+- [x] Deferred-run ledger entries created (owed: crush birth run per def)
+- [x] Baseline record corrected: judged counts restated (≥29/39 with 3 pending-by-adapter), regression rule unambiguous about SKIPped defs
 - [ ] When a crush-capable machine runs them: results summarized into the baseline record and ledger rows closed (this criterion may complete on another machine — leave checked-off state to that run)
 
 ## Out of scope
