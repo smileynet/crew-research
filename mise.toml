@@ -16,6 +16,10 @@ env = { PYTHONPATH = "tools/tkt" }
 description = "tkt CLI test suite (ticket 40 acceptance criteria)"
 run = "python3 -m pytest tools/tkt/tests/ -q"
 
+[tasks."test:recall"]
+description = "recall CLI unit + integration test suite"
+run = "uv run --directory tools/recall --extra test pytest tests/ -q"
+
 [tasks."check:design"]
 description = "Archwright design gates: static constraint checks + link resolution"
 run = """
@@ -71,7 +75,7 @@ run = "bash tools/proofs/harness/run.sh --adapter kiro-cli --all"
 
 [tasks."proof:recall"]
 description = "Run recall import/search correctness proofs (G-K series)"
-run = "uv tool run --from recall python tools/proofs/recall/run-recall-proofs.py"
+run = "uv run --directory tools/recall python ../../tools/proofs/recall/run-recall-proofs.py"
 
 [tasks.validate-deployment]
 description = "End-to-end deployment validation"

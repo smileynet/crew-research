@@ -11,9 +11,16 @@ dependencies = [
     "huggingface_hub>=0.20.0",
 ]
 
+[project.optional-dependencies]
+test = ["pytest>=8.0", "pytest-cov>=5.0"]
+
 [project.scripts]
 recall = "recall.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
