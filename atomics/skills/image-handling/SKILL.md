@@ -51,6 +51,12 @@ failure, and pre-resizing keeps the crop-vs-scale choice in your hands:
 convert image.png -resize '1568x1568>' resized.png   # shrink if over tier
 ```
 
+## Multi-tool dispatch
+
+For per-tool invocation syntax, dispatch priority, multi-validator consensus, and
+fallback paths when no vision tool is available, see
+[references/tool-dispatch.md](references/tool-dispatch.md).
+
 ## Practice notes (measured, 2026-07-22 research pass)
 
 - Label every image with its role in the prompt text ("Image A: rendered section") —

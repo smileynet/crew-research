@@ -1,7 +1,7 @@
 ---
 id: "30"
 title: "image-* eval defs conform to suite conventions (ids, adapter scoping, deferred birth run)"
-status: open
+status: done
 blocked_by: ["29"]
 env: personal
 spec: "t09-baseline-followups"
