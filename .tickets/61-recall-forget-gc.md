@@ -1,7 +1,7 @@
 ---
 id: "61"
 title: "Recall forget/gc command for wing cleanup and data maintenance"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "recall-import-fix"
@@ -56,3 +56,7 @@ recall gc --list-orphans --projects-root ~/code
 - Automatic scheduled GC (manual-only for now)
 - Chunk-level deduplication (ticket 55)
 - Wing rename/merge operations
+
+## Resolution (2026-07-27)
+
+Added recall forget (--wing required, --dry-run, --yes) and recall gc (--older-than N, --dry-run, --yes). Both rebuild FTS after deletion. All AC verified.
