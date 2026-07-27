@@ -1,7 +1,7 @@
 ---
 id: "34"
 title: "Explore: automated periodic session-history review for self-improvement opportunities"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: ""
@@ -28,12 +28,16 @@ An exploration (spike first, tool second) of the automated counterpart to `/guid
 ## Acceptance criteria (exploration — findings over features)
 
 - [x] Spike verdict: can P1 (corrections) and P2 (friction) signals be detected from archived JSONLs with acceptable precision on a sampled window? (pattern-match candidates + LLM confirmation on a sample; report hit rates) — 2026-07-25 YES: P1 2 candidates/316 sessions, precision 1/2, one keyword-free correction missed in 5-session FN probe (recall is the weak axis); P2 16 candidates, 3/6 sampled genuine (FP classes identified + fixable: fetched-doc tracebacks, log-noise repeats, deliberate probes). Digest: .scratch/session-review-spike-digest.md
-- [ ] Routing design: how a finding maps to project-local vs crew-research-global, and what artifact each produces (local: proposal file/ticket in that repo; global: crew-research ticket)
-- [ ] Scheduling per grill Q03 (2026-07-19): MANUAL mise task first (also the spike vehicle, runs collect+synthesize end-to-end); architecture supports the future daily-collect (cheap heuristics -> candidate queue) / weekly-synthesize (batched LLM -> one deduped digest) pairing; cron graduation only after precision proves out. Artifact: digest file, human triages; the pipeline NEVER creates tickets
-- [ ] Recommendation: build/defer/fold-into-session-analysis, with evidence
+- [x] Routing design: how a finding maps to project-local vs crew-research-global, and what artifact each produces (local: proposal file/ticket in that repo; global: crew-research ticket) — implemented: cwd sidecar -> project grouping in the digest; crew-research rows marked GLOBAL lane; documented in session_review.py docstring + digest header
+- [x] Scheduling per grill Q03 (2026-07-19): MANUAL mise task first (also the spike vehicle, runs collect+synthesize end-to-end); architecture supports the future daily-collect (cheap heuristics -> candidate queue) / weekly-synthesize (batched LLM -> one deduped digest) pairing; cron graduation only after precision proves out. Artifact: digest file, human triages; the pipeline NEVER creates tickets — `mise run session:review [days]` shipped; collect is free, --confirm is the separable synthesize leg; digest-only output
+- [x] Recommendation: build/defer/fold-into-session-analysis, with evidence — BUILD-as-fold decided by operator 2026-07-27 (spike evidence: precision workable at tiny volumes, cost trivial); landed as tools/session-analyzer/session_review.py
 
 ## Out of scope
 
 - Building the full pipeline before the spike verdict
 - Auto-APPLYING changes (proposals only — a human approves, same as /guidance-sync)
 - Non-kiro session formats (codex/agy/crush logs) — note feasibility, don't implement
+
+## Resolution (2026-07-27)
+
+Built as fold into session-analyzer per operator decision. session_review.py: P1/P2 prefilter with spike-derived fixes (fetch-tool results skipped, distinct-line dedupe, discovery-phrased P1 patterns), cwd-based GLOBAL/local routing, optional --confirm via kiro-cli headless, digest-only output. Validation on live 7d window (234 sessions): both spike FP sessions (d0ea6ea6 fetched-doc tracebacks, 443c3e83 log noise) excluded; genuine friction retained; the spike's MISSED correction (c2befaf8) now detected AND LLM-confirmed GENUINE. mise run session:review [days] shipped; session-analysis skill documents it.
