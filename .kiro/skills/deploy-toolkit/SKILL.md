@@ -10,7 +10,7 @@ metadata:
 # Deploy Toolkit
 
 ```bash
-bash tools/generator/init.sh --global --tier full --tool kiro-cli [--tool codex --tool agy]
+bash tools/generator/init.sh --global --tier full --tool kiro-cli [--tool codex --tool crush --tool agy]
 bash tools/generator/init.sh --project <path>          # scaffold project workspace
 bash tools/generator/init.sh --skip-extension recall   # opt out of an extension
 bash tools/generator/doctor.sh                         # health check
@@ -39,7 +39,7 @@ bash tools/generator/catalog.sh                        # browse available skills
 ## Manifests (what prune trusts)
 
 - `~/.kiro/.crew-skills` — skill dirs the last kiro deploy owned (includes steering-reference dirs). Prune only removes names found here or in deprecated.yaml. **Never hand-edit.**
-- `<skills_dest>/.crew-skills-{codex|agy}` — per-tool manifests; codex and agy SHARE `~/.agents/skills/` with different tool-scoped sets, so each prunes only what it deployed (prevents cross-tool delete flapping).
+- `<skills_dest>/.crew-skills-{codex|crush|agy}` — per-tool manifests; codex, crush, and agy SHARE `~/.agents/skills/` with different tool-scoped sets, so each prunes only what it deployed (prevents cross-tool delete flapping). Crush also gets `~/.config/crush/AGENTS.md`; corp crush runs against Bedrock — model naming, sentinel probe, cost caveats: [references/crush-bedrock.md](references/crush-bedrock.md).
 - `~/.kiro/.crew-tier` — deployed tier name; doctor reconciles against it.
 
 ## Doctor output

@@ -162,12 +162,17 @@ mise run init -- --global --tier basic --tool codex
 # Antigravity (Google)
 mise run init -- --global --tier basic --tool agy
 # Skills → ~/.gemini/antigravity-cli/skills/  Steering → ~/.gemini/AGENTS.md
+
+# Crush (Charm) — corp machines run it against AWS Bedrock
+mise run init -- --global --tier basic --tool crush
+# Skills → ~/.agents/skills/  Steering → ~/.config/crush/AGENTS.md
 ```
 
 | Tool | Skills Path | Steering Path | Verify |
 |------|-------------|---------------|--------|
 | kiro-cli | `~/.kiro/skills/{name}/SKILL.md` | `~/.kiro/steering/*.md` | `mise run doctor` |
 | codex | `~/.agents/skills/{name}/SKILL.md` | `~/.codex/AGENTS.md` (appended) | `codex --version` |
+| crush | `~/.agents/skills/{name}/SKILL.md` | `~/.config/crush/AGENTS.md` (appended) | `crush --version` |
 | agy | `~/.gemini/antigravity-cli/skills/{name}/SKILL.md` | `~/.gemini/AGENTS.md` (appended) | `agy --version` |
 
 Same skill content, different delivery paths. Deploy to multiple tools simultaneously if you switch between them.

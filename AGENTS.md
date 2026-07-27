@@ -67,8 +67,9 @@ mise run test:tkt                       # tkt test suite
 
 # Deployment
 # CREW_ENV (gitignored .mise.local.toml) gates the tool set: corp = kiro-cli + codex
-# (agy policy-blocked mechanically: init refuses, doctor flags artifacts, harnesses
-# exclude legs with reason "policy-blocked (CREW_ENV=corp)"); personal adds agy.
+# + crush-via-Bedrock (agy policy-blocked mechanically: init refuses, doctor flags
+# artifacts, harnesses exclude legs with reason "policy-blocked (CREW_ENV=corp)");
+# personal adds agy. Crush/Bedrock config: deploy-toolkit references/crush-bedrock.md.
 # Detail: .kiro/steering/user-setup-guide.md § Environment Designation.
 mise run init -- --project <path> --tier basic --tool kiro-cli
 mise run init -- --global --tier basic --tool kiro-cli

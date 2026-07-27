@@ -126,7 +126,7 @@ Each machine declares its environment in gitignored `.mise.local.toml`:
 CREW_ENV = "corp"      # or "personal"
 ```
 
-- **corp** — agy is FORBIDDEN (company policy, mechanically enforced): init.sh hard-refuses `--tool agy`, doctor flags agy artifacts as policy violations, eval/proof harnesses exclude agy legs with reason `policy-blocked (CREW_ENV=corp)` (distinct from access failures). Deploy set: `--tool kiro-cli --tool codex`.
+- **corp** — agy is FORBIDDEN (company policy, mechanically enforced): init.sh hard-refuses `--tool agy`, doctor flags agy artifacts as policy violations, eval/proof harnesses exclude agy legs with reason `policy-blocked (CREW_ENV=corp)` (distinct from access failures). Deploy set: `--tool kiro-cli --tool codex --tool crush` (crush via AWS Bedrock — `AWS_PROFILE` + `AWS_REGION=us-west-2`, model ids need the `bedrock/us.` prefix; details in the deploy-toolkit skill's `references/crush-bedrock.md`).
 - **personal** — full tool access. Deploy set adds `--tool agy` (and `--tool crush` when configured).
 - **unset** — tooling proceeds with a notice; set the flag to make policy mechanical.
 
