@@ -177,3 +177,68 @@ concurrent-claim-semantics, tool-version-skew}.md` (gitignored — regenerate if
   files in the repo; the tool is a view. API-gated trackers exclude agents and newcomers;
   this is why tkt exists. Any feature that makes the files less self-describing or
   hand-editable fails this test.
+
+
+## Decision record — sync-plan --fix mode (ticket 64 research, 2026-07-27)
+
+Research corpus: `.scratch/research/{fix-mode-prior-art, fix-mode-failure-modes,
+derivable-vs-authored-boundary}.md` (gitignored — regenerate if pruned).
+
+**ACCEPTED: R9a `sync-plan --fix` for derivable status cells only (Ruff-model scoping).**
+
+R9's report-only contract is PRESERVED as the default. `--fix` is explicit opt-in that
+applies only safe/derivable column updates. The original R9 exit-code contract
+(0=no-drift/1=drift/2=crash) is unchanged for `sync-plan` without `--fix`.
+
+### Scope (Ruff safe/unsafe/manual mapping)
+
+| Column | Classification | `--fix` behavior |
+|--------|---------------|-----------------|
+| Status | **safe** (derivable) | Auto-updated to match ticket `status:` frontmatter |
+| Blocked By | **safe** (derivable) | Auto-updated to match ticket `blocked_by:` |
+| Title | **unsafe** (authored) | Drift reported as warning; never auto-fixed |
+| Missing row (ticket exists, no plan entry) | **unsafe** (authored) | Reported; never auto-inserted (row placement + narrative = human judgment) |
+| Extra row (plan entry, no ticket) | **unsafe** (authored) | Reported; never auto-removed |
+| Narrative/Notes/Spec columns | **manual** | Never touched, never reported |
+
+### Rationale (weighed against R9)
+
+R9 chose report-only to prevent drift-masking. Research found 7 documented incidents
+where auto-fix masked intent — ALL in irreversible-infrastructure contexts (Terraform
+reverting emergency scaling, deleting databases). Our case differs on every axis:
+
+1. **Reversibility:** the "fix" is a markdown cell edit in a git-tracked file — one commit
+   to revert, no resource destruction
+2. **Intentional divergence:** status cells have exactly one correct value (ticket state).
+   There is no "emergency status override" scenario — if a ticket is done, the plan row
+   must say done
+3. **Derivability:** status is mechanically derivable from ticket frontmatter with zero
+   ambiguity (unlike infrastructure where manual changes carry emergency-response intent)
+
+Prior art alignment: Ruff's safe/unsafe model (author classifies per-fix-instance, user
+opts in via CLI flag, default is report-only). ESLint's suggest-not-fix pattern for
+"new rows" (present the option, don't auto-insert).
+
+### UX constraint preserved
+
+"The body is the spec (tool never manages prose)" — `--fix` updates derivable display
+fields only. It does not write narrative, insert rows, or alter plan structure. The plan
+remains human-authored; the tool reconciles its machine-derivable reflection of ticket
+state.
+
+### Exit code contract with --fix
+
+- `0` — no remaining drift (all drift was derivable and fixed)
+- `1` — drift remains (unsafe columns still diverge, or unfixed structural issues)
+- `2` — crash (parse error, file not found)
+
+This makes `--fix` composable: `tkt sync-plan --fix && echo "clean"` succeeds only when
+ALL drift is resolved (not just the safe subset). Unsafe drift forces exit 1 even after
+safe fixes are applied.
+
+### Revisit triggers
+
+- A scenario where status-cell divergence is INTENTIONAL (contradicts "exactly one
+  correct value" finding) — would require a `lifecycle { ignore_changes }` analog
+- `--fix` applied to a non-plan markdown table (scope creep beyond plan.md) — reject
+  unless the derivability proof holds for the new target

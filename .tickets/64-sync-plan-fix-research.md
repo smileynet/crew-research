@@ -53,15 +53,15 @@ rewrites one plan row. Volume this session alone: 3 rows + 2 added rows.
 
 ## Acceptance criteria
 
-- [ ] Research findings recorded with sources (dispatch subagents per the research
+- [x] Research findings recorded with sources (dispatch subagents per the research
       gates; ≥2 independent sources per question)
-- [ ] R9's report-only rationale quoted from the spec and explicitly weighed — accept
+- [x] R9's report-only rationale quoted from the spec and explicitly weighed — accept
       or reject stated against it, not around it
-- [ ] Recommendation presented WITH findings (reasoning-only proposals are drafts, per
+- [x] Recommendation presented WITH findings (reasoning-only proposals are drafts, per
       the AGENTS.md Design Gate research rule)
-- [ ] Decision recorded in `.memory/specs/ticket-cli-spec.md` (new requirement id, or
+- [x] Decision recorded in `.memory/specs/ticket-cli-spec.md` (new requirement id, or
       rejected-alternative + revisit triggers)
-- [ ] If accepted: implementation ticket filed with scope limited to derivable cells
+- [x] If accepted: implementation ticket filed with scope limited to derivable cells
 
 ## Out of scope
 
