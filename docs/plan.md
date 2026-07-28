@@ -255,3 +255,61 @@ Closed since the 07-21 snapshot: 23, 27, 28, 31, 32, 33, 34, 36, 39, 41, 44, 45,
 **Open hygiene item (carried from R8):** untracked files still undecided — `docs/findings/`, `tools/evals/experiments/bedrock-model-family-comparison.yaml`, `tools/evals/harness/run-model-comparison.sh`, `tools/proofs/adapters/closecode.yaml`. Commit or delete during ticket 08.
 
 **Overnight full-suite run (2026-07-15→16):** 102/105 completed, 32✅/70❌ — failure count dominated by since-retired evals and pre-calibration activation thresholds. Run wedged at 102 after run.sh was edited mid-execution (lesson recorded: never edit a script bash is executing); terminated, scores preserved in `/tmp/full-eval-run.log` and `tools/evals/results/2026-07-15T12-56-23Z/`.
+
+
+---
+
+## Tool Extraction & Rebuild (2026-07-28)
+
+**Goal:** Decompose crew-research from "many things in one repo" to focused tools that
+each do one thing well. Rebuild CLI tools in Rust for single-binary distribution,
+cross-platform reliability, and performance.
+
+### Recommended Order (task graph)
+
+```
+67 (tkt → Rust)          68 (recall → Rust)
+  │ simplest,              │ highest value,
+  │ proves pattern         │ complex (ML)
+  │                        │
+  └──────┬─────────────────┘
+         │ lessons learned
+         ▼
+69 (eval harness → compiled)
+   │ may stay in crew-research
+   │ but architecture rebuild
+```
+
+**67 first** because: no ML, simple domain (YAML + git), proves the Rust CLI + test +
+distribution pipeline. If Rust works well → 68 + 69 proceed in Rust. If friction is
+too high → reconsider Go for the simpler tools.
+
+**68 parallel** with or after 67: highest user-facing value (removes Python dep, single
+binary, faster embeddings), but more complex (embeddings, vector search, SQLite).
+
+**69 last** because: (a) blocked by 67 for lessons, (b) may choose Go if eval harness
+benefits more from goroutines than from consistency with tkt/recall, (c) eval harness
+may stay in crew-research even after architectural rebuild.
+
+### Tickets
+
+| Ticket | Title | Blocked by | Status |
+|--------|-------|------------|--------|
+| 67 | tkt → Rust extraction | — | open (priority: high) |
+| 68 | recall → Rust extraction | — | open |
+| 69 | eval harness → compiled | 67 | open |
+
+### What stays in crew-research after extraction
+
+- `atomics/` — skill content (the product)
+- `compositions/` — tier manifests
+- `tools/generator/` — deploy tooling (bash, reads local files)
+- `tools/evals/` — eval definitions + harness (if 69 decides to keep)
+- `tools/proofs/` — platform assumption tests
+- `tools/lint/` — cross-link validation
+- `.memory/`, `.kiro/`, `docs/` — project knowledge
+
+### What graduates to separate repos
+
+- `tools/tkt/` → `tkt` (own repo, Rust binary, crates.io/cargo-binstall)
+- `tools/recall/` → `recall` (own repo, Rust binary, single-file distribution)
