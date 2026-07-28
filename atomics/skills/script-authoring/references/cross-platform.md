@@ -49,3 +49,41 @@ IFS="|" read -r v1 v2 v3 v4 <<< "$input"
 When using `yq` to extract multiple fields for shell consumption: use `join("|")` with `IFS="|"`, not `@tsv` with `IFS=$'\t'`. Any field that can be empty will cause silent misalignment with `@tsv`.
 
 Incident: ticket 65 (2026-07-27) — skill names landed in the adapters variable, causing 30/39 defs to incorrectly SKIP during dry-run.
+
+
+
+## uv-installed Python tools in bash (Windows)
+
+uv's trampoline `.exe` wrappers fail when invoked from Git Bash (MSYS2) — the spawned Python can't resolve its venv site-packages due to MSYS path conversion.
+
+### Hard rules
+
+- **`|| true` on any `$()` calling a uv tool in a `set -e` script** — the tool exits non-zero; without `|| true` the script dies silently:
+  ```bash
+  health_json=$(recall health --json 2>/dev/null) || true  # ← mandatory
+  ```
+- **PowerShell fallback for uv tools on MINGW/MSYS** — detect the shell and reroute:
+  ```bash
+  if [[ -z "$result" ]]; then
+    case "$(uname -s)" in
+      MINGW*|MSYS*)
+        result=$(powershell.exe -NoProfile -Command "recall health --json" 2>/dev/null | tr -d '\r') || true
+        ;;
+    esac
+  fi
+  ```
+- **Always `| tr -d '\r'` when capturing PowerShell output** — PowerShell emits CRLF; trailing `\r` breaks arithmetic, jq parsing, and string comparison in bash.
+
+### Why
+
+uv's trampoline uses `GetModuleFileName` → relative path to venv Python. MSYS2's environment corrupts `sys.prefix` resolution in the spawned Python, causing `ModuleNotFoundError`. The binary launches (it's a native Win32 PE), but the Python it spawns can't find its packages. PowerShell doesn't perform path conversion, so the same `.exe` works there.
+
+Incident: doctor.sh (2026-07-27) — `recall health --json` killed the script at the `set -e` boundary; fix required `|| true` + PowerShell fallback + CRLF strip.
+
+### pathlib vs git output
+
+When comparing Python `pathlib.Path` objects against git command output (diff-tree, ls-tree, etc.):
+- **Always use `.as_posix()`** — git internally stores and outputs forward-slash paths regardless of OS
+- `str(Path.relative_to(...))` produces `\` on Windows → mismatch with git output
+
+Incident: tkt staged-set verification (2026-07-27) — 8 test failures from backslash vs forward-slash comparison.
