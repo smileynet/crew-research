@@ -1,7 +1,7 @@
 ---
 id: "66"
 title: "Implement sync-plan --fix for derivable status columns"
-status: open
+status: done
 blocked_by: ["64"]
 spec: "ticket-cli"
 ---
@@ -36,17 +36,21 @@ Manual columns (never touched, never reported):
 
 ## Acceptance criteria
 
-- [ ] `tkt sync-plan --fix` updates status and blocked_by columns in plan table rows
-- [ ] Non-derivable drift reported as warnings (not fixed)
-- [ ] Exit code contract: 0=all drift resolved, 1=unsafe drift remains, 2=crash
-- [ ] `tkt sync-plan` (no --fix) behavior unchanged (report-only, same exit codes)
-- [ ] Markdown table formatting preserved (cell widths, alignment)
-- [ ] Test: plan with 3 stale status cells → --fix corrects all 3, exits 0
-- [ ] Test: plan with title drift → --fix corrects status but exits 1 (unsafe remains)
-- [ ] Test: plan with no drift → --fix is a no-op, exits 0
+- [x] `tkt sync-plan --fix` updates status and blocked_by columns in plan table rows
+- [x] Non-derivable drift reported as warnings (not fixed)
+- [x] Exit code contract: 0=all drift resolved, 1=unsafe drift remains, 2=crash
+- [x] `tkt sync-plan` (no --fix) behavior unchanged (report-only, same exit codes)
+- [x] Markdown table formatting preserved (cell widths, alignment)
+- [x] Test: plan with 3 stale status cells → --fix corrects all 3, exits 0
+- [x] Test: plan with title drift → --fix corrects status but exits 1 (unsafe remains)
+- [x] Test: plan with no drift → --fix is a no-op, exits 0
 
 ## Out of scope
 
 - Row insertion/deletion (unsafe — human judgment required)
 - Non-plan.md targets
 - Interactive mode or confirmation prompts
+
+## Resolution (2026-07-27)
+
+Implemented --fix with Ruff-model scoping per R9a. 4 new tests passing.
