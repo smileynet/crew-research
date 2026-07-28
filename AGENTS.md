@@ -53,6 +53,7 @@ tkt close <id> [--note "..."]  # status→done; --note writes the Resolution (el
 tkt edit <id> [--blocked-by IDS] [--priority high|''] [--env E|''] [--spec S|''] [--title T]
 tkt renumber <old> <new> [--file NAME]  # birth-window only — cited ids are contracts
 tkt sync-plan --check [--strict] [--brief] [plan] # drift vs docs/plan.md (0 clean / 1 drift / 2 crash)
+tkt sync-plan --fix [--strict] [--brief] [plan]   # fix derivable columns (status); report unsafe drift
 tkt validate [--brief]                  # contract + decay findings (JSON, exit 0/1; --brief = one line per finding)
 #   NOTE: warnings on pre-tkt done tickets carrying the "not individually verified at
 #   close" caveat (8 as of 2026-07-22) are deliberate — don't re-triage them.
