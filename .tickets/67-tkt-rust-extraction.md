@@ -46,13 +46,13 @@ Findings in `.scratch/research/`:
 
 ## Acceptance criteria
 
-- [ ] Decision: extract to own repo YES/NO (with reasoning)
-- [ ] Decision: Rust YES/NO (with reasoning — could be "Go for tkt, Rust for recall")
-- [ ] Architecture sketch: modules, dependencies, test strategy
-- [ ] Distribution plan: install methods per platform
-- [ ] Migration plan: how existing users switch (zero-friction requirement)
-- [ ] Session usage audit: which tkt commands are actually used in practice
-- [ ] If YES: repo created, scaffold committed, README with plan
+- [x] Decision: extract to own repo YES/NO (with reasoning)
+- [x] Decision: Rust YES/NO (with reasoning — could be "Go for tkt, Rust for recall")
+- [x] Architecture sketch: modules, dependencies, test strategy
+- [x] Distribution plan: install methods per platform
+- [x] Migration plan: how existing users switch (zero-friction requirement)
+- [x] Session usage audit: which tkt commands are actually used in practice
+- [x] If YES: repo created, scaffold committed, README with plan
 
 ## Out of scope
 
