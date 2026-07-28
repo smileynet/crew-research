@@ -204,7 +204,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 27 | activation-git-protocol negative tasks stop flaking at FPR gate | ✅ done 2026-07-22 — change-producing negatives replaced with read-only Q&A + comparability note; 2 consecutive solo runs TPR 1.00/FPR 0 PASS |
 | 28 | Near-threshold judged failures triaged | ✅ done 2026-07-22 — agents-md GENUINE (trim-extraction skill fix, post-fix PASS 4.33); handoff-decaying + feedback-loop-tighten FLAKY (trials 3→5); a03798e regression ruled out; known gaps now 4 |
 | 29 | Deferred eval protocol (adapter scoping, access probes, judge visibility, owed-run ledger) | ✅ done 2026-07-19 — SKIP rows, live-probe judge set, per-trial judge recording, id/adapter row keys + hash placeholders, ledger seeded. Discovery: codex judge leg was silently dead in ALL prior runs (untrusted temp dir) — local "consensus" was opus-only; fixed |
-| 30 | image-* defs conform (ids, adapter scoping, deferred birth run) | open, blocked by 29 — upstream 5a23e45 defs lack immutable ids and would blind-run under kiro-cli |
+| 30 | image-* defs conform (ids, adapter scoping, deferred birth run) | ✅ done |
 | 31 | crush deployment complete on this machine | ✅ done 2026-07-27 — deployed (idempotent, no cross-tool flap), doctor healthy, Bedrock sentinel probe PASSED (haiku-4.5 via sabiggin-isengard/us-west-2), docs + crush-bedrock.md reference; live probes NO LONGER deferred |
 | 32 | Re-judge mode + cross-machine interchange | ✅ done 2026-07-25 — run.sh --judge-only (versioned rejudge files, recorded-commit criteria, verdict delta); interchange.sh export/import (join-key validation, tamper rejection, byte-identical round-trip) |
 | 33 | Result identity hashes | ✅ done 2026-07-25 — identity.sh shared module, per-def execution-time hashes in rows, check-staleness.sh drift kinds, --changed-only; conformance: each component flips exactly its kind |
@@ -224,10 +224,10 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 47 | tkt new prints 'claimed' but leaves status: open | ✅ done 2026-07-23 — wording fix (option 1): 'allocated … status: open'; bare 'claimed' reserved for claim; output/frontmatter agreement tested |
 | 48 | guidance-sync reviews edits/deprecations, not just additions | ✅ done 2026-07-22 — P6 prune probe + net-delta metric + routing to owned mechanisms; 4-subagent research; related edits: session-analysis, AGENTS.md, project-audit, ticket 34 |
 | 49 | tkt ergonomics: close --note + --brief output | ✅ done 2026-07-23 — presentation-only --brief (JSON contract unchanged); close --note replaces TBD stub; suite 48 |
-| 50 | tkt close/edit --ac N,N enumerated box-checking | open — blanket --check-acs REJECTED (rubber-stamp guard); enumeration preserves the audit moment (guidance-sync 07-25) |
+| 50 | tkt close/edit --ac N,N enumerated box-checking | ✅ done |
 | 55 | Chunk-level embedding cache for recall imports | open — remnant of the 51-61 recall workstream (other lane) |
-| 62 | doctor: git-bash uv tools check | open — filed from the Windows lane 2026-07-27 |
-| 64 | Research: sync-plan --fix for status-only plan drift | open — research-first (R9 report-only must be weighed, not bypassed); P4 recurrence 3 sessions |
+| 62 | doctor: git-bash uv tools check | ✅ done |
+| 64 | Research: sync-plan --fix for status-only plan drift | ✅ done |
 
 **Frontier (2026-07-27, current):** 35, 50, 55, 62, 64 (+30 personal-only). Task graph — no blocked_by edges outstanding; all five are independently workable:
 
