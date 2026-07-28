@@ -1,7 +1,7 @@
 ---
 id: "67"
 title: "Explore: extract tkt to own repo and rebuild in Rust"
-status: open
+status: done
 blocked_by: []
 priority: high
 ---
@@ -58,3 +58,7 @@ Findings in `.scratch/research/`:
 
 - Full implementation (that's the follow-up after this exploration)
 - Changing tkt's contract (the rebuild preserves the existing interface)
+
+## Resolution (2026-07-28)
+
+Decision: Extract YES, Rust YES. Repo scaffolded at D:/code/tkt (25597bc). Architecture: clap+serde+subprocess-git. Compiles, 2 tests pass.
