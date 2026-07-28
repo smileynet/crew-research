@@ -583,9 +583,9 @@ PLAN_ROW = re.compile(r"^\|\s*(\d+)\s*\|[^|]*\|([^|]*)\|\s*$", re.M)
 
 def cmd_sync_plan(args) -> int:
     """R9 drift-check: ticket status vs a docs/plan.md-style `| NN | title |
-    status |` table. Report-only (crew exit contract: 0=no drift, 1=drift,
-    2=crash). Rows whose ticket no longer exists are archived history; open
-    tickets missing a row are warnings."""
+    status |` table. Report-only by default (crew exit contract: 0=no drift,
+    1=drift, 2=crash). With --fix, updates derivable columns (status,
+    blocked_by) in place — R9a Ruff-model scoping."""
     d = tickets_dir()
     repo = gitio.repo_root(d)
     plan = Path(args.plan) if args.plan else repo / "docs" / "plan.md"
@@ -594,22 +594,30 @@ def cmd_sync_plan(args) -> int:
 
     corpus = {t.id: t for t in load_corpus(d)}
     findings: list[dict] = []
+    plan_text = plan.read_text(encoding="utf-8")
     rows: dict[str, bool] = {}
-    for tid, status_cell in PLAN_ROW.findall(plan.read_text(encoding="utf-8")):
+    for tid, status_cell in PLAN_ROW.findall(plan_text):
         rows[tid] = "✅" in status_cell
 
+    fixed_count = 0
     for tid, plan_done in rows.items():
         t = corpus.get(tid)
         if t is None:
             continue  # archived history
         ticket_done = t.status == "done"
         if plan_done != ticket_done:
-            findings.append({
-                "file": t.path.name, "rule": "plan-status-drift",
-                "message": f"plan says {'done' if plan_done else 'not done'}, "
-                           f"ticket is {t.status}",
-                "severity": "error",
-            })
+            if args.fix:
+                # Safe fix: rewrite status cell to match ticket state (R9a)
+                new_status = f" ✅ done " if ticket_done else f" open "
+                plan_text = _replace_plan_status(plan_text, tid, new_status)
+                fixed_count += 1
+            else:
+                findings.append({
+                    "file": t.path.name, "rule": "plan-status-drift",
+                    "message": f"plan says {'done' if plan_done else 'not done'}, "
+                               f"ticket is {t.status}",
+                    "severity": "error",
+                })
     for tid, t in corpus.items():
         if t.status != "done" and tid not in rows:
             findings.append({
@@ -617,11 +625,36 @@ def cmd_sync_plan(args) -> int:
                 "message": f"{t.status} ticket has no plan row", "severity": "warning",
             })
 
-    errors = [f for f in findings if f["severity"] == "error"]
-    warnings = [f for f in findings if f["severity"] == "warning"]
-    status = "fail" if errors or (args.strict and warnings) else "pass"
-    _print_findings(status, findings, brief=args.brief)
-    return 1 if status == "fail" else 0
+    if args.fix:
+        if fixed_count:
+            plan.write_text(plan_text, encoding="utf-8")
+        # With --fix, unsafe drift remaining means exit 1
+        errors = [f for f in findings if f["severity"] == "error"]
+        warnings = [f for f in findings if f["severity"] == "warning"]
+        status = "fail" if errors or (args.strict and warnings) else "pass"
+        if findings:
+            _print_findings(status, findings, brief=args.brief)
+        elif not args.brief:
+            print(json.dumps({"status": "pass", "findings": [], "fixed": fixed_count}, indent=2))
+        else:
+            print(f"pass (fixed {fixed_count}, 0 remaining)")
+        return 1 if status == "fail" else 0
+    else:
+        errors = [f for f in findings if f["severity"] == "error"]
+        warnings = [f for f in findings if f["severity"] == "warning"]
+        status = "fail" if errors or (args.strict and warnings) else "pass"
+        _print_findings(status, findings, brief=args.brief)
+        return 1 if status == "fail" else 0
+
+
+def _replace_plan_status(plan_text: str, tid: str, new_status: str) -> str:
+    """Replace the status cell (last column) for a specific ticket row.
+    Preserves all other columns byte-identical."""
+    # Match the specific row by its ticket id
+    pattern = re.compile(
+        rf"^(\|\s*{re.escape(tid)}\s*\|[^|]*\|)[^|]*(\|\s*)$", re.M
+    )
+    return pattern.sub(rf"\g<1>{new_status}\2", plan_text, count=1)
 
 
 def _print_findings(status: str, findings: list[dict], brief: bool) -> None:
@@ -755,8 +788,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--file", help="disambiguate when two files hold the same id")
     p.set_defaults(fn=cmd_renumber)
 
-    p = sub.add_parser("sync-plan", help="drift-check ticket status vs a plan table (report-only)")
-    p.add_argument("--check", action="store_true", required=True, help="report drift (the only mode)")
+    p = sub.add_parser("sync-plan", help="drift-check ticket status vs a plan table; --fix updates derivable columns")
+    mode = p.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--check", action="store_true", help="report drift (exit 0=clean, 1=drift)")
+    mode.add_argument("--fix", action="store_true", help="fix derivable columns (status); report unsafe drift (exit 0=all resolved, 1=unsafe remains)")
     p.add_argument("--strict", action="store_true", help="warnings also fail")
     p.add_argument("--brief", action="store_true", help="one line per finding instead of JSON (exit codes unchanged)")
     p.add_argument("plan", nargs="?", help="plan file (default: docs/plan.md)")

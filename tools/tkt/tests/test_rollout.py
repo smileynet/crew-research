@@ -210,3 +210,81 @@ def test_sync_plan_clean_and_strict(repo_pair):
     assert rc == 0, "warnings alone must not fail without --strict"
     rc, out = run_tkt(a, "sync-plan", "--check", "--strict")
     assert rc == 1, "--strict promotes warnings to failure"
+
+
+# ----------------------------------------------------------------- sync-plan --fix (R9a)
+
+PLAN_FIX = """# Plan
+
+| 41 | seed ticket | ✅ done |
+| 42 | drifted ticket | open — not done yet |
+| 43 | another drift | open |
+"""
+
+
+def test_sync_plan_fix_rewrites_status(repo_pair):
+    """--fix updates status cells for drifted rows; leaves title intact."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    make_ticket(d, "42", "drifted-ticket", status="done")
+    make_ticket(d, "43", "another-drift", status="done")
+    (a / "docs").mkdir()
+    (a / "docs" / "plan.md").write_text(PLAN_FIX, encoding="utf-8")
+
+    rc, out = run_tkt(a, "sync-plan", "--fix")
+    assert rc == 0, f"all drift derivable, should exit 0: {out}"
+    fixed_plan = (a / "docs" / "plan.md").read_text(encoding="utf-8")
+    assert "✅ done" in fixed_plan.split("42")[1].split("\n")[0], "ticket 42 row should be done"
+    assert "✅ done" in fixed_plan.split("43")[1].split("\n")[0], "ticket 43 row should be done"
+    # Title preserved
+    assert "drifted ticket" in fixed_plan
+    assert "another drift" in fixed_plan
+
+
+def test_sync_plan_fix_exits_1_on_unsafe_drift(repo_pair):
+    """--fix reports missing-plan-row as warning; with --strict, exits 1."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    make_ticket(d, "44", "unlisted", status="open")
+    (a / "docs").mkdir()
+    (a / "docs" / "plan.md").write_text("| 41 | seed | ✅ done |\n", encoding="utf-8")
+
+    # Without --strict, warnings don't fail
+    rc, out = run_tkt(a, "sync-plan", "--fix")
+    assert rc == 0, f"warnings alone should not fail: {out}"
+
+    # With --strict, warnings cause exit 1
+    rc, out = run_tkt(a, "sync-plan", "--fix", "--strict")
+    assert rc == 1, f"--strict + warnings should exit 1: {out}"
+
+
+def test_sync_plan_fix_noop_on_clean(repo_pair):
+    """--fix on an already-synchronized plan is a no-op, exits 0."""
+    a, _ = repo_pair
+    (a / "docs").mkdir()
+    plan_content = "| 41 | seed | ✅ done |\n"
+    (a / "docs" / "plan.md").write_text(plan_content, encoding="utf-8")
+
+    rc, out = run_tkt(a, "sync-plan", "--fix")
+    assert rc == 0, f"clean plan should exit 0: {out}"
+    assert (a / "docs" / "plan.md").read_text(encoding="utf-8") == plan_content, \
+        "plan file should be unchanged"
+
+
+def test_sync_plan_fix_done_to_open(repo_pair):
+    """--fix can also revert a plan row from done to open (ticket reopened)."""
+    a, _ = repo_pair
+    d = a / ".tickets"
+    make_ticket(d, "42", "reopened", status="open")
+    (a / "docs").mkdir()
+    (a / "docs" / "plan.md").write_text(
+        "| 41 | seed | ✅ done |\n| 42 | reopened | ✅ done (was done) |\n",
+        encoding="utf-8",
+    )
+
+    rc, out = run_tkt(a, "sync-plan", "--fix")
+    assert rc == 0, f"should fix and exit 0: {out}"
+    fixed = (a / "docs" / "plan.md").read_text(encoding="utf-8")
+    row42 = [l for l in fixed.split("\n") if "42" in l][0]
+    assert "✅" not in row42, f"row 42 should no longer be done: {row42}"
+    assert "open" in row42, f"row 42 should say open: {row42}"
