@@ -53,14 +53,15 @@ Findings in `.scratch/research/`:
 
 ## Acceptance criteria
 
-- [ ] Decision: extract to own repo YES/NO
-- [ ] Architecture: storage layer, embedding engine, search fusion algorithm
-- [ ] Contract: which commands survive, which change, which are dropped
-- [ ] Distribution plan: install methods per platform (no Python/uv dependency)
-- [ ] Data migration: can the Rust version read the existing SQLite DB directly?
-- [ ] Session usage audit: recall command frequency, search patterns, prime effectiveness
-- [ ] Performance targets: embedding latency, search latency, startup time
-- [ ] If YES: repo created, scaffold committed
+- [ ] Architecture spec reviewed and approved: `.memory/specs/recall-rust-architecture.md`
+- [ ] Spike S1: fastembed-rs cold start measured (acceptable?)
+- [ ] Spike S2: sqlite-vec int8 quantization quality validated on real corpus
+- [ ] Spike S3: stat cache <100ms on 2,600 NTFS files (jwalk)
+- [ ] Spike S4: model2vec-rs quality vs fastembed for recall search ranking
+- [ ] Decision: embedding engine (fastembed-rs vs model2vec-rs vs hybrid)
+- [ ] Decision: single repo vs monorepo with tkt (shared crates?)
+- [ ] Repo created, scaffold committed (same pattern as tkt)
+- [ ] DB migration script: Python sqlite3 → Rust schema with int8 quantization
 
 ## Out of scope
 
