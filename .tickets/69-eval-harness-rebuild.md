@@ -2,7 +2,7 @@
 id: "69"
 title: "Explore: eval harness architecture rebuild (compiled orchestrator)"
 status: open
-blocked_by: ["67"]
+blocked_by: []
 ---
 
 # Explore: eval harness architecture rebuild (compiled orchestrator)

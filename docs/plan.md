@@ -181,7 +181,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 04 | Always-on steering slimmed 812→~450 lines | ✅ done — batch-5 total 387 lines; tool-installation demoted to project level; OS refs gated in init.sh; activation eval 0.90 accuracy |
 | 05 | 7 flagged eval definitions run as designed | ✅ done (815fbe2 + validation runs: 4✅/1❌, the ❌ is genuine skill signal) |
 | 06 | doctor.sh + catalog.sh report current reality | ✅ done (cd78f2c — tier reconciliation, recall staleness/cron, frontmatter lint, portable grep; catalog tags + --tier) |
-| 07 | Installed recall CLI matches source and docs | ✅ done — 0.2.0 reinstalled from source; import round-trip verified; all install docs point at ./tools/recall; spike findings promoted |
+| 07 | ~~Moved to recall repo~~ | ✅ done |
 | 08 | Dead/broken tooling pruned or repaired | ✅ done — okf-bundle + prime hook deleted (decisions recorded), inspect-session exec bit fixed, run.sh skips null adapters, init.sh dead code removed |
 | 09 | Clean post-review eval baseline | ✅ done (2026-07-18) — 26/35 judged (74.3%), 19/20 live activation; record: `docs/development/eval-baseline-2026-07-17.md` |
 | 10 | Session logs reveal actual skill/tool usage | ✅ done — spike PASS (activation detectable); 595 sessions analyzed; report in docs/development/session-skill-usage-2026-07-17.md |
@@ -212,68 +212,39 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 35 | Model cost/quality benchmarking (judges first: agreement vs 2026-07-19 consensus) | open — prefer cheaper models where quality holds; corp candidates incl. Bedrock Claude via crush (haiku-4.5) |
 | 36 | Environment designation (CREW_ENV) + agy policy enforcement | ✅ done 2026-07-25 — init hard-refuse, doctor artifact flags (fires on planted manifest), eval adapter+judge legs and proof legs policy-blocked pre-probe with distinct reason; docs in AGENTS.md + user-setup-guide; corp deploy unchanged |
 | 37 | Integrate archwright as a known tool (hydrated externally, recommended by relevant skills) | ✅ done 2026-07-19 — known-tools registry (`compositions/known-tools.yaml`) + doctor detection (hydrated/absent/broken-symlink) + catalog listing + 5 conditional seams (architecture-deepening, sdd, planning-cycles, grill, adr) + setup docs. Hydration = archwright's own symlink deploy (no tier extension — avoids double ownership). Known collision recorded: archwright's deploy copies its subagent-reliability fork over crew's (fix belongs in archwright) |
-| 38 | Explore: custom tk-like ticket CLI fitting crew-research + archwright shapes | ✅ done 2026-07-20 — verdict BUILD (`tkt`, hybrid enforcement). tk disqualified hands-on: `deps` not `blocked_by`, random ids, silent omission of unparseable tickets; zero git integration leaves the claim protocol uncovered. Shared contract verified against all 77 tickets in both repos (zero migration). Spec: `.memory/specs/ticket-cli-spec.md`; follow-ups 40/41 |
-| 40 | Build tkt: minimal ticket CLI honoring the shared crew/archwright contract | ✅ done 2026-07-21 — tools/tkt (zero-dep Python, uv-installable); 13-test suite incl. race-renumber + byte-preservation on all 81 tickets both repos; archwright-check 12/12 PASS (pending checks activated); 2 impl bugs caught by tests pre-commit; upstream defects filed archwright#039/#040 |
-| 41 | Roll out tkt: steering integration, archwright adoption, plan drift-check | ✅ done 2026-07-22 — edit/renumber/sync-plan shipped (R17, suite 45); frontier-work steering tkt-first; editable install documented+deployed; validate wired both repos; batch → 46 |
+| 38–41 | ~~tkt CLI: explore, build, rollout~~ | ✅ done — moved to D:/code/tkt |
+| 39 | doctor.sh checks WSL \$HOME instead of the Windows deploy home | ✅ done 2026-07-27 |
 | 42 | Lint executable check false positive on Windows (core.filemode=false) | ✅ done |
 | 43 | WSL bashrc should export WIN_USERNAME for deploy reliability | ✅ done |
-| 44 | Black-box acceptance layer for tkt (installed-artifact, output contracts, hook-based race) | ✅ done 2026-07-21 — test_blackbox.py + conftest; uv-installed smoke, cli-outputs.yaml as oracle (vacuity-probed), pre-receive-hook race replaces monkeypatch; suite 13→17 |
-| 45 | tkt pre-launch hardening: input validation + informative lost-race reporting | ✅ done 2026-07-22 — R18 allowlist+reserved-names before any fs op, round-trip title validation (reject > escape), R19 two-layer race detection (pre-flight + push-CAS backstop); found byte-identical-SHA race hole; suite 17→36 |
-| 39 | doctor.sh checks WSL \$HOME instead of the Windows deploy home | ✅ done 2026-07-27 — DEPLOY_HOME detection ported to doctor (closed from the Windows lane) |
-| 46 | tkt batch create under a spec (R13) | ✅ done 2026-07-25 — cmd_batch: one fetch-scan, N files one verified commit, group renumber on lost race (black-box hook test); repeated-new frontmatter equivalence; suite 51 |
-| 47 | tkt new prints 'claimed' but leaves status: open | ✅ done 2026-07-23 — wording fix (option 1): 'allocated … status: open'; bare 'claimed' reserved for claim; output/frontmatter agreement tested |
+| 44–47 | ~~tkt hardening, batch, wording~~ | ✅ done — moved to D:/code/tkt |
 | 48 | guidance-sync reviews edits/deprecations, not just additions | ✅ done 2026-07-22 — P6 prune probe + net-delta metric + routing to owned mechanisms; 4-subagent research; related edits: session-analysis, AGENTS.md, project-audit, ticket 34 |
-| 49 | tkt ergonomics: close --note + --brief output | ✅ done 2026-07-23 — presentation-only --brief (JSON contract unchanged); close --note replaces TBD stub; suite 48 |
-| 50 | tkt close/edit --ac N,N enumerated box-checking | ✅ done |
-| 55 | Chunk-level embedding cache for recall imports | open — remnant of the 51-61 recall workstream (other lane) |
+| 49–50 | ~~tkt close --note/--brief/--ac~~ | ✅ done — moved to D:/code/tkt |
+| 51–61 | ~~recall workstream (force, sources, proofs, discovery, etc.)~~ | ✅ done — moved to recall repo |
 | 62 | doctor: git-bash uv tools check | ✅ done |
-| 64 | Research: sync-plan --fix for status-only plan drift | ✅ done |
+| 63 | ~~recall pytest suite~~ | ✅ done — moved to recall repo |
+| 64, 66 | ~~tkt sync-plan --fix (research + impl)~~ | ✅ done — moved to D:/code/tkt |
 | 70 | Restore a second judge family on corp (codex fix or non-Anthropic Bedrock leg) | open (priority: high) — every corp run is a single Claude judge |
 | 71 | Delta noise floor for single-family judge panels | open |
 | 72 | Judge prompt/rubric into the identity scheme (template edits must read as drift) | open |
 | 73 | Canonical judge panel + deviation reporting | open — blocked by 70 |
 | 74 | Agreement-as-confidence audit; ICC + chance-corrected stats; measure our own γ̄ | open |
 
-**Frontier (2026-07-29, current):** 55, 68, 69, 70–74 (+30 personal-only; 35 in progress). The judge-panel block (70–74) comes out of ADR 0010 and its cross-family amendment — 70 is the only one that unblocks anything else.
+**Frontier (2026-07-29):** 35, 69, 70–74. Tickets 55, 68, and all tkt tickets (38–50, 64, 66, 67) moved to their respective repos (D:/code/tkt, recall repo). Ticket 69 now unblocked (67 done).
 
 | Ticket | Lane | Ready? | Note |
 |--------|------|--------|------|
-| 35 | corp | in progress | phase 1 done (documented positioning); cheap-judge shadow study rejected per ADR 0010, so the Bedrock budget nod is no longer needed. Remaining: capability floors via `small-model-*`, role table |
-| 70 | **corp** | yes, priority | restore a second judge family — every corp run is a single Claude judge today. Blocks 73 |
-| 71 | either | yes | delta noise floor for single-family panels (affinity ≈ 3–9% vs thresholds of 0.5–1.0) |
-| 72 | either | yes | judge prompt/rubric into the identity scheme — template edits currently change scores with no drift signal |
+| 35 | corp | in progress | phase 1 done; cheap-judge shadow study rejected per ADR 0010 |
+| 70 | **corp** | yes, priority | restore a second judge family — blocks 73 |
+| 71 | either | yes | delta noise floor for single-family panels |
+| 72 | either | yes | judge prompt/rubric into the identity scheme |
 | 73 | either | blocked by 70 | canonical panel + deviation reporting |
-| 74 | either | yes | agreement-as-confidence audit; measure our own inter-judge correlation |
-| 55 | either | yes | last remnant of the recall 51–63 workstream (other lane owns that context) |
-| 68, 69 | either | yes | tool extraction/rebuild exploration — see the Tool Extraction section |
-| 30 | **personal** | env-blocked | image-* birth runs need GLM (corp Bedrock Claude has vision, premise fails) |
+| 74 | either | yes | agreement-as-confidence audit |
+| 69 | either | yes | eval harness architecture rebuild (exploration) |
+| 30 | **personal** | env-blocked | image-* birth runs need GLM |
 
-**Frontier (2026-07-27, superseded):** 35, 50, 55, 62, 64 (+30 personal-only). Task graph — no blocked_by edges outstanding; all five are independently workable:
+Deferred threads unchanged: t09 rec #2/#5 (~2026-08-17).
 
-| Ticket | Lane | Ready? | Note |
-|--------|------|--------|------|
-| 35 | corp (this machine) | needs budget nod | fully unblocked otherwise: account decided (sabiggin-isengard/us-west-2, ticket 31), `--judge-only` + interchange built (ticket 32), identity hashes for env_id (ticket 33). Shadow study = ~300-400 Bedrock judgments |
-| 50 | either | yes | tkt `--ac N,N` enumerated box-checking; blanket variant already rejected in-ticket |
-| 55 | either | yes | last remnant of the recall 51-63 workstream (other lane owns that context) |
-| 62 | Windows | yes, wrong machine | Git Bash/MSYS2 uv-tool detection in doctor |
-| 64 | either | yes | research + spec decision only; implementation ticket filed downstream if accepted |
-| 30 | **personal** | env-blocked | image-* birth runs need GLM (corp Bedrock Claude has vision, premise fails) |
-
-Closed since the 07-21 snapshot: 23, 27, 28, 31, 32, 33, 34, 36, 39, 41, 44, 45, 46, 47, 48, 49 + the recall workstream 51-61, 63 (other lanes). Deferred threads unchanged: t09 rec #2/#5 (~2026-08-17).
-
-**Frontier (2026-07-21, post-40 — superseded):** 23*, 27, 28, 31, 32, 33, 34, 35, 36, 39, 41, 44 — no priority flags outstanding; 39 belongs to the Windows session; 42/43 closed upstream. (*23 measurement window opens ~2026-07-25.) (30 = env:personal; 23 waiting on its ≥1-week measurement window, reopens ~2026-07-25; 41 blocked by 40). Tickets carry `env: corp|personal|either` (grill Q01). Remaining non-ticketed thread: t09 rec #2/#5 (planning-cycles overlap, multi-agent-validation re-measure) — both deliberately deferred to ~2026-08-17.
-
-**Ticket ID collision (2026-07-17):** upstream (Windows session) allocated tickets 12+13 concurrently with local 13-16 — renumbered upstream to 17+18 on merge (a03798e). This is the second real-world occurrence of the race ticket 18 describes; cite it as evidence when working 18.
-
-**Baseline caveat (t09):** merge a03798e landed `atomics/skills/handoff/SKILL.md` changes mid-run at 19/35 judged evals. `handoff-decaying-resolution` completed pre-merge (✅ 5.00, clean vs 24d9691); phase-2 `activation-handoff` will measure post-merge content. Do NOT redeploy global steering/skills (`mise run init --global`) until the run prints BASELINE RUN COMPLETE.
-
-**Frontier (2026-07-16 19:20):** 02, 04, 05, 06, 07, 08, 10, 11. Ticket 12 (was numbered 01, renamed to fix ID collision; spec eval-improvements-2026-07-16) gained blockers 05+11 — running the suite with 6 known-broken definitions and an uncontained workdir leak would waste a 5-6h run. If 01-04 land before 12 runs, consider merging 12 into 09 (one clean run satisfies both).
-
-**Active order:** 05 → 11 → 12 (background) with 02 → 03 in foreground; 04, 06, 07, 08, 10 parallelizable; 09 last.
-
-**Open hygiene item (carried from R8):** untracked files still undecided — `docs/findings/`, `tools/evals/experiments/bedrock-model-family-comparison.yaml`, `tools/evals/harness/run-model-comparison.sh`, `tools/proofs/adapters/closecode.yaml`. Commit or delete during ticket 08.
-
-**Overnight full-suite run (2026-07-15→16):** 102/105 completed, 32✅/70❌ — failure count dominated by since-retired evals and pre-calibration activation thresholds. Run wedged at 102 after run.sh was edited mid-execution (lesson recorded: never edit a script bash is executing); terminated, scores preserved in `/tmp/full-eval-run.log` and `tools/evals/results/2026-07-15T12-56-23Z/`.
+*Historical frontier snapshots removed — see git history for prior states.*
 
 
 ---
@@ -284,51 +255,43 @@ Closed since the 07-21 snapshot: 23, 27, 28, 31, 32, 33, 34, 36, 39, 41, 44, 45,
 each do one thing well. Rebuild CLI tools in Rust for single-binary distribution,
 cross-platform reliability, and performance.
 
+**Status (2026-07-29):** tkt and recall have been extracted to their own repos. Future
+tickets for these tools live in their respective projects.
+
+### Repos
+
+| Tool | Repo | Status |
+|------|------|--------|
+| tkt | `D:/code/tkt` | Scaffolded, Rust rebuild in progress |
+| recall | recall repo | Scaffolded, architecture spec done (`.memory/specs/recall-rust-architecture.md`) |
+| eval harness | crew-research (ticket 69) | Exploration phase — may stay here or extract |
+
 ### Recommended Order (task graph)
 
 ```
-67 (tkt → Rust)          68 (recall → Rust)
-  │ simplest,              │ highest value,
-  │ proves pattern         │ complex (ML)
-  │                        │
-  └──────┬─────────────────┘
+67 (tkt → Rust) ✅ DONE    68 (recall → Rust) → recall repo
+  │ simplest,                │ highest value,
+  │ proves pattern           │ complex (ML)
+  │                          │
+  └──────┬───────────────────┘
          │ lessons learned
          ▼
-69 (eval harness → compiled)
+69 (eval harness → compiled) ← still in crew-research
    │ may stay in crew-research
    │ but architecture rebuild
 ```
-
-**67 first** because: no ML, simple domain (YAML + git), proves the Rust CLI + test +
-distribution pipeline. If Rust works well → 68 + 69 proceed in Rust. If friction is
-too high → reconsider Go for the simpler tools.
-
-**68 parallel** with or after 67: highest user-facing value (removes Python dep, single
-binary, faster embeddings), but more complex (embeddings, vector search, SQLite).
-
-**69 last** because: (a) blocked by 67 for lessons, (b) may choose Go if eval harness
-benefits more from goroutines than from consistency with tkt/recall, (c) eval harness
-may stay in crew-research even after architectural rebuild.
-
-### Tickets
-
-| Ticket | Title | Blocked by | Status |
-|--------|-------|------------|--------|
-| 67 | tkt → Rust extraction | — | open (priority: high) |
-| 68 | recall → Rust extraction | — | open |
-| 69 | eval harness → compiled | 67 | open |
 
 ### What stays in crew-research after extraction
 
 - `atomics/` — skill content (the product)
 - `compositions/` — tier manifests
 - `tools/generator/` — deploy tooling (bash, reads local files)
-- `tools/evals/` — eval definitions + harness (if 69 decides to keep)
+- `tools/evals/` — eval definitions + harness (ticket 69 decides architecture)
 - `tools/proofs/` — platform assumption tests
 - `tools/lint/` — cross-link validation
 - `.memory/`, `.kiro/`, `docs/` — project knowledge
 
-### What graduates to separate repos
+### What graduated to separate repos
 
-- `tools/tkt/` → `tkt` (own repo, Rust binary, crates.io/cargo-binstall)
-- `tools/recall/` → `recall` (own repo, Rust binary, single-file distribution)
+- `tools/tkt/` → `D:/code/tkt` (Rust binary, crates.io/cargo-binstall)
+- `tools/recall/` → recall repo (Rust binary, single-file distribution)
