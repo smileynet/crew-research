@@ -228,6 +228,11 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 55 | Chunk-level embedding cache for recall imports | open — remnant of the 51-61 recall workstream (other lane) |
 | 62 | doctor: git-bash uv tools check | ✅ done |
 | 64 | Research: sync-plan --fix for status-only plan drift | ✅ done |
+| 70 | Restore a second judge family on corp (codex fix or non-Anthropic Bedrock leg) | open (priority: high) — every corp run is a single Claude judge |
+| 71 | Delta noise floor for single-family judge panels | open |
+| 72 | Judge prompt/rubric into the identity scheme (template edits must read as drift) | open |
+| 73 | Canonical judge panel + deviation reporting | open — blocked by 70 |
+| 74 | Agreement-as-confidence audit; ICC + chance-corrected stats; measure our own γ̄ | open |
 
 **Frontier (2026-07-29, current):** 55, 68, 69, 70–74 (+30 personal-only; 35 in progress). The judge-panel block (70–74) comes out of ADR 0010 and its cross-family amendment — 70 is the only one that unblocks anything else.
 
