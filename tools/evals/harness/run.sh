@@ -95,6 +95,71 @@ judge_model_for() {  # judge_model_for <tool> : model id, or "" for tool default
 JUDGE_MODEL_CODEX=$(judge_model_for codex)
 JUDGE_MODEL_CRUSH="${CREW_CRUSH_JUDGE_MODEL:-$(judge_model_for crush)}"
 JUDGE_MODEL_AGY=$(judge_model_for agy)
+
+# --- Cross-family panel accounting (ADR 0010 amendment) -----------------------
+# Objectivity comes from families, not leg count: two legs running the same vendor
+# family are one opinion twice. Family is derived from the MODEL id, not the tool —
+# crush pointed at bedrock/us.anthropic.* is an Anthropic leg, not a third family.
+PANEL_MIN_JUDGES=3
+PANEL_MIN_FAMILIES=2
+
+model_family() {  # model_family <model-id> <tool-default-family> : family slug
+  local m="${1,,}" fallback="${2:-unknown}"
+  [[ -z "$m" || "$m" == "null" ]] && { echo "$fallback"; return; }
+  case "$m" in
+    *claude*|*anthropic*)  echo anthropic ;;
+    *gpt*|*o3*|*o4-*)     echo openai ;;
+    *gemini*)              echo google ;;
+    *glm*)                 echo zhipu ;;
+    *deepseek*)            echo deepseek ;;
+    *minimax*)             echo minimax ;;
+    *qwen*)                echo alibaba ;;
+    *nova*|*titan*)        echo amazon ;;
+    *llama*)               echo meta ;;
+    *mistral*|*mixtral*)   echo mistral ;;
+    *)                     echo "$fallback" ;;
+  esac
+}
+
+judge_family_for() {  # judge_family_for <leg: kiro|codex|crush|agy> : family slug
+  case "$1" in
+    kiro)  model_family "$JUDGE_MODEL" anthropic ;;
+    codex) model_family "$JUDGE_MODEL_CODEX" openai ;;
+    crush) model_family "$JUDGE_MODEL_CRUSH" zhipu ;;
+    agy)   model_family "$JUDGE_MODEL_AGY" google ;;
+    *)     echo unknown ;;
+  esac
+}
+
+# panel_json <leg>... : {"n":N,"families":K,"degraded":bool,"reason":"..."}
+# Emitted per result row so a degraded measurement can never be mistaken for a
+# consensus after the fact. The score is still recorded — flagged, not withheld.
+panel_json() {
+  local n=$# fams=() f leg
+  for leg in "$@"; do
+    f=$(judge_family_for "$leg")
+    [[ " ${fams[*]-} " == *" $f "* ]] || fams+=("$f")
+  done
+  local k=${#fams[@]} degraded=false reason=""
+  if (( n == 0 )); then
+    degraded=true; reason="no judge produced a score"
+  elif (( n == 1 )); then
+    degraded=true; reason="n=1 — single judge, no consensus"
+  elif (( n == 2 )); then
+    # RoPoLL: the median of two IS their mean, so the unbounded-bias result that
+    # motivates median aggregation reapplies. Two judges is not a panel.
+    degraded=true; reason="n=2 — median of two is their mean, not a panel"
+  elif (( k < PANEL_MIN_FAMILIES )); then
+    degraded=true; reason="single-family panel (${fams[0]}) — family affinity uncorrected"
+  elif (( n < PANEL_MIN_JUDGES )); then
+    degraded=true; reason="n=$n below panel floor of $PANEL_MIN_JUDGES"
+  fi
+  if (( n > 2 && k < PANEL_MIN_FAMILIES )); then
+    reason="single-family panel (${fams[0]}) — family affinity uncorrected"
+  fi
+  printf '{"n":%d,"families":%d,"family_list":"%s","degraded":%s,"reason":"%s"}' \
+    "$n" "$k" "$(IFS='+'; echo "${fams[*]-}")" "$degraded" "$reason"
+}
 JUDGE_MODE=$(yq '.mode // "single"' "$JUDGE_CONFIG")
 JUDGE_TEMP=$(yq '.temperature' "$JUDGE_CONFIG")
 
@@ -261,6 +326,14 @@ ensure_judges_probed() {
     fi
   done
   echo "  Judges live: ${LIVE_JUDGES[*]:-none}${JUDGES_EXCLUDED:+ | excluded: $JUDGES_EXCLUDED}"
+  # Panel floor check (ADR 0010 amendment) — announce a degraded panel BEFORE any
+  # scoring happens, so a run nobody can call a consensus is obvious at the top of
+  # the log rather than only reconstructable from scores.jsonl afterwards.
+  local panel; panel=$(panel_json ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"})
+  if [[ "$panel" == *'"degraded":true'* ]]; then
+    local why=${panel##*\"reason\":\"}; why=${why%%\"*}
+    echo "  ⚠️  DEGRADED PANEL: $why — scores are recorded and flagged, not a consensus"
+  fi
 }
 
 # Set up a project fixture in the workspace
@@ -475,12 +548,26 @@ REASON: <one sentence>"
 
   local sorted_scores=($(printf '%s\n' "${scores[@]}" | sort -n))
   local n=${#sorted_scores[@]}
+  # Even-panel rule (documented, ADR 0010 amendment): the LOWER middle score wins.
+  # Deterministic and tuning-free, at the cost of a downward lean on even panels —
+  # which is a further reason even panels are discouraged (an even judge buys no
+  # extra robustness: breakdown is ⌈N/2⌉−1, so N=4 tolerates the same single bad
+  # judge as N=3). Half-point medians were rejected: they invent a score no judge
+  # gave, and every consumer of scores.jsonl assumes integer rubric points.
   local median_idx=$(( (n - 1) / 2 ))
   local median_score=${sorted_scores[$median_idx]}
+  local even_note=""
+  (( n % 2 == 0 )) && even_note=", even panel: lower middle"
 
-  # Return median score with all judge reasons + participating judges
+  # Return median score with all judge reasons + participating judges.
+  # n=2 prints both scores rather than implying a consensus (RoPoLL: the median of
+  # two is their mean) — the row's panel field carries the machine-readable verdict.
   echo "SCORE: $median_score"
-  echo "REASON: median of $n judges [${scores[*]}] — ${reasons[0]}"
+  if (( n == 2 )); then
+    echo "REASON: 2 judges [${scores[*]}] — not a panel${even_note} — ${reasons[0]}"
+  else
+    echo "REASON: median of $n judges [${scores[*]}]${even_note} — ${reasons[0]}"
+  fi
   echo "JUDGES: ${judge_names[*]}"
 }
 
@@ -871,7 +958,10 @@ run_eval() {
   if [[ ${#row_judges[@]} -gt 0 ]]; then
     judges_union=$(printf '%s\n' "${!row_judges[@]}" | sort | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}')
   fi
-  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"skill_hash\":\"$row_skill_hash\",\"def_hash\":\"$row_def_hash\",\"env_id\":\"$row_env_id\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
+  # panel: judge count + family count for THIS row's union, with a degraded verdict.
+  # judges tells you who scored; panel tells you whether that set is a consensus.
+  local panel_field; panel_field=$(panel_json ${row_judges[@]+"${!row_judges[@]}"})
+  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"panel\":$panel_field,\"skill_hash\":\"$row_skill_hash\",\"def_hash\":\"$row_def_hash\",\"env_id\":\"$row_env_id\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
   if [[ $is_comparison -eq 1 ]]; then
     local primary_cond="" baseline_cond=""
     for cond in "${condition_names[@]}"; do
@@ -986,7 +1076,8 @@ run_judge_only() {
     orig_def=$(sed -n 's/.*"def_hash":\("\?[^",}]*"\?\).*/\1/p' <<< "$row")
     orig_env=$(sed -n 's/.*"env_id":\("\?[^",}]*"\?\).*/\1/p' <<< "$row")
 
-    echo "{\"id\":${orig_id:-null},\"name\":\"$name\",\"adapter\":\"$orig_adapter\",\"judges\":$judges_union,\"skill_hash\":${orig_skill:-null},\"def_hash\":${orig_def:-null},\"env_id\":${orig_env:-null},\"status\":\"$new_status\",\"score\":$with_avg,\"with_score\":$with_avg,\"without_score\":$base_avg,\"delta\":$delta,\"original_status\":\"$orig_status\",\"original_score\":${orig_score:-null},\"criteria_source\":\"$criteria_source\",\"rejudge_of\":\"scores.jsonl\",\"task_scores\":$task_scores_json}" >> "$out_scores"
+    local panel_field; panel_field=$(panel_json ${row_judges[@]+"${!row_judges[@]}"})
+    echo "{\"id\":${orig_id:-null},\"name\":\"$name\",\"adapter\":\"$orig_adapter\",\"judges\":$judges_union,\"panel\":$panel_field,\"skill_hash\":${orig_skill:-null},\"def_hash\":${orig_def:-null},\"env_id\":${orig_env:-null},\"status\":\"$new_status\",\"score\":$with_avg,\"with_score\":$with_avg,\"without_score\":$base_avg,\"delta\":$delta,\"original_status\":\"$orig_status\",\"original_score\":${orig_score:-null},\"criteria_source\":\"$criteria_source\",\"rejudge_of\":\"scores.jsonl\",\"task_scores\":$task_scores_json}" >> "$out_scores"
 
     local marker="="
     [[ "$new_status" != "$orig_status" ]] && { marker="≠"; changed=$((changed + 1)); }
@@ -1002,6 +1093,7 @@ run_judge_only() {
   "recorded_commit": "${recorded_commit:-unknown}",
   "identity": {"algorithm": "$IDENTITY_HASH_VERSION"},
   "judges": {"live": $(printf '%s\n' ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"} | awk '{out=out (NR>1?",":"") "\""$1"\""} END{print "["out"]"}'), "excluded": "${JUDGES_EXCLUDED//\"/\\\"}"},
+  "panel": $(panel_json ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"}),
   "summary": {"rejudged": $total, "verdict_changed": $changed}
 }
 EOF
@@ -1055,7 +1147,8 @@ cat > "$META_FILE" << EOF
   "commit": "$COMMIT",
   "config": {"trials": $TRIALS, "judge": "$JUDGE_MODEL", "adapter": "$ADAPTER", "dry_run": $DRY_RUN},
   "identity": {"algorithm": "$IDENTITY_HASH_VERSION", "changed_only_baseline": "${CHANGED_ONLY_DIR:-null}", "skipped_as_current": ${#CHANGED_ONLY_CURRENT[@]}},
-  "judges": {"live": $JUDGES_LIVE_JSON, "excluded": "$JUDGES_EXCLUDED_ESCAPED"},
+  "judges": {"live": $JUDGES_LIVE_JSON, "excluded": "$JUDGES_EXCLUDED_ESCAPED", "models": {"kiro": "$JUDGE_MODEL", "codex": "${JUDGE_MODEL_CODEX:-tool-default}", "crush": "${JUDGE_MODEL_CRUSH:-tool-default}", "agy": "${JUDGE_MODEL_AGY:-tool-default}"}},
+  "panel": $(panel_json ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"}),
   "summary": {"total": $TOTAL, "passed": $PASSED, "failed": $FAILED, "skipped": $SKIPPED, "avg_score": 0}
 }
 EOF

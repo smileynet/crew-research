@@ -19,11 +19,22 @@
 # no-customer-data/ITAR/PII restriction (our fixtures are synthetic, so it is
 # permissible) at 4.40x credits. Required when the agent under test itself runs
 # opus-5; otherwise opus-5 satisfies the policy.
+# CROSS-FAMILY POLICY (operator, 2026-07-29 — ADR 0010 amendment)
+# A panel verdict requires >=3 judges spanning >=2 vendor FAMILIES. Family is derived
+# from the model id, not the tool: crush pointed at bedrock/us.anthropic.* is an
+# Anthropic leg, so kiro+crush would be one family twice, not a cross-family panel.
+# Below the floor the harness still records the score but stamps each row's `panel`
+# object with degraded:true and a reason — a degraded measurement can never be
+# mistaken for a consensus later. Do NOT add legs beyond 4 chasing objectivity:
+# effective independence saturates near 2-2.6 judges regardless of count; spend on
+# trials instead (44.7% of score variance is within-question noise).
 mode: consensus
 temperature: 0
 scoring: reasoning-before-score
 rubric: 5-point-likert
-trials: 1
+# NOTE: trials are NOT configured here — they come from each definition's `trials:`
+# or the harness default/--trials flag. A `trials:` key in this file is dead config
+# (it was, until 2026-07-29).
 
 # Each leg's model is read by run.sh. null = tool default (which must itself be the
 # family frontier — verify on tool upgrades rather than assuming).

@@ -20,6 +20,10 @@ run = "uv run --directory tools/tkt --with pytest pytest tests/ -q"
 description = "recall CLI unit + integration test suite"
 run = "uv run --directory tools/recall --extra test pytest tests/ -q"
 
+[tasks."test:panel"]
+description = "Judge panel accounting tests (family derivation, cross-family floor)"
+run = "bash tools/evals/harness/test-panel.sh"
+
 [tasks."check:design"]
 description = "Archwright design gates: static constraint checks + link resolution"
 run = """

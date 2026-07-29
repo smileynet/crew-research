@@ -229,7 +229,21 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 62 | doctor: git-bash uv tools check | ✅ done |
 | 64 | Research: sync-plan --fix for status-only plan drift | ✅ done |
 
-**Frontier (2026-07-27, current):** 35, 50, 55, 62, 64 (+30 personal-only). Task graph — no blocked_by edges outstanding; all five are independently workable:
+**Frontier (2026-07-29, current):** 55, 68, 69, 70–74 (+30 personal-only; 35 in progress). The judge-panel block (70–74) comes out of ADR 0010 and its cross-family amendment — 70 is the only one that unblocks anything else.
+
+| Ticket | Lane | Ready? | Note |
+|--------|------|--------|------|
+| 35 | corp | in progress | phase 1 done (documented positioning); cheap-judge shadow study rejected per ADR 0010, so the Bedrock budget nod is no longer needed. Remaining: capability floors via `small-model-*`, role table |
+| 70 | **corp** | yes, priority | restore a second judge family — every corp run is a single Claude judge today. Blocks 73 |
+| 71 | either | yes | delta noise floor for single-family panels (affinity ≈ 3–9% vs thresholds of 0.5–1.0) |
+| 72 | either | yes | judge prompt/rubric into the identity scheme — template edits currently change scores with no drift signal |
+| 73 | either | blocked by 70 | canonical panel + deviation reporting |
+| 74 | either | yes | agreement-as-confidence audit; measure our own inter-judge correlation |
+| 55 | either | yes | last remnant of the recall 51–63 workstream (other lane owns that context) |
+| 68, 69 | either | yes | tool extraction/rebuild exploration — see the Tool Extraction section |
+| 30 | **personal** | env-blocked | image-* birth runs need GLM (corp Bedrock Claude has vision, premise fails) |
+
+**Frontier (2026-07-27, superseded):** 35, 50, 55, 62, 64 (+30 personal-only). Task graph — no blocked_by edges outstanding; all five are independently workable:
 
 | Ticket | Lane | Ready? | Note |
 |--------|------|--------|------|
