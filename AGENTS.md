@@ -45,6 +45,8 @@ docs/development/                 — Practices, spike records, results
 # checkout live; reinstall only after entry-point/metadata changes. Decision record in
 # .memory/specs/ticket-cli-spec.md). Fallback without install:
 # PYTHONPATH=tools/tkt python3 -m tkt.cli ...
+# NOTE: Rust rebuild at D:/code/tkt — when published, install via cargo:
+#   cargo install tkt  (or cargo binstall tkt for pre-built binary)
 tkt ready                                     # frontier: env-filtered, priority-aware
 tkt new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
 tkt batch <slug[:title]>... [--spec S] [--blocked-by IDS]  # N ids, ONE commit/push; lost race renumbers the group
