@@ -1,7 +1,7 @@
 ---
 id: "72"
 title: "Include the judge prompt/rubric in the identity scheme so template edits read as drift"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -40,3 +40,7 @@ means either hashing a source range (brittle) or extracting the template to its 
       scores (scores are nondeterministic)
 - [ ] `check-staleness.sh` drift kinds documented together in one place
 - [ ] Rows predating the component read as unknown, not current
+
+## Resolution (2026-07-29)
+
+Judge template extracted to judge-template.txt; judge_hash (4th identity component) emitted in rows and checked for JUDGE-DRIFT. Backward-compatible: pre-ticket rows treated as unknown.
