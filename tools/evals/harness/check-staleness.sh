@@ -11,6 +11,7 @@
 #                 model differences are visible in the env_id string but only
 #                 the version segment is recomputed — judges can't be probed
 #                 cheaply, and model is a user parameter, not environment)
+#   JUDGE-DRIFT — judge prompt template changed since the row was scored
 #   SKIPPED     — row was a SKIP (never executed; informational)
 #   UNHASHED    — row predates ticket 33 (null hashes; informational)
 #
@@ -62,6 +63,7 @@ while IFS= read -r line; do
   row_skill=$(json_field "$line" "skill_hash")
   row_def=$(json_field "$line" "def_hash")
   row_env=$(json_field "$line" "env_id")
+  row_judge=$(json_field "$line" "judge_hash")
 
   if [[ "$status" == "SKIP" ]]; then
     skipped=$((skipped + 1)); continue
@@ -91,7 +93,12 @@ while IFS= read -r line; do
     row_version=$(cut -d: -f2 <<< "$row_env")
     cur_version=$(adapter_version "$adapter")
     [[ "$row_version" != "$cur_version" ]] && kinds+=("ENV-DRIFT")
-    detail="skill ${row_skill}->${cur_skill}, def ${row_def}->${cur_def}, version ${row_version}->${cur_version}${retired_note}"
+    # judge: recompute the judge template hash (ticket 72)
+    cur_judge=$(identity_judge_hash)
+    if [[ -n "$row_judge" && "$row_judge" != "$cur_judge" ]]; then
+      kinds+=("JUDGE-DRIFT")
+    fi
+    detail="skill ${row_skill}->${cur_skill}, def ${row_def}->${cur_def}, version ${row_version}->${cur_version}, judge ${row_judge:-unset}->${cur_judge}${retired_note}"
   fi
 
   if [[ ${#kinds[@]} -eq 0 ]]; then

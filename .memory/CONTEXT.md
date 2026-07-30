@@ -280,7 +280,7 @@ _Avoid_: grace period (implies time-based), provisional id (the id is real, just
 _Avoid_: access flag (policy ≠ access), machine profile
 
 **Identity hash (eval result)**:
-A recomputable fingerprint stamped on each scores.jsonl row so staleness is computed, not remembered. Three separate components keep drift KIND visible: `skill_hash` (skills + steering across all conditions), `def_hash` (def yaml + all fixtures), `env_id` (adapter:tool_version:model:judges — a readable string, not a hash). Computed per def at execution time; `check-staleness.sh` reports CURRENT / SKILL-DRIFT / DEF-DRIFT / ENV-DRIFT.
+A recomputable fingerprint stamped on each scores.jsonl row so staleness is computed, not remembered. Four separate components keep drift KIND visible: `skill_hash` (skills + steering across all conditions), `def_hash` (def yaml + all fixtures), `judge_hash` (judge prompt template file), `env_id` (adapter:tool_version:model:judges — a readable string, not a hash). Computed per def at execution time; `check-staleness.sh` reports CURRENT / SKILL-DRIFT / DEF-DRIFT / JUDGE-DRIFT / ENV-DRIFT.
 _Avoid_: "result hash" (implies one opaque value — the separation is the point)
 
 **Shadow study**:

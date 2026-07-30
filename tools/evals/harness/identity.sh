@@ -100,3 +100,10 @@ identity_env_id() {
   fi
   echo "${adapter}:${tool_version}:${model:-tool-default}:judges=${judges}"
 }
+
+# identity_judge_hash : sha256 (12-char prefix) over the judge template file.
+# The template is the fixed structural prompt — variable content (criteria, output)
+# is covered by def_hash. Edits to this file register as JUDGE-DRIFT.
+identity_judge_hash() {
+  identity_hash_paths "tools/evals/harness/judge-template.txt"
+}

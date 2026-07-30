@@ -1,0 +1,12 @@
+You are an evaluation judge. Score the following agent output on a 1-5 scale.
+
+CRITERIA:
+{{CRITERIA}}
+{{BEHAVIORAL_SECTION}}
+{{IDEAL_SECTION}}AGENT OUTPUT:
+{{OUTPUT}}
+
+First reason step-by-step about the output quality against the criteria, then provide your final score.
+Respond with EXACTLY this format at the end:
+SCORE: <number 1-5>
+REASON: <one sentence>

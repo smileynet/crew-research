@@ -447,6 +447,11 @@ invoke_agent() {
   rm -f "$input_file"
 }
 
+# Judge template — loaded from file so edits register as JUDGE-DRIFT (ticket 72).
+JUDGE_TEMPLATE_FILE="$SCRIPT_DIR/judge-template.txt"
+[[ -f "$JUDGE_TEMPLATE_FILE" ]] || { echo "Error: judge template not found: $JUDGE_TEMPLATE_FILE" >&2; exit 2; }
+JUDGE_TEMPLATE=$(<"$JUDGE_TEMPLATE_FILE")
+
 # Send output to judge, get SCORE and REASON
 judge_output() {
   local output="$1" criteria="$2" ideal="${3:-}" session_summary="${4:-}"
@@ -461,21 +466,19 @@ NOTE: Excessive tool calls, error loops, or scope violations should lower the sc
 "
   fi
 
-  local judge_prompt="You are an evaluation judge. Score the following agent output on a 1-5 scale.
-
-CRITERIA:
-$criteria
-$behavioral_section
-$(if [[ -n "$ideal" ]]; then echo "IDEAL RESPONSE (for calibration):
+  local ideal_section=""
+  if [[ -n "$ideal" ]]; then
+    ideal_section="IDEAL RESPONSE (for calibration):
 $ideal
-"; fi)
-AGENT OUTPUT:
-$output
+"
+  fi
 
-First reason step-by-step about the output quality against the criteria, then provide your final score.
-Respond with EXACTLY this format at the end:
-SCORE: <number 1-5>
-REASON: <one sentence>"
+  # Substitute template placeholders with runtime values
+  local judge_prompt="$JUDGE_TEMPLATE"
+  judge_prompt="${judge_prompt//\{\{CRITERIA\}\}/$criteria}"
+  judge_prompt="${judge_prompt//\{\{BEHAVIORAL_SECTION\}\}/$behavioral_section}"
+  judge_prompt="${judge_prompt//\{\{IDEAL_SECTION\}\}/$ideal_section}"
+  judge_prompt="${judge_prompt//\{\{OUTPUT\}\}/$output}"
 
   if [[ "$DRY_RUN" == true ]]; then
     echo "SCORE: 3"
@@ -640,24 +643,25 @@ run_eval() {
   # Identity hashes (ticket 33): computed HERE, per def at execution time — not
   # once at run start — so a mid-run merge (the a03798e incident) stamps defs
   # before/after it with different hashes.
-  local row_skill_hash row_def_hash row_env_id
+  local row_skill_hash row_def_hash row_env_id row_judge_hash
   row_skill_hash=$(identity_skill_hash "$def_file")
   row_def_hash=$(identity_def_hash "$def_file")
   row_env_id=$(identity_env_id "$ADAPTER" "$TOOL_VERSION" "$MODEL" ${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"})
-
+  row_judge_hash=$(identity_judge_hash)
   # --changed-only: skip defs whose baseline row matches all three components.
   # The baseline row remains the valid result; no new row is emitted.
   if [[ -n "$CHANGED_ONLY_DIR" ]]; then
     local base_line
     base_line=$(grep "\"name\":\"$name\"" "$CHANGED_ONLY_DIR/scores.jsonl" | tail -1)
     if [[ -n "$base_line" ]]; then
-      local b_skill b_def b_env
+      local b_skill b_def b_env b_judge
       b_skill=$(sed -n 's/.*"skill_hash":"\([^"]*\)".*/\1/p' <<< "$base_line")
       b_def=$(sed -n 's/.*"def_hash":"\([^"]*\)".*/\1/p' <<< "$base_line")
       b_env=$(sed -n 's/.*"env_id":"\([^"]*\)".*/\1/p' <<< "$base_line")
-      if [[ "$b_skill" == "$row_skill_hash" && "$b_def" == "$row_def_hash" && "$b_env" == "$row_env_id" ]]; then
+      b_judge=$(sed -n 's/.*"judge_hash":"\([^"]*\)".*/\1/p' <<< "$base_line")
+      if [[ "$b_skill" == "$row_skill_hash" && "$b_def" == "$row_def_hash" && "$b_env" == "$row_env_id" && ( -z "$b_judge" || "$b_judge" == "$row_judge_hash" ) ]]; then
         CHANGED_ONLY_CURRENT+=("$name")
-        echo "  ⏭  $name — current vs baseline (skill/def/env all match), skipped"
+        echo "  ⏭  $name — current vs baseline (skill/def/env/judge all match), skipped"
         return
       fi
     fi
@@ -961,7 +965,7 @@ run_eval() {
   # panel: judge count + family count for THIS row's union, with a degraded verdict.
   # judges tells you who scored; panel tells you whether that set is a consensus.
   local panel_field; panel_field=$(panel_json ${row_judges[@]+"${!row_judges[@]}"})
-  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"panel\":$panel_field,\"skill_hash\":\"$row_skill_hash\",\"def_hash\":\"$row_def_hash\",\"env_id\":\"$row_env_id\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
+  local score_line="{\"id\":$id_json,\"name\":\"$name\",\"adapter\":\"$ADAPTER\",\"judges\":$judges_union,\"panel\":$panel_field,\"skill_hash\":\"$row_skill_hash\",\"def_hash\":\"$row_def_hash\",\"judge_hash\":\"$row_judge_hash\",\"env_id\":\"$row_env_id\",\"status\":\"$status\",\"score\":$avg_score,\"reason\":\"$escaped_reason\",\"activated\":$activation_count,\"activation_total\":$activation_total,\"activation_rate\":$activation_rate"
   if [[ $is_comparison -eq 1 ]]; then
     local primary_cond="" baseline_cond=""
     for cond in "${condition_names[@]}"; do
