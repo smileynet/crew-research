@@ -40,13 +40,10 @@ docs/development/                 — Practices, spike records, results
 ## Commands
 
 ```bash
-# Tickets (tkt CLI — tools/tkt)
-# Install once per machine: uv tool install -e ./tools/tkt   (editable — tracks the
-# checkout live; reinstall only after entry-point/metadata changes. Decision record in
-# .memory/specs/ticket-cli-spec.md). Fallback without install:
-# PYTHONPATH=tools/tkt python3 -m tkt.cli ...
-# NOTE: Rust rebuild at D:/code/tkt — when published, install via cargo:
-#   cargo install tkt  (or cargo binstall tkt for pre-built binary)
+# Tickets (tkt CLI — github.com/smileynet/tkt)
+# Install: cargo install --path D:/code/tkt  (or cargo install tkt after crates.io publish)
+# Single Rust binary, no runtime deps beyond git on PATH.
+# Replaces the former Python implementation at tools/tkt (removed).
 tkt ready                                     # frontier: env-filtered, priority-aware
 tkt new <slug> --title "..." [--spec S] [--blocked-by NN,NN] [--priority high]
 tkt batch <slug[:title]>... [--spec S] [--blocked-by IDS]  # N ids, ONE commit/push; lost race renumbers the group
@@ -57,11 +54,9 @@ tkt renumber <old> <new> [--file NAME]  # birth-window only — cited ids are co
 tkt sync-plan --check [--strict] [--brief] [plan] # drift vs docs/plan.md (0 clean / 1 drift / 2 crash)
 tkt sync-plan --fix [--strict] [--brief] [plan]   # fix derivable columns (status); report unsafe drift
 tkt validate [--brief]                  # contract + decay findings (JSON, exit 0/1; --brief = one line per finding)
-#   NOTE: warnings on pre-tkt done tickets carrying the "not individually verified at
-#   close" caveat (8 as of 2026-07-22) are deliberate — don't re-triage them.
+tkt telemetry --enable                  # opt in to local usage recording
 #   .tickets/ files ARE the tkt format — tkt operates in place; no import/convert step
 #   exists. Missing env: = "either" by design.
-mise run test:tkt                       # tkt test suite
 # Birth flow: `new` pushes a STUB claim immediately (id is yours once it prints
 # "claimed"); write the real body afterward as a second commit.
 # Works from any repo with .tickets/ (run from that repo's root).
