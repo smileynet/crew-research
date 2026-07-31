@@ -1,7 +1,7 @@
 ---
 id: "74"
 title: "Audit reports for agreement-as-confidence; require ICC + chance-corrected stats"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -43,3 +43,7 @@ cheap to get. Do NOT cargo-cult the panel floor of 3 without it.
       is itself the finding)
 - [ ] If γ̄ is measurable and contradicts the floor of 3, ADR 0010's amendment gets a
       follow-up note rather than a silent change
+
+## Resolution (2026-07-31)
+
+Audit: all claims already correct (ADR 0010 addressed this). Stats rule added to eval-harness skill. gamma-bar unmeasurable (per-judge scores not retained) -- documented as measurement gap; floor of 3 justified independently on bias grounds.
