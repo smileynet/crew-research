@@ -49,6 +49,15 @@ Trial outputs: `outputs/{def}-{condition}-task{N}-trial{M}.txt`. A def failing w
 
 `known_gap:` frontmatter marks accepted cross-model failures — those FAILs are expected; only NEW failures outside the known set are regressions (baseline record: `docs/development/eval-baseline-*.md`).
 
+## Statistical reporting (ticket 74)
+
+When comparing judge scores or reporting agreement:
+- **Agreement → chance-corrected.** Report Cohen's κ (2 judges) or Fleiss' κ / Krippendorff's α (3+). Raw % overstates by 34–41 points (85% raw ≈ κ 0.48).
+- **Correlation → ICC, not Pearson.** Use ICC(1,1) for within-judge consistency. Pearson ignores calibration shifts — exactly what differs between judge families.
+- **Binary data (MET/UNMET):** report at most ONE of {phi, MCC, Pearson} + Cohen's κ. They're identical on binary data — reporting multiple is false triangulation.
+- **Judge agreement is NOT confidence.** Unanimous 9-judge panels were wrong 9.1% of the time (vs 0.02% under independence). Never treat judges agreeing as evidence the score is correct.
+- **Panel effectiveness:** Kish n_eff = k / (1 + (k−1)·φ̄). Published ceiling ≈ 2.0–2.6 effective judges regardless of panel size.
+
 ## Activation evals — `tools/evals/harness/run-activation.sh`
 
 ```bash

@@ -102,6 +102,17 @@ apparent confidence.
 
 Ordered by consequence. Each is independently ticketable.
 
+**Measurement gap — inter-judge γ̄ (ticket 74).** Our own mean inter-judge correlation
+is unknown and cannot be computed from retained results. `scores.jsonl` stores per-trial
+median scores and judge *names* (in `task_scores[].judges`), but NOT individual
+per-judge scores — those exist only transiently in temp dirs deleted after aggregation.
+To compute γ̄ and Kish n_eff for our panel, a future run would need to retain per-judge
+scores alongside the median. This is not blocking — ADR 0010's panel floor of 3 is
+justified on bias grounds (not accuracy), and the published n_eff ≈ 2.0–2.6 ceiling from
+Kohli (2026) gives us a reasonable proxy. The floor of 3 is consistent with published
+evidence: it captures ~90% of achievable independence (adding judges beyond 5 yields
+negligible benefit). No follow-up note to the ADR is required.
+
 **A1 — Panel collapses to one Claude judge on corp (highest).** Same-family judging
 with N=1, recorded as a median. Fix in two parts: restore a second family (repair the
 codex sandbox failure, or add a non-Anthropic Bedrock leg via direct `invoke-model` —
