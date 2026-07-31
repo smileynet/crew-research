@@ -102,6 +102,12 @@ JUDGE_MODEL_AGY=$(judge_model_for agy)
 # crush pointed at bedrock/us.anthropic.* is an Anthropic leg, not a third family.
 PANEL_MIN_JUDGES=3
 PANEL_MIN_FAMILIES=2
+# Delta noise floor (ticket 71): when panel.families < 2, deltas below this value
+# are not evidence of skill effect — flagged as INCONCLUSIVE in the summary.
+# Justification: with 3 trials on a 5-point scale, SE ≈ 0.17/item; at 12 scored
+# items per def, 0.5 is the minimum detectable effect at α=0.05. Same-family
+# affinity adds ~3-9% systematic bias that more trials cannot fix.
+NOISE_FLOOR_SINGLE_FAMILY=0.5
 
 model_family() {  # model_family <model-id> <tool-default-family> : family slug
   local m="${1,,}" fallback="${2:-unknown}"
@@ -938,13 +944,31 @@ run_eval() {
     fi
   fi
 
+  # Noise floor check (ticket 71): single-family panel + sub-floor delta →
+  # INCONCLUSIVE annotation. Report-only — does NOT change the status field.
+  local noise_floor_flag=""
+  if [[ $is_comparison -eq 1 ]]; then
+    # Count families in LIVE_JUDGES (run-level panel)
+    local nf_fams=()
+    for nf_j in "${LIVE_JUDGES[@]+"${LIVE_JUDGES[@]}"}"; do
+      local nf_f; nf_f=$(judge_family_for "$nf_j")
+      [[ " ${nf_fams[*]-} " == *" $nf_f "* ]] || nf_fams+=("$nf_f")
+    done
+    if (( ${#nf_fams[@]} < PANEL_MIN_FAMILIES )); then
+      local abs_delta=${delta#-}  # strip sign
+      if [[ "$(echo "$abs_delta < $NOISE_FLOOR_SINGLE_FAMILY" | bc)" == 1* ]]; then
+        noise_floor_flag=" ⚠️  INCONCLUSIVE — delta $delta below noise floor $NOISE_FLOOR_SINGLE_FAMILY (single-family panel)"
+      fi
+    fi
+  fi
+
   # Report
   if [[ "$status" == "PASS" ]]; then
     PASSED=$((PASSED + 1))
-    echo "  ✅ $name ($reason)"
+    echo "  ✅ $name ($reason)${noise_floor_flag}"
   else
     FAILED=$((FAILED + 1))
-    echo "  ❌ $name ($reason)"
+    echo "  ❌ $name ($reason)${noise_floor_flag}"
   fi
 
   # Write JSONL
@@ -979,7 +1003,9 @@ run_eval() {
     local cond="${condition_names[0]}"
     score_line="$score_line,\"stddev\":${cond_stddev[$cond]},\"min\":${cond_min[$cond]},\"max\":${cond_max[$cond]}"
   fi
-  score_line="$score_line,\"task_scores\":$task_scores_json}"
+  local nf_hit="false"
+  [[ -n "$noise_floor_flag" ]] && nf_hit="true"
+  score_line="$score_line,\"noise_floor_hit\":$nf_hit,\"task_scores\":$task_scores_json}"
   echo "$score_line" >> "$SCORES_FILE"
 }
 
