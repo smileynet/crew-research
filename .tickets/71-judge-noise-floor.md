@@ -1,7 +1,7 @@
 ---
 id: "71"
 title: "Declare a delta noise floor for single-family judge panels"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -38,3 +38,7 @@ means "unknown", not "fine".
 - [ ] Historical rows without a `panel` field are treated as unknown, not as passing
 - [ ] Test covering: single-family sub-floor (flagged), single-family above-floor (not
       flagged), multi-family sub-floor (not flagged)
+
+## Resolution (2026-07-31)
+
+Floor=0.5 (research: MDE at 3 trials + same-family bias). Report-only annotation (INCONCLUSIVE) + noise_floor_hit JSON field. 8/8 tests pass. Status unchanged — consumers unaffected.
