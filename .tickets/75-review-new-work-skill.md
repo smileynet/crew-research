@@ -1,7 +1,7 @@
 ---
 id: "75"
 title: "Add resumable full-history review adoption skill"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
