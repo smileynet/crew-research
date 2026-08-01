@@ -1,7 +1,7 @@
 ---
 id: "75"
 title: "Add resumable full-history review adoption skill"
-status: in_progress
+status: done
 blocked_by: []
 ---
 
@@ -30,3 +30,7 @@ full tiers and add activation plus effectiveness evals.
 - [x] Basic and full tiers include the skill
 - [x] Activation and effectiveness evals cover adoption, resumption, and false triggers
 - [x] Composition, lint, eval, generation, and deployment checks pass
+
+## Resolution (2026-08-01)
+
+Added the resumable full-history review adoption atomic, schema-v2 marker template, tier integration, activation/effectiveness definitions, and validated live adoption/resume behavior.
