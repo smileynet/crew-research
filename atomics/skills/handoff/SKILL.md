@@ -67,6 +67,7 @@ Before finalizing, review the session for promotable artifacts:
 2. **ADRs** — hard-to-reverse decisions made? → `.memory/adr/NNNN-slug.md`
 3. **Promote scratch** — `.scratch/` artifacts future sessions need? → `.memory/specs/`
 4. **Dead scratch** — obsolete `.scratch/` files? Note for cleanup.
+5. **Plan sync** — if tickets were closed this session, run `tkt sync-plan --check` to verify plan.md reflects reality.
 
 ## Artifact Update Nudge
 

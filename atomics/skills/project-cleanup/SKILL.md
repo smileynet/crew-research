@@ -77,7 +77,15 @@ Flag any skill that references files/tools that no longer exist.
 - **README.md** (user-facing): reflects what the project IS and HOW to use it — what it does, quick start, how to get value. No internal architecture or agent-only details.
 - **AGENTS.md** (agent-facing): reflects current structure and conventions — project layout, commands, configs, tool references, and a navigation map covering BOTH user docs (docs/) and agent docs (.memory/, .kiro/).
 
-## Phase 9: Dependency & Config Hygiene
+## Phase 9: Ticket Hygiene
+
+If `.tickets/` exists:
+- **Stale open tickets** — work completed but ticket not closed? `tkt close <id>`
+- **Plan drift** — `tkt sync-plan --check` to detect status mismatches vs plan.md
+- **Orphaned tickets** — tickets referencing deleted specs or features? Close with note
+- **Done tickets with unchecked ACs** — `tkt validate` reports these; check or document why skipped
+
+## Phase 10: Dependency & Config Hygiene
 
 - **Dependencies** — are all tools referenced by scripts actually installed?
 - **Git** — any untracked files that should be committed or gitignored?
@@ -86,15 +94,4 @@ Flag any skill that references files/tools that no longer exist.
 
 ## Report
 
-After cleanup, produce a summary:
-```
-## Cleanup Summary
-- Promoted: N files from scratch → memory
-- Decisions: N processed → ADR, N terms extracted
-- Deleted: N stale scratch files
-- Consolidated: N memory documents merged
-- References: ✅/❌ (standardized?)
-- Scripts: N documented, N removed
-- Skills: N updated, N flagged as stale
-- Issues: N closeable
-```
+After cleanup, summarize: files promoted, decisions processed, scratch deleted, memory consolidated, skills flagged, tickets closed, issues closeable.

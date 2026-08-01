@@ -87,7 +87,7 @@ Extensions add capabilities that require external tools. They deploy automatical
 
 ```bash
 uv tool install ./tools/recall            # install from a crew-research clone
-uv tool install -e ./tools/tkt            # editable — tracks the checkout live
+cargo install --path ~/code/tkt           # or: cargo install tkt (after crates.io publish)
 mise run init -- --global --tier basic    # recall auto-activates
 mise run init -- --skip-extension recall  # opt out if desired
 ```
@@ -103,7 +103,7 @@ mise run init -- --skip-extension recall  # opt out if desired
 **Install both (recommended for full tier):**
 ```bash
 uv tool install ./tools/recall   # from a crew-research clone (PyPI "recall" is a squatted unrelated package)
-uv tool install -e ./tools/tkt   # editable — tracks the checkout live; reinstall only after entry-point/metadata changes
+cargo install --path ~/code/tkt  # or: cargo install tkt (after crates.io publish)
 ```
 
 ## Troubleshooting

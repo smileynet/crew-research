@@ -68,7 +68,7 @@ Extensions add capabilities with external tool dependencies. They auto-deploy wh
 uv tool install ./tools/recall   # from a crew-research clone — PyPI "recall" is an unrelated squatted package
 
 # Install ticket management CLI
-uv tool install -e ./tools/tkt   # editable — tracks the checkout live
+cargo install --path ~/code/tkt  # or: cargo install tkt (after crates.io publish)
 
 # Deploy tier — recall extension activates automatically
 mise run init -- --global --tier basic --tool kiro-cli
