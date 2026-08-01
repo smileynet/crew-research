@@ -8,17 +8,16 @@ description = "Validate all compositions and cross-links"
 run = """
 bash tools/generator/generate.sh validate
 bash tools/lint/check-crosslinks.sh
-python3 -m tkt.cli validate > /dev/null && echo "✅ tickets valid"
+tkt validate --brief && echo "✅ tickets valid"
 """
-env = { PYTHONPATH = "tools/tkt" }
-
-[tasks."test:tkt"]
-description = "tkt CLI test suite (ticket 40 acceptance criteria)"
-run = "uv run --directory tools/tkt --with pytest pytest tests/ -q"
 
 [tasks."test:recall"]
 description = "recall CLI unit + integration test suite"
 run = "uv run --directory tools/recall --extra test pytest tests/ -q"
+
+[tasks."test:noise-floor"]
+description = "Noise floor logic tests (ticket 71)"
+run = "bash tools/evals/harness/test-noise-floor.sh"
 
 [tasks."test:panel"]
 description = "Judge panel accounting tests (family derivation, cross-family floor)"

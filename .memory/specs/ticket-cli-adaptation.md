@@ -1,7 +1,8 @@
 ---
 type: specification
 title: "Purpose-Built Ticket CLI (adapted from wedow/ticket)"
-status: backlog
+status: superseded
+superseded_by: ticket-cli-spec.md
 ---
 
 # Spec: Purpose-Built Ticket CLI

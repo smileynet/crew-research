@@ -1,41 +1,42 @@
 ---
-created_at: 2026-07-27T12:22:00-07:00
-base_commit: be49428
-handoff_key: recall-completion-testing
+created_at: 2026-07-31T21:00:00-07:00
+base_commit: d262845
+handoff_key: judge-infrastructure-complete
 ---
 
 # Handoff
 
 ## Objective
-Complete the recall-import-fix spec and extend tooling quality (testing, doctor improvements, tkt features).
+Improve eval harness quality and prepare for architecture rebuild. Judge infrastructure tickets (71, 72, 74) are done; eval harness rebuild exploration (69) is next.
 
 ## Constraints
-- recall installed editable (`uv tool install -e ./tools/recall`); use `--force --reinstall` after pulls (not just `--force`)
+- recall installed editable (`uv tool install -e ./tools/recall`); use `--force --reinstall` after pulls
 - mise tasks for recall use `uv run --directory tools/recall` (never `uv tool run --from recall` — PyPI squatting)
 - CREW_ENV=personal on this machine (full tool access)
+- tkt is now a Rust binary at D:/code/tkt (installed via `cargo install --path D:/code/tkt`)
+- recall Rust rebuild in progress at D:/code/recall (Python version still installed from tools/recall)
 
 ## Prior Decisions
-- Hash-gate for imports: file-level SHA-256 (not chunk-level — that's ticket 55, deferred)
-- Proof duplication: kept `_do_import()` duplicated across 5 proofs (research confirms: below extraction threshold at 5 tests)
-- tkt --ac: enumerated only, no blanket --all (design constraint preserving audit moment)
-- doctor.sh: DEPLOY_HOME pattern from init.sh + PowerShell fallback for MSYS2 prereq checks
+- Judge hash: extract template to file, hash raw bytes, no whitespace normalization (JudgeSense: JSS 0.389-0.992)
+- Noise floor: 0.5 points for single-family panels (MDE at 3 trials + systematic bias)
+- Agreement ≠ confidence: ADR 0010 covers this; all existing claims already correct
+- γ̄ unmeasurable: per-judge scores not retained (only median stored); documented as measurement gap
+- Eval harness rebuild: Go recommended over Rust (I/O-bound, fast compile matters)
 
 ## Current State
-10 tickets closed this session: 53, 54, 57, 58, 59, 39, 50, 61, 62, 63. The recall-import-fix spec is fully resolved. See `docs/plan.md` for ticket status. Recall test suite: 50 unit tests + 5 integration proofs. tkt test suite: 48 passed (1 machine-specific failure: `test_validate_live_corpora_pass` NotADirectoryError on Windows — pre-existing, unrelated).
+Judge infrastructure complete (tickets 71, 72, 74 closed this session). Tool extraction done: tkt and recall have their own repos with their own tickets. Remaining frontier for this machine: ticket 69 (eval harness architecture rebuild — exploration/decision, not implementation).
 
 ## Next Steps
-1. **Ticket 55** (chunk embedding cache) — deferred as likely premature; revisit when import times become a pain point
-2. **Ticket 30** (image eval defs conformance) — eval maintenance
-3. **Ticket 35** (model cost/quality benchmarking) — research ticket
-4. **Ticket 64** (sync-plan --fix) — research/decision needed first
-5. Deploy recall extension steering: `mise run init -- --global --tier full` (doctor reports missing `recall-session-start`, `recall-check`)
+1. **Ticket 69** — Eval harness rebuild exploration (Go vs Rust confirmed as Go by research; keep in crew-research vs extract; architecture sketch; migration plan). Research already done in `.scratch/research/eval-harness-arch-2026.md` (local only, not committed).
+2. **Ticket 70** — Restore second judge family (env: corp — wrong machine)
+3. Check if any new tickets emerge from the harness rebuild decision
 
 ## Fog
-- Whether chunk-level embedding cache (ticket 55) provides meaningful speedup at current corpus size (~38K chunks). No measurements exist.
-- sync-plan --fix (ticket 64): needs a design decision on whether R9's report-only constraint should be relaxed.
+- Whether the eval harness should stay in crew-research or extract (tight coupling argument vs clean binary argument)
+- Whether YAML definitions should stay or migrate to code-based (Inspect AI pattern)
+- Trial repetition: is 3 sufficient? Inter-trial variance is unmeasured.
 
 ## Evidence
-- Recall test suite: `mise run test:recall` (50 tests, ~13s)
-- Recall proofs: `mise run proof:recall` (5 proofs, ~30s)
-- tkt tests: `mise run test:tkt` (48 passed, ~80s)
-- Research artifacts (ephemeral, delete on next cleanup): `.scratch/research/recall-*.md` (4 files from prior session)
+- Noise floor test: `bash tools/evals/harness/test-noise-floor.sh` (8 tests)
+- Lint: `bash tools/lint/check-crosslinks.sh`
+- Research: `.scratch/research/*.md` (4 files, local-only — judge noise, identity hash, eval arch, inter-rater)
