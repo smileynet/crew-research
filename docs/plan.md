@@ -228,7 +228,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 72 | Judge prompt/rubric into the identity scheme (template edits must read as drift) | open |
 | 73 | Canonical judge panel + deviation reporting | open — blocked by 70 |
 | 74 | Agreement-as-confidence audit; ICC + chance-corrected stats; measure our own γ̄ | open |
-| 75 | Resumable full-history review adoption skill | in progress |
+| 75 | Resumable full-history review adoption skill | done |
 | 76 | Make activation verdict comparisons portable across `bc` implementations | open |
 | 77 | Fix Windows `mise run generate` argument forwarding | open |
 
@@ -243,7 +243,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 73 | either | blocked by 70 | canonical panel + deviation reporting |
 | 74 | either | yes | agreement-as-confidence audit |
 | 69 | either | yes | eval harness architecture rebuild (exploration) |
-| 75 | either | in progress | review-new-work atomic, marker schema, tiers, and evals |
+| 75 | either | done | review-new-work atomic, marker schema, tiers, and evals |
 | 76 | either | yes | activation verdict decimal comparison compatibility |
 | 77 | either | yes | Windows mise generate argument interpolation |
 | 30 | **personal** | env-blocked | image-* birth runs need GLM |
