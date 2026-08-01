@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "reviewer": "codex",
+  "reviewed_at": null,
+  "verdict": null,
+  "commits": {
+    "scope": "all ancestors through reviewed_through, inclusive",
+    "reviewed_through": null
+  },
+  "ticket_source": {
+    "type": "auto",
+    "root": null,
+    "observed_version": null
+  },
+  "tickets": [],
+  "adoption": {
+    "status": "not_started",
+    "target": null,
+    "started_at": null,
+    "completed_at": null,
+    "commit_batch_limit": 25,
+    "ticket_batch_limit": 15,
+    "reviewed_ticket_blobs": [],
+    "coverage": {
+      "commits_complete": false,
+      "tickets_complete": false
+    }
+  }
+}

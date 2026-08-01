@@ -23,6 +23,7 @@ skills:
   # Build
   - feedback-loop-debugging
   - code-review
+  - review-new-work
   - testing-guide
 
   # Ship

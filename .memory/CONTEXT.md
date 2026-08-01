@@ -290,3 +290,7 @@ _Avoid_: A/B test (no live traffic split), benchmark (that's capability floors �
 **Session review (candidate collection)**:
 The archived-sessions counterpart of `/guidance-sync`: `mise run session:review` prefilters transcripts for P1 corrections and P2 friction, optionally LLM-confirms them, and emits a per-project digest for HUMAN triage. It never creates tickets. Findings route by cwd — crew-research = global lane (proposals become crew-research tickets), other projects = local lane.
 _Avoid_: session analysis (that's activation/compliance metrics — `session:skills`), retrospective (that's for teams)
+
+**Review adoption**:
+The initial Codex review of all repository history and file-based tickets through a pinned target, checkpointed in resumable coverage batches before normal incremental review begins.
+_Avoid_: baseline initialization (that can imply unreviewed history was accepted)

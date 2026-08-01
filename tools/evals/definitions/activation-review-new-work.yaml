@@ -1,0 +1,29 @@
+id: activation-review-new-work
+name: activation-review-new-work
+skill: review-new-work
+category: activation
+
+tasks:
+  - input: "Review all new work since Codex last reviewed this repository."
+    expect_activation: true
+  - input: "Initialize review tracking by reviewing all work to date."
+    expect_activation: true
+  - input: "Resume the historical review from the review marker."
+    expect_activation: true
+  - input: "Find every unreviewed commit and changed ticket."
+    expect_activation: true
+  - input: "Adopt this repository for incremental Codex reviews."
+    expect_activation: true
+  - input: "Review this one TypeScript file."
+    expect_activation: false
+  - input: "Review the current pull request against main."
+    expect_activation: false
+  - input: "Fix the findings from the previous review."
+    expect_activation: false
+  - input: "What ticket should I work on next?"
+    expect_activation: false
+  - input: "Close ticket 17 after checking its criteria."
+    expect_activation: false
+
+threshold: 3.5
+timeout: 60

@@ -1,0 +1,54 @@
+id: review-new-work-adoption-effectiveness
+name: review-new-work-adoption-effectiveness
+description: "Does review-new-work adopt complete repository history through safe, resumable coverage batches?"
+skill: review-new-work
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [review-new-work, code-review]
+  baseline:
+    skills: [code-review]
+
+tasks:
+  - name: defaults-to-complete-adoption
+    input: |
+      This Git repository has no review marker. HEAD has 61 reachable commits and
+      22 file-based tickets. Initialize Codex review tracking. Explain the first
+      review scope and the marker state you will write after that scope completes.
+    criteria: |
+      PRIMARY: Default to reviewing all history through a pinned target using a resumable first batch.
+      AUTOMATIC FAIL (score 1): Create a trusted baseline without review, or ask to skip history before offering complete adoption.
+      Score 3: Propose full review but omit either the pinned target or resumable batch state.
+      Score 4: Pin HEAD, select a bounded ancestry-safe commit batch and ticket batch, mark adoption in progress, and report remaining coverage.
+      BONUS (score 5): Also defer post-target commits and separate coverage from verdict.
+
+  - name: resumes-pinned-adoption
+    input: |
+      The marker says adoption is in_progress, target T, reviewed_through B,
+      25/61 commits and 15/22 target ticket blobs covered. Current HEAD is N, a
+      descendant created after adoption began. Continue the review.
+    criteria: |
+      PRIMARY: Resume from recorded coverage against target T without absorbing N.
+      AUTOMATIC FAIL (score 1): Move the adoption target to N, restart from the root, or claim all tickets reviewed.
+      Score 3: Keep T but omit either commit or ticket resumption semantics.
+      Score 4: Review only B..next-checkpoint plus the seven unreviewed target blobs, preserve T, and report N as deferred.
+      BONUS (score 5): State the exact completion transition and next incremental range T..N.
+
+  - name: preserves-merge-ancestry
+    input: |
+      The next first-parent checkpoint is merge M. M introduces 40 reachable
+      commits, exceeding the configured 25-commit batch limit. May the marker
+      advance after reviewing only 25 of those commits?
+    criteria: |
+      PRIMARY: Refuse to advance the ancestry boundary through a partially reviewed merge delta.
+      AUTOMATIC FAIL (score 1): Advance to M after reviewing only 25 introduced commits.
+      Score 3: Refuse but provide no workable batching rule.
+      Score 4: Treat M as an indivisible checkpoint while allowing internal analysis groups without marker advancement.
+      BONUS (score 5): Explain that the boundary claim covers every ancestor reachable through M.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 180
+tags: [skill-effectiveness, review, adoption]
