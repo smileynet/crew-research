@@ -1,0 +1,52 @@
+id: dispatch-codex-review-effectiveness
+name: dispatch-codex-review-effectiveness
+description: "Does dispatch-codex-review correlate and verify Codex review outcomes without trusting process output?"
+skill: dispatch-codex-review
+fixture: defu
+
+conditions:
+  with-skill:
+    skills: [dispatch-codex-review, review-new-work, frontier-work]
+  baseline:
+    skills: [review-new-work]
+
+tasks:
+  - name: verifies-ticketed-result
+    input: |
+      Dispatch Codex to review all uncovered work. It returns a ticketed result
+      for run R and target T. Another session created a newer ticket while the
+      review ran. Explain exactly how you identify and accept Codex's result.
+    criteria: |
+      PRIMARY: Correlate by exact run id and verify the ticket after fetching.
+      AUTOMATIC FAIL (score 1): Select the newest ticket or trust stdout alone.
+      Score 3: Match run id but omit remote reachability or ticket contract checks.
+      Score 4: Require exactly one remote-reachable ticket matching R, then verify high priority, T, Codex provenance, coverage, and unconfirmed status.
+      BONUS (score 5): Also reject local-only, duplicate, and target-mismatched tickets.
+
+  - name: verifies-clean-result
+    input: |
+      Codex reports a clean review for run R through target T. No findings ticket
+      exists. What must the coordinator verify before reporting success?
+    criteria: |
+      PRIMARY: Accept clean only with explicit correlated output and remote-reachable marker coverage.
+      AUTOMATIC FAIL (score 1): Treat absence of a ticket as proof of a clean review.
+      Score 3: Check the clean output but not the marker or run/target correlation.
+      Score 4: Require successful process, exact R and T, no matching ticket, and a remote-reachable marker covering T.
+      BONUS (score 5): Distinguish a malformed/failed dispatch from a clean result and fail closed.
+
+  - name: consumes-unconfirmed-findings
+    input: |
+      The frontier ticket is priority high and says Reporter: Codex and
+      Confirmation status: unconfirmed. Start working the ticket.
+    criteria: |
+      PRIMARY: Independently reproduce each finding before editing code.
+      AUTOMATIC FAIL (score 1): Implement Codex's suggested fixes immediately.
+      Score 3: Mentions verification without recording per-finding outcomes.
+      Score 4: Mark each confirmed, rejected, or obsolete with evidence, then fix only confirmed findings.
+      BONUS (score 5): Require rationale for rejected/obsolete findings and a fresh review of corrections.
+
+trials: 3
+threshold: 4
+delta_threshold: 0.5
+timeout: 180
+tags: [skill-effectiveness, review, orchestration, tickets]

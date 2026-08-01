@@ -1,0 +1,29 @@
+id: activation-dispatch-codex-review
+name: activation-dispatch-codex-review
+skill: dispatch-codex-review
+category: activation
+
+tasks:
+  - input: "Dispatch Codex to independently review all changes, then check its findings ticket."
+    expect_activation: true
+  - input: "Run the Codex review agent and wait for its correlated result."
+    expect_activation: true
+  - input: "Audit all work with Codex and tell me which high-priority ticket it files."
+    expect_activation: true
+  - input: "Check whether the independent Codex review returned clean or ticketed."
+    expect_activation: true
+  - input: "Have Codex review everything since its marker."
+    expect_activation: true
+  - input: "Review the latest commit yourself."
+    expect_activation: false
+  - input: "Fix the existing Codex findings ticket."
+    expect_activation: false
+  - input: "Show the next ready ticket."
+    expect_activation: false
+  - input: "Create a code review checklist."
+    expect_activation: false
+  - input: "Resume a historical review without dispatching another agent."
+    expect_activation: false
+
+threshold: 3.5
+timeout: 60

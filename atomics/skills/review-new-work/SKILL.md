@@ -9,11 +9,13 @@ metadata:
 
 # Review New Work
 
-Review committed work without modifying implementation or ticket files.
+Review committed work without modifying implementation. Findings become one
+confirm-first ticket, not inline fixes.
 
 ## Establish Scope
 
 1. Read project instructions; capture `SESSION_HEAD = git rev-parse HEAD` and dirty state.
+   Use the caller's `RUN_ID`, or generate a unique one when invoked directly.
 2. Read `.codex/review-marker.json` and [references/marker-schema.md](references/marker-schema.md).
 3. Choose the workflow:
    - Missing marker or `adoption.status = not_started`: start adoption.
@@ -49,11 +51,21 @@ Compare committed path/blob pairs for new, changed, deleted, or renamed tickets.
 2. Review **Spec**: ticket requirements, acceptance criteria, scope, evidence, and closure validity.
 3. Run project verification and read its output.
 4. Report severity-ranked findings, verdict, completed coverage, and remaining coverage.
-5. Recheck session head. During adoption, allow newer commits only when the pinned target is unchanged and report them as deferred.
-6. Advance after a complete batch even when changes are requested; coverage is not approval.
-7. Never advance partial ancestry or unread ticket blobs. Derive blobs from the pinned tree and validate JSON.
-8. Commit and push the marker separately only when project instructions authorize it.
+5. When actionable findings exist, create exactly one aggregate ticket from
+   [references/review-findings-ticket.md](references/review-findings-ticket.md). Use `tkt new ... --priority high`
+   when available. Preserve the supplied review run id, identify Codex as reporter,
+   and require independent confirmation. Populate the allocated file after `tkt new`,
+   then commit and push that content before claiming success.
+6. When no actionable findings exist, create no ticket and return an explicit clean result.
+7. Recheck session head. During adoption, allow newer commits only when the pinned target is unchanged and report them as deferred.
+8. Advance after a complete batch even when changes are requested; coverage is not approval.
+9. Never advance partial ancestry or unread ticket blobs. Derive blobs from the pinned tree and validate JSON.
+10. Commit and push the marker separately only when project instructions authorize it.
+11. End with the [Codex review result contract](../dispatch-codex-review/references/result-contract.md),
+    using the caller's run id and target.
 
 ## Scope
 
-Does NOT cover applying fixes, choosing frontier work, mutating tickets, or reviewing one arbitrary diff. Use code-review for review quality and frontier-work for implementation selection.
+Does NOT cover applying fixes, choosing frontier work, dispatching Codex, or
+reviewing one arbitrary diff. Ticket creation is limited to the aggregate review
+result. Use code-review for review quality and frontier-work for implementation.

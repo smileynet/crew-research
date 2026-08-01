@@ -231,6 +231,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 75 | Resumable full-history review adoption skill | done |
 | 76 | Make activation verdict comparisons portable across `bc` implementations | open |
 | 77 | Fix Windows `mise run generate` argument forwarding | open |
+| 78 | Dispatch Codex reviews into confirm-first high-priority tickets | in progress |
 
 **Frontier (2026-07-29):** 35, 69, 70–74. Tickets 55, 68, and all tkt tickets (38–50, 64, 66, 67) moved to their respective repos (D:/code/tkt, recall repo). Ticket 69 now unblocked (67 done).
 
@@ -246,6 +247,7 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 75 | either | done | review-new-work atomic, marker schema, tiers, and evals |
 | 76 | either | yes | activation verdict decimal comparison compatibility |
 | 77 | either | yes | Windows mise generate argument interpolation |
+| 78 | either | in progress | Codex review dispatch and confirm-first ticket workflow |
 | 30 | **personal** | env-blocked | image-* birth runs need GLM |
 
 Deferred threads unchanged: t09 rec #2/#5 (~2026-08-17).

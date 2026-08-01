@@ -7,6 +7,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Independent Codex reviews can now return a correlated, pushed high-priority findings ticket whose claims must be confirmed before implementation
 - Repositories can establish review continuity by auditing complete history in resumable batches, then reviewing only new commits and changed tickets in later sessions
 - Interrupted eval runs resume with `--skip-completed <dir>` — already-scored definitions are skipped and remaining results append into the same directory, so analysis never merges scattered runs
 

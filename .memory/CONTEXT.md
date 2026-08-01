@@ -294,3 +294,7 @@ _Avoid_: session analysis (that's activation/compliance metrics — `session:ski
 **Review adoption**:
 The initial Codex review of all repository history and file-based tickets through a pinned target, checkpointed in resumable coverage batches before normal incremental review begins.
 _Avoid_: baseline initialization (that can imply unreviewed history was accepted)
+
+**Codex review ticket**:
+A high-priority aggregate ticket emitted by an independent Codex review whose findings remain unconfirmed until the implementing agent reproduces or rejects each one with evidence.
+_Avoid_: defect ticket (Codex findings are hypotheses until confirmed)
