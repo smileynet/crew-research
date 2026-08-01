@@ -1,7 +1,7 @@
 ---
 id: "78"
 title: "Dispatch Codex reviews into confirm-first high-priority tickets"
-status: open
+status: in_progress
 blocked_by: []
 priority: high
 ---
