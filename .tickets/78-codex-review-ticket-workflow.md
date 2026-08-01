@@ -1,7 +1,7 @@
 ---
 id: "78"
 title: "Dispatch Codex reviews into confirm-first high-priority tickets"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -32,3 +32,7 @@ confirm-first contract when consuming these tickets.
 - [x] New skill is focused, under 100 lines, and included in basic and full tiers
 - [x] Activation and workflow evals cover ticketed, clean, concurrent, and ambiguous outcomes
 - [x] Live skills are updated and the end-to-end contract is forward-tested
+
+## Resolution (2026-08-01)
+
+Added Codex review dispatch correlation, high-priority confirm-first findings tickets, frontier confirmation rules, live global skills, activation/effectiveness evals, and a passing real remote-backed fixture.
