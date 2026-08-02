@@ -1,8 +1,8 @@
 ---
 id: "80"
-title: "spike wsl username autodetect"
+title: "Spike: auto-detect Windows username in init.sh (WSL boundary layer 1)"
 status: open
-blocked_by: ["79"]
+blocked_by: []
 priority: high
 ---
 
