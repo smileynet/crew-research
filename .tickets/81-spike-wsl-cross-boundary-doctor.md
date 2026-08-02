@@ -1,8 +1,8 @@
 ---
 id: "81"
-title: "spike wsl cross boundary doctor"
+title: "Spike: cross-boundary tool verification in doctor.sh (WSL boundary layer 2)"
 status: open
-blocked_by: ["79"]
+blocked_by: []
 priority: high
 ---
 
