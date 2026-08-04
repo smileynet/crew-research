@@ -116,6 +116,7 @@ cargo install --path ~/code/tkt  # or: cargo install tkt (after crates.io publis
 | Steering feels too aggressive | Remove specific `.kiro/steering/*.md` files they don't want |
 | mise config not trusted (Windows) | Run `mise trust` in the project directory |
 | yq not found (Windows/WSL) | `sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq` |
+| tkt: `ModuleNotFoundError: No module named 'tkt'` | Python tkt was removed. Install Rust version: `cargo install --path ~/code/tkt` (clone from github.com/smileynet/tkt first if needed) |
 
 ## Environment Designation (CREW_ENV)
 
