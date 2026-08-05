@@ -2,7 +2,8 @@
 id: "85"
 title: "Explore: strict vs flavored writing modes (STE two-mode concept)"
 status: open
-blocked_by: ["83"]
+blocked_by: ["88"]
+spec: "eval-harness"
 ---
 
 # Explore: strict vs flavored writing modes
