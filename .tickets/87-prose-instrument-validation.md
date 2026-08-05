@@ -1,7 +1,7 @@
 ---
 id: "87"
 title: "Validate the prose linter as an instrument (E-INST-1, no agent calls)"
-status: in_progress
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -49,3 +49,7 @@ than tune a threshold.
 - Any agent generation beyond producing the LLM first-draft set
 - Adapting or rewriting the linter (that is ticket 84, and this ticket's result may make it moot)
 - Threshold tuning — if the sets overlap, no threshold is defensible at any value
+
+## Resolution (2026-08-05)
+
+REJECT AS GATE. Probability of superiority B-over-A 0.494 all-docs (chance) and 0.26 length-matched: our shipped prose scores DIRTIER than unguided LLM drafts ~3x in 4. No generated doc exceeded our worst shipped doc; AGENTS.md (5.96) was dirtiest in the experiment. Gaps are house style (contractions 0.90 vs 0.49, semicolons 0.80 vs 0.12, passive 0.65 vs 0.46). Set C reproduced the source's published numbers (4.12 vs 4.19), so the instrument is not broken - it does not transfer to already-edited prose. Side findings: em dashes 3x DENSER in our prose than unguided output (2.25 vs 0.77/100w), so the em-dash-as-AI-tell premise fails on our data; vocabulary categories near zero in both sets, so ticket 86 is probably moot. Ticket 84 verdict: reject as gate, paired before/after probe only. Findings: docs/development/prose-instrument-validation-2026-08-05.md; reproduce via tools/evals/experiments/prose-instrument-validation.sh
