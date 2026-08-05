@@ -1,7 +1,7 @@
 ---
 id: "87"
 title: "Validate the prose linter as an instrument (E-INST-1, no agent calls)"
-status: open
+status: in_progress
 blocked_by: []
 env: either
 spec: "eval-harness"
