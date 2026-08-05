@@ -232,6 +232,12 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 76 | Make activation verdict comparisons portable across `bc` implementations | open |
 | 77 | Fix Windows `mise run generate` argument forwarding | open |
 | 78 | Dispatch Codex reviews into confirm-first high-priority tickets | done |
+| 87 | Validate the prose linter as an instrument (E-INST-1, no agent calls) | open (priority: high) — decides 84, calibrates 88 |
+| 88 | Cross-model writing-system experiment (E-SYS-1) + substance/mode/vocab readouts | open — blocked by 87; decides the prose arc |
+| 83 | Add prose hygiene rules to writing-style (STE-inspired) | open — blocked by 88; premises corrected (em dash is not an STE rule) |
+| 84 | Evaluate deterministic prose linter (ste-lint.py pattern) | open — blocked by 87 |
+| 85 | Explore: strict vs flavored writing modes | open — blocked by 88 (mode readout) |
+| 86 | Explore: slop word substitution table | open — blocked by 88 (vocab readout; may close as not-applicable) |
 
 **Frontier (2026-07-29):** 35, 69, 70–74. Tickets 55, 68, and all tkt tickets (38–50, 64, 66, 67) moved to their respective repos (D:/code/tkt, recall repo). Ticket 69 now unblocked (67 done).
 
