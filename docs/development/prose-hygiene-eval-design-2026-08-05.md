@@ -60,6 +60,17 @@ quote), semicolons and contractions that are deliberate house style.
 
 **Gate:** the discrimination result decides 84 outright. No agent time, no spend.
 
+**RESULT (2026-08-05, ticket 87): REJECT AS GATE.** Probability of superiority 0.494 across
+all docs (exactly chance) and **0.26 length-matched — our shipped prose scores dirtier than
+unguided LLM drafts about three times in four**. No generated doc exceeded our worst shipped
+doc; AGENTS.md (5.96) was the dirtiest document in the experiment. The gaps are house style:
+contractions 0.90 vs 0.49, semicolons 0.80 vs 0.12, passive voice 0.65 vs 0.46. Set C
+reproduced the source's published figures (4.12 vs 4.19 published), so the instrument works
+as designed — it just does not transfer to already-edited prose. Two side findings: em dashes
+are 3× denser in our prose than in unguided output (2.25 vs 0.77 per 100w), and the
+vocabulary categories are near zero in both sets. Full write-up:
+`docs/development/prose-instrument-validation-2026-08-05.md`.
+
 ## E-SYS-1 — Does a writing system reduce slop on our content? (the headline claim)
 
 **Question.** On our content types and our models, does any writing instruction reduce

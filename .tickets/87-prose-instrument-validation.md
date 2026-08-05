@@ -32,16 +32,16 @@ than tune a threshold.
 
 ## Acceptance criteria
 
-- [ ] Three labeled sets scored, ~12 docs each: hand-written crew-research prose, LLM first
+- [x] Three labeled sets scored, ~12 docs each: hand-written crew-research prose, LLM first
       drafts of the same doc types, and the source's before/after samples as positive control
-- [ ] Discrimination reported as distribution overlap between the human and LLM sets — not a
+- [x] Discrimination reported as distribution overlap between the human and LLM sets — not a
       single mean per set
-- [ ] Per-category false-positive rates on technical content, with the known suspects checked
+- [x] Per-category false-positive rates on technical content, with the known suspects checked
       explicitly: unfenced code and CLI output (`strip_code` only handles fenced/inline),
       quoted source text, and deliberate house style (semicolons, contractions)
-- [ ] Verdict recorded for ticket 84: gate / paired-delta probe only / reject, with the
+- [x] Verdict recorded for ticket 84: gate / paired-delta probe only / reject, with the
       overlap numbers as the evidence
-- [ ] Findings written to `docs/development/` and the design doc's E-INST-1 section updated
+- [x] Findings written to `docs/development/` and the design doc's E-INST-1 section updated
       with actuals
 
 ## Out of scope
