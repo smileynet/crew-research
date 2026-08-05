@@ -2,7 +2,8 @@
 id: "86"
 title: "Explore: explicit slop word substitution table for writing-style"
 status: open
-blocked_by: ["83"]
+blocked_by: ["88"]
+spec: "eval-harness"
 ---
 
 # Explore: explicit slop word substitution table
