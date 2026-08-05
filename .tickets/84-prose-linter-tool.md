@@ -2,7 +2,8 @@
 id: "84"
 title: "Evaluate deterministic prose linter (ste-lint.py pattern)"
 status: open
-blocked_by: ["83"]
+blocked_by: ["87"]
+spec: "eval-harness"
 ---
 
 # Evaluate deterministic prose linter (ste-lint.py pattern)
