@@ -19,13 +19,78 @@ git clone --depth 1 https://github.com/woosal1337/blog.git .references/woosal-bl
 | Source | URL | Authority |
 |--------|-----|-----------|
 | Episode video | https://www.youtube.com/watch?v=uJblcC4lKYw | [L5] informed commentary |
+| Video transcript | `.references/upload/the-cure-for-ai-slop-is-a-1986-aircraft-manual.md` | [L1] first-party (auto-generated captions, cleaned) |
 | Kit (skill, linter, data) | https://github.com/woosal1337/blog/tree/main/videos/ep01-the-cure-for-ai-slop | [L1] first-party artifacts + measured data |
 | ASD-STE100 Issue 9 | https://asd-ste100.org | [L2] governing specification (copyrighted — do not paste in full) |
 
 Files in the kit: `ste-writing-skill.md` (the distilled skill, two modes),
 `ste-lint.py` (deterministic linter), `experiment-results.md` (cross-model),
 `experiment-results-openai.md` (per-category), `before-after-samples.md`,
-`run-openai.py` (reproduction script). Captured 2026-08-05.
+`run-openai.py` (reproduction script). Captured 2026-08-05. Transcript captured 2026-08-07.
+
+## The author's stated argument (from video transcript)
+
+The video makes a narrower, more honest claim than the tickets originally attributed to it:
+
+**Core thesis:** "Give the model a real writing system and slop drops by half or more.
+Every time on every model I tried. STE was the best or tied for best. Banning words one at
+a time is just a less reliable version of the right idea."
+
+**Explicit scoping (verbatim or near-verbatim):**
+- "Use it where invisible clarity is the entire job. Docs, pull requests, error messages,
+  agent output, and nowhere else."
+- "Keep it away from anything that needs a voice. Running your marketing copy through STE
+  is a torque wrench spec applied to a poem."
+- "STE fixes the form of slop, not the substance. A linter can turn a hollow paragraph
+  into a clean, confident, well-punctuated hollow paragraph. It cannot make it true."
+- "Slop is two problems wearing one coat — bad writing and nothing to say. This fixes the
+  first one only."
+- The 3% banned-words number "was a Claude quirk, not a law of nature" — GPT hit 40%.
+- "My linter is not the full standard... the judgment rules are not the slop rules. Slop
+  is the mechanical stuff, and the mechanical stuff is 100% checkable."
+
+**His definition of slop** — six specific mechanical habits, not a vague quality judgment:
+1. Synonym rotation (same thing, three names in one paragraph)
+2. Hedging stacks (five auxiliary verbs, zero action)
+3. Nominalization (frozen verbs: "perform an analysis" instead of "analyze")
+4. Marketing adjectives (seamless, robust, powerful, cutting-edge)
+5. Run-on sentences (four ideas stitched with em dashes and semicolons)
+6. Phrasal verbs (spin up, reach out, dive into)
+
+**The em dash point is the opposite of what the tickets assumed.** The author uses the em
+dash as his PRIMARY EXAMPLE of the wrong approach: "You banned the em dashes and you got a
+slop paragraph with no em dash in it. That's the entire mistake in one data point." He is
+arguing AGAINST em-dash banning, not for it.
+
+**The "10-line rule set" endorsement:** He explicitly validates a minimalist alternative —
+"One engineer replied... 'STE100 is a bit too much. I wrote a tiny 10-rule set instead.
+90% of the benefit.' And he's not wrong — a short checkable rule set is the product."
+
+**Human evidence he cites** (for completeness, not as claims we adopt):
+- Sherback, Dury & Volets 1996: 175 aircraft technicians, comprehension 76%→86% (non-native:
+  69%→87% — constraint pulled struggling readers up to native level)
+- Microsoft Research 2007: 520 sentences translated into 4 languages, controlled beat normal
+  in every language (p<0.001); most effective rule was cutting "flowery and formal phrasing"
+- Weakening evidence he names himself: translation gains were small (~0.1 on a 4-point
+  scale); an Airbus study found oversimplifying can slow readers down; no study measures
+  retention, only comprehension
+
+## Relationship to crew-research's JTBD
+
+| Dimension | His audience | Ours |
+|-----------|--------------|------|
+| Content produced | Human-readable prose (docs, PRs, error messages for end readers) | Agent-readable instructions (skills, steering, eval criteria) |
+| Quality signal | Reader experience — no "AI smell" | Agent behavior delta — does loading this change scores? |
+| Validation | Linter score delta | Dual-run evals with judged outcomes |
+| Cost of "slop" | Credibility loss with human readers | Wasted context tokens, unfocused agent behavior |
+
+**Overlap zone:** we DO produce human-facing prose — READMEs, changelogs, error messages,
+PR descriptions. The author explicitly names those as his target. The question is whether
+his finding transfers to our content types and our models (ticket 88).
+
+**What we already ship that maps to his recommendation:** our `writing-style` skill IS the
+"short checkable rule set" he endorses as "90% of the benefit." What we lack is the
+measurement proving ours works — which is what ticket 88 provides.
 
 ## What the author measured
 
