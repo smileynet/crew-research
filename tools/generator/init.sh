@@ -15,9 +15,20 @@ SKILLS_DIR="$ROOT_DIR/atomics/skills"
 # Windows user home (/mnt/c/Users/$USER), not the WSL home (/home/$USER).
 DEPLOY_HOME="$HOME"
 if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
-  WIN_USER="${WIN_USERNAME:-$USER}"
+  # Priority: explicit override > cmd.exe interop > $USER fallback
+  WIN_USER="${WIN_USERNAME:-}"
+  if [[ -z "$WIN_USER" ]]; then
+    WIN_USER=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d '\r\n') || true
+  fi
+  if [[ -z "$WIN_USER" ]]; then
+    WIN_USER="$USER"
+    echo "⚠️  Could not detect Windows username via cmd.exe; falling back to '$USER'" >&2
+  fi
   if [[ -d "/mnt/c/Users/$WIN_USER" ]]; then
     DEPLOY_HOME="/mnt/c/Users/$WIN_USER"
+  else
+    echo "⚠️  /mnt/c/Users/$WIN_USER does not exist — deploying to WSL home ($HOME)" >&2
+    echo "   Set WIN_USERNAME=<your-windows-user> if usernames differ" >&2
   fi
 fi
 
