@@ -1,7 +1,7 @@
 ---
 id: "82"
 title: "Spike: extension prereq check via WSL interop (WSL boundary layer 3)"
-status: open
+status: in_progress
 blocked_by: []
 priority: high
 ---
