@@ -1,7 +1,7 @@
 ---
 id: "80"
 title: "Spike: auto-detect Windows username in init.sh (WSL boundary layer 1)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -27,8 +27,12 @@ Replace the brittle `${WIN_USERNAME:-$USER}` fallback in init.sh with auto-detec
 
 ## Acceptance criteria
 
-- [ ] `wsl -- bash init.sh --global --tier full --tool kiro-cli` succeeds WITHOUT `WIN_USERNAME` being set
-- [ ] Correct Windows username detected via `cmd.exe` interop
-- [ ] Graceful degradation when interop is disabled (warning, not crash)
-- [ ] Explicit `WIN_USERNAME` override still works (no regression)
-- [ ] Clear error message when detected path doesn't exist
+- [x] `wsl -- bash init.sh --global --tier full --tool kiro-cli` succeeds WITHOUT `WIN_USERNAME` being set
+- [x] Correct Windows username detected via `cmd.exe` interop
+- [x] Graceful degradation when interop is disabled (warning, not crash)
+- [x] Explicit `WIN_USERNAME` override still works (no regression)
+- [x] Clear error message when detected path doesn't exist
+
+## Resolution (2026-08-08)
+
+Auto-detects via cmd.exe interop with fallback chain. Verified: no-override succeeds, explicit override works, nonexistent path warns gracefully.
