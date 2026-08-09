@@ -77,6 +77,7 @@ For the subagent review checklist and signal patterns, see [references/checklist
 - Never say "looks good" without checking
 - Cap at 5 findings; defer low-severity with a count
 - If the review is clean, say so in one line — don't manufacture feedback
+- Score findings for confidence before reporting — see [references/confidence-scoring.md](references/confidence-scoring.md)
 
 ## Verdict System
 
