@@ -5,7 +5,7 @@ status: open
 blocked_by: []
 env: either
 spec: "eval-harness"
-priority: normal
+priority: high
 ---
 
 # Spike: Convention-File Auto-Detection
