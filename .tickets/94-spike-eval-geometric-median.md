@@ -1,7 +1,7 @@
 ---
 id: "94"
 title: "Spike: geometric median aggregation for eval judging"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -53,3 +53,7 @@ beats a single 675B judge by 1.31× under 30% corruption.
 - Research: `.scratch/research/judge-as-gate.md` (RoPoLL section)
 - Eval harness: `tools/evals/harness/run.sh`
 - RoPoLL paper: arXiv 2606.30931
+
+## Resolution (2026-08-09)
+
+ALREADY IMPLEMENTED. Eval harness already uses median aggregation (run.sh L558-567). Even-panel rule: lower middle score wins (documented, ADR 0010 amendment). RoPoLL referenced in code comments. Panel degradation flagging for n<3, single-family, etc. already in panel_json(). No work needed.
