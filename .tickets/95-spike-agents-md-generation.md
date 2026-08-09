@@ -5,16 +5,29 @@ status: open
 blocked_by: []
 env: either
 spec: "eval-harness"
-priority: normal
+priority: low
 ---
 
 # Spike: AGENTS.md Generation as Cross-Tool Compatibility Layer
 
-## Hypothesis
+## Finding (2026-08-09): Partially Already Implemented
 
-Generating an AGENTS.md during `mise run init` (from steering content) would give teams
-using Codex, Cursor, Claude Code, and other tools automatic access to project conventions —
-since AGENTS.md is read by ~20 tools natively.
+init.sh ALREADY generates AGENTS.md in two contexts:
+1. **Global deploy for codex/crush/agy**: `deploy_agents_md_tool()` renders steering INTO
+   an AGENTS.md at each tool's native path. Full steering content.
+2. **Project scaffold**: Generates a template AGENTS.md with workspace layout, commands,
+   skill references. Does NOT include steering content.
+
+The remaining gap: project-level AGENTS.md is a static template, not a rendering of
+steering rules. Other tools reading `$PROJECT/AGENTS.md` get workspace info but NOT the
+conventions from `.kiro/steering/` (verification protocol, code hygiene, etc.).
+
+## Revised hypothesis
+
+Enriching the project scaffold AGENTS.md with key steering rules (rendered, not symlinked)
+would make conventions visible to Codex/Claude Code/Cursor when working in that project
+without additional setup. The global AGENTS.md already works for global deploys — this is
+about the project-level gap.
 
 ## Baseline to measure against
 
