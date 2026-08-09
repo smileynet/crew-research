@@ -23,6 +23,7 @@ git diff main          # or git diff HEAD~1, or the relevant range
 
 **Standards axis:**
 - Project rules from `.kiro/steering/` or `CONTRIBUTING.md`
+- Other convention files: `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.cursor/rules/`, etc. — see [references/convention-files.md](references/convention-files.md)
 - Fowler smell baseline — see [references/smells.md](references/smells.md)
 - Any project-specific linting not covered by tooling
 

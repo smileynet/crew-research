@@ -13,15 +13,22 @@ Migrate an existing project to crew-research conventions without losing existing
 
 ## Phase 1: Inventory
 
-Check for existing configuration:
+Scan for ALL known AI convention files (exhaustive list):
 - `.kiro/` — steering, skills, agents
-- `AGENTS.md`, `CLAUDE.md`, or similar guidance files
+- `AGENTS.md`, `AGENT.md` (root + subdirs)
+- `CLAUDE.md`, `GEMINI.md` (root + subdirs)
+- `.cursorrules`, `.cursor/rules/*.mdc`
+- `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`
+- `.windsurfrules`, `.windsurf/rules/*.md`
+- `.clinerules/*`, `.rules/*`
 - `CONVENTIONS.md`, `CONTRIBUTING.md`, `DEVELOPMENT.md`
 - Existing session docs (`.scratch/`, `.memory/`)
 - Any custom workflows (skills with `invocation: user-only`)
 - `references/` or `.references/` (reference repo directories — note clone URLs if available)
 
-Report what exists and what would be replaced or merged.
+Report what exists, which tool each file serves, and what would be replaced or merged.
+Flag duplicates across files (the "five versions of truth" problem).
+Note: exclude `.references/` and `vendor/` from subdirectory scans (third-party code).
 
 ## Phase 2: Capture Special Instructions
 
