@@ -195,13 +195,86 @@ the same for tool repos:
 - Check manifest's declared `repo` path
 - Fall back to asking if not found
 
-### Decisions that still need human input
+### Decisions resolved
 
-- Should `init.sh` auto-run deploy-skills.sh when it detects a tool repo? (Or just suggest?)
-- Should `mise run validate` be runnable against a remote manifest URL (for CI)?
-- Should we adopt the Agent Plugins 1.0 `plugin.json` format instead of our own manifest?
-  (It's new as of Aug 2026, backed by Amazon/Microsoft/OpenAI/Vercel/Cursor, but
-  deliberately excludes installation — just the directory shape)
+**1. Auto-run deploy-skills.sh when tool repo detected — YES, with config gate**
+
+`init.sh` will auto-run `deploy-skills.sh` from detected tool repos when:
+- The tool binary is on PATH (recall, tkt, archwright)
+- The tool repo is found at its manifest-declared path (or `~/code/{name}` convention)
+- The repo's `SKILL_MANIFEST.yaml` exists and passes schema validation
+
+This is the right default — the user already installed the tool and cloned the repo; asking
+"shall I deploy the skills?" is ceremony for ceremony's sake. If a user wants to skip a
+specific tool, they can opt out via `.mise.local.toml`:
+
+```toml
+[env]
+CREW_SKIP_TOOL_DEPLOY = "archwright,tkt"  # comma-separated tool names to skip
+```
+
+Or per-tool in the manifest: `auto_deploy: false` (tool author can default to manual).
+
+Precedent: Terraform auto-downloads providers at `terraform init`. Homebrew auto-links at
+install. The pattern is "install implies deploy unless explicitly opted out."
+
+**2. Remote manifest URLs for CI — NO, not needed**
+
+Explanation: The purpose of a remote manifest URL would be for crew-research's CI to fetch
+and validate external tool manifests without cloning the full repo. But this adds:
+- Network dependency in CI (fragile)
+- Trust surface (manifest could be tampered between fetch and validation)
+- Complexity (URL resolution, caching, auth for private repos)
+
+Instead: tool repos validate themselves. Their CI clones crew-research (or uses a published
+validate action) and runs `mise run validate` against their own `skills/` directory. This
+is the Terraform model — the provider CI validates itself against the core SDK. Crew-research
+CI never reaches out to tool repos.
+
+For local development: `mise run validate -- --manifest ~/code/recall/SKILL_MANIFEST.yaml`
+works because the repo is already cloned. No network needed.
+
+**3. Agent Plugins 1.0 format — ALIGN but don't adopt wholesale**
+
+Agent Plugins 1.0 (https://agent-plugins.org/, spec: https://github.com/anthropics/agent-plugins)
+launched August 2026, backed by Amazon, Microsoft, OpenAI, Vercel, Cursor.
+
+| Aspect | Agent Plugins 1.0 | Our SKILL_MANIFEST.yaml |
+|--------|-------------------|------------------------|
+| Scope | Directory shape standard (plugin.json + skills/ + mcp.json) | Deployment contract (version compat, binary deps, deploy method) |
+| Installation | Deliberately excluded — each platform builds its own | Defined (symlink, auto-deploy, fallback) |
+| Versioning | Optional `version` field, no compat ranges | `compatibility.crew_research: "~> 0.9"` |
+| Binary deps | Not addressed (skills are text-only) | `binary.name`, `version_cmd`, `min_version` |
+| Skills format | Agent Skills spec (SKILL.md + frontmatter) | Same — we already conform |
+| MCP servers | Bundled via `mcp.json` | Out of scope for us currently |
+
+**Recommendation: align at the skills layer, extend at the deployment layer.**
+
+- Our `skills/` directory already uses the Agent Skills format (SKILL.md + YAML frontmatter)
+  — we're already conformant at that layer.
+- Agent Plugins doesn't solve our problem (version checking, binary deps, auto-deploy,
+  staleness detection). It solves the SHAPE problem; we need the LIFECYCLE problem solved.
+- Add a `plugin.json` to tool repos if we want Agent Plugins ecosystem discovery later —
+  it's additive, not conflicting.
+- Don't replace SKILL_MANIFEST.yaml with plugin.json — they serve different purposes.
+
+**Pros of aligning:**
+- Skills portable to any Agent Plugins consumer (Cursor, VS Code, ChatGPT, etc.)
+- Ecosystem discovery if tool repos register with skills.sh or a marketplace
+- Future-proof if the standard matures to include version/install semantics
+
+**Cons of adopting Agent Plugins wholesale:**
+- Doesn't solve our needs (no version compat, no binary deps, no deploy automation)
+- Would need a proprietary extension layer anyway (defeating the point of a standard)
+- The standard is 2 weeks old — may change significantly before stabilizing
+- Anthropic notably absent from TSC despite authoring both underlying specs
+
+## Out of scope
+
+- Skill marketplace / registry beyond known-tools.yaml
+- Auto-updating tool binaries (that's ticket 35 in recall)
+- Hosting skills outside of git repos
+- Full Agent Plugins 1.0 adoption (we align at the skills format layer only)
 
 ## References
 
