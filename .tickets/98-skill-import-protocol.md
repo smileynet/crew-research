@@ -118,27 +118,90 @@ When a tool binary is on PATH but its skills haven't been deployed:
 
 ## Design decisions to make
 
-1. **Who triggers deploy-skills.sh?** Options:
-   - Manual (user runs after install/update) — current archwright pattern
-   - Automatic (crew-research init detects binary + repo and runs deploy) — more magical
-   - Prompted (doctor suggests, user confirms) — middle ground
+### Informed by research (2026-08-09)
 
-2. **Version source of truth**: Does the manifest version match the Cargo.toml/pyproject.toml
-   version, or is it independent? (Recommendation: same version, validated by CI.)
+**1. Manifest schema — use the VS Code `engines` pattern (floor-only, semver range)**
 
-3. **Skill override priority**: When both crew-research fallback and tool-owned skill exist:
-   - Symlink wins (it's more specific — the deploy put it there intentionally)
-   - Identical slug: tool-owned replaces crew-owned (no duplication in the skills tree)
+The ecosystem consensus (VS Code, npm, Terraform, WordPress) is: declare a minimum
+compatible version (floor), not a ceiling. WordPress's `Tested up to` (soft ceiling) is
+informational only. Terraform's `~>` (pessimistic constraint) is the cleanest for our case:
 
-4. **Cross-repo CI**: Should the tool repo's CI validate its skills against
-   crew-research's skill schema? (Yes — `mise run validate` from crew-research should
-   be runnable against a manifest.)
+```yaml
+compatibility:
+  crew_research: "~> 0.9"   # >=0.9.0, <1.0.0
+```
 
-## Out of scope
+This means: "these skills work with crew-research 0.9+, may break at 1.0." Simple, proven.
 
-- Skill marketplace / registry beyond known-tools.yaml
-- Auto-updating tool binaries (that's ticket 35 in recall)
-- Hosting skills outside of git repos
+**2. Deploy method — symlink (current archwright pattern), with copy fallback for Windows**
+
+Research validates symlinks as the dominant deployment pattern (Stow, Nix, Homebrew, npx
+skills). Key finding: the `symlink-or-copy` npm package exists precisely because Windows
+without Developer Mode can't create symlinks. Our pattern:
+- Default: symlink (reversible, single source of truth, `stow -D` equivalent)
+- Windows fallback: copy with content-hash tracking (detect drift)
+- Health: `find -L path -type l` for broken symlinks (already in doctor.sh)
+
+**3. Ownership model — "blessed third-party" (Terraform partner tier)**
+
+Research shows three tiers everywhere. Our model maps cleanly:
+- **Core-owned** (Tier 1): skills in `atomics/skills/` — crew-research maintains
+- **Blessed** (Tier 2): recall, tkt, archwright — own their skills, crew validates compat
+- **Community** (Tier 3): future — anyone's skill repo via `npx skills` or manual install
+
+The key contract: crew-research guarantees the SKILL.md format spec (Agent Skills) and the
+deployment paths. Tool repos guarantee their skills work with the declared crew version.
+
+**4. Testing across boundaries — conformance via `mise run validate`**
+
+The Terraform pattern: core provides test framework, plugin owners run it. Our equivalent:
+- crew-research provides `tools/generator/generate.sh validate` (schema check)
+- Tool repos run it in their CI against their `skills/` directory
+- crew-research CI does NOT run tool repo tests — too coupled
+- Version compat verified by: tool repo CI pins crew-research ref, runs validate
+
+**5. Fallback strategy — graceful degradation (Backstage model)**
+
+Research shows fallback correlates with coupling:
+- Tight coupling (ESLint rules) → hard fail
+- Loose coupling (Backstage UI tabs) → degrade gracefully
+
+Our skills are loosely coupled — absence means the skill doesn't activate, not that the
+system breaks. So: fallback copy in crew-research, tool-owned symlink takes priority,
+absence = warning not error.
+
+**6. Migration pattern — Ansible 2.10 extraction with routing**
+
+The proven extraction pattern:
+1. Define the manifest contract first (SKILL_MANIFEST.yaml)
+2. Copy skill to tool repo, add manifest + deploy script
+3. crew-research skill becomes a "tombstone" — still works but warns "latest is in the tool repo"
+4. After N deploys with the tool-owned version active, consider removing the crew copy
+
+**7. Version detection — binary `--version` + manifest comparison**
+
+doctor.sh checks:
+- Binary present? → `which recall`
+- Binary version? → `recall --version` (parse against manifest `min_version`)
+- Skills deployed? → check symlink existence in skills tree
+- Skills fresh? → compare deployed skill hash vs source repo hash
+- Compatible? → compare crew-research version against manifest `compatibility`
+
+**8. Discovery of tool repos — convention over configuration**
+
+Research finding: `npx skills` detects installed agents by known path conventions. We can do
+the same for tool repos:
+- Check `~/code/{tool-name}` (convention from AGENTS.md)
+- Check manifest's declared `repo` path
+- Fall back to asking if not found
+
+### Decisions that still need human input
+
+- Should `init.sh` auto-run deploy-skills.sh when it detects a tool repo? (Or just suggest?)
+- Should `mise run validate` be runnable against a remote manifest URL (for CI)?
+- Should we adopt the Agent Plugins 1.0 `plugin.json` format instead of our own manifest?
+  (It's new as of Aug 2026, backed by Amazon/Microsoft/OpenAI/Vercel/Cursor, but
+  deliberately excludes installation — just the directory shape)
 
 ## References
 
@@ -148,3 +211,7 @@ When a tool binary is on PATH but its skills haven't been deployed:
 - User setup guide symlink convention: `.kiro/steering/user-setup-guide.md`
 - Recall repo: `~/code/recall` (cloned 2026-08-06)
 - tkt repo: github.com/smileynet/tkt
+- Research: `.scratch/research/plugin-registries.md`
+- Research: `.scratch/research/symlink-deploy-patterns.md`
+- Research: `.scratch/research/version-compat-protocols.md`
+- Research: `.scratch/research/skill-ownership-boundaries.md`
