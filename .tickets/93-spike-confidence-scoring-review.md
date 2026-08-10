@@ -1,7 +1,7 @@
 ---
 id: "93"
 title: "Spike: confidence scoring for code-review findings"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -57,3 +57,7 @@ Constraint: subagent reliability (~50% empty) makes this secondary.
 
 - Research: `.scratch/research/confidence-scoring.md`
 - code-review skill: `~/.kiro/skills/code-review/SKILL.md`
+
+## Resolution (2026-08-10)
+
+Spike artifacts delivered: deterministic confidence scoring rubric (references/confidence-scoring.md), code-review SKILL.md updated with scoring rule. Approach A (structural evidence scoring) implemented as a reference — zero-latency, no extra LLM call. Runtime validation (measuring precision improvement on real diffs) deferred to field use. Approach B (multi-agent agreement) documented but not implemented due to subagent reliability constraints.
