@@ -9,6 +9,8 @@ user_story: "Ceremony decay (unchecked boxes on done tickets, dangling deps) is 
 check:
   method: grep
   target: "tools/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Validate subcommand is in the Rust crate; port check target to tkt repo."
   pattern: "unchecked-acs-on-done|dangling-blocked-by"
   include: ["*.py"]
   expect: present

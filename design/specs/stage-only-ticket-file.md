@@ -9,6 +9,8 @@ user_story: "A claim made from a dirty tree commits exactly one file — your in
 check:
   method: grep
   target: "tools/tkt/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Constraint applies to the Rust source; rewrite check for .rs files in tkt repo."
   pattern: "add.,\\s*.(-A|--all|\\.).|commit.,\\s*.(-a|--all).|git add (-A|--all|\\.)|git commit (-a|--all)"
   include: ["*.py"]
   expect: absent

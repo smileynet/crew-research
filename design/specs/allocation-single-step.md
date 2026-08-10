@@ -9,6 +9,8 @@ user_story: "An id the tool reports as allocated has actually landed on the remo
 check:
   method: grep
   target: "tools/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Port check to tkt repo."
   pattern: "def cmd_new"
   include: ["*.py"]
   expect: present

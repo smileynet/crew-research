@@ -9,6 +9,8 @@ user_story: "A claim or close commit made from a dirty tree contains exactly one
 check:
   method: grep
   target: "tools/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Constraint still applies; port check to tkt repo."
   pattern: "git add -A|git add \\.|commit -a"
   include: ["*.py"]
   expect: absent

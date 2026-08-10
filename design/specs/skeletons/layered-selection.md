@@ -9,6 +9,8 @@ user_story: "Selection is a fixed pipeline: env filter, then priority jump, then
 check:
   method: grep
   target: "tools/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Port check to tkt repo."
   pattern: "weight|score"
   include: ["*.py"]
   expect: absent

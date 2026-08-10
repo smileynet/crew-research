@@ -9,6 +9,8 @@ user_story: "tkt validate reports unchecked acceptance boxes on done tickets, so
 check:
   method: grep
   target: "tools/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Port check to tkt repo."
   pattern: "unchecked|checkbox|- \\[ \\]"
   include: ["*.py"]
   expect: present

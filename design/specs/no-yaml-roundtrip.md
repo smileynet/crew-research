@@ -9,6 +9,8 @@ user_story: "A hand-edited ticket file is never re-quoted, re-ordered, or type-c
 check:
   method: grep
   target: "tools/tkt/tkt"
+  target_status: pending
+  target_note: "tkt extracted to ~/code/tkt (Rust). Port check to tkt repo."
   pattern: "yaml\\.dump|yaml\\.safe_dump|yaml\\.round_trip_dump|ruamel"
   include: ["*.py"]
   expect: absent
