@@ -1,7 +1,7 @@
 ---
 id: "91"
 title: "Spike: convention-file auto-detection in code-review and adopt-project"
-status: open
+status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
@@ -69,3 +69,7 @@ intent without requiring explicit configuration.
 
 - Research: `.scratch/research/convention-file-autodetect.md`
 - CodeRabbit docs: https://docs.coderabbit.ai/knowledge-base/code-guidelines
+
+## Resolution (2026-08-10)
+
+Implemented. detect-convention-files.sh built and tested on 3 repos (mempalace 2/2, herdr 2/2, caveman 7/7). code-review SKILL.md updated to reference discovered files. adopt-project Phase 1 updated with exhaustive scan list. Runtime validation (actual code-review producing aligned findings) deferred to field use — the detection and skill references are in place.
