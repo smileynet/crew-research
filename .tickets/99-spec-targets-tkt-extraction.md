@@ -1,7 +1,7 @@
 ---
 id: "99"
 title: "Update spec check.target paths after tkt extraction"
-status: open
+status: done
 blocked_by: []
 ---
 
@@ -30,5 +30,9 @@ Then run `archwright-check --static design/specs/ --target .` to confirm 0 failu
 
 ## Acceptance criteria
 
-- [ ] All three specs either pass static checks or are explicitly marked pending/archived
-- [ ] `archwright-check --static` reports no target-not-found errors
+- [x] All three specs either pass static checks or are explicitly marked pending/archived
+- [x] `archwright-check --static` reports no target-not-found errors
+
+## Resolution (2026-08-10)
+
+All 10 specs targeting tools/tkt marked pending. archwright-check --static: 0 FAILs, 10 PENDING. Constraints still apply conceptually to the Rust rewrite — porting them to tkt's repo is tracked in tkt's ticket queue.
