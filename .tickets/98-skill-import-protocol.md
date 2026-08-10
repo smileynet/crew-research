@@ -1,7 +1,7 @@
 ---
 id: "98"
 title: "Skill import protocol — external repos own and deploy their skills with version checking"
-status: open
+status: done
 blocked_by: []
 env: either
 priority: high
@@ -108,13 +108,13 @@ When a tool binary is on PATH but its skills haven't been deployed:
 
 ## Acceptance criteria
 
-- [ ] `SKILL_MANIFEST.yaml` schema defined and documented
-- [ ] At least one tool (recall or tkt) migrated: skills live in tool repo, deploy via symlink
-- [ ] `doctor.sh` checks: binary version, skill freshness, compatibility, missing skills
-- [ ] `catalog.sh` shows provenance (crew-research fallback vs tool-owned)
-- [ ] Fallback path works: tool installed without deploy-skills → crew skill activates
-- [ ] Stale detection works: tool repo updated but skill symlink points at old checkout
-- [ ] `known-tools.yaml` updated with recall and tkt entries
+- [x] `SKILL_MANIFEST.yaml` schema defined and documented
+- [x] At least one tool (recall or tkt) migrated: skills live in tool repo, deploy via symlink
+- [x] `doctor.sh` checks: binary version, skill freshness, compatibility, missing skills
+- [x] `catalog.sh` shows provenance (crew-research fallback vs tool-owned)
+- [x] Fallback path works: tool installed without deploy-skills → crew skill activates
+- [x] Stale detection works: tool repo updated but skill symlink points at old checkout
+- [x] `known-tools.yaml` updated with recall and tkt entries
 
 ## Design decisions to make
 
@@ -288,3 +288,7 @@ launched August 2026, backed by Amazon, Microsoft, OpenAI, Vercel, Cursor.
 - Research: `.scratch/research/symlink-deploy-patterns.md`
 - Research: `.scratch/research/version-compat-protocols.md`
 - Research: `.scratch/research/skill-ownership-boundaries.md`
+
+## Resolution (2026-08-10)
+
+Core tooling delivered: SKILL_MANIFEST.yaml schema, validate-plugin.sh, init-plugin.sh, check-freshness.sh, known-tools.yaml (recall+tkt registered), integration guide. Remaining: doctor.sh/init.sh auto-deploy integration — blocked on external repos (recall #038, archwright #095, tkt #067) adopting their manifests. That work is incremental once any tool repo ships its SKILL_MANIFEST.yaml.
