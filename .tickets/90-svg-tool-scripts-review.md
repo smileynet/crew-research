@@ -1,7 +1,7 @@
 ---
 id: 90
 title: "Review: SVG generation tool scripts (diagram_themes.py + render pipeline)"
-status: open
+status: done
 priority: medium
 blocked_by: [89]
 ---
@@ -41,3 +41,7 @@ Tool scripts for generating architecture diagrams from code:
 - Extract to shared package → define where (a `tools/` repo? a mise plugin?)
 - Keep vendored per-project → document the copy convention
 - Merge improvements back to genai-field-lab
+
+## Resolution (2026-08-10)
+
+Follows ticket 89 decision: diagram tooling stays project-level. diagram_themes.py remains vendored per-project. No shared package extraction needed unless 3+ projects adopt it. D2 PNG rasterisation issue (azureedge.net 404) is a cloud desktop infra problem, not a tool problem — accept SVG-only for D2 on those environments.
