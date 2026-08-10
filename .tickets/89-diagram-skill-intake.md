@@ -1,7 +1,7 @@
 ---
 id: 89
 title: "Intake: diagram rendering skill — D2 + diagrams + Mermaid"
-status: open
+status: done
 priority: medium
 blocked_by: []
 ---
@@ -70,3 +70,6 @@ Mermaid for sequences) and produces SVG + PNG pairs in light/dark. No external s
 4. D2 dependency is fine project-locally but too heavy for a global requirement
 5. Asset validation gates: yes, but as a project-level mise task, not a global skill gate
 
+## Resolution (2026-08-10)
+
+DEFERRED. Local rendering pipeline stays project-level. Existing diagrams skill covers format selection globally. Add a references/ note about local rendering setup if the pattern recurs across 3+ projects.
