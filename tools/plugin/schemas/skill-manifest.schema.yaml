@@ -1,0 +1,101 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://crew-research.dev/schemas/skill-manifest/1.0.0"
+title: "SKILL_MANIFEST.yaml"
+description: |
+  Lifecycle manifest for tool repos that own and deploy skills.
+  Declares version compatibility, binary requirements, skill inventory,
+  and deployment configuration. Consumed by crew-research doctor.sh,
+  init.sh, and catalog.sh.
+
+type: object
+required: [name, version, skills, deploy]
+additionalProperties: false
+
+properties:
+  name:
+    type: string
+    description: "Tool name (lowercase, alphanumeric + hyphens)"
+    pattern: "^[a-z][a-z0-9-]*$"
+    minLength: 1
+    maxLength: 64
+
+  version:
+    type: string
+    description: "Tool version this manifest describes (SemVer)"
+    pattern: "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?(\\+[a-zA-Z0-9.]+)?$"
+
+  description:
+    type: string
+    description: "One-line description of the tool"
+    maxLength: 200
+
+  compatibility:
+    type: object
+    description: "Version constraints against host systems"
+    properties:
+      crew_research:
+        type: string
+        description: "SemVer range for crew-research compatibility (e.g. '~> 0.9')"
+    additionalProperties:
+      type: string
+
+  binary:
+    description: "Binary/CLI the tool provides (null if no binary)"
+    oneOf:
+      - type: "null"
+      - type: object
+        required: [name, version_cmd, min_version]
+        additionalProperties: false
+        properties:
+          name:
+            type: string
+            description: "Binary name on PATH"
+          version_cmd:
+            type: string
+            description: "Command to get version string (e.g. 'recall --version')"
+          min_version:
+            type: string
+            description: "Minimum binary version for these skills"
+            pattern: "^\\d+\\.\\d+\\.\\d+"
+
+  skills:
+    type: array
+    description: "Skills this tool owns and deploys"
+    minItems: 1
+    items:
+      type: object
+      required: [name, path]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: "Skill slug (must match directory name)"
+          pattern: "^[a-z][a-z0-9-]*$"
+        path:
+          type: string
+          description: "Relative path to skill directory from repo root"
+        replaces:
+          type: string
+          description: "crew-research path this skill supersedes (e.g. 'atomics/skills/recall')"
+
+  deploy:
+    type: object
+    required: [method, script]
+    additionalProperties: false
+    properties:
+      method:
+        type: string
+        enum: [symlink, copy]
+        description: "How skills are placed at target (symlink preferred, copy for Windows)"
+      auto:
+        type: boolean
+        default: true
+        description: "Whether crew-research init.sh auto-runs deploy when tool detected"
+      script:
+        type: string
+        description: "Relative path to deploy script from repo root"
+      targets:
+        type: object
+        description: "Per-tool deploy target paths (optional, for reference)"
+        additionalProperties:
+          type: string
