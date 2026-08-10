@@ -1,7 +1,7 @@
 ---
 id: "84"
 title: "Evaluate deterministic prose linter (ste-lint.py pattern)"
-status: open
+status: done
 blocked_by: ["87"]
 spec: "eval-harness"
 ---
@@ -36,3 +36,14 @@ Evaluate whether a deterministic prose linter (Python, no deps) should be added 
 
 - LLM-based prose judging (that's what the eval harness does)
 - Rewriting ste-lint.py from scratch (adapt or reject)
+
+## Resolution (2026-08-10)
+
+REJECT. Ticket 87 (E-INST-1) measured the instrument and found it cannot separate our shipped prose from unguided LLM first drafts:
+
+- Probability of superiority: 0.494 all-docs (exactly chance), 0.26 length-matched (WORSE than chance — our docs score dirtier)
+- Root cause: our house style (contractions, semicolons, passive voice) gets scored as violations
+- No threshold is defensible: any cut that flags slop flags README.md and AGENTS.md harder
+- AGENTS.md (5.96 violations/100w) was the dirtiest document in the entire experiment
+
+Verdict: Do NOT adopt as a gate, as mise run validate step, or as a standalone check. The only valid use is as a paired before/after delta probe on a single text (ticket 88's design respects this constraint). Full data: docs/development/prose-instrument-validation-2026-08-05.md
