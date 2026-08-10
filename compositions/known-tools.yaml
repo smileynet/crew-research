@@ -36,3 +36,39 @@ tools:
     # - crew-research OWNS the global subagent-reliability steering; archwright's
     #   deploy copying its fork over it is a known collision — fix tracked in
     #   archwright's ticket queue, crew content is authoritative meanwhile.
+
+  - name: recall
+    description: "Cross-session semantic memory — hybrid BM25 + vector search over ingested sessions and project knowledge"
+    repo: "~/code/recall"
+    detect:
+      binary: recall
+      skill_glob: "recall"
+    manifest: "SKILL_MANIFEST.yaml"
+    hydrate: "gh repo clone smileynet/recall ~/code/recall && bash ~/code/recall/tools/deploy-skills.sh"
+    # recall's skill is currently a crew-research fallback (atomics/skills/recall/).
+    # Once recall deploys its own skill, the symlink takes priority and the
+    # fallback activates only when the tool is installed but skills aren't deployed.
+    fallback: "atomics/skills/recall"
+    seams:
+      - skill: recall
+        when: "always (the skill IS the interface to this tool)"
+      - skill: read-handoff
+        when: "session start — recall prime supplements the handoff"
+      - skill: guidance-sync
+        when: "corrections detected that should persist as preferences (ticket 36)"
+
+  - name: tkt
+    description: "Ticket management CLI — frontier detection, dependency graphs, ID allocation, plan sync"
+    repo: "~/code/tkt"
+    detect:
+      binary: tkt
+      skill_glob: "tkt"
+    manifest: "SKILL_MANIFEST.yaml"
+    hydrate: "gh repo clone smileynet/tkt ~/code/tkt && cargo install --path ~/code/tkt && bash ~/code/tkt/tools/deploy-skills.sh"
+    # tkt's skill (CLI usage) will live in tkt's repo. ticket-planning stays
+    # in crew-research (it's methodology, not tool-specific).
+    seams:
+      - skill: ticket-planning
+        when: "decomposing work into tickets (ticket-planning uses tkt when available)"
+      - skill: spec-driven-development
+        when: "specs reference .tickets/ structure"
