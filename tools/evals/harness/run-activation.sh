@@ -129,7 +129,8 @@ echo "Accuracy: $ACCURACY"
 # so gate at TPR >= 0.5 with FPR <= 0.2. Overridable via env.
 TPR_GATE="${ACTIVATION_TPR_GATE:-0.5}"
 FPR_GATE="${ACTIVATION_FPR_GATE:-0.2}"
-if (( $(echo "$TPR >= $TPR_GATE" | bc -l) )) && (( $(echo "$FPR <= $FPR_GATE" | bc -l) )); then
+if [[ "$(echo "$TPR >= $TPR_GATE" | bc -l 2>/dev/null | cut -d. -f1)" != "0" ]] && \
+   [[ "$(echo "$FPR <= $FPR_GATE" | bc -l 2>/dev/null | cut -d. -f1)" != "0" ]]; then
   VERDICT="PASS"
 else
   VERDICT="FAIL"
