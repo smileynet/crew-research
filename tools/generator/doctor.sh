@@ -23,7 +23,13 @@ PROJECT=$(cd "$PROJECT" && pwd)
 # Windows user home (/mnt/c/Users/$USER), not the WSL home (/home/$USER).
 DEPLOY_HOME="$HOME"
 if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
-  WIN_USER="${WIN_USERNAME:-$USER}"
+  WIN_USER="${WIN_USERNAME:-}"
+  if [[ -z "$WIN_USER" ]]; then
+    WIN_USER=$(cmd.exe /C "echo %USERNAME%" 2>/dev/null | tr -d '\r\n') || true
+  fi
+  if [[ -z "$WIN_USER" ]]; then
+    WIN_USER="$USER"
+  fi
   if [[ -d "/mnt/c/Users/$WIN_USER" ]]; then
     DEPLOY_HOME="/mnt/c/Users/$WIN_USER"
   fi
@@ -47,14 +53,25 @@ check_tool() {
   fi
 }
 
-# Extension prerequisite check — on Git Bash/MSYS2, uv-installed Python tools
-# fail to resolve their venv site-packages (MSYS path corruption). Use
-# PowerShell as a fallback to run the version command correctly.
+# Extension prerequisite check — tools may be installed on the Windows side
+# (uv-installed Python tools, native .exe) and not directly reachable from
+# WSL or Git Bash. Fallback chain: direct → WSL interop → MSYS2 PowerShell.
 _check_prereq() {
   local cmd="$1"
-  # Try directly first (works on Linux/macOS/WSL and native Windows shells)
+  # Try directly first (works on Linux/macOS/WSL-native and native Windows shells)
   if eval "$cmd" &>/dev/null 2>&1; then
     return 0
+  fi
+  # WSL: try via Windows interop (covers uv-installed Python tools on Windows)
+  if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+    if cmd.exe /C "$cmd" &>/dev/null 2>&1; then
+      return 0
+    fi
+    if command -v powershell.exe &>/dev/null; then
+      if powershell.exe -NoProfile -NonInteractive -Command "$cmd" &>/dev/null 2>&1; then
+        return 0
+      fi
+    fi
   fi
   # On MSYS2/Git Bash: fallback to PowerShell which resolves uv tools correctly
   case "$(uname -s)" in
@@ -344,17 +361,25 @@ if command -v recall &>/dev/null; then
   echo ""
   echo "Recall:"
   # On MSYS2/Git Bash, uv-installed Python tools can't resolve their venv —
-  # use PowerShell fallback (same pattern as _check_prereq).
+  # use PowerShell fallback. On WSL, recall lives on the Windows side —
+  # use cmd.exe/powershell.exe interop.
   # Note: || true prevents set -e from killing the script on recall failure.
   health_json=$(recall health --json 2>/dev/null) || true
   if [[ -z "$health_json" ]]; then
-    case "$(uname -s)" in
-      MINGW*|MSYS*)
-        if command -v powershell.exe &>/dev/null; then
-          health_json=$(MSYS_NO_PATHCONV=1 powershell.exe -NoProfile -NonInteractive -Command "recall health --json" 2>/dev/null | tr -d '\r') || true
-        fi
-        ;;
-    esac
+    if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+      health_json=$(cmd.exe /C "recall health --json" 2>/dev/null | tr -d '\r') || true
+      if [[ -z "$health_json" ]] && command -v powershell.exe &>/dev/null; then
+        health_json=$(powershell.exe -NoProfile -NonInteractive -Command "recall health --json" 2>/dev/null | tr -d '\r') || true
+      fi
+    else
+      case "$(uname -s)" in
+        MINGW*|MSYS*)
+          if command -v powershell.exe &>/dev/null; then
+            health_json=$(MSYS_NO_PATHCONV=1 powershell.exe -NoProfile -NonInteractive -Command "recall health --json" 2>/dev/null | tr -d '\r') || true
+          fi
+          ;;
+      esac
+    fi
   fi
 
   if [[ -n "$health_json" ]] && echo "$health_json" | jq empty 2>/dev/null; then

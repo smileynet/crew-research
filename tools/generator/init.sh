@@ -32,6 +32,25 @@ if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; th
   fi
 fi
 
+# Check a prerequisite command — tries direct, then WSL interop, then MSYS2 PowerShell.
+_check_prereq() {
+  local cmd="$1"
+  if eval "$cmd" &>/dev/null 2>&1; then return 0; fi
+  if [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+    if cmd.exe /C "$cmd" &>/dev/null 2>&1; then return 0; fi
+    if command -v powershell.exe &>/dev/null; then
+      powershell.exe -NoProfile -NonInteractive -Command "$cmd" &>/dev/null 2>&1 && return 0
+    fi
+  fi
+  case "$(uname -s)" in
+    MINGW*|MSYS*)
+      if command -v powershell.exe &>/dev/null; then
+        powershell.exe -NoProfile -NonInteractive -Command "$cmd" &>/dev/null 2>&1 && return 0
+      fi ;;
+  esac
+  return 1
+}
+
 PROJECT=""
 GLOBAL=false
 TIER="basic"
@@ -105,8 +124,8 @@ if [[ "$GLOBAL" == true ]]; then
         continue
       fi
 
-      # Test prerequisite
-      if eval "$ext_cmd" &>/dev/null; then
+      # Test prerequisite (direct → WSL interop → MSYS2 PowerShell)
+      if _check_prereq "$ext_cmd"; then
         EXTENSIONS_ACTIVE+=("$ext_name")
         # Append extension steering and skills to main arrays
         for item in $(yq -r ".extensions[$i].steering[]" "$TIER_FILE" 2>/dev/null | grep -v '^null$'); do
