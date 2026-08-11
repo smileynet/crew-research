@@ -45,8 +45,19 @@ warnings=0
 check_tool() {
   local name="$1"
   if command -v "$name" &>/dev/null; then
-    ver=$($name --version 2>/dev/null | head -1)
+    local ver
+    ver=$("$name" --version 2>/dev/null | head -1)
     echo "  ✅ $name ($ver)"
+  elif [[ -n "${WSL_DISTRO_NAME:-}" || -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+    # WSL: tool may be on the Windows side — try interop
+    local win_ver
+    win_ver=$(cmd.exe /C "$name --version" 2>/dev/null | tr -d '\r' | head -1) || true
+    if [[ -n "$win_ver" ]]; then
+      echo "  ✅ $name ($win_ver) [Windows]"
+    else
+      echo "  ❌ $name not found"
+      errors=$((errors + 1))
+    fi
   else
     echo "  ❌ $name not found"
     errors=$((errors + 1))
