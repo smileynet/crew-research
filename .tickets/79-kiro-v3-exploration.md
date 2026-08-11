@@ -1,7 +1,7 @@
 ---
 id: "79"
 title: "Explore: kiro-cli v3 session format, breaking changes, and adaptation needs"
-status: open
+status: done
 blocked_by: []
 ---
 
@@ -30,8 +30,12 @@ Exploration spike: investigate kiro-cli v3 (`kiro-cli --v3`) to understand what 
 
 ## Acceptance criteria
 
-- [ ] Document all v3 breaking changes relevant to crew-research
-- [ ] Identify which crew-research components need adaptation (init.sh, doctor.sh, session-analysis, recall ingestion, skills, steering)
-- [ ] List new v3 capabilities that crew-research could leverage (hooks, new APIs)
-- [ ] Produce spike tickets for each adaptation needed (with blocked_by pointing here)
-- [ ] Findings written to `.scratch/research/kiro-v3-exploration.md`
+- [x] Document all v3 breaking changes relevant to crew-research
+- [x] Identify which crew-research components need adaptation (init.sh, doctor.sh, session-analysis, recall ingestion, skills, steering)
+- [x] List new v3 capabilities that crew-research could leverage (hooks, new APIs)
+- [x] Produce spike tickets for each adaptation needed (with blocked_by pointing here)
+- [x] Findings written to `.scratch/research/kiro-v3-exploration.md`
+
+## Resolution (2026-08-11)
+
+Explored. v3 is Early Access (opt-in since 2.8.0). NO changes needed now — skills/steering/deploy all backward compatible. CRITICAL when v3 becomes default: recall + session-analysis need SQLite ingestion path (sessions move from JSONL to data.sqlite3). Medium: eval harness needs permissions.yaml (replaces --trust-all-tools), tool ID references should update to snake_case. Low: hooks could automate recall-prime but not essential. Findings: .scratch/research/kiro-v3-exploration.md. Follow-up tickets deferred until v3 default is announced — no point building adapters for an opt-in beta.
