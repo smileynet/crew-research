@@ -1,7 +1,7 @@
 ---
 id: "77"
 title: "Fix mise generate argument interpolation on Windows"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
