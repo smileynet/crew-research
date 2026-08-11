@@ -78,7 +78,7 @@ mise run validate-deployment
 
 # Development
 mise run validate                    # compositions + cross-links
-mise run generate -- --tool kiro-cli --output ./deploy
+mise run generate -- kiro-cli                    # or: all, claude-code
 mise run lint                        # practice↔skill cross-links
 
 # Evaluation
