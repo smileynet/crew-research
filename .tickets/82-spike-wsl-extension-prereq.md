@@ -1,7 +1,7 @@
 ---
 id: "82"
 title: "Spike: extension prereq check via WSL interop (WSL boundary layer 3)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -28,8 +28,12 @@ Add WSL to the `_check_prereq` fallback chain. When direct invocation fails in W
 
 ## Acceptance criteria
 
-- [ ] Recall extension prereq passes from WSL doctor when recall is installed on Windows
-- [ ] Extension correctly reports "not met" when tool genuinely missing
-- [ ] Existing Git Bash/MSYS2 fallback preserved (no regression)
-- [ ] Recall health JSON retrieved successfully via interop fallback
-- [ ] Fallback chain order: direct → cmd.exe → powershell.exe → fail
+- [x] Recall extension prereq passes from WSL doctor when recall is installed on Windows
+- [x] Extension correctly reports "not met" when tool genuinely missing
+- [x] Existing Git Bash/MSYS2 fallback preserved (no regression)
+- [x] Recall health JSON retrieved successfully via interop fallback
+- [x] Fallback chain order: direct → cmd.exe → powershell.exe → fail
+
+## Resolution (2026-08-11)
+
+Added _check_prereq to init.sh with WSL interop fallback chain. Doctor DEPLOY_HOME auto-detects username. Recall health gets WSL cmd.exe/powershell.exe fallback. Verified from WSL: extension activates, tier reconciliation passes.
