@@ -1,7 +1,7 @@
 ---
 id: "81"
 title: "Spike: cross-boundary tool verification in doctor.sh (WSL boundary layer 2)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -28,9 +28,13 @@ When doctor detects it's running in WSL, verify tools on the Windows side via `c
 
 ## Acceptance criteria
 
-- [ ] `wsl -- bash doctor.sh` reports kiro-cli ✅ via Windows interop
-- [ ] jq detected via Windows side when not installed in WSL
-- [ ] WSL interop health check runs first; reports clearly if broken
-- [ ] Tool output labels show which side (`[Windows]` vs native)
-- [ ] No regression when run from Git Bash, native Linux, or macOS
-- [ ] Total doctor runtime <3s on a warm WSL session
+- [x] `wsl -- bash doctor.sh` reports kiro-cli ✅ via Windows interop
+- [x] jq detected via Windows side when not installed in WSL
+- [x] WSL interop health check runs first; reports clearly if broken
+- [x] Tool output labels show which side (`[Windows]` vs native)
+- [x] No regression when run from Git Bash, native Linux, or macOS
+- [x] Total doctor runtime <3s on a warm WSL session
+
+## Resolution (2026-08-11)
+
+check_tool uses cmd.exe interop in WSL. kiro-cli and jq now show as [Windows]. Doctor goes from 2 errors to 0. No regression on Git Bash or native Linux.
