@@ -1,7 +1,7 @@
 ---
 id: "77"
 title: "Fix mise generate argument interpolation on Windows"
-status: in_progress
+status: done
 blocked_by: []
 ---
 
@@ -19,7 +19,11 @@ generator currently accepts `kiro-cli`, `claude-code`, or `all`, not `codex`.
 
 ## Acceptance criteria
 
-- [ ] `mise run generate` uses its default tool successfully
-- [ ] `mise run generate <supported-tool>` passes the selected tool on Windows
-- [ ] Help text names only tools accepted by `generate.sh`
-- [ ] AGENTS.md command examples match the working task interface
+- [x] `mise run generate` uses its default tool successfully
+- [x] `mise run generate <supported-tool>` passes the selected tool on Windows
+- [x] Help text names only tools accepted by `generate.sh`
+- [x] AGENTS.md command examples match the working task interface
+
+## Resolution (2026-08-11)
+
+Changed usage_tool? to usage_tool:-kiro-cli in mise.toml, added --tool prefix. All forms work on Windows: default, explicit tool, all. AGENTS.md updated to match.
