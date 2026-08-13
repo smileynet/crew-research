@@ -16,6 +16,7 @@ metadata:
 3. **Impact over mechanism:** State what changed for the user, not how the code does it.
 4. **One entry per logical change:** Group related commits into a single entry.
 5. **Active voice, specific words:** "Users can now X" not "X functionality was added."
+6. **Jargon self-check:** After drafting all entries, re-read each one asking "does this use internal/architectural terms?" If it names a pattern, abstraction, or internal component (sink, serializer, autoload, hook, buffer), rewrite to describe the observable user outcome instead.
 
 ## Decision Test
 
