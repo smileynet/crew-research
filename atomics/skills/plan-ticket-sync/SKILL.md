@@ -1,6 +1,6 @@
 ---
 name: plan-ticket-sync
-description: "Reconcile PLAN.md and .tickets/ — ensure all planned work has tickets, all tickets are current, and ordering matches the plan. Use when auditing plan-ticket drift, after closing tickets, when the plan feels stale, or when asking 'is everything tracked?'. Trigger: sync plan, plan drift, are tickets current, is everything tracked, reconcile plan, plan audit, ticket hygiene, update plan."
+description: "Review all tickets for currency, completeness, and ordering. Create tickets for untracked work, update stale ones, and ensure ordering matches the session's established plan. Use when auditing ticket health, after planning, when work feels untracked, or asking 'is everything captured?'. Trigger: sync tickets, ticket review, are tickets current, is everything tracked, ticket audit, ticket hygiene, update tickets, refresh tickets."
 metadata:
   type: process
   invocation: both
@@ -9,78 +9,76 @@ metadata:
 
 # Plan-Ticket Sync
 
-Reconcile PLAN.md and `.tickets/` so neither lies. The plan is the map; tickets are the work units. Both must agree.
-
-## When to Run
-
-- After closing tickets (plan rows may be stale)
-- After creating tickets (plan may be missing rows)
-- After changing priorities or dependencies
-- Periodically (weekly or at session start if drift suspected)
-- When asked "is everything tracked?" or "what's the current state?"
+Review all tickets against session context. Ensure every planned item is tracked, every ticket is current, and ordering reflects the agreed plan.
 
 ## Process
 
-### 1. Automated drift check
+### 1. Gather context
+
+Read all open tickets and the current plan (PLAN.md, session decisions, stated priorities). Build a mental map of: what's planned, what's tracked, what's stale.
+
+### 2. Audit each open ticket
+
+For every open/in_progress ticket, check:
+
+| Check | Fix |
+|-------|-----|
+| Title still reflects the work | Update title to match current understanding |
+| Status is accurate (not done but unclosed, or blocked but not marked) | Update status or blocked_by |
+| Acceptance criteria are concrete and testable | Rewrite vague ACs |
+| Context section has relevant file paths and decisions | Add links to ADRs, specs, CONTEXT.md terms |
+| Out of scope is clear | Add boundaries if ambiguous |
+
+### 3. Identify untracked work
+
+Scan session context for work that has no ticket:
+- Decisions made that require implementation
+- Issues discovered during the session
+- Follow-up work from completed tickets
+- Planned items with no corresponding ticket
+
+For each gap, create a ticket following the quality standard below.
+
+### 4. New ticket quality standard
+
+Every new ticket MUST have:
+
+- **Intent source** — link to what spawned it (session decision, plan section, ADR, spec, or prior ticket)
+- **Key context** — relevant files, decisions, domain terms the implementer needs
+- **Desired outcome** — behavioral "What to build" (what the system does, not how to build it)
+- **Validation** — concrete, testable acceptance criteria (checkboxes)
+- **Ordering** — correct `blocked_by` reflecting dependencies and plan sequence
 
 ```bash
-tkt sync-plan --check --brief
+tkt new <slug> --title "..." [--blocked-by NN,NN] [--priority P]
 ```
 
-This reports:
-- **plan-status-drift** — ticket is done but plan says not done (or vice versa)
-- **missing-plan-row** — open ticket has no entry in the plan
-- **missing-ticket** — plan references a ticket that doesn't exist
+Then fill the body with the full template (What to build, Context, ACs, Out of scope).
 
-If `tkt` is not on PATH, perform manually: compare plan rows against `.tickets/*.md` frontmatter.
+### 5. Order tickets to match the plan
 
-### 2. Fix derivable drift
+Ensure `blocked_by` edges create the intended work sequence:
+- Items the plan says come first should block items that come later
+- Priority reflects urgency agreed in session (urgent > high > medium > low)
+- No circular dependencies
 
 ```bash
-tkt sync-plan --fix
+tkt validate --brief   # catches cycles and broken deps
 ```
 
-Auto-fixes status columns in the plan to match ticket status. Report what changed.
-
-If `--fix` is insufficient (structural issues), proceed to manual steps below.
-
-### 3. Manual reconciliation (findings that --fix can't resolve)
-
-| Finding | Action |
-|---------|--------|
-| Missing plan row | Add the ticket to the appropriate plan section |
-| Missing ticket | Create ticket (`tkt new`) or remove stale plan reference |
-| Ordering mismatch | Reorder plan rows to match current priority + dependency graph |
-| Orphan ticket (no plan context) | Assign to a plan section or mark `status: backlog` |
-| Completed phase still open | Close all remaining tickets or document why they're deferred |
-
-### 4. Verify clean
+### 6. Verify
 
 ```bash
-tkt sync-plan --check --brief
-# Expected: pass (0 findings)
-tkt validate --brief
-# Expected: pass (only historical warnings on closed tickets)
+tkt sync-plan --check --brief   # plan↔ticket status agreement
+tkt validate --brief            # structural health
+tkt ready                       # frontier matches expectations
 ```
 
-### 5. Commit
+Present: tickets created, tickets updated, current frontier.
 
-Commit the reconciled plan and any ticket updates together:
-```
-chore(plan): reconcile plan-ticket drift (N fixes)
-```
+## Does NOT
 
-## What This Skill Does NOT Do
-
-- Create new features or specs (that's `spec-driven-development`)
-- Decompose specs into tickets (that's `ticket-planning`)
 - Pick what to work on next (that's `frontier-work`)
-- Change ticket content or acceptance criteria
-
-## Quality Check
-
-After sync, verify:
-- Every open ticket appears in the plan
-- Every plan row marked incomplete has a corresponding open/in_progress ticket
-- Dependency ordering in plan matches `blocked_by` in tickets
-- No ticket is both `done` and listed as incomplete in the plan
+- Decompose a spec from scratch (that's `ticket-planning`)
+- Create specs or features (that's `spec-driven-development`)
+- Change the plan itself — it reflects the plan into tickets
