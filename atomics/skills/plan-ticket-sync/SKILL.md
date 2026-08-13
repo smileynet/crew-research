@@ -44,19 +44,21 @@ After creating tickets, add them to the plan — every open ticket needs a plan 
 
 ### 4. New ticket quality standard
 
+Apply the tkt skill's [ticket-standards.md](references not loaded — read from the tkt skill if available, otherwise apply the checklist below).
+
 Every new ticket MUST have:
 
 - **Intent source** — link to what spawned it (session decision, plan section, ADR, spec, or prior ticket)
 - **Key context** — relevant files, decisions, domain terms the implementer needs
 - **Desired outcome** — behavioral "What to build" (what the system does, not how to build it)
-- **Validation** — concrete, testable acceptance criteria (checkboxes)
+- **Validation** — concrete, testable acceptance criteria + `validation_criteria` frontmatter
 - **Ordering** — correct `blocked_by` and priority (see step 5)
 
 ```bash
 tkt new <slug> --title "..." [--blocked-by NN,NN] [--priority P]
 ```
 
-Then fill the body with the full template (What to build, Context, ACs, Out of scope).
+Then fill the body with the full template (What to build, Context, ACs, Out of scope). A ticket that fails the quality bar wastes the implementer's context window.
 
 ### 5. Set ordering
 
