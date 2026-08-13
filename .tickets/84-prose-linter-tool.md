@@ -21,10 +21,10 @@ Evaluate whether a deterministic prose linter (Python, no deps) should be added 
 
 ## Acceptance criteria
 
-- [ ] Spike: run ste-lint.py against 3-5 sample skill/doc files to calibrate noise
-- [ ] Decision: adopt as-is, adapt, or reject (with rationale)
-- [ ] If adopt: tool at `tools/lint/prose-lint.py` with usage in eval README
-- [ ] If reject: document why in ticket Resolution
+- [x] Spike: run ste-lint.py against 3-5 sample skill/doc files to calibrate noise
+- [x] Decision: adopt as-is, adapt, or reject (with rationale)
+- [x] If adopt: tool at `tools/lint/prose-lint.py` with usage in eval README
+- [x] If reject: document why in ticket Resolution
 
 ## Research / Spikes
 

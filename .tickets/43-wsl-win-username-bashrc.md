@@ -25,8 +25,8 @@ Add `export WIN_USERNAME=<windows-user>` to the WSL `~/.bashrc` so that `init.sh
 ## Acceptance criteria
 
 - [x] WSL `~/.bashrc` contains `export WIN_USERNAME=uosmi`
-- [ ] `wsl -- bash -c 'echo $WIN_USERNAME'` returns `uosmi`
-- [ ] Deploy via `wsl -- bash -c '... init.sh --global ...'` targets `/mnt/c/Users/uosmi/.kiro` without needing a manual `export`
+- [x] `wsl -- bash -c 'echo $WIN_USERNAME'` returns `uosmi`
+- [x] Deploy via `wsl -- bash -c '... init.sh --global ...'` targets `/mnt/c/Users/uosmi/.kiro` without needing a manual `export`
 
 ## Out of scope
 

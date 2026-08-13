@@ -42,10 +42,10 @@ Constraint: subagent reliability (~50% empty) makes this secondary.
 
 ## Validation criteria
 
-- [ ] Approach A: precision improves ≥15% over baseline
-- [ ] Approach A: recall stays ≥90%
-- [ ] Scoring adds zero latency (deterministic, no extra LLM calls)
-- [ ] Scoring rubric documented in references/ (reproducible)
+- [x] Approach A: precision improves ≥15% over baseline
+- [x] Approach A: recall stays ≥90%
+- [x] Scoring adds zero latency (deterministic, no extra LLM calls)
+- [x] Scoring rubric documented in references/ (reproducible)
 
 ## Reject if
 

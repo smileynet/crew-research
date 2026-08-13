@@ -25,7 +25,7 @@ Replace the filesystem-based executable check in `tools/lint/check-crosslinks.sh
 - [x] Files tracked as 100755 in git pass; files tracked as 100644 fail
 - [x] Untracked .sh files in tools/ are flagged (not silently skipped)
 - [x] `mise run lint` passes on this repo on Windows (the bashrc-hook.sh false positive is gone)
-- [ ] Behavior on Linux/macOS unchanged (git mode matches filesystem mode there, so same results)
+- [x] Behavior on Linux/macOS unchanged (git mode matches filesystem mode there, so same results)
 
 ## Out of scope
 

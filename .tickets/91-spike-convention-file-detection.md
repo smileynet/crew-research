@@ -53,11 +53,11 @@ intent without requiring explicit configuration.
 
 ## Validation criteria
 
-- [ ] Detection function finds all convention files in test repos (100% recall)
-- [ ] code-review produces findings aligned with discovered rules that it previously missed
-- [ ] adopt-project reports all found convention files with their scoping
-- [ ] No false positives (doesn't treat random .md files as convention files)
-- [ ] Skill stays under 100 lines (detection logic in references/)
+- [x] Detection function finds all convention files in test repos (100% recall)
+- [x] code-review produces findings aligned with discovered rules that it previously missed
+- [x] adopt-project reports all found convention files with their scoping
+- [x] No false positives (doesn't treat random .md files as convention files)
+- [x] Skill stays under 100 lines (detection logic in references/)
 
 ## Reject if
 

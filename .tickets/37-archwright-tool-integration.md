@@ -30,10 +30,10 @@ Behavioral outcomes:
 ## Acceptance criteria
 
 - [x] A machine with archwright hydrated: `mise run catalog` / `doctor` reflect it; relevant skills carry recommendation seams to archwright
-- [ ] A machine without it: no broken references; the gap is visible with a hydration pointer
-- [ ] Hydration documented (README or user-setup-guide section) and tested from a clean state
+- [x] A machine without it: no broken references; the gap is visible with a hydration pointer
+- [x] Hydration documented (README or user-setup-guide section) and tested from a clean state
 - [x] Overlap decisions recorded (which skill recommends archwright for what, and what stays native to crew-research)
-- [ ] `mise run validate` + lint pass
+- [x] `mise run validate` + lint pass
 
 ## Out of scope
 

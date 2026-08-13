@@ -32,14 +32,14 @@ means either hashing a source range (brittle) or extracting the template to its 
 
 ## Acceptance criteria
 
-- [ ] `judge_hash` recorded on every scored row and recomputable by `check-staleness.sh`
-- [ ] Editing the judge prompt reports JUDGE-DRIFT; editing an unrelated part of run.sh
+- [x] `judge_hash` recorded on every scored row and recomputable by `check-staleness.sh`
+- [x] Editing the judge prompt reports JUDGE-DRIFT; editing an unrelated part of run.sh
       does not
-- [ ] Extraction (if taken) leaves judging behaviour byte-identical — verify by
+- [x] Extraction (if taken) leaves judging behaviour byte-identical — verify by
       re-judging one retained def before and after and diffing the prompts, not the
       scores (scores are nondeterministic)
-- [ ] `check-staleness.sh` drift kinds documented together in one place
-- [ ] Rows predating the component read as unknown, not current
+- [x] `check-staleness.sh` drift kinds documented together in one place
+- [x] Rows predating the component read as unknown, not current
 
 ## Resolution (2026-07-29)
 

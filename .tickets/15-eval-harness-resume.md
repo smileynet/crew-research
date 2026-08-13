@@ -22,7 +22,7 @@ spec: "session-improvements-2026-07-17"
 
 - [x] `--skip-completed <dir>`: definitions with a scores.jsonl entry in <dir> are skipped with a logged reason; new scores append into <dir> (or a merged copy)
 - [x] Interrupt-then-resume produces one dir with all 35 entries (test with --dry-run: run 3 defs, interrupt, resume, verify single scores.jsonl)
-- [ ] Bare `--all` behavior unchanged
+- [x] Bare `--all` behavior unchanged
 - [x] Usage line documents the flag
 
 ## Out of scope

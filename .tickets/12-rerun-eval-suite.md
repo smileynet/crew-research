@@ -27,7 +27,7 @@ Run `mise run eval` (all active definitions, 3 trials) to validate that threshol
 - [x] Full eval suite completes (all active definitions, no score-1.0 infrastructure failures)
 - [x] Pass rate ≥ 30% (up from 9%)
 - [x] No new regressions (evals that passed before don't fail now)
-- [ ] Results committed to `tools/evals/results/` with comparison notes
+- [x] Results committed to `tools/evals/results/` with comparison notes
 - [x] 38 score-1.0 evals from prior run now produce real scores (not rate-limit failures)
 
 ## Research / Spikes

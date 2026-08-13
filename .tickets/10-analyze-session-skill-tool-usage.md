@@ -22,7 +22,7 @@ An evidence-based usage report answering: which deployed skills actually activat
 
 - [x] Per-skill activation counts across recent sessions (e.g. last 30 days): skill loads via skill tool + /invocations
 - [x] Per-steering compliance signal where measurable (e.g. recall search before history answers, nohup pattern for evals, handoff written at session end)
-- [ ] Tool usage distribution: recall, subagent, web_search, per project
+- [x] Tool usage distribution: recall, subagent, web_search, per project
 - [x] "Never used" list: deployed skills with zero activations in the window
 - [x] Report in docs/development/ with method + caveats; recommendations fed back into tier composition (follow-up tickets if warranted)
 - [x] session-analyzer extensions committed (if parse.py needed changes)

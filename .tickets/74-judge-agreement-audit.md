@@ -34,14 +34,14 @@ cheap to get. Do NOT cargo-cult the panel floor of 3 without it.
 
 ## Acceptance criteria
 
-- [ ] Every place agreement is used as confidence is identified, with a fix or an explicit
+- [x] Every place agreement is used as confidence is identified, with a fix or an explicit
       "already correct" note
-- [ ] A documented rule: chance-corrected stats for agreement, ICC (not Pearson) for
+- [x] A documented rule: chance-corrected stats for agreement, ICC (not Pearson) for
       correlation — placed where someone writing the next results doc will see it
-- [ ] Our own γ̄ measured from a retained results dir, with n stated, or a recorded reason
+- [x] Our own γ̄ measured from a retained results dir, with n stated, or a recorded reason
       it cannot be computed (e.g. all retained rows are single-judge — which is likely, and
       is itself the finding)
-- [ ] If γ̄ is measurable and contradicts the floor of 3, ADR 0010's amendment gets a
+- [x] If γ̄ is measurable and contradicts the floor of 3, ADR 0010's amendment gets a
       follow-up note rather than a silent change
 
 ## Resolution (2026-07-31)

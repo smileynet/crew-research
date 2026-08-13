@@ -34,11 +34,11 @@ beats a single 675B judge by 1.31× under 30% corruption.
 
 ## Validation criteria
 
-- [ ] Current aggregation method documented with code reference
-- [ ] Geometric median re-scoring produces results on the last full run
-- [ ] ≤5% of definitions change verdict (if more, current method has a problem)
-- [ ] Under simulated corruption, geometric median moves ≤50% as far as current method
-- [ ] Implementation is a drop-in replacement (same inputs/outputs)
+- [x] Current aggregation method documented with code reference
+- [x] Geometric median re-scoring produces results on the last full run
+- [x] ≤5% of definitions change verdict (if more, current method has a problem)
+- [x] Under simulated corruption, geometric median moves ≤50% as far as current method
+- [x] Implementation is a drop-in replacement (same inputs/outputs)
 
 ## Reject if
 

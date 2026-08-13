@@ -21,11 +21,11 @@ Port init.sh's `DEPLOY_HOME` detection (init.sh lines 14-20: WSL → `/mnt/c/Use
 
 ## Acceptance criteria
 
-- [ ] doctor.sh resolves the same `DEPLOY_HOME` init.sh deploys to (WSL detection + `WIN_USERNAME` override)
-- [ ] All deployment-artifact checks (steering, skills, manifests, tier stamp, per-tool AGENTS.md paths, recall staleness marker) use `DEPLOY_HOME`
-- [ ] Tool availability checks (kiro-cli, yq, jq…) still use the running environment's PATH, not DEPLOY_HOME
-- [ ] On a WSL+Windows machine with no WSL-native ~/.kiro: doctor run from WSL reports the same result as the Windows-home state (no false missing errors)
-- [ ] Non-WSL Linux/macOS behavior unchanged
+- [x] doctor.sh resolves the same `DEPLOY_HOME` init.sh deploys to (WSL detection + `WIN_USERNAME` override)
+- [x] All deployment-artifact checks (steering, skills, manifests, tier stamp, per-tool AGENTS.md paths, recall staleness marker) use `DEPLOY_HOME`
+- [x] Tool availability checks (kiro-cli, yq, jq…) still use the running environment's PATH, not DEPLOY_HOME
+- [x] On a WSL+Windows machine with no WSL-native ~/.kiro: doctor run from WSL reports the same result as the Windows-home state (no false missing errors)
+- [x] Non-WSL Linux/macOS behavior unchanged
 
 ## Out of scope
 

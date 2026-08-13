@@ -27,7 +27,7 @@ The mechanism for running a multi-adapter eval suite on machines with partial to
 - [x] Judge participation persisted per trial in scores.jsonl (names + count); baseline records state the judge set used
 - [x] scores.jsonl rows are self-describing: each row carries the def's immutable `id` and the run's `adapter` (today rows have only mutable `name`; cross-adapter joins and rename survival need the id — this is the row-level key ticket 32's interchange builds on)
 - [x] Committed owed-run ledger (`docs/development/deferred-runs.md`): def, required adapter, reason, owed-since, filled-when-run; seeded with the 3 image defs
-- [ ] Conformance: at least one deliberately non-matching def SKIPs (not fails, not passes) in a test run
+- [x] Conformance: at least one deliberately non-matching def SKIPs (not fails, not passes) in a test run
 
 ## Out of scope
 

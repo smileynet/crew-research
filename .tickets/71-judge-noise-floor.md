@@ -31,12 +31,12 @@ means "unknown", not "fine".
 
 ## Acceptance criteria
 
-- [ ] Floor value chosen with the reasoning recorded (why 0.3 and not 0.1 or 0.5)
-- [ ] Single-family rows with sub-floor deltas are visibly marked in the run summary
-- [ ] The rule is documented where eval results are interpreted (eval-harness skill), not
+- [x] Floor value chosen with the reasoning recorded (why 0.3 and not 0.1 or 0.5)
+- [x] Single-family rows with sub-floor deltas are visibly marked in the run summary
+- [x] The rule is documented where eval results are interpreted (eval-harness skill), not
       only in code
-- [ ] Historical rows without a `panel` field are treated as unknown, not as passing
-- [ ] Test covering: single-family sub-floor (flagged), single-family above-floor (not
+- [x] Historical rows without a `panel` field are treated as unknown, not as passing
+- [x] Test covering: single-family sub-floor (flagged), single-family above-floor (not
       flagged), multi-family sub-floor (not flagged)
 
 ## Resolution (2026-07-31)
