@@ -16,6 +16,16 @@ the Python implementation at `tools/recall/`. The Python version is dead code th
 - Creates maintenance burden (tests, deps, proofs all reference it)
 - Blocks the skill import protocol (ticket 98) — recall should own its skill from its own repo
 
+## Context
+
+The Rust recall CLI at `~/code/recall` (github.com/smileynet/recall) is the production implementation:
+- Single binary, no Python/venv/uv dependencies
+- `recall sync` replaces the `ingest-all.sh` orchestration script
+- All subcommands (search, import, import-all, ingest, prime, health, status, sync, add, forget, migrate) are native
+- Already deployed on personal machines via `cargo install --path ~/code/recall`
+
+The Python implementation at `tools/recall/` is now dead code — no longer installed, no longer invoked by the bashrc hook or cron. However, 27 files in crew-research still reference it.
+
 ## What to build
 
 Deprecate and remove `tools/recall/`, migrate all references to the Rust binary, and handle
@@ -105,3 +115,56 @@ Users who installed via `uv tool install ./tools/recall`:
 - Recall feature work (ticket 36, 38, etc.)
 - Publishing to crates.io (recall repo ticket 30)
 - Removing recall from known-tools.yaml (it stays — it's the Rust binary now)
+Update all crew-research references from the Python recall (`tools/recall/`, `uv tool install ./tools/recall`, `uv run --directory tools/recall`) to the Rust recall (`cargo install --path ~/code/recall`, plain `recall` CLI invocation).
+
+## Files to update
+
+**High-priority (user-facing, deploy-path):**
+- `AGENTS.md` — update install instructions, `test:recall`, `proof:recall`, `recall:ingest` sections
+- `README.md` — change `uv tool install ./tools/recall` to `cargo install recall` (or `--path ~/code/recall`)
+- `.kiro/steering/user-setup-guide.md` — update install, setup, scheduled task, and troubleshooting sections
+- `mise.toml` — update tasks: `test:recall` → `cargo test` in recall repo, `proof:recall` → TBD, `recall:ingest` → `recall sync`, `recall:status` → `recall status`
+- `compositions/known-tools.yaml` — update recall hydrate command ✅ (done in this ticket)
+
+**Medium-priority (skill content):**
+- `atomics/skills/recall/references/cli-reference.md` — update CLI reference to Rust subcommands
+- `atomics/skills/cheatsheet/SKILL.md` — update recall section
+
+**Low-priority (internal tooling, can remove):**
+- `tools/recall/bashrc-hook.sh` — mark deprecated header, point to `recall sync`
+- `tools/recall/ingest-all.sh` — mark deprecated header, point to `recall sync`
+- `tools/recall/profile-hook.ps1` — mark deprecated header
+- `tools/recall/Invoke-RecallIngestAll.ps1` — mark deprecated header
+- `tools/proofs/recall/run-recall-proofs.py` — needs rewrite to invoke Rust binary (currently uses Python imports)
+- `tools/evals/scripts/multi-project-import-eval.py` — uses Python API directly
+
+**Reference-only (no change needed):**
+- `.memory/` files, `.tickets/`, docs — historical references are fine as-is
+
+## Migration plan
+
+1. Update `known-tools.yaml` hydrate field (this ticket, done)
+2. Update user-facing docs (AGENTS.md, README, user-setup-guide) — single commit
+3. Update mise.toml tasks — single commit
+4. Add deprecation headers to `tools/recall/*.sh` and `tools/recall/*.ps1`
+5. Rewrite `tools/proofs/recall/run-recall-proofs.py` to use subprocess calls to `recall` binary
+6. **After all above:** remove `tools/recall/` directory (breaking — separate PR)
+
+## Notes
+
+- The Python `pyproject.toml` at `tools/recall/` declares `recall` as a package name — if anyone runs `uv tool install ./tools/recall` they get the old Python version, NOT the Rust binary. This is a footgun that the README currently creates.
+- The eval script `multi-project-import-eval.py` imports Python modules directly — needs conversion to subprocess-based invocation or retirement.
+- The proof harness uses Python's recall store/embedder directly — proofs should test the Rust binary's behavior (already has its own test suite at `~/code/recall/tests/`).
+- PyPI "recall" is a squatted unrelated package — documentation must NEVER suggest `pip install recall` or `uv tool install recall` (without path).
+
+## Acceptance criteria
+
+- [ ] `compositions/known-tools.yaml` recall hydrate points to Rust install
+- [ ] AGENTS.md recall sections reference Rust binary (no `uv run`, no `tools/recall`)
+- [ ] README.md install instructions use `cargo install`
+- [ ] user-setup-guide.md updated for Rust recall
+- [ ] mise.toml recall tasks invoke Rust binary
+- [ ] `tools/recall/` scripts have deprecation headers
+- [ ] Proof harness updated or marked for separate rewrite ticket
+- [ ] `tkt validate --brief` still passes
+- [ ] `mise run doctor` still reports recall healthy

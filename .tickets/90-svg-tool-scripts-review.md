@@ -1,9 +1,9 @@
 ---
-id: 90
+id: "90"
 title: "Review: SVG generation tool scripts (diagram_themes.py + render pipeline)"
 status: done
 priority: medium
-blocked_by: [89]
+blocked_by: ["89"]
 ---
 
 ## What to review

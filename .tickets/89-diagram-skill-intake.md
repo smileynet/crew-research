@@ -1,5 +1,5 @@
 ---
-id: 89
+id: "89"
 title: "Intake: diagram rendering skill — D2 + diagrams + Mermaid"
 status: done
 priority: medium

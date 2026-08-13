@@ -5,7 +5,6 @@ status: done
 blocked_by: []
 env: either
 spec: "eval-harness"
-priority: normal
 ---
 
 # Spike: Geometric Median Aggregation for Eval Judging

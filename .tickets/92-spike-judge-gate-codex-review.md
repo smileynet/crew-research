@@ -5,7 +5,6 @@ status: open
 blocked_by: []
 env: either
 spec: "eval-harness"
-priority: normal
 ---
 
 # Spike: Judge-as-Gate for dispatch-codex-review

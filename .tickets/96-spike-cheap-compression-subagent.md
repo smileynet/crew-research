@@ -5,7 +5,6 @@ status: open
 blocked_by: []
 env: personal
 spec: "eval-harness"
-priority: normal
 ---
 
 # Spike: Cheap-Model Compression for Subagent Dispatch Context

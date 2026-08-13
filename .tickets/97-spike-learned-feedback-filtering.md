@@ -5,7 +5,6 @@ status: open
 blocked_by: ["92"]
 env: either
 spec: "eval-harness"
-priority: normal
 ---
 
 # Spike: Learned Feedback Filtering for Review Findings
