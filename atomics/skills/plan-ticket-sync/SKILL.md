@@ -19,15 +19,16 @@ Read all open tickets and the current plan (PLAN.md, session decisions, stated p
 
 ### 2. Audit each open ticket
 
-For every open/in_progress ticket, check:
+For every open/in_progress ticket, check for real drift:
 
-| Check | Fix |
-|-------|-----|
-| Title still reflects the work | Update title to match current understanding |
-| Status is accurate (not done but unclosed, or blocked but not marked) | Update status or blocked_by |
-| Acceptance criteria are concrete and testable | Rewrite vague ACs |
-| Context section has relevant file paths and decisions | Add links to ADRs, specs, CONTEXT.md terms |
-| Out of scope is clear | Add boundaries if ambiguous |
+- **Stale blocked_by** — a dependency is done but blocked_by still lists it (ticket should be on the frontier but isn't)
+- **Missing blocked_by** — work can't actually start without another ticket, but no edge declared
+- **Vague ACs** — criteria use "properly", "correctly", "as expected" instead of testable conditions
+- **Dead context** — file paths that moved, ADRs that were superseded, specs that changed
+- **Superseded work** — the plan changed and this ticket no longer reflects what's needed (→ close or rewrite)
+- **Scope creep** — ticket grew during discussion but wasn't split
+
+For each issue: fix in place (edit frontmatter/body), or if the ticket is no longer relevant, close it with a note or move to `status: backlog`.
 
 ### 3. Identify untracked work
 
@@ -39,6 +40,8 @@ Scan session context for work that has no ticket:
 
 For each gap, create a ticket following the quality standard below.
 
+After creating tickets, add them to the plan — every open ticket needs a plan row so `tkt sync-plan --check` passes clean. Place new rows in the appropriate plan section with correct status.
+
 ### 4. New ticket quality standard
 
 Every new ticket MUST have:
@@ -47,7 +50,7 @@ Every new ticket MUST have:
 - **Key context** — relevant files, decisions, domain terms the implementer needs
 - **Desired outcome** — behavioral "What to build" (what the system does, not how to build it)
 - **Validation** — concrete, testable acceptance criteria (checkboxes)
-- **Ordering** — correct `blocked_by` reflecting dependencies and plan sequence
+- **Ordering** — correct `blocked_by` and priority (see step 5)
 
 ```bash
 tkt new <slug> --title "..." [--blocked-by NN,NN] [--priority P]
@@ -55,15 +58,20 @@ tkt new <slug> --title "..." [--blocked-by NN,NN] [--priority P]
 
 Then fill the body with the full template (What to build, Context, ACs, Out of scope).
 
-### 5. Order tickets to match the plan
+### 5. Set ordering
 
-Ensure `blocked_by` edges create the intended work sequence:
-- Items the plan says come first should block items that come later
-- Priority reflects urgency agreed in session (urgent > high > medium > low)
-- No circular dependencies
+Two independent axes — don't conflate them:
+
+**Dependencies** (`blocked_by`): structural — A must finish before B can start.
+- Only add blocked_by when there's a real technical or logical dependency
+- "We want to do A first" is NOT a blocked_by — that's priority
+
+**Priority**: urgency — among unblocked tickets, what matters most.
+- Set via `tkt edit <id> --priority high|medium|low`
+- Reflects session agreement on what's urgent vs what can wait
 
 ```bash
-tkt validate --brief   # catches cycles and broken deps
+tkt validate --brief   # catches cycles and broken blocked_by refs
 ```
 
 ### 6. Verify
