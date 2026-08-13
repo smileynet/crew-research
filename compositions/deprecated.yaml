@@ -72,3 +72,11 @@ skills:
     replaced_by: project-conventions references/windows.md
     reason: converted to progressive reference (921eb2c)
     since: 0.2.0
+  - name: ticket-planning
+    replaced_by: tkt skill (self-deployed from tkt repo)
+    reason: tkt owns its own skills — ticket format + planning merged into skills/tkt/references/
+    since: 0.3.0
+  - name: frontier-work
+    replaced_by: tkt steering (self-deployed from tkt repo)
+    reason: tkt owns its own steering — frontier-work.md deployed by tools/deploy-skills.sh
+    since: 0.3.0
