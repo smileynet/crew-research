@@ -1,7 +1,7 @@
 ---
 id: "101"
 title: "Spike: automatic session summarization at ingestion (mastra observational memory pattern)"
-status: open
+status: done
 blocked_by: []
 env: personal
 priority: normal
@@ -59,3 +59,7 @@ to answer vs getting the answer from a single summary chunk.
 - Mastra observational memory: `.references/mastra/packages/memory/src/processors/observational-memory/`
 - Research: `.scratch/research/overlap-memory.md`
 - recall repo: `~/code/recall`
+
+## Resolution (2026-08-14)
+
+Moved to recall repo as ticket 040.
