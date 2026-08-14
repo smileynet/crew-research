@@ -1,7 +1,7 @@
 ---
 id: "103"
 title: "Spike: temporal decay in recall search scoring (recency boost)"
-status: open
+status: done
 blocked_by: []
 env: either
 priority: normal
@@ -60,3 +60,7 @@ the newer one ranks higher with decay vs without.
 
 - Research: `.scratch/research/overlap-memory.md`
 - recall search: `~/code/recall/src/search.rs`
+
+## Resolution (2026-08-14)
+
+Moved to recall repo as ticket 042.
