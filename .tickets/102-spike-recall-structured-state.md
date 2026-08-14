@@ -1,7 +1,7 @@
 ---
 id: "102"
 title: "Spike: structured state per wing — recall state get/set for working memory"
-status: open
+status: done
 blocked_by: []
 env: either
 priority: normal
@@ -62,3 +62,7 @@ No embeddings, no search — direct key-value per wing.
 
 - Mastra working memory: `.references/mastra/packages/memory/src/` (working memory template)
 - Research: `.scratch/research/overlap-memory.md`
+
+## Resolution (2026-08-14)
+
+Moved to recall repo as ticket 041.
