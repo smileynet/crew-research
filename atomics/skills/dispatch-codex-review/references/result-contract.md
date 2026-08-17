@@ -23,8 +23,15 @@ remote-reachable artifacts. Process output is a locator, not proof.
 Prefer the host's Codex subagent mechanism. CLI fallback:
 
 ```text
-codex exec -C <repository> <prompt>
+codex exec --dangerously-bypass-approvals-and-sandbox <prompt>
 ```
 
-Apply only the minimum permissions needed for marker/ticket commits and pushes.
+The `--dangerously-bypass-approvals-and-sandbox` flag is required. Without it,
+Codex's sandbox blocks subprocess execution (project verification commands like
+`cargo test`, `godot --headless`, etc.) and Git push, producing false review
+results or failing to commit the findings ticket.
+
+Only dispatch reviews in environments where the repository is trusted and
+network access is acceptable (CI runners, local dev machines).
+
 Do not pass repository content inline; Codex reads it from the working tree.
