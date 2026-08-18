@@ -34,6 +34,7 @@ bash tools/generator/catalog.sh                        # browse available skills
 | `pruned: skills/X/ (deprecated — replaced by: Y)` | X is in `compositions/deprecated.yaml` |
 | `kept (symlink): ...` | symlinks are never pruned — the personal-customization escape hatch |
 | `⚠️ unmanaged (kept): skills/X/` | dir we didn't deploy (another project's or hand-made) — warned, never deleted |
+| `⚠️ unmanaged steering file: X — next deploy will PRUNE it` | a KNOWN TOOL deployed steering as a **copy**, not a symlink. Crew's prune deletes unmanaged regular `.md` in `~/.kiro/steering/` but keeps symlinks. Fix in the OWNING tool's deploy script (`ln -sf`, not `cp`) — never in crew. Recurring class: tkt ticket 110, archwright subagent-reliability collision |
 | `✅ <tool> (N skills, self-deployed)` / `○ not hydrated` / `⚠️ broken symlink(s)` | known tool (compositions/known-tools.yaml): healthy / absent-with-hydrate-hint (not an error) / source repo moved — re-run its deploy script |
 
 ## Manifests (what prune trusts)
