@@ -20,7 +20,7 @@ If `.memory/` and `AGENTS.md` already exist, this project is already scaffolded.
 Create these if they don't exist:
 
 1. **`.scratch/`** — ephemeral working notes
-2. **`.memory/CONTEXT.md`** — project glossary (empty template)
+2. **`.memory/CONTEXT.md`** — project glossary (empty template with scope comment: "GLOSSARY ONLY — term + definition + avoid. Test: could two people mean different things by this word? If no, it goes in AGENTS.md, a spec, or an ADR.")
 3. **`.memory/adr/`** — architecture decision records
 4. **`tools/`** — project scripts and automation (validation, extraction, deployment)
 5. **`AGENTS.md`** — project reference (project layout, commands, workflows)

@@ -9,20 +9,28 @@ metadata:
 
 # Project Conventions (Always Enforce)
 
-## Glossary Maintenance
+## Knowledge Routing
 
-Update `.memory/CONTEXT.md` immediately when a term is resolved or clarified. Don't batch — capture as it happens. Create the file on first term resolution if missing.
+When you learn something mid-session, route it by type:
 
-**Format:**
+| What you learned | Test | Destination |
+|-----------------|------|-------------|
+| A name where two people might mean different things | "Does this need disambiguation?" | `.memory/CONTEXT.md` |
+| A hard-to-reverse decision with trade-offs | "Would a future session re-propose the rejected alternative?" | `.memory/adr/NNNN-slug.md` |
+| A lasting technical contract or interface | "Is this a spec someone would implement against?" | `.memory/specs/` |
+| An operational surprise, workaround, or environment quirk | "Would the next agent hit this same trap?" | `AGENTS.md` Constraints |
+| A process or workflow instruction | "Does this tell HOW to do something?" | `AGENTS.md` or a skill |
+| An ephemeral finding | "Will this matter next week?" If no: | `.scratch/` (or delete) |
+
+**CONTEXT.md is a glossary only.** Gate: if it doesn't fit the format below, it doesn't belong there.
+
 ```
 **Term**:
 One-sentence definition.
 _Avoid_: what not to call it
 ```
 
-**What qualifies:** domain concepts, internal naming decisions, abbreviations/acronyms, anything where two people might use different words for the same thing.
-
-**What doesn't belong:** implementation details, specs, decisions with rationale (those are ADRs).
+Don't batch glossary updates — capture as terms resolve. Create the file on first term if missing.
 
 ## Document Placement
 - Default new documents to `.scratch/` (ephemeral)

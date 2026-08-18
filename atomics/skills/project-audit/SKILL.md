@@ -46,7 +46,12 @@ Check whether the crew-research deployment still matches project reality.
 
 ### 7. Unprocessed Decisions
 - Check for `decisions.md`, `DECISIONS.md`, `docs/decisions.md`
-- If found: flag for processing into `.memory/adr/` (ADR-worthy) or `.memory/CONTEXT.md` (terms)
+- If found, route each entry:
+  - Hard-to-reverse with trade-offs → `.memory/adr/NNNN-slug.md`
+  - Term/naming disambiguation → `.memory/CONTEXT.md`
+  - Operational gotcha/workaround → `AGENTS.md` Constraints
+  - Workflow/process instruction → `AGENTS.md` or relevant skill
+  - Not worth preserving → delete
 - Check `.memory/decisions.md` — should entries be promoted to ADRs?
 
 ## Output

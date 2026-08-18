@@ -27,9 +27,10 @@ Where did work stall or need archaeology this session?
 
 ### P3 — New knowledge
 What did this session learn that the next session shouldn't rediscover?
-- Gotchas with incidents behind them → guide skill "hard rules" section
-- Output-interpretation rules (what a field/verdict actually means)
-- Environment facts (access limits, version quirks) → environment notes
+- Gotchas with incidents → AGENTS.md Constraints (or skill hard-rules if skill-scoped)
+- Environment facts (access limits, version quirks) → AGENTS.md Constraints
+- Output-interpretation rules (what a field/verdict actually means) → guide skill or AGENTS.md
+- Term disambiguation resolved → `.memory/CONTEXT.md` (ONLY if two people could mean different things by the word)
 
 ### P4 — Repetition
 What did I do manually 2+ times this session? Candidates for:
@@ -73,5 +74,5 @@ Apply approved items in the same session. Trivial corrections (stale syntax, dea
 - Entry filter: capture only what will plausibly change a future outcome — if the model already does it unprompted, or reading the code reveals it, it's noise
 - Supersede, don't obliterate: decision records get marked superseded, never deleted; removals go through owned mechanisms; git history + recall are the archive (no quarantine lists — manual status flags rot without a sweep)
 - One source of truth: command lines in AGENTS.md, interpretation in guide skills, incidents in hard-rules sections
-- Capture into the right layer: glossary terms → `.memory/CONTEXT.md`; decisions → recall/ADR; behavior rules → steering/skills
+- Capture into the right layer: terminology disambiguation → `.memory/CONTEXT.md`; decisions → recall/ADR; gotchas/environment → AGENTS.md Constraints; behavior rules → steering/skills
 - Skill budget: <100 lines per SKILL.md; split to `references/` if over

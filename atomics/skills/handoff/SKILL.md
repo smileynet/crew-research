@@ -63,7 +63,7 @@ Verify: (1) someone with NO context can continue, (2) next steps are actionable,
 
 Before finalizing, review the session for promotable artifacts:
 
-1. **CONTEXT.md** — terms resolved or clarified? Add now.
+1. **CONTEXT.md** — new term that needs disambiguation? (Test: could two people mean different things by this word?) Add it. Do NOT add gotchas, implementation details, or decisions here — those go to AGENTS.md Constraints or ADRs.
 2. **ADRs** — hard-to-reverse decisions made? → `.memory/adr/NNNN-slug.md`
 3. **Promote scratch** — `.scratch/` artifacts future sessions need? → `.memory/specs/`
 4. **Dead scratch** — obsolete `.scratch/` files? Note for cleanup.
@@ -71,13 +71,7 @@ Before finalizing, review the session for promotable artifacts:
 
 ## Artifact Update Nudge
 
-Scan the session for findings that should propagate. Nudge when:
-- A skill has a gap or stale instruction
-- AGENTS.md commands/conventions changed
-- A repeated manual process could be a tool script
-- Technical findings belong in `.memory/specs/`
-- New work surfaced → create a `.tickets/` entry
-- Terms were used inconsistently → glossary update
+Scan for findings that should propagate: skill gaps, AGENTS.md changes, repeatable processes (→ script), technical findings (→ `.memory/specs/`), new work (→ ticket), inconsistent terms (→ glossary).
 
 Add a `## Recommended Updates` section (after Next Steps) if applicable:
 
