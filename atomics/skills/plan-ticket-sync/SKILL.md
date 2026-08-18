@@ -21,7 +21,7 @@ Read all open tickets and the current plan (PLAN.md, session decisions, stated p
 
 For every open/in_progress ticket, check for real drift:
 
-- **Stale blocked_by** — a dependency is done but blocked_by still lists it (ticket should be on the frontier but isn't)
+- **Stale blocked_by** — `tkt ready` resolves dynamically (done blockers are ignored), so this is cosmetic, not functional. Do NOT manually clear `blocked_by` when a dependency closes — the history is useful context. Only flag if a ticket genuinely isn't appearing on `tkt ready` when it should be.
 - **Missing blocked_by** — work can't actually start without another ticket, but no edge declared
 - **Vague ACs** — criteria use "properly", "correctly", "as expected" instead of testable conditions
 - **Dead context** — file paths that moved, ADRs that were superseded, specs that changed
