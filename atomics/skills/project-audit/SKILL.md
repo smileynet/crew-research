@@ -38,6 +38,22 @@ Check whether the crew-research deployment still matches project reality.
 - Any terms used in recent work but not yet defined?
 - Any stale definitions that should be removed?
 
+### 5b. Knowledge Routing
+Check that AGENTS.md and CONTEXT.md each serve their designated role:
+
+**CONTEXT.md** — apply the disambiguation gate to each entry ("could two people mean different things?"):
+- Entries with instructions/workflows → misplaced (belongs in AGENTS.md)
+- Entries with implementation specs → misplaced (belongs in `.memory/specs/`)
+- Entries with decision rationale → misplaced (belongs in ADR)
+- Entries with gotchas/environment facts → misplaced (belongs in AGENTS.md Constraints)
+
+**AGENTS.md** — check for role violations:
+- Term definitions with `_Avoid_` patterns → misplaced (belongs in CONTEXT.md)
+- Inline content >10 lines on one topic without a link → should extract to `.memory/specs/`
+- Over 150 lines total → trigger agents-md-authoring trim
+
+If findings > 0: create a ticket with the specific entries to move and their proposed destinations. Title: "Route N misplaced entries in CONTEXT.md/AGENTS.md"
+
 ### 6. References Directory
 - Is `.references/` used consistently (not `resources/` or bare `references/`)?
 - If `resources/` or `references/` exists and is gitignored → flag for rename to `.references/`
