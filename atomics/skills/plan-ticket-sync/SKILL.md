@@ -44,7 +44,7 @@ After creating tickets, add them to the plan — every open ticket needs a plan 
 
 ### 4. New ticket quality standard
 
-Apply the tkt skill's [ticket-standards.md](references not loaded — read from the tkt skill if available, otherwise apply the checklist below).
+Apply the tkt skill's ticket-standards (if the tkt skill is loaded, read `references/ticket-standards.md`; otherwise apply the checklist below).
 
 Every new ticket MUST have:
 
