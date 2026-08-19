@@ -5,6 +5,13 @@ status: done
 blocked_by: []
 priority: high
 validation_criteria:
+  - "15+ repos studied"
+  - "SKILL.md rewritten without jargon"
+  - "JTBD table removed"
+  - "README.md updated"
+  - "Skill ≤100 lines"
+  - "mise run validate passes"
+validation_criteria:
   - "15+ repos studied with findings documented"
   - "SKILL.md rewritten without framework jargon"
   - "JTBD table removed"

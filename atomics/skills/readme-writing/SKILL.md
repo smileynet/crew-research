@@ -13,13 +13,16 @@ Developers decide in ~7 seconds whether to stay or leave. The first screenful is
 
 ## The Opening Line
 
-One sentence: category + differentiator.
+One sentence: category + differentiator. Use the project's proper name in title case for the H1, not the repo slug.
+
+- `# Crew Research` not `# crew-research`
+- `# Teach Me` not `# teach-me`
+
+Opening sentence examples:
 
 - "A git-native ticket tracker where tasks are markdown files." (tkt)
 - "An extremely fast Python linter and formatter, written in Rust." (ruff)
 - "A simple terminal UI for git commands." (lazygit)
-
-Pattern: `A [category] that [differentiator].` Write what it does, not how it works.
 
 ## Let Readers Self-Select
 
@@ -88,11 +91,9 @@ Readers evaluate top-down and stop when satisfied:
 ## Anti-Patterns
 
 - **Wall of text before quick start** — reader left after paragraph two
-- **Prerequisites above the fold** — show what the tool does first
-- **Config-first setup** — CLI command first, configuration after first use
-- **Badge bloat** — twelve badges pushing content below the fold
-- **Screenshots of code** — can't be copied, can't be parsed by AI tools
-- **TODO sections** — write it or omit it; "coming soon" that never came erodes trust
+- **Prerequisites above the fold** — show what it does first
+- **Config-first / badge bloat / screenshots of code** — CLI first, badges minimal, code must be copyable
+- **TODO sections** — write it or omit it
 
 ## References
 

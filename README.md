@@ -1,40 +1,44 @@
-# crew-research
+# Crew Research
 
-Portable behavioral skills that make AI coding assistants plan before building, verify before claiming done, and remember decisions across sessions.
+Portable markdown skills that make AI coding assistants plan before building, verify before claiming done, and remember decisions across sessions.
 
-## What It Does
-
-You install skills into your project. Your AI assistant gets better without changing how you work:
-
-- Plans before building — asks clarifying questions, tracks assumptions
-- Verifies before reporting done — runs checks, cites evidence
-- Remembers across sessions — recalls past decisions, continues prior work
-- Produces cleaner code — concise, well-structured, no defensive bloat
-
-Skills are plain markdown files. They work with kiro-cli, codex, and other skill-compatible tools.
+- **Plans before building** — asks clarifying questions, tracks assumptions
+- **Verifies before reporting done** — runs checks, cites evidence
+- **Remembers across sessions** — recalls past decisions, continues prior work
+- **Produces cleaner code** — concise, well-structured, no defensive bloat
 
 **Before:** AI dives straight in, skips verification, loses context between sessions.
 **After:** Planning before building, evidence before "done", memory across sessions — automatically.
 
+## What It Does
+
+You install skills into your project. Your AI assistant gets better without changing how you work.
+
+Skills are plain markdown files. They work with kiro-cli, codex, crush, and agy. One deploy command, then every session benefits.
+
+| Command | What it does |
+|---------|-------------|
+| `/grill-with-docs` | Stress-test a plan with evidence-backed questions |
+| `/handoff` | Capture session state for the next session |
+| `/read-handoff` | Orient at session start — continue where you left off |
+| `/plan-prereqs` | Identify research and tooling needed before building |
+| `/project-cleanup` | Consolidate notes, update glossary, remove stale artifacts |
+| `/study-reference` | Deep-dive a reference repo and extract patterns |
+| `/cheatsheet` | Quick reference for everything available |
+
 ## Quick Start
 
+Get skills deployed in under 2 minutes:
+
 ```bash
-# Prerequisites
 brew install mise yq                     # macOS (or: see docs for Linux/Windows)
 curl -fsSL https://kiro.dev/install | sh # kiro-cli
-
-# Deploy skills globally
 mise run init -- --global --tier basic --tool kiro-cli
-
-# Scaffold a project workspace
-mise run init -- --project ~/my-project
-
-# Verify
-mise run doctor -- --project ~/my-project
-# ✅ kiro-cli (2.10.0)
+mise run doctor
+# ✅ kiro-cli (2.18.1)
 # ✅ 6 steering, 18 skills
-# ✅ .memory/CONTEXT.md
 # ✅ Healthy
+```
 ```
 
 That's it. Open any kiro-cli session — skills activate automatically.
@@ -54,121 +58,56 @@ mise run catalog    # browse all available skills
 
 ## Extensions
 
-Extensions add capabilities with external tool dependencies. They auto-deploy when prerequisites are met:
-
-```bash
-# Install cross-session memory (the prerequisite)
-cargo install --path ~/code/recall   # from a recall repo clone (PyPI "recall" is an unrelated squatted package)
-
-# Install ticket management CLI
-cargo install --path ~/code/tkt  # or: cargo install tkt (after crates.io publish)
-
-# Deploy tier — recall extension activates automatically
-mise run init -- --global --tier basic --tool kiro-cli
-# Extensions: recall ✅
-
-# Now the agent remembers past decisions
-recall import .memory/ --wing my_project  # index project knowledge
-recall search "what did we decide about X"
-
-# Now the agent manages tickets with dependency tracking
-tkt ready                          # show frontier (next unblocked tickets)
-tkt new my-feature --title "..."   # create a ticket
-tkt close 01                       # mark done
-```
+Extensions add capabilities that auto-deploy when their prerequisites are met:
 
 | Extension | What it adds | Prerequisite |
 |-----------|-------------|--------------|
 | `recall` | Cross-session memory — searches past decisions, imports project knowledge | `recall` CLI on PATH |
 | `tkt` | Ticket management — frontier detection, dependency graphs, plan sync | `tkt` CLI on PATH |
 
+```bash
+# Install cross-session memory
+cargo install --path ~/code/recall
+
+# Install ticket management
+cargo install --path ~/code/tkt
+
+# Deploy — extensions activate automatically
+mise run init -- --global --tier basic --tool kiro-cli
+# Extensions: recall ✅, tkt ✅
+```
+
 Extensions auto-detect. To skip: `--skip-extension recall`.
 
-## What You Can Do
+## Multi-Tool Deployment
 
-After setup, these workflows are available in any kiro-cli session:
+Skills are tool-agnostic. The `--tool` flag controls where files land:
 
-| Command | What it does |
-|---------|-------------|
-| `/grill-with-docs` | Stress-test a plan with evidence-backed questions |
-| `/handoff` | Capture session state for the next session |
-| `/read-handoff` | Orient at session start — continue where you left off |
-| `/plan-prereqs` | Identify research and tooling needed before building |
-| `/project-cleanup` | Consolidate notes, update glossary, remove stale artifacts |
-| `/study-reference` | Deep-dive a reference repo and extract patterns |
-| `/cheatsheet` | Quick reference for everything available |
+```bash
+mise run init -- --global --tier basic --tool kiro-cli  # ~/.kiro/skills/
+mise run init -- --global --tier basic --tool codex     # ~/.agents/skills/
+mise run init -- --global --tier basic --tool agy       # ~/.gemini/antigravity-cli/skills/
+mise run init -- --global --tier basic --tool crush     # ~/.agents/skills/
+```
+
+Same skill content, different delivery paths. Deploy to multiple tools if you switch between them.
 
 ## How It Works
 
-**Before:** AI dives straight in, skips verification, loses context between sessions.
-
-**After:** The AI automatically:
-- Asks clarifying questions before building (planning skills)
-- Verifies its work before reporting done (verification protocol)
-- Produces concise code (code hygiene steering)
-- Recalls past decisions when asked (recall extension)
-- Captures state at session end (handoff)
-
-None of this requires you to change how you work. You just chat normally.
-
-## Architecture
-
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Behavior Layer (skills + steering)                 │
-│  "How to act" — protocols, reasoning modes, gates   │
-│  Format: SKILL.md (markdown + YAML frontmatter)     │
+│  Skills — "How to act"                              │
+│  Protocols, reasoning modes, verification gates     │
 ├─────────────────────────────────────────────────────┤
-│  Memory Layer (recall extension)                    │
-│  "What happened" — decisions, lessons, preferences  │
-│  Hybrid BM25 + vector search over sessions + docs   │
+│  Memory — "What happened"                           │
+│  Decisions, lessons, preferences across sessions    │
 ├─────────────────────────────────────────────────────┤
-│  Knowledge Layer (.memory/)                         │
-│  "What exists" — glossary, ADRs, specs, references  │
-│  OKF-compatible (markdown + type/title frontmatter) │
+│  Knowledge — "What exists"                          │
+│  Glossary, ADRs, specs, project references          │
 └─────────────────────────────────────────────────────┘
 ```
 
-**Skills** tell the agent what to DO. **Recall** gives it memory of what WAS. **Knowledge** describes what IS. All three are plain files — portable, git-native, tool-agnostic.
-
-## Deployment Options
-
-- **Globally** (`--global`) — skills install to `~/.kiro/` and apply in every project
-- **To a project** (`~/my-project`) — workspace conventions scoped to that project
-- **Per-project skills** — specialist skills (creative writing, prototyping) install only where needed
-
-Most people deploy globally once, then scaffold per-project workspace conventions as needed.
-
-### Multi-Tool Deployment
-
-Skills are tool-agnostic. The `--tool` flag controls WHERE files are placed:
-
-```bash
-# kiro-cli (default)
-mise run init -- --global --tier basic --tool kiro-cli
-# Skills → ~/.kiro/skills/    Steering → ~/.kiro/steering/
-
-# Codex (OpenAI)
-mise run init -- --global --tier basic --tool codex
-# Skills → ~/.agents/skills/  Steering → ~/.codex/AGENTS.md
-
-# Antigravity (Google)
-mise run init -- --global --tier basic --tool agy
-# Skills → ~/.gemini/antigravity-cli/skills/  Steering → ~/.gemini/AGENTS.md
-
-# Crush (Charm) — corp machines run it against AWS Bedrock
-mise run init -- --global --tier basic --tool crush
-# Skills → ~/.agents/skills/  Steering → ~/.config/crush/AGENTS.md
-```
-
-| Tool | Skills Path | Steering Path | Verify |
-|------|-------------|---------------|--------|
-| kiro-cli | `~/.kiro/skills/{name}/SKILL.md` | `~/.kiro/steering/*.md` | `mise run doctor` |
-| codex | `~/.agents/skills/{name}/SKILL.md` | `~/.codex/AGENTS.md` (appended) | `codex --version` |
-| crush | `~/.agents/skills/{name}/SKILL.md` | `~/.config/crush/AGENTS.md` (appended) | `crush --version` |
-| agy | `~/.gemini/antigravity-cli/skills/{name}/SKILL.md` | `~/.gemini/AGENTS.md` (appended) | `agy --version` |
-
-Same skill content, different delivery paths. Deploy to multiple tools simultaneously if you switch between them.
+**Skills** tell the agent what to do. **Memory** gives it recall of what was. **Knowledge** describes what is. All three are plain files — portable, git-native, tool-agnostic.
 
 ## Troubleshooting
 
@@ -184,11 +123,11 @@ mise run doctor -- --project ~/your-project
 | Starting fresh | Delete `.kiro/` and re-run init |
 | Recall not finding things | `recall import .memory/ --wing project_name` |
 
-## Adapted From
+## Acknowledgments
 
-**[MemPalace](https://github.com/MemPalace/mempalace)** — The recall extension adapts MemPalace's architecture (wings/rooms/drawers) as a purpose-built 673-line implementation. SQLite + FTS5 + local embeddings, no server dependencies. See [ADR 0007](.memory/adr/0007-purpose-built-recall-tool.md).
+**[MemPalace](https://github.com/MemPalace/mempalace)** — The recall extension adapts MemPalace's architecture as a purpose-built Rust implementation. SQLite + FTS5 + local embeddings, no server dependencies.
 
-**[Google OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)** — OKF's "nouns, not verbs" insight shapes how `.memory/` (knowledge) stays separate from skills (behavior). All `.memory/` files use OKF-compatible frontmatter (`type` + `title`), importable via `recall import`.
+**[Google OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)** — OKF's "nouns, not verbs" insight shapes how `.memory/` stays separate from skills. All `.memory/` files use OKF-compatible frontmatter.
 
 ## License
 
