@@ -1,3 +1,7 @@
+# DEPRECATED: Use `recall sync` directly. This script remains for users
+# with scheduled tasks pointing here — it still works, but new installs
+# should use the Rust binary directly in the scheduled task action.
+#
 # tools/recall/profile-hook.ps1 — PowerShell profile staleness hook for recall
 #
 # Add to your $PROFILE:

@@ -371,6 +371,14 @@ fi
 if command -v recall &>/dev/null; then
   echo ""
   echo "Recall:"
+  # Detect Python recall (deprecated) vs Rust recall
+  recall_path=$(command -v recall)
+  if [[ "$recall_path" == *"uv/tools"* || "$recall_path" == *".local/share/uv"* ]]; then
+    echo "  ⚠️  Python recall detected (uv-installed) — deprecated"
+    echo "     Migrate: uv tool uninstall recall && cargo install --path ~/code/recall"
+    echo "     The Rust binary is fully compatible (same database, same commands)."
+    warnings=$((warnings + 1))
+  fi
   # On MSYS2/Git Bash, uv-installed Python tools can't resolve their venv —
   # use PowerShell fallback. On WSL, recall lives on the Windows side —
   # use cmd.exe/powershell.exe interop.

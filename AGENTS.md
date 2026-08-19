@@ -20,11 +20,6 @@ tools/generator/                  — init.sh, doctor.sh, catalog.sh, generate.s
 tools/evals/                      — Eval harness, definitions, fixtures, experiments
 tools/proofs/                     — Platform assumption tests
 tools/lint/                       — Cross-link validation
-tools/recall/                     — Cross-session memory CLI tool (extension)
-tools/recall/Invoke-RecallIngestAll.ps1 — Windows: scheduled recall ingestion (all projects + sessions)
-tools/recall/profile-hook.ps1     — Windows: PowerShell $PROFILE staleness hook
-tools/recall/ingest-all.sh        — Linux/macOS: scheduled recall ingestion
-tools/recall/bashrc-hook.sh       — Linux/macOS: .bashrc staleness hook
 tools/session-analyzer/           — Session transcript parsing
 .memory/CONTEXT.md                — Project glossary (update on term resolution)
 .memory/adr/                      — Architecture decisions
@@ -91,8 +86,8 @@ mise run session:parse 30            # parse session transcripts (days required)
 mise run session:skills 30           # skill activation + steering compliance report (days required)
 
 # Recall (cross-session memory)
-mise run recall:ingest               # ingest all projects + sessions
-mise run recall:status               # show indexed content
+recall sync                          # ingest all projects + sessions
+recall status                        # show indexed content
 recall search "query"                # semantic search
 recall import .memory/ --wing name   # import a single project's knowledge
 recall health --json                 # machine-readable health (coverage, duplicates, freshness)
@@ -109,10 +104,13 @@ On Windows, **only init.sh requires WSL** (the generator is bash) — everything
 
 ## Recall Operations
 
-```powershell
-# Manual full ingestion (all projects + sessions)
-pwsh -File tools\recall\Invoke-RecallIngestAll.ps1
-# Linux/macOS: bash tools/recall/ingest-all.sh
+```bash
+# Install (Rust binary — single binary, no Python/venv deps)
+cargo install --path ~/code/recall
+# Or after crates.io publish: cargo install recall
+
+# Manual full ingestion
+recall sync                      # all projects + sessions
 
 # Check what's indexed
 recall status
@@ -120,28 +118,15 @@ recall status
 # Search memory
 recall search "what did we decide about X"
 
-# Add a new project to automatic ingestion
-# Auto-discovered from ~/code + D:\code (Windows); override with -ProjectsRoot
-# Override: -ProjectsRoot parameter (Windows) or RECALL_PROJECTS_ROOT env (Unix, colon-separated)
-# Development: `uv tool install -e ./tools/recall` (editable — source edits take
-# effect immediately). TRAP: non-editable + `uv tool install --force` reuses the
-# CACHED wheel for an unchanged version — new commands silently missing; use
-# `--force --reinstall` (incident 2026-07-27: post-pull recall lacked `health`)
-# Fallback if recall on PATH breaks (locked venv on Windows):
-#   uv run --directory tools/recall recall <args>
+# Import a project's knowledge
+recall import .memory/ --wing name
 
-# Verify scheduled task
+# Health check
+recall health --json             # machine-readable (coverage, duplicates, freshness)
+
+# Verify scheduled task (Windows)
 Get-ScheduledTask -TaskName "RecallIngest" | Select State
-# Linux: crontab -l | grep recall
-
-# Testing (unit + integration: 50 tests, ~13s)
-mise run test:recall
-# or: uv run --directory tools/recall --extra test pytest tests/ -q
-# Proofs (correctness invariants with real embedder: 5 proofs, ~30s)
-mise run proof:recall
-# NOTE: mise tasks use `uv run --directory tools/recall` (project venv from
-# pyproject.toml). Do NOT use `uv tool run --from recall` — that resolves from
-# PyPI where "recall" is a squatted unrelated package.
+# Linux/macOS: crontab -l | grep recall
 ```
 
 ## Skill Authoring Rules

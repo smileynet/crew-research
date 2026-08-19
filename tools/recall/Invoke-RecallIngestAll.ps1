@@ -1,3 +1,7 @@
+# DEPRECATED: Use `recall sync` directly. This script remains for users
+# with scheduled tasks pointing here — it still works, but new installs
+# should use the Rust binary directly in the scheduled task action.
+#
 #Requires -Version 5.1
 <#
 .SYNOPSIS

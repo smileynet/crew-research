@@ -12,8 +12,8 @@ tkt validate --brief && echo "✅ tickets valid"
 """
 
 [tasks."test:recall"]
-description = "recall CLI unit + integration test suite"
-run = "uv run --directory tools/recall --extra test pytest tests/ -q"
+description = "recall CLI test suite (run from recall repo)"
+run = "cd ~/code/recall && cargo test"
 
 [tasks."test:noise-floor"]
 description = "Noise floor logic tests (ticket 71)"
@@ -77,8 +77,8 @@ description = "Run all proofs against kiro-cli"
 run = "bash tools/proofs/harness/run.sh --adapter kiro-cli --all"
 
 [tasks."proof:recall"]
-description = "Run recall import/search correctness proofs (G-K series)"
-run = "uv run --directory tools/recall python ../../tools/proofs/recall/run-recall-proofs.py"
+description = "Run recall correctness proofs (from recall repo)"
+run = "cd ~/code/recall && cargo test --test proofs"
 
 [tasks.validate-deployment]
 description = "End-to-end deployment validation"
@@ -126,7 +126,7 @@ echo "Installed ${usage_name} → $DEST"
 
 [tasks."recall:ingest"]
 description = "Run recall ingestion for all projects and sessions"
-run = "bash tools/recall/ingest-all.sh"
+run = "recall sync"
 
 [tasks."recall:status"]
 description = "Show recall index status"

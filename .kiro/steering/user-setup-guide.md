@@ -86,8 +86,8 @@ Known tools are separately-owned repos whose skills integrate with crew-research
 Extensions add capabilities that require external tools. They deploy automatically when prerequisites are met during tier deploy.
 
 ```bash
-uv tool install ./tools/recall            # install from a crew-research clone
-cargo install --path ~/code/tkt           # or: cargo install tkt (after crates.io publish)
+cargo install --path ~/code/recall   # from a recall repo clone (PyPI "recall" is squatted)
+cargo install --path ~/code/tkt      # or: cargo install tkt (after crates.io publish)
 mise run init -- --global --tier basic    # recall auto-activates
 mise run init -- --skip-extension recall  # opt out if desired
 ```
@@ -102,8 +102,8 @@ mise run init -- --skip-extension recall  # opt out if desired
 
 **Install both (recommended for full tier):**
 ```bash
-uv tool install ./tools/recall   # from a crew-research clone (PyPI "recall" is a squatted unrelated package)
-cargo install --path ~/code/tkt  # or: cargo install tkt (after crates.io publish)
+cargo install --path ~/code/recall   # from a recall repo clone (PyPI "recall" is squatted)
+cargo install --path ~/code/tkt      # or: cargo install tkt (after crates.io publish)
 ```
 
 ## Troubleshooting
@@ -168,30 +168,27 @@ mise trust C:\Users\<user>\code\crew-research\mise.toml
 Recall runs natively on Windows. No WSL, cron, or .bashrc hooks required.
 
 ```powershell
-# Install recall (from a crew-research clone — PyPI "recall" is squatted)
-uv tool install .\tools\recall
+# Install recall (Rust binary — single binary, no Python/venv deps)
+cargo install --path ~\code\recall
 
 # Manual ingestion (discovers all projects under ~/code)
-pwsh -File tools\recall\Invoke-RecallIngestAll.ps1
+recall sync
 
 # Scheduled Task (every 4h, replaces cron)
-$action = New-ScheduledTaskAction -Execute "pwsh.exe" `
-  -Argument "-NoProfile -NonInteractive -File `"$env:USERPROFILE\code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1`""
+$action = New-ScheduledTaskAction -Execute "recall.exe" -Argument "sync"
 $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 4)
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
 Register-ScheduledTask -TaskName "RecallIngest" -Action $action -Trigger $trigger -Settings $settings
 
-# Profile hook (fires on shell open if >4h stale)
-# Add to $PROFILE:
-. C:\Users\<user>\code\crew-research\tools\recall\profile-hook.ps1
+# Verify
+Get-ScheduledTask -TaskName "RecallIngest" | Select State
 ```
 
 ### Recall Setup (Linux/macOS)
 
 ```bash
 # Install
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv tool install ./tools/recall   # from local clone
+cargo install --path ~/code/recall
 
 # .bashrc staleness hook (fires on shell open if >4h stale)
 cat tools/recall/bashrc-hook.sh >> ~/.bashrc

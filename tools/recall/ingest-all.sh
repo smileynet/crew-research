@@ -1,3 +1,7 @@
+# DEPRECATED: Use `recall sync` directly. This script remains for users
+# sourcing it from .bashrc — it still works, but new installs should use
+# the Rust binary's built-in staleness check.
+#
 #!/bin/bash
 # tools/recall/ingest-all.sh — Regular ingestion for recall
 # Imports project .memory/ dirs and ingests kiro-cli session transcripts.

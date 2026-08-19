@@ -65,7 +65,7 @@ Extensions add capabilities with external tool dependencies. They auto-deploy wh
 
 ```bash
 # Install cross-session memory (the prerequisite)
-uv tool install ./tools/recall   # from a crew-research clone — PyPI "recall" is an unrelated squatted package
+cargo install --path ~/code/recall   # from a recall repo clone (PyPI "recall" is an unrelated squatted package)
 
 # Install ticket management CLI
 cargo install --path ~/code/tkt  # or: cargo install tkt (after crates.io publish)

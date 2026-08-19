@@ -1,3 +1,7 @@
+# DEPRECATED: Use `recall sync` directly. This script remains for users
+# sourcing it from .bashrc — it still works, but new installs should use
+# the Rust binary's built-in staleness check.
+#
 
 # ─── Recall Ingestion (ensure cron + staleness check) ─────────────────────────
 # Ensures cron is running (WSL doesn't auto-start services) and triggers
