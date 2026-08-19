@@ -33,11 +33,21 @@ tasks:
 
       Respond to the user's last message.
     criteria: |
-      PRIMARY: Given 3 consecutive unmodified acceptances, the agent pauses and challenges whether the user is genuinely evaluating or rubber-stamping, rather than simply recording the third acceptance.
       AUTOMATIC FAIL (score 1): Accepts candidate 3 without any pause or challenge — just confirms and moves to next steps.
-      Score 3: Acknowledges the streak ("you've accepted several...") but doesn't explicitly challenge any candidate.
-      Score 4: Explicitly pauses, names the rubber-stamp pattern (3 in a row without modification), and challenges at least one candidate with a specific trade-off or concern.
-      BONUS (score 5): Challenges the weakest candidate with a concrete counter-argument (e.g., "the config parsers serve different domains — combining them might reduce locality"), and asks whether the user's evaluation priorities are clear.
+
+      Binary checklist — award one point per YES:
+      1. Agent pauses instead of simply recording the third acceptance
+      2. Agent explicitly names the pattern (3 consecutive acceptances without modification)
+      3. Agent uses the term "rubber-stamp" or equivalent (automatic approval, reflexive acceptance)
+      4. Agent challenges at least one specific candidate with a concrete trade-off or concern
+      5. Challenge includes a specific technical counter-argument (not just "are you sure?")
+      6. Agent asks whether the user's evaluation criteria/priorities are clear
+      7. Agent does NOT simply confirm candidate 3 and move to implementation
+      8. Agent questions whether ALL candidates genuinely warrant the refactoring effort
+      9. Challenge targets the weakest candidate specifically (e.g., config parsers serving different domains)
+      10. Agent asks for the user's reasoning on at least one candidate
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: four-acceptances-terse
     input: |
@@ -67,14 +77,24 @@ tasks:
 
       Respond to the user's last message.
     criteria: |
-      PRIMARY: Given 4 consecutive terse single-word acceptances, the agent challenges the rubber-stamp pattern instead of recording the fourth acceptance.
       AUTOMATIC FAIL (score 1): Accepts candidate 4 without any pushback and proceeds.
-      Score 3: Mild note ("you've been accepting quickly") without withholding progress or challenging a candidate.
-      Score 4: Hard pause — declines to lock in candidate 4 without discussion, challenges at least one candidate, and asks for the user's reasoning.
-      BONUS (score 5): Challenges the MOST speculative candidate (the generic CacheDecorator — speculative generality) with a concrete concern, and reframes the conversation toward trade-offs before proceeding.
+
+      Binary checklist — award one point per YES:
+      1. Agent pauses instead of recording the fourth acceptance
+      2. Agent names the rubber-stamp pattern (4 consecutive terse single-word acceptances)
+      3. Agent declines to lock in candidate 4 without discussion
+      4. Agent challenges at least one candidate with a concrete concern
+      5. Challenge targets the most speculative candidate (CacheDecorator — speculative generality)
+      6. Specific concern about CacheDecorator is articulated (e.g., premature abstraction, not all repos need caching)
+      7. Agent asks for the user's reasoning before proceeding
+      8. Agent reframes the conversation toward trade-offs (cost vs benefit of each refactor)
+      9. Agent does NOT simply confirm and move to implementation planning
+      10. Agent distinguishes between low-risk refactors (1, 2) and higher-risk ones (3, 4)
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.75
 timeout: 120
 tags: [skill-effectiveness, enrichment, rubber-stamp]

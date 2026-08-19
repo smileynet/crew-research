@@ -24,17 +24,21 @@ tasks:
       Look at diagram.png in this directory. What are the three labeled components
       shown in the diagram, and what colors are they?
     criteria: |
-      PRIMARY: Agent detects it cannot see the image, probes for available vision tools,
-      and dispatches to one (or uses OCR fallback) rather than hallucinating content.
       AUTOMATIC FAIL (score 1): Agent hallucinates or fabricates image content without
       acknowledging it cannot see the image, or claims to analyze it without any tool dispatch.
-      Score 2: Agent acknowledges it cannot see the image but does nothing about it —
-      no tool detection, no dispatch, no fallback attempted.
-      Score 3: Agent acknowledges limitation and mentions possible approaches (tools, OCR)
-      but does not actually execute a dispatch or extraction command.
-      Score 4: Agent probes for available vision tools (command -v), dispatches to one
-      with a specific question, OR uses tesseract OCR fallback, and reports actual results.
-      BONUS (score 5): Agent probes for tools, dispatches with a specific targeted question
-      (not "analyze this"), correctly identifies content, and notes its methodology.
+
+      Checklist (YES = 1 point each):
+      1. Agent explicitly acknowledges it cannot see/analyze the image inline
+      2. Agent probes for available vision tools (e.g., command -v, which, or tool listing)
+      3. Agent attempts to dispatch to at least one external vision tool
+      4. Agent uses a specific targeted question in the dispatch (not generic "analyze this")
+      5. Agent attempts OCR fallback (tesseract or similar) if vision tools unavailable
+      6. Agent reports results that came from actual tool output (not fabricated)
+      7. Agent notes its methodology (which tool was used, what approach taken)
+      8. Agent does NOT fabricate specific visual details (colors, labels) without tool verification
+      9. Agent handles tool absence gracefully (reports what it cannot determine rather than guessing)
+      10. Agent's final answer distinguishes verified information from unverifiable claims
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 tags: [image-handling, vision-dispatch, capability-detection, crush, no-native-vision]

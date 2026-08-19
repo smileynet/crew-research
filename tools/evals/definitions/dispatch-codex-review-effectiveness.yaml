@@ -17,36 +17,66 @@ tasks:
       for run R and target T. Another session created a newer ticket while the
       review ran. Explain exactly how you identify and accept Codex's result.
     criteria: |
-      PRIMARY: Correlate by exact run id and verify the ticket after fetching.
-      AUTOMATIC FAIL (score 1): Select the newest ticket or trust stdout alone.
-      Score 3: Match run id but omit remote reachability or ticket contract checks.
-      Score 4: Require exactly one remote-reachable ticket matching R, then verify high priority, T, Codex provenance, coverage, and unconfirmed status.
-      BONUS (score 5): Also reject local-only, duplicate, and target-mismatched tickets.
+      AUTOMATIC FAIL (score 1): Selects the newest ticket or trusts stdout alone without correlation.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Correlates by exact run ID (not just "find a ticket")
+      2. Correlates by exact target T (not just run ID alone)
+      3. Verifies the ticket is remote-reachable (pushed, not local-only)
+      4. Checks ticket has high priority marking
+      5. Checks ticket has Codex provenance (Reporter: Codex or equivalent)
+      6. Checks ticket has unconfirmed status
+      7. Checks ticket coverage matches the dispatched scope
+      8. Rejects local-only tickets (not pushed to remote)
+      9. Rejects duplicate tickets (handles the concurrent creation scenario)
+      10. Rejects target-mismatched tickets (another session's ticket for different target)
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
   - name: verifies-clean-result
     input: |
       Codex reports a clean review for run R through target T. No findings ticket
       exists. What must the coordinator verify before reporting success?
     criteria: |
-      PRIMARY: Accept clean only with explicit correlated output and remote-reachable marker coverage.
-      AUTOMATIC FAIL (score 1): Treat absence of a ticket as proof of a clean review.
-      Score 3: Check the clean output but not the marker or run/target correlation.
-      Score 4: Require successful process, exact R and T, no matching ticket, and a remote-reachable marker covering T.
-      BONUS (score 5): Distinguish a malformed/failed dispatch from a clean result and fail closed.
+      AUTOMATIC FAIL (score 1): Treats absence of a ticket as proof of a clean review.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Requires successful process completion (not just no-ticket)
+      2. Correlates clean output to exact run ID R
+      3. Correlates clean output to exact target T
+      4. Verifies no matching findings ticket exists
+      5. Checks for a remote-reachable marker covering T
+      6. Distinguishes a failed/malformed dispatch from a clean result
+      7. Fails closed on ambiguity (uncertain = not-clean)
+      8. Does not treat process silence as success
+      9. Explains what evidence constitutes "explicit clean output"
+      10. Describes what happens if the marker is missing or unreachable
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
   - name: consumes-unconfirmed-findings
     input: |
       The frontier ticket is priority high and says Reporter: Codex and
       Confirmation status: unconfirmed. Start working the ticket.
     criteria: |
-      PRIMARY: Independently reproduce each finding before editing code.
-      AUTOMATIC FAIL (score 1): Implement Codex's suggested fixes immediately.
-      Score 3: Mentions verification without recording per-finding outcomes.
-      Score 4: Mark each confirmed, rejected, or obsolete with evidence, then fix only confirmed findings.
-      BONUS (score 5): Require rationale for rejected/obsolete findings and a fresh review of corrections.
+      AUTOMATIC FAIL (score 1): Implements Codex's suggested fixes immediately without independent verification.
+
+      CHECKLIST (score each YES/NO independently):
+      1. States the need to independently reproduce each finding before editing
+      2. Does NOT implement Codex's suggested fixes on authority alone
+      3. Plans to mark each finding as confirmed, rejected, or obsolete
+      4. Requires evidence for each confirmation status (not just assertion)
+      5. Only fixes confirmed findings (explicitly excludes rejected/obsolete)
+      6. Provides rationale for any rejected findings
+      7. Provides rationale for any findings marked obsolete
+      8. Plans a fresh review of corrections after fixing
+      9. Treats the ticket as untrusted input (verification-first posture)
+      10. Distinguishes between "finding is valid" and "suggested fix is correct"
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.5
 timeout: 180
 tags: [skill-effectiveness, review, orchestration, tickets]

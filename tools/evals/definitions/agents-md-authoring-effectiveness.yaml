@@ -14,11 +14,21 @@ tasks:
   - name: write-from-scratch
     input: "Write an AGENTS.md for the defu project. It's a TypeScript deep merge utility using vitest for tests and unbuild for building."
     criteria: |
-      PRIMARY: Produced AGENTS.md is ≤150 lines, includes verifiable done criteria for commands, and has escalation rules.
       AUTOMATIC FAIL (score 1): Over 200 lines or just a copy of README content.
-      Score 3: Under 150 lines but missing escalation rules or verifiable done criteria for commands.
-      Score 4: Under 150 lines, includes "When Blocked" section, has commands with verifiable done criteria (expected output or exit code), uses tables or lists over prose paragraphs.
-      BONUS (score 5): Includes decision tables, pairs "don'ts" with "dos", uses progressive disclosure (links to docs/), no prose paragraphs longer than 3 lines, separates agent concerns from user concerns.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Output is an AGENTS.md file (not just commentary about what one should contain)
+      2. Total length is ≤150 lines
+      3. Contains a "When Blocked" or escalation section (what to do when stuck)
+      4. Commands include verifiable done criteria (expected output, exit code, or success condition)
+      5. Uses tables or lists over prose paragraphs for structured information
+      6. No prose paragraph exceeds 3 lines
+      7. Includes decision tables or conditional routing ("if X then Y")
+      8. Pairs "don'ts" with "dos" (not just prohibitions but alternatives)
+      9. Uses progressive disclosure (links to docs/ or references for detail)
+      10. Separates agent concerns from user/human concerns
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
   - name: trim-bloated-file
     input: |
@@ -100,14 +110,24 @@ tasks:
       If you are unsure about anything, the best approach is to look at recent merged pull requests to see examples of changes that met the bar. Reading the test suite is also an excellent way to understand the intended behavior of every feature. The maintainers are responsive on GitHub issues for questions about intended behavior.
       ---
     criteria: |
-      PRIMARY: Reduces the file to ≤150 lines (at most half the original) while preserving essential information via progressive disclosure (extraction to linked docs), not deletion.
       AUTOMATIC FAIL (score 1): Result is over 150 lines, or content is deleted wholesale without extraction to linked docs.
-      Score 3: Reduces length but loses important information (e.g., drops the null-prototype pitfall or pnpm-only rule) without extracting it anywhere.
-      Score 4: Extracts detail to referenced docs, keeps core ≤150 lines, maintains routing to extracted content, converts prose to tables/lists.
-      BONUS (score 5): Explains the reasoning-token argument for brevity, identifies specific anti-patterns in the original (README duplication, prose paragraphs, human-audience content), restructures prose to tables, adds missing escalation rules.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Result file is ≤150 lines (at most half the original ~120-line bloated input)
+      2. Important technical details are extracted to linked docs (not just deleted)
+      3. Links or references point to where extracted content now lives
+      4. Converts prose paragraphs to tables or lists
+      5. Preserves the pnpm-only rule (critical project constraint)
+      6. Preserves the null-prototype pitfall (critical operational gotcha)
+      7. Adds escalation rules ("When Blocked" or equivalent routing)
+      8. Explains WHY brevity matters (reasoning-token cost or attention budget argument)
+      9. Identifies specific anti-patterns in the original (README duplication, prose paragraphs, human-audience content)
+      10. Commands have verifiable done criteria (expected output or exit code)
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0
 timeout: 120
 tags: [skill-effectiveness, documentation]

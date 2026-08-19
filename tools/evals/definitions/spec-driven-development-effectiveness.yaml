@@ -22,11 +22,21 @@ tasks:
 
       Write a PLAN.md with phases and a task graph showing dependencies.
     criteria: |
-      PRIMARY: Produces a structured PLAN.md with phases, clear dependencies, and parallelism markers.
       AUTOMATIC FAIL (score 1): Jumps to implementation or produces an unstructured list of tasks.
-      Score 3: Has phases but dependencies are vague or missing. No clear task graph.
-      Score 4: Clear phases with dependency arrows, identifies what blocks what, marks parallel work. Intent section articulates what/why.
-      BONUS (score 5): Assesses complexity first, identifies unknowns/spikes needed before implementation, task graph uses [P] markers for parallel work, phases have concrete validation criteria.
+
+      Binary checklist — award one point per YES:
+      1. Produces a file named PLAN.md (or writes structured plan content)
+      2. Plan contains at least 3 distinct phases with names/labels
+      3. Each phase has specific tasks listed (not just a phase title)
+      4. Dependencies between tasks/phases are explicitly stated (arrows, "blocked by", "requires")
+      5. Parallel work is identified (tasks that can proceed simultaneously marked with [P] or equivalent)
+      6. An Intent/Overview section articulates WHAT is being built and WHY
+      7. Unknowns or spikes are identified (research needed before implementation)
+      8. Phases have concrete validation/exit criteria (how to know a phase is done)
+      9. Complexity is assessed or acknowledged before planning begins
+      10. Task graph distinguishes between the 5 components (renderer, audio, Lua VM, cartridge, simulator) as separate work streams
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: write-feature-spec
     input: |
@@ -38,11 +48,21 @@ tasks:
       - Runs within a 16.67ms frame budget alongside rendering and scripting
       - Target: embedded ARM (STM32H750) and desktop simulator
     criteria: |
-      PRIMARY: Produces a complete spec with What, Who/Why, Non-Goals, Requirements, and concrete Validation.
       AUTOMATIC FAIL (score 1): Produces implementation code or a vague description without structure.
-      Score 3: Has requirements but validation is vague ("it should sound right") or missing Non-Goals.
-      Score 4: Clear structure with testable requirements, concrete validation (specific test: "4 channels mixed, output within frame budget"), and explicit Non-Goals (what it doesn't do).
-      BONUS (score 5): Includes Unresolved Questions (e.g., "what waveform quality vs CPU tradeoff?"), Alternatives Considered, Status lifecycle, and validation that distinguishes blackbox/automated/real-world approaches.
+
+      Binary checklist — award one point per YES:
+      1. Spec has a clear "What" section describing the audio mixer purpose
+      2. Spec has a "Who/Why" section identifying the audience and motivation
+      3. Spec has an explicit "Non-Goals" section (what the mixer does NOT do)
+      4. Requirements are listed as concrete, testable items (not vague prose)
+      5. Requirements reference the specific constraints (4 channels, 44.1kHz, 16.67ms budget)
+      6. Validation section exists with at least one specific test scenario
+      7. Validation distinguishes test types (e.g., blackbox vs automated vs real-world)
+      8. Unresolved Questions section exists listing open decisions (e.g., quality vs CPU tradeoff)
+      9. Alternatives Considered section exists or is referenced
+      10. Spec addresses both target platforms (ARM and desktop simulator) in requirements or validation
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: spec-for-existing-code
     input: |
@@ -50,24 +70,44 @@ tasks:
 
       The renderer currently supports: cls, pset, pget, rect, line, circ, spr, sspr, a two-level palette system (draw palette for recoloring, screen palette for fades), and painter's algorithm compositing.
     criteria: |
-      PRIMARY: Produces a spec that documents existing behavior as requirements (not aspirational), with clear boundaries.
       AUTOMATIC FAIL (score 1): Writes a spec for features that don't exist yet, or treats it as a design proposal.
-      Score 3: Documents what exists but treats it as a flat list without structure.
-      Score 4: Structured spec with Status=Implemented, clear Non-Goals (what the renderer doesn't do), requirements that match what's already built, validation criteria that can confirm current behavior.
-      BONUS (score 5): Status=Reconciled (acknowledges it's backfilled from reality), includes boundaries that prevent scope creep (e.g., "no hardware acceleration, no 3D"), validation includes specific test cases that verify existing behavior.
+
+      Binary checklist — award one point per YES:
+      1. Spec status is marked as Implemented, Reconciled, or equivalent (not Draft/Proposed)
+      2. Requirements describe what CURRENTLY EXISTS (not aspirational features)
+      3. All listed primitives (cls, pset, pget, rect, line, circ, spr, sspr) are covered in requirements
+      4. The two-level palette system is documented as a requirement
+      5. Non-Goals section explicitly states what the renderer does NOT do (boundaries)
+      6. Non-Goals prevent scope creep (e.g., no hardware acceleration, no 3D)
+      7. Validation criteria can confirm current behavior (not future behavior)
+      8. Validation includes specific test cases that exercise existing operations
+      9. Painter's algorithm compositing is documented as a design choice
+      10. Spec acknowledges it is backfilled from reality (not forward-looking design)
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: clarification-gate-test
     input: |
       Write a spec for "a good networking layer for the game engine." It should handle multiplayer somehow and be fast enough.
     criteria: |
-      PRIMARY: Agent refuses to write the spec and asks clarifying questions instead of proceeding with vague requirements.
       AUTOMATIC FAIL (score 1): Writes a full spec despite "somehow" and "fast enough" being completely unspecified.
-      Score 3: Writes a spec but hedges with assumptions ("assuming you mean...").
-      Score 4: Identifies the vague language explicitly ("somehow" and "fast enough" are unspecified) and asks concrete questions before proceeding.
-      BONUS (score 5): Lists specific questions that would unblock the spec (protocol? peer-to-peer or server? latency target? max players? what game state is synchronized?) and refuses to proceed until answered.
+
+      Binary checklist — award one point per YES:
+      1. Agent identifies "somehow" as vague/unspecified language
+      2. Agent identifies "fast enough" as vague/unspecified language
+      3. Agent identifies "good" as subjective and needing definition
+      4. Agent asks about the networking protocol (TCP/UDP/WebRTC)
+      5. Agent asks about the architecture (peer-to-peer vs client-server)
+      6. Agent asks about latency/performance targets (concrete numbers)
+      7. Agent asks about max players or connection limits
+      8. Agent asks about what game state needs synchronization
+      9. Agent explicitly refuses to write the spec until questions are answered
+      10. Agent does NOT produce a full spec document (may offer a skeleton/outline at most)
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0
 timeout: 180
 tags: [skill-effectiveness, spec-driven, planning]

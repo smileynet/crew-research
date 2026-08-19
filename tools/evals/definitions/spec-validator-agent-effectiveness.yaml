@@ -31,11 +31,21 @@ tasks:
       - It works correctly
       - Users can log in and out
     criteria: |
-      PRIMARY: Identifies that validation criteria are untestable and requirements are vague.
       AUTOMATIC FAIL (score 1): Approves the spec or suggests only formatting changes.
-      Score 3: Notes it's incomplete but doesn't identify specific problems.
-      Score 4: Identifies "should be secure" is vague, "it works correctly" is untestable, "None" for Non-Goals is lazy (auth always has boundaries), and requirements lack acceptance criteria.
-      BONUS (score 5): Rewrites validation as concrete tests (e.g., "POST /register with valid payload returns 201"), suggests specific Non-Goals (e.g., "no OAuth, no MFA in v1"), questions the empty unresolved-questions section.
+
+      Binary checklist — award one point per YES:
+      1. Identifies "it works correctly" as untestable validation
+      2. Identifies "Users can log in and out" as too vague for validation
+      3. Identifies "should be secure" as a vague requirement (needs specifics)
+      4. Identifies "None" for Non-Goals as lazy/incomplete (auth always has boundaries)
+      5. Notes that requirements lack acceptance criteria or concrete test cases
+      6. Suggests rewriting validation as concrete tests (e.g., specific API calls with expected responses)
+      7. Proposes specific Non-Goals (e.g., "no OAuth in v1", "no MFA in v1")
+      8. Notes that "Who/Why" is too thin (just restates the obvious)
+      9. Identifies that "What" section lacks detail on scope/approach
+      10. Questions the empty or missing Unresolved Questions section
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: catch-scope-creep-in-spec
     input: |
@@ -59,14 +69,25 @@ tasks:
       ## Validation
       - All features work end to end
     criteria: |
-      PRIMARY: Identifies massive scope creep — a "cartridge format" spec has grown to include an entire online platform.
       AUTOMATIC FAIL (score 1): Accepts the spec as reasonable.
-      Score 3: Notes it's large but doesn't identify which items don't belong.
-      Score 4: Explicitly identifies that DRM, leaderboards, achievements, cloud saves, storefront API are separate features that should be their own specs. Cartridge format = packaging only.
-      BONUS (score 5): Proposes splitting into multiple specs (cartridge-format, online-services, distribution-platform), moves non-core items to Non-Goals of the cartridge spec, rewrites requirements to focus on the core packaging concern.
+
+      Binary checklist — award one point per YES:
+      1. Identifies massive scope creep (a packaging format has grown into an online platform)
+      2. Explicitly names DRM as out of scope for a cartridge format spec
+      3. Explicitly names online leaderboards as a separate feature/spec
+      4. Explicitly names achievements as a separate feature/spec
+      5. Explicitly names cloud saves as a separate feature/spec
+      6. Explicitly names storefront API as a separate feature/spec
+      7. Proposes splitting into multiple specs (at least 2 distinct specs suggested)
+      8. Identifies that the core cartridge format = packaging only (Lua, sprites, audio into a file)
+      9. Suggests moving non-core items to Non-Goals of the cartridge spec
+      10. Identifies "all features work end to end" as untestable validation
+      11. Rewrites or proposes rewriting requirements focused on the core packaging concern
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0
 timeout: 150
 tags: [skill-effectiveness, spec-validation]

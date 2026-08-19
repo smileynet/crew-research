@@ -12,29 +12,59 @@ tasks:
   - input: "The test 'should handle nested arrays' is failing with 'expected [ 3, 4 ] to deeply equal [ 1, 2, 3, 4 ]'. Diagnose and fix."
     fixture: defu-nested-arrays-bug-with-test
     criteria: |
-      PRIMARY: Agent constructs a feedback loop (reproduces the failure) BEFORE modifying source code.
       AUTOMATIC FAIL (score 1): Modifies source code without first running the failing test or reproducing the error.
-      Score 3: Runs the test once but immediately starts fixing without using it as an iterative signal.
-      Score 4: Runs the failing test, reads output, identifies the specific assertion, THEN proposes a targeted fix and re-runs to confirm.
-      BONUS (score 5): Uses the test as an explicit iterate-until-green loop — makes one change, re-runs, checks signal.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Runs the failing test BEFORE modifying any source code
+      2. Reads and interprets the test output (doesn't just run blindly)
+      3. Identifies the specific assertion that fails (expected vs actual)
+      4. Locates the relevant source code responsible for the behavior
+      5. Proposes a targeted fix (not a shotgun rewrite)
+      6. Re-runs the test AFTER the fix to confirm it passes
+      7. Uses the test as an iterative signal (not just run-once-and-forget)
+      8. Fix addresses the root cause (not a symptom patch)
+      9. Verifies no other tests broke (runs full suite or relevant subset)
+      10. Demonstrates a clear red→green transition (failing before, passing after)
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
   - input: "Users report TypeError when calling defu with a null first argument. Fix it."
     fixture: defu-null-bug
     criteria: |
-      PRIMARY: Agent builds a failing reproduction BEFORE fixing the code.
       AUTOMATIC FAIL (score 1): Adds a null check based on reading the code alone without ever triggering the error.
-      Score 3: Reproduces the error once but doesn't use it as an iterative feedback signal.
-      Score 4: Writes a test or one-liner that fails with the TypeError (or runs the existing failing tests), fixes the code, confirms the reproduction now passes.
-      BONUS (score 5): Writes a test first (TDD-style) or uses the failing tests as the loop, demonstrates red→green transition.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Builds a reproduction BEFORE modifying source code (test, script, or REPL invocation)
+      2. Actually triggers the TypeError (observes the error output)
+      3. Identifies where in the source the null argument causes the crash
+      4. Fix targets the identified crash location (not guesswork)
+      5. Runs the reproduction AFTER the fix to confirm it passes
+      6. Writes a persistent test (not just a one-off script) OR uses existing failing tests
+      7. Demonstrates red→green transition (error before, success after)
+      8. Verifies no other tests broke from the fix
+      9. Fix handles the null case appropriately (not just suppressing the error)
+      10. Uses the feedback loop iteratively (would re-run if first fix didn't work)
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
   - input: "Something changed and now defu({config: {plugins: [1, 2]}}, {config: {plugins: [3, 4]}}) returns {config: {plugins: [3, 4]}} instead of merging to [1, 2, 3, 4]. The full test suite passes. Find and fix the regression."
     fixture: defu-nested-arrays-bug
     criteria: |
-      PRIMARY: Agent isolates the specific behavioral change with a targeted reproduction before attempting fixes.
       AUTOMATIC FAIL (score 1): Changes code based on source reading alone without running anything that demonstrates the regression.
-      Score 3: Runs existing tests (which pass) but doesn't construct a specific test for the reported behavior.
-      Score 4: Writes a test or script that demonstrates the specific regression (nested arrays replaced instead of merged), uses it to verify the fix.
-      BONUS (score 5): Constructs minimal reproduction, uses git history or diff analysis to identify when behavior changed, fixes with the test as proof.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Constructs a specific reproduction for the reported behavior (not just running existing tests)
+      2. Reproduction demonstrates arrays being replaced instead of merged
+      3. Does NOT rely solely on the existing test suite (which passes — it doesn't cover this case)
+      4. Identifies the specific code path responsible for array handling
+      5. Fix restores array merging behavior for nested arrays
+      6. Re-runs the reproduction to verify the fix works
+      7. Verifies existing tests still pass after the fix
+      8. Uses git history or diff analysis to identify when/what changed (optional but strong)
+      9. Writes a new test covering the regression case (prevents future recurrence)
+      10. Demonstrates iterative signal usage (test as loop, not one-shot)
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
 runs:
   with_skill: true

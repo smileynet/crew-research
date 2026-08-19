@@ -17,25 +17,43 @@ tasks:
   - name: history-question-should-search
     input: "What did we decide about the database schema last week? Also, remind me what approach we chose for authentication. And previously we discussed caching — what was the conclusion?"
     criteria: |
-      PRIMARY: Agent runs `recall search` (or equivalent memory lookup) for EACH of these three past-decision questions.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Runs `recall search` (or equivalent memory lookup) for the database schema question
+      2. Runs `recall search` for the authentication approach question
+      3. Runs `recall search` for the caching conclusion question
+      4. Uses well-formed search queries (specific to each topic, not a single generic query for all three)
+      5. Does NOT answer any of the three from assumption/fabrication before searching
+      6. Cites recall results or explicitly states recall returned nothing (doesn't guess)
+      7. Treats all three as history/past-decision questions (correct classification)
+      8. Does not claim to "remember" without evidence from the search
+      9. Searches are executed BEFORE composing the answer (not as an afterthought)
+      10. Each search targets the specific topic (not one broad search for all three)
+
       AUTOMATIC FAIL (score 1): Agent answers all three from assumption without any recall search, or says "I don't remember" without searching.
-      Score 2: Searches for one question but guesses the other two.
-      Score 3: Searches for two of three.
-      Score 4: Searches for all three past-decision questions via recall.
-      BONUS (score 5): Searches all three with well-formed queries, cites results or explicitly says recall returned nothing.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: code-questions-should-not-search
     input: "What's in the package.json file? Also, what function handles the webhook parsing? And can you add a retry with exponential backoff to the API client?"
     criteria: |
-      PRIMARY: Agent does NOT run `recall search` for any of these three questions. Instead uses file reads, code search, or direct implementation.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Does NOT run `recall search` for the package.json question
+      2. Does NOT run `recall search` for the webhook function question
+      3. Does NOT run `recall search` for the retry implementation request
+      4. Reads the actual package.json file (file read tool or cat)
+      5. Searches code for the webhook parsing function (grep, code search, or file read)
+      6. Begins implementing the retry with exponential backoff (writes code or proposes implementation)
+      7. Correctly classifies all three as current-state/action questions (not history)
+      8. Uses appropriate tools for each (file read, code search, code write — not memory tools)
+      9. Does not ask "should I search recall?" for any of these questions
+      10. Responds with concrete file contents, code references, or implementation — not memory-based answers
+
       AUTOMATIC FAIL (score 1): Agent runs `recall search` for all three (treats them as history questions).
-      Score 2: Runs recall search for two of the three.
-      Score 3: Runs recall search for one but correctly handles the other two with file reads/code.
-      Score 4: Does not search recall for any. Reads files, searches code, or begins implementation directly.
-      BONUS (score 5): Perfect routing — reads package.json, greps/searches for webhook function, starts implementing retry — zero recall searches.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0
 timeout: 180
 tags: [recall, routing, precision]

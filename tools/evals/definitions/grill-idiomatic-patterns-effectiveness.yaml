@@ -13,24 +13,42 @@ conditions:
 tasks:
   - input: "@grill-with-docs I want to add a plugin system to defu so users can register custom merge strategies per key path. Plugins should be composable and order-independent."
     criteria: |
-      PRIMARY: Agent searches for PROBLEMS/WARNINGS about the recommended approach (not just how to do it) and includes sourced cons.
       AUTOMATIC FAIL (score 1): Recommends approaches without any web search for potential problems, anti-patterns, or warnings. Cons are generic ("might be complex") without sources.
-      Score 2: Does positive research (how to do it) but no negative research — cons column has no cited sources from issue trackers, migration guides, or maintainer warnings.
-      Score 3: Mentions potential issues but from general knowledge, not from searched sources. No search queries targeting problems or deprecation.
-      Score 4: Explicitly searches for problems/warnings (e.g., searches for issues, known problems, deprecated approaches) and includes findings as sourced cons in the options table.
-      BONUS (score 5): Multiple negative-research searches (problems, deprecation, migration pain), cons cite specific GitHub issues or maintainer statements, explicitly flags approaches that looked good but have known problems.
+
+      Checklist (YES = 1 point each):
+      1. Agent performs at least one web search targeting problems/warnings (not just "how to implement")
+      2. Agent performs a second distinct negative-research search (e.g., deprecation, migration pain, anti-patterns)
+      3. Cons/risks in the response cite at least one specific source (URL, issue number, or maintainer statement)
+      4. Cons/risks cite a SECOND distinct source
+      5. Agent explicitly searches for or mentions issues from GitHub issue trackers or similar
+      6. Agent identifies at least one approach that "looked good but has known problems"
+      7. Options/recommendations are presented in a structured format (table or labeled sections)
+      8. Each recommended option has both pros AND sourced cons (not just generic downsides)
+      9. Agent warns about specific ecosystem or compatibility risks with sources
+      10. Agent references maintainer statements, migration guides, or post-mortems as evidence
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - input: "@grill-with-docs I want to use Proxy objects in defu to intercept property access during merge and track which keys were touched. This would let users see a diff of what changed."
     criteria: |
-      PRIMARY: Agent searches for known problems/limitations with the recommended approach (Proxy performance, debugging difficulty, library compatibility) and surfaces them with sources.
       AUTOMATIC FAIL (score 1): Accepts the Proxy approach without searching for known issues, or only searches for how to implement it.
-      Score 2: Mentions Proxy has "some overhead" generically but doesn't search for specific evidence or benchmarks.
-      Score 3: Does some research but only positive (how Proxy works, examples). Doesn't specifically search for problems or compatibility issues.
-      Score 4: Searches for Proxy problems/limitations (performance issues, debugging difficulty, bundler issues, library incompatibilities) and presents sourced findings in cons.
-      BONUS (score 5): Finds specific evidence of Proxy problems in similar contexts (utility libraries, merge tools), cites benchmarks or issue reports, suggests alternatives with sourced trade-offs, warns about specific ecosystem incompatibilities.
+
+      Checklist (YES = 1 point each):
+      1. Agent performs at least one web search specifically targeting Proxy problems/limitations
+      2. Agent searches for a second distinct concern (performance, debugging, bundler issues, or library compatibility)
+      3. Response cites at least one specific source (URL, benchmark, or issue report) for a Proxy limitation
+      4. Response cites a SECOND distinct source for Proxy concerns
+      5. Agent surfaces performance-related evidence (benchmarks, profiling data, or perf issue reports)
+      6. Agent mentions debugging difficulty or DevTools limitations with Proxy objects
+      7. Agent identifies bundler or library compatibility issues with Proxy usage
+      8. Agent finds evidence from similar contexts (utility libraries, merge tools) about Proxy problems
+      9. Agent suggests alternatives to Proxy with sourced trade-offs
+      10. Agent warns about specific ecosystem incompatibilities (named libraries or tools that break with Proxy)
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0
 timeout: 240
 tags: [skill-effectiveness, negative-research, gate-behavior]

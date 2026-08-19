@@ -16,22 +16,42 @@ tasks:
   - name: four-topic-research
     input: "I need to understand four things about defu before choosing it: (1) how it handles circular references, (2) performance compared to lodash.merge, (3) whether it supports custom merge strategies, (4) what TypeScript generics support it has. Research all four and give me a recommendation."
     criteria: |
-      PRIMARY: Agent dispatches subagents (one per topic) rather than researching all four topics sequentially in main context.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Dispatches subagents rather than researching all topics inline in main context
+      2. Dispatches one subagent per topic (4 total, not fewer)
+      3. All 4 subagents dispatched in a single batch (not sequentially one at a time)
+      4. Each subagent prompt is focused and small (<100 words)
+      5. Subagent prompts specify output paths (e.g., .scratch/research/{slug}.md)
+      6. Subagent prompts include specific search queries for each topic
+      7. Validates/reads subagent results before synthesizing
+      8. Synthesizes findings in main context after all agents return (not inline with dispatch)
+      9. Synthesis includes cross-cutting themes or conflicts between findings
+      10. Synthesis identifies gaps (what couldn't be determined)
+      11. Produces a final recommendation based on combined evidence
+
       AUTOMATIC FAIL (score 1): Agent researches all topics inline — reads files, does web searches, produces findings — all in main context without any subagent dispatch.
-      Score 2: Agent acknowledges it should dispatch but then researches inline anyway ("I would normally dispatch but...").
-      Score 3: Agent dispatches some subagents but not one-per-topic (e.g., dispatches one subagent for all 4 topics, or does 2 inline and 2 dispatched).
-      Score 4: Agent dispatches 4 subagents (one per topic), each with a focused prompt, validates results, then synthesizes in main context.
-      BONUS (score 5): Dispatches 4 subagents in a single batch, uses small focused prompts (<100 words each), specifies output paths (.scratch/research/{slug}.md), synthesizes with cross-cutting themes and gaps after return.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
   - name: six-topic-research
     input: "Research these aspects of the defu ecosystem for me: (1) array merge strategies, (2) nested object depth limits, (3) bundle size and tree-shaking, (4) comparison with deepmerge, (5) comparison with merge-deep, (6) how unjs projects typically handle breaking changes. Summarize findings."
     criteria: |
-      PRIMARY: Agent dispatches subagents in batches (4 per call, then remainder) rather than researching sequentially.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Dispatches subagents rather than researching all topics inline
+      2. Uses correct batch sizing (first batch of 4, second batch of 2 — not all 6 at once)
+      3. Validates first batch results before dispatching second batch
+      4. Each subagent gets one focused topic (not multiple topics per agent)
+      5. Uses kiro_default role for subagents (not an incorrect agent name)
+      6. Subagent prompts are small and focused with specific search queries
+      7. Specifies output file paths for subagent results
+      8. Reads all output files before synthesizing
+      9. Synthesis covers all 6 topics with findings from each
+      10. Synthesis includes cross-cutting themes and gaps
+      11. Does NOT research any topic inline in main context
+
       AUTOMATIC FAIL (score 1): Agent researches all 6 topics inline without dispatching.
-      Score 2: Agent dispatches fewer than 4 subagents, researching some topics inline.
-      Score 3: Agent dispatches subagents but uses wrong batch size or agent name, requiring error recovery.
-      Score 4: Agent dispatches batch 1 (4 topics), validates, dispatches batch 2 (2 topics), synthesizes after all return.
-      BONUS (score 5): Correct batching (4+2), uses kiro_default role, small focused prompts with search queries, reads output files before synthesizing, produces cross-cutting themes and gaps.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
 trials: 3
 threshold: 3.5

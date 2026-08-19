@@ -10,24 +10,42 @@ tasks:
       I'm getting a TypeScript error: 'Type string is not assignable to type never' when calling
       defu({ tags: ['a'] }, { tags: ['b'] }). The runtime works fine but tsc rejects it. Fix the types.
     criteria: |
-      PRIMARY: Agent reads src/types.ts BEFORE proposing any type-level changes.
       AUTOMATIC FAIL (score 1): Proposes changes to type definitions (MergeObjects, Merge, MergeArrays, Defu) without first reading src/types.ts.
-      Score 2: Reads src/types.ts but misidentifies the issue — proposes unrelated or overly broad changes (e.g. adds `as any` casts).
-      Score 3: Reads src/types.ts, correctly identifies the relevant type (MergeArrays or Merge), but proposes a fix without verifying it compiles.
-      Score 4: Reads src/types.ts, traces the error through the type chain (Defu → MergeObjects → Merge → MergeArrays), proposes a targeted fix, and runs tsc to confirm.
-      BONUS (score 5): Reads types, writes a minimal .ts reproduction that triggers the error, fixes the type, and shows the reproduction now compiles clean.
+
+      Binary checklist — award one point per YES:
+      1. Agent reads src/types.ts BEFORE proposing any changes
+      2. Agent identifies the relevant type (MergeArrays or the array handling in Merge)
+      3. Agent traces the error through the type chain (Defu → MergeObjects → Merge → MergeArrays)
+      4. Agent correctly explains WHY string[] becomes 'never' (the conditional type logic)
+      5. Proposed fix targets the specific type responsible (not a broad 'as any' or type widening)
+      6. Fix preserves type safety for non-array cases
+      7. Agent runs tsc (or equivalent type check) to confirm the fix compiles
+      8. Agent verifies the fix doesn't break other existing type tests
+      9. Agent creates or describes a minimal reproduction that triggers the error
+      10. Agent shows the reproduction compiles clean after the fix
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: read-types-before-fixing-nullish
     input: |
       TypeScript shows 'Property x does not exist on type nullish' when accessing the result of
       defu({ x: 1 }, { y: 2 }).x — but the value is clearly there at runtime. Fix the type inference.
     criteria: |
-      PRIMARY: Agent reads src/types.ts to understand the nullish type alias and MergeObjects conditional branches BEFORE modifying any type.
       AUTOMATIC FAIL (score 1): Modifies type definitions without reading src/types.ts, OR suggests a non-null assertion (!) as the fix.
-      Score 2: Reads types.ts but proposes removing the nullish branch entirely without understanding when it's needed.
-      Score 3: Reads types.ts, identifies the MergeObjects conditional logic involving nullish, but doesn't verify the fix preserves existing behavior.
-      Score 4: Reads types.ts, identifies the specific branch where nullish leaks into the output type, proposes a fix that preserves null-handling for actually-nullable keys, verifies with tsc.
-      BONUS (score 5): Reads types, constructs multiple test cases (nullable key, non-nullable key, mixed), confirms the fix resolves the reported case without regressing others.
+
+      Binary checklist — award one point per YES:
+      1. Agent reads src/types.ts BEFORE proposing any changes
+      2. Agent identifies the nullish type alias in the types
+      3. Agent identifies the MergeObjects conditional branch that introduces nullish
+      4. Agent explains WHY nullish leaks into the output type for this case
+      5. Proposed fix distinguishes between actually-nullable keys and non-nullable keys
+      6. Fix preserves null-handling for keys that are genuinely nullable
+      7. Agent runs tsc or equivalent to confirm the fix works
+      8. Agent tests that non-nullable key access (like .x) works after the fix
+      9. Agent tests that nullable keys still correctly reflect their nullability
+      10. Agent constructs multiple test cases (nullable key, non-nullable key, mixed)
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - name: read-types-before-fixing-recursive-depth
     input: |
@@ -35,12 +53,21 @@ tasks:
       when merging deeply nested config objects with defu. The configs are only 4 levels deep.
       Fix the recursive type issue.
     criteria: |
-      PRIMARY: Agent reads src/types.ts to understand the recursive structure (Merge ↔ MergeObjects cycle) BEFORE proposing depth limits or simplifications.
       AUTOMATIC FAIL (score 1): Proposes adding a depth counter or simplifying types without reading how the recursion is currently structured in types.ts.
-      Score 2: Reads types.ts but proposes @ts-ignore or type widening (using `any` at depth) instead of addressing the structural cause.
-      Score 3: Reads types.ts, identifies the Merge ↔ MergeObjects mutual recursion, proposes a reasonable bound but doesn't test it.
-      Score 4: Reads types.ts, understands the recursive chain, proposes a fix (depth limit type parameter, conditional bail-out, or tuple-length guard), and confirms it resolves the error on a 4-level-deep type.
-      BONUS (score 5): Reads types, reproduces with a minimal deeply-nested type, fixes the recursion, confirms both the deep case compiles AND shallow cases still infer correctly.
+
+      Binary checklist — award one point per YES:
+      1. Agent reads src/types.ts BEFORE proposing any changes
+      2. Agent identifies the Merge ↔ MergeObjects mutual recursion
+      3. Agent explains WHY the recursion exceeds TypeScript's depth limit at 4 levels
+      4. Proposed fix is structural (depth limit type parameter, conditional bail-out, or tuple-length guard) — NOT @ts-ignore or type widening to 'any'
+      5. Fix does not use @ts-ignore, 'as any', or broad type widening
+      6. Agent confirms the fix resolves the error on a 4-level-deep nested type
+      7. Agent confirms shallow cases (1-2 levels) still infer correctly after the fix
+      8. Agent creates a minimal deeply-nested type to reproduce the error
+      9. Agent runs tsc to verify the fix compiles
+      10. Fix preserves correct type inference for the common (non-deep) case
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 runs:
   with_skill: true

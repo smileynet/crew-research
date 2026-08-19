@@ -14,21 +14,39 @@ conditions:
 tasks:
   - input: "Use the grill-with-docs skill. I want to add TypeScript strict mode to the defu project. Give me your first question after researching the codebase."
     criteria: |
-      PRIMARY: Agent's question demonstrates it already explored the codebase (references specific files, current config) rather than asking discoverable questions.
       AUTOMATIC FAIL (score 1): Response is a list of 3+ questions without having read any project files. Questions like "what TS version?", "what's your tsconfig?", "do you use strict mode already?" are all codebase-discoverable.
-      Score 2: Reads some files but asks multiple questions in one response, some of which it could have self-answered from what it read.
-      Score 3: Reads relevant files (tsconfig, package.json) and asks 2 questions, one of which is genuinely non-discoverable.
-      Score 4: Thoroughly explores (tsconfig.json, source files, tests), self-answers all discoverable info ("I see you're on TS 5.x with these strict flags already enabled..."), asks ONE focused question about intent or tradeoff.
-      BONUS (score 5): Presents a complete assessment ("Here's what I found about your current strictness: X, Y, Z. The main risk is A. The one thing I need from you is B.") — minimal questions, maximum self-answered context.
+
+      Checklist (YES = 1 point each):
+      1. Agent reads tsconfig.json (or equivalent TS config) before asking questions
+      2. Agent reads package.json to discover TS version and dependencies
+      3. Agent reads at least one source file to understand current type usage
+      4. Agent self-answers discoverable facts (states what it found rather than asking)
+      5. Agent presents a summary of current strictness state from the files it read
+      6. Agent asks at most ONE question (not a list of 2+)
+      7. The question asked is genuinely non-discoverable (about intent, preference, or tradeoff — not config state)
+      8. Agent references specific file names or config values it discovered
+      9. Agent identifies concrete risks or impacts based on what it read (not generic "might break things")
+      10. Response reads as an assessment with a question attached, not a question list with context attached
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - input: "Use the grill-with-docs skill. I want to replace the current build system in defu (unbuild) with tsup. What should I consider?"
     criteria: |
-      PRIMARY: Agent researches both tools and the current config rather than asking a list of clarifying questions about things it can discover.
       AUTOMATIC FAIL (score 1): Asks 3+ questions about the current build setup without reading unbuild config, package.json exports, or the build output format. Dithers on "what output formats do you need?" when package.json declares them.
-      Score 2: Reads some config but still asks about things visible in the project (output formats, entry points, supported targets).
-      Score 3: Reads project config and identifies the current setup, but asks 2+ questions where one is self-answerable.
-      Score 4: Fully characterizes the current build (entry points, output formats, externals) from project files, researches tsup compatibility, asks only about non-discoverable preferences (e.g., "do you want to keep CJS support given your current consumers?").
-      BONUS (score 5): Presents a complete migration assessment: current config summary, identified gaps/incompatibilities from research, specific risks from web search, and asks only about the one genuine decision point.
+
+      Checklist (YES = 1 point each):
+      1. Agent reads package.json to discover output formats, entry points, and exports
+      2. Agent reads build config (build.config.ts, unbuild config, or equivalent)
+      3. Agent identifies current output formats (ESM, CJS, types) from project files
+      4. Agent identifies entry points and externals from project files
+      5. Agent self-answers discoverable info rather than asking about it
+      6. Agent researches tsup compatibility or features via web search
+      7. Agent asks at most ONE non-discoverable question (about preference or intent)
+      8. Agent presents a migration assessment (gaps, incompatibilities, or risks)
+      9. Agent identifies specific risks from web search (not generic "migration is complex")
+      10. Response is structured as analysis-with-recommendation, not question-list
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 trials: 3
 threshold: 3

@@ -13,11 +13,22 @@ conditions:
 tasks:
   - input: "Write a skill called 'error-message-writing' that helps agents write clear, actionable error messages. Include the SKILL.md with frontmatter."
     criteria: |
-      PRIMARY: Produced skill follows format (frontmatter with name/description/metadata, <100 lines, trigger-rich description, single concern).
-      AUTOMATIC FAIL (score 1): No frontmatter, or description is generic ("helps with errors").
-      Score 3: Has frontmatter and description but description lacks specific triggers or "Use when" clause.
-      Score 4: Correct frontmatter, trigger-rich description with "Use when" + keywords, body is process not knowledge dump, under 100 lines.
-      BONUS (score 5): Includes references/ suggestion for examples, anti-patterns section, scope boundary ("does NOT cover").
+      CHECKLIST (score each YES=1, NO=0):
+      1. Includes YAML frontmatter with `name` field
+      2. Includes YAML frontmatter with `description` field
+      3. Includes YAML frontmatter with `metadata` (type, invocation, or practice)
+      4. Description contains a "Use when" clause or equivalent trigger phrase
+      5. Description contains specific activation keywords (not generic "helps with errors")
+      6. Body is process-oriented (steps/protocol to follow, not a knowledge dump of facts)
+      7. Total skill is under 100 lines
+      8. Focuses on a single concern (error messages only, not logging/debugging/monitoring too)
+      9. Includes a scope boundary ("does NOT cover" or equivalent exclusion)
+      10. Suggests or includes references/ for examples or anti-patterns
+      11. Trigger words in description are distinctive (would not fire on unrelated tasks)
+
+      AUTOMATIC FAIL (score 1): No frontmatter, or description is generic ("helps with errors") with no specific trigger keywords.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
   - input: |
       Review this skill and suggest improvements:
@@ -28,14 +39,25 @@ tasks:
       # Helper
       This skill helps you write better code. It covers formatting, testing, documentation, error handling, performance optimization, security, accessibility, and deployment.
     criteria: |
-      PRIMARY: Identifies multiple specific anti-patterns (vague trigger, too broad scope, knowledge dump style).
-      AUTOMATIC FAIL (score 1): Says the skill is fine or only suggests minor wording changes.
-      Score 3: Notes it's too broad but doesn't cite specific problems or structural rules.
-      Score 4: Identifies vague description, multiple concerns, suggests splitting, recommends specific trigger keywords.
-      BONUS (score 5): References the one-concern rule, 100-line limit, process-not-knowledge distinction, and suggests a concrete rewrite of the description.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Identifies the description as too vague/generic (no specific triggers)
+      2. Identifies the scope as too broad (covers 8+ unrelated concerns)
+      3. Recommends splitting into multiple focused skills
+      4. Suggests specific trigger keywords for the description
+      5. Notes the "Use when" clause is missing
+      6. References the one-concern rule (a skill should do one thing)
+      7. References the 100-line limit or conciseness requirement
+      8. Identifies the body as a knowledge dump (lists topics vs. providing a process)
+      9. Notes the process-not-knowledge distinction (should be steps to follow, not facts to know)
+      10. Provides a concrete rewrite of the description (not just "make it better")
+      11. Notes the name "helper" is non-descriptive and should reflect the specific concern
+
+      AUTOMATIC FAIL (score 1): Says the skill is fine or only suggests minor wording changes without identifying structural problems.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 1.0
 timeout: 120
 tags: [skill-effectiveness, meta-skill]

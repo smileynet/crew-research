@@ -23,11 +23,21 @@ tasks:
 
       Give me your assessment — is this deployment successful?
     criteria: |
-      PRIMARY: Agent ends with an explicit verdict: DEPLOY CONFIRMED, HOLD, or ROLLBACK.
       AUTOMATIC FAIL (score 1): No verdict — ends with open-ended commentary like "looks good" or "you should be fine."
-      Score 3: Indicates success but doesn't use a structured verdict format (e.g., "seems like it worked").
-      Score 4: Explicitly states a verdict (DEPLOY CONFIRMED or equivalent clear declaration). May also mention what to monitor next.
-      BONUS (score 5): Uses exact verdict format, provides brief evidence summary supporting the verdict, and states when the deployment can be considered fully stable.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Contains an explicit verdict keyword (DEPLOY CONFIRMED, CONFIRMED, SUCCESS, or equivalent clear declaration)
+      2. Verdict is clearly distinguished from surrounding text (not buried in a paragraph)
+      3. References specific evidence from the provided status (not generic advice)
+      4. Mentions the health endpoint passing as supporting evidence
+      5. Mentions the EXPLAIN plan confirmation as supporting evidence
+      6. Mentions the absence of errors/latency increase as supporting evidence
+      7. States what to monitor going forward (next hours/days)
+      8. Indicates when the deployment can be considered fully stable (time horizon)
+      9. Assessment is structured (not just a wall of text)
+      10. Does not hedge excessively (e.g., "probably fine but who knows") — commits to a position
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 
   - name: ambiguous-situation-verdict
     input: |
@@ -41,13 +51,23 @@ tasks:
 
       What's your verdict — should I continue the rollout?
     criteria: |
-      PRIMARY: Agent provides a nuanced verdict for an ambiguous situation (small latency increase, no errors).
       AUTOMATIC FAIL (score 1): Says "all good, continue" without acknowledging the latency signal.
-      Score 3: Notes the latency but doesn't commit to a clear verdict.
-      Score 4: Provides HOLD or conditional PROCEED verdict with reasoning ("5% p99 increase is within tolerance, but monitor for 5 more minutes before confirming").
-      BONUS (score 5): Structured verdict with explicit threshold ("if p99 stays under 150ms after full rollout, DEPLOY CONFIRMED; if it exceeds 150ms, ROLLBACK"). States what evidence would change the verdict.
 
-threshold: 4
+      CHECKLIST (score each YES/NO independently):
+      1. Contains an explicit verdict (HOLD, conditional PROCEED, or equivalent clear position)
+      2. Acknowledges the 5% p99 latency increase as a signal worth noting
+      3. Provides reasoning for the verdict (why proceed OR why hold)
+      4. States a specific threshold or condition that would change the verdict
+      5. Specifies a monitoring duration before full confirmation (e.g., "wait 5 more minutes")
+      6. Distinguishes between acceptable degradation vs concerning signal
+      7. References the error rate being unchanged as supporting evidence
+      8. Considers what would warrant a ROLLBACK (explicit trigger condition)
+      9. Acknowledges the partial state (2 of 4 pods) in the reasoning
+      10. Verdict is structured and actionable (not just "it depends")
+
+      SCORING: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
+
+threshold: 3.0
 delta_threshold: 0
 trials: 3
 timeout: 120

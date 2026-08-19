@@ -14,32 +14,62 @@ tasks:
   - input: |
       I'm building a shopping cart and I'm not sure if the state machine handles all the edge cases — empty cart, partial checkout, coupon expiry mid-session, payment failure rollback. Can you prototype this?
     criteria: |
-      PRIMARY: Agent identifies this as a LOGIC branch — a state model question — and produces an interactive prototype that pushes the state through edge cases.
-      AUTOMATIC FAIL (score 1): Produces a full-stack shopping cart with UI, or writes a spec instead of code.
-      Score 3: Identifies it's about state but produces a static diagram or written analysis rather than runnable code.
-      Score 4: Correctly picks the LOGIC branch. Produces or proposes a minimal interactive program (CLI, REPL, or test harness) that exercises the specific edge cases listed. State transitions are visible in output.
-      BONUS (score 5): Explicit branch identification ("this is a Logic question — does the state model handle edges?"). Proposes a throwaway CLI/script that walks through each scenario, prints state at each step, and the user can see whether transitions are correct. Notes it's throwaway — keep the answer, delete the code.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Explicitly identifies this as a LOGIC branch (state model question, not UI or feasibility)
+      2. Produces or proposes runnable code (not just a diagram or written analysis)
+      3. The prototype is interactive (CLI, REPL, test harness — user can push state through transitions)
+      4. Exercises the specific edge cases listed (empty cart, partial checkout, coupon expiry, payment failure rollback)
+      5. State transitions are visible in output (user can see current state changing)
+      6. The prototype is minimal/throwaway (not a full-stack shopping cart implementation)
+      7. Does NOT include UI/frontend code (stays focused on state logic)
+      8. Notes the throwaway nature explicitly (keep the answer/findings, delete the code)
+      9. Covers ALL four listed edge cases (not just a subset)
+      10. Makes state machine structure evident (states and transitions are named/documented in the code)
+
+      AUTOMATIC FAIL (score 1): Produces a full-stack shopping cart with UI, or writes a spec/analysis instead of code.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - input: |
       We need a settings page but I don't know if it should be a sidebar, a modal, tabs within the page, or a full separate page. Can you prototype some options?
     criteria: |
-      PRIMARY: Agent identifies this as a UI branch — a "what should this look like?" question — and proposes multiple visual variants.
-      AUTOMATIC FAIL (score 1): Picks one design and implements it fully, or produces only a written comparison.
-      Score 3: Discusses the options in text but doesn't propose a visual/interactive prototype.
-      Score 4: Correctly picks the UI branch. Proposes multiple variants (2-4) that are visually comparable — either as separate HTML files, or switchable via URL param/toggle. Emphasis on seeing them, not reading about them.
-      BONUS (score 5): Explicit branch identification ("this is a UI question — you need to see the options"). Proposes a multi-variant prototype with a switching mechanism. Notes that the ANSWER is which variant works, the code is throwaway.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Explicitly identifies this as a UI branch (visual/layout question, not logic or feasibility)
+      2. Proposes multiple visual variants (at least 2, ideally 3-4)
+      3. Variants are visually comparable (can be seen side-by-side or switched between)
+      4. Produces or proposes actual visual output (HTML files, screenshots, or renderable code — not just text descriptions)
+      5. Includes a switching mechanism (URL param, toggle, separate files) to compare variants
+      6. Does NOT pick one design and fully implement it (shows options, doesn't decide)
+      7. Keeps the prototype minimal/throwaway (not production-ready CSS/components)
+      8. Notes that the ANSWER is which variant works — the code is disposable
+      9. Covers the specific options mentioned (sidebar, modal, tabs, separate page)
+      10. Focuses on layout/structure differences (not just color/style variations)
+
+      AUTOMATIC FAIL (score 1): Picks one design and implements it fully, or produces only a written comparison with no visual output.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
   - input: |
       I want to use SQLite with full-text search for a 500K document corpus. Will it handle the load? I've never used FTS5 at this scale.
     criteria: |
-      PRIMARY: Agent identifies this as a feasibility question (Spike branch) and proposes a minimal proof that answers "does the path work?"
-      AUTOMATIC FAIL (score 1): Says "yes it'll work, SQLite handles millions of rows" without proposing to prove it.
-      Score 3: Suggests trying it but doesn't structure the prototype as a spike with clear pass/fail.
-      Score 4: Identifies as a SPIKE (feasibility). Proposes a throwaway harness: generate 500K synthetic docs, insert with FTS5, benchmark query latency, report pass/fail against acceptable threshold. Time-boxed.
-      BONUS (score 5): Explicit branch identification ("this is a feasibility question — we need a spike"). Proposes specific metrics (insert time, query latency at p50/p95, index size), clear pass/fail threshold, states that findings are kept (commit message or ADR) but code is deleted.
+      CHECKLIST (score each YES=1, NO=0):
+      1. Explicitly identifies this as a SPIKE/feasibility branch (not logic or UI)
+      2. Proposes a throwaway harness/benchmark (not just stating "yes it'll work")
+      3. Generates synthetic data at the stated scale (500K documents)
+      4. Benchmarks query latency (not just insert performance)
+      5. Defines clear pass/fail thresholds (acceptable latency, index size limits, etc.)
+      6. Time-boxes the spike (states how long it should take to get an answer)
+      7. Specifies concrete metrics to measure (at least 2 of: insert time, query latency, index size, memory usage)
+      8. Notes that findings are kept (commit message, ADR, or doc) but code is deleted
+      9. Uses FTS5 specifically (not generic SQLite queries or a different FTS approach)
+      10. Proposes realistic query patterns (not just single-word lookups — phrase search, prefix, etc.)
+
+      AUTOMATIC FAIL (score 1): Says "yes it'll work, SQLite handles millions of rows" without proposing to prove it empirically.
+
+      SCORING: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.5
 timeout: 120
 tags: [skill-effectiveness, prototype, branch-picking]

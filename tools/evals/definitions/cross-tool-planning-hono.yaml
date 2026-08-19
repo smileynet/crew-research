@@ -11,30 +11,60 @@ conditions:
 tasks:
   - input: "Read the middleware architecture in src/middleware/. Write a PLAN.md (under 25 lines) for adding a rate-limiting middleware. The plan should identify where to add it, what existing middleware patterns to follow, what configuration options to expose, and how to test it."
     criteria: |
-      PRIMARY: Plan demonstrates understanding of hono's middleware pattern (Context, Next, MiddlewareHandler) and proposes a design consistent with existing middleware.
       AUTOMATIC FAIL (score 1): Generic rate-limiting plan with no evidence of reading hono's middleware source. No references to hono's types or patterns.
-      Score 2: References some files but doesn't identify the middleware signature pattern or existing middleware conventions.
-      Score 3: Identifies the MiddlewareHandler pattern and proposes following it, but configuration or testing plan is generic.
-      Score 4: References specific middleware examples (cors, logger, etc.), proposes correct type signature, identifies appropriate config pattern (factory function returning MiddlewareHandler), testing approach references hono's test patterns.
-      BONUS (score 5): Identifies runtime considerations (Workers vs Node memory for rate state), proposes adapter pattern for storage backend, references hono's existing helper patterns, comprehensive test scenarios.
+
+      Binary checklist — award one point per YES:
+      1. References specific hono middleware files by name (e.g., cors.ts, logger.ts, etc.)
+      2. Identifies the MiddlewareHandler type signature as the pattern to follow
+      3. Proposes a factory function pattern (function returning MiddlewareHandler) consistent with existing middleware
+      4. References Context and Next parameters in the proposed design
+      5. Configuration options are specified (at least: rate limit, window, key extraction)
+      6. Testing approach references hono's existing test patterns or test utilities
+      7. Identifies WHERE in the source tree to add the new middleware
+      8. Plan is under 25 lines as requested
+      9. Identifies runtime/storage considerations (in-memory vs external store for rate state)
+      10. Proposes adapter/storage pattern for different environments (Workers vs Node)
+      11. References hono's existing helper patterns or utility functions
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
   - input: "Find and read the router implementation. Write a technical explanation (under 300 words) of how hono's routing works, suitable for a contributor who wants to add a new route matching feature. Write it to ROUTING-EXPLAINED.md."
     criteria: |
-      PRIMARY: Explanation accurately describes the actual routing mechanism after reading the source, not from general knowledge about web frameworks.
       AUTOMATIC FAIL (score 1): Generic explanation of web routing that could apply to Express/Fastify. No evidence of reading hono's specific router implementation.
-      Score 2: References hono's files but explanation is superficial or inaccurate about the actual mechanism.
-      Score 3: Correctly identifies the router type(s) used (RegExpRouter, TrieRouter, SmartRouter) and explains the basic flow, but misses key details.
-      Score 4: Accurately explains the router dispatch mechanism, how routes are compiled, the SmartRouter fallback strategy, and how middleware integrates with routing. Written clearly for a contributor.
-      BONUS (score 5): Explains the performance tradeoffs between router types, how route compilation works, the role of the node/trie structure, and gives a clear path for where a contributor would add new matching logic.
+
+      Binary checklist — award one point per YES:
+      1. Identifies the multiple router types (RegExpRouter, TrieRouter, SmartRouter, or similar)
+      2. Explains the SmartRouter fallback/selection strategy
+      3. Describes how routes are compiled or registered
+      4. Explains how middleware integrates with the routing dispatch
+      5. References specific source files or classes from hono's router implementation
+      6. Explains performance tradeoffs between router types
+      7. Describes the role of the trie/node structure in route matching
+      8. Provides a clear path for where a contributor would add new matching logic
+      9. Written in contributor-oriented language (not user documentation)
+      10. Under 300 words as requested
+      11. File is written to ROUTING-EXPLAINED.md
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
   - input: "There's a performance issue: the cors middleware re-compiles its origin checking regex on every request even when the origin option is a static string. Read the cors middleware source, identify the issue, and write an optimized version that pre-compiles static patterns. Write the fix to the source file."
     criteria: |
-      PRIMARY: Correctly identifies the cors middleware location, understands the current origin checking logic, and implements a valid optimization.
       AUTOMATIC FAIL (score 1): Can't find the cors middleware, or proposes a fix to the wrong file, or the fix is conceptually wrong.
-      Score 2: Finds the file but misunderstands the current implementation. Fix doesn't actually address the stated issue or introduces bugs.
-      Score 3: Correctly identifies the origin checking logic and proposes pre-compilation, but implementation has edge cases or doesn't preserve all existing behavior.
-      Score 4: Clean fix that pre-compiles static origin patterns at middleware creation time (in the factory function), preserves dynamic origin checking for function/array patterns, and maintains backward compatibility.
-      BONUS (score 5): Fix is minimal, handles all origin option types (string, array, regex, function), adds early-return optimization for exact string match, and the approach is clearly correct without needing to run tests.
+
+      Binary checklist — award one point per YES:
+      1. Correctly locates the cors middleware source file
+      2. Identifies the current origin checking logic accurately
+      3. Fix pre-compiles static origin patterns at middleware creation time (in factory function)
+      4. Fix preserves dynamic origin checking for function-type origin options
+      5. Fix preserves behavior for array-type origin options
+      6. Fix preserves behavior for regex-type origin options
+      7. Fix adds early-return optimization for exact string match
+      8. Fix maintains backward compatibility (same external behavior)
+      9. Fix is written to the correct source file
+      10. Fix is minimal (doesn't rewrite unrelated parts of the middleware)
+      11. Fix is clearly correct without needing to run tests (logic is straightforward)
+
+      Scoring: 0-2 checks=1, 3-4=2, 5-6=3, 7-8=4, 9-11=5
 
 trials: 2
 threshold: 3
