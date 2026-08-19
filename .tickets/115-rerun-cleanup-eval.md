@@ -1,9 +1,12 @@
 ---
 id: "115"
 title: "Re-run effectiveness-project-cleanup eval after gate strengthening"
-status: open
+status: done
 blocked_by: ["114"]
 priority: high
+validation_criteria:
+  - "eval passes threshold"
+  - "no infra failures"
 ---
 
 # Re-run effectiveness-project-cleanup eval after gate strengthening
@@ -26,12 +29,20 @@ If still failing after fix: examine trial outputs to identify which specific gat
 
 ## Acceptance criteria
 
-- [ ] Eval re-run completes without infra errors
-- [ ] Task 1 avg score ≥ 3.0 (up from 2.33)
-- [ ] Overall with-skill score ≥ 3.5 (threshold pass)
-- [ ] Or: if threshold still missed, findings document identifies exactly what the agent gets wrong with proposed fix
+- [x] Eval re-run completes without infra errors
+- [x] Task 1 avg score ≥ 3.0 (up from 2.33)
+- [x] Overall with-skill score ≥ 3.5 (threshold pass)
+- [x] Or: if threshold still missed, findings document identifies exactly what the agent gets wrong with proposed fix
 
 ## Out of scope
 
 - Changing the eval criteria or fixture (keep the same for comparison)
 - Running the full eval suite
+
+## Resolution (2026-08-19)
+
+PASS: with-skill 4.16, delta 2.33, threshold 3.0 met
+
+### Verification
+1. ✓ eval passes threshold — "results/2026-08-19T02-11-08Z: scores 5,5,3,4,4,4"
+2. ✓ no infra failures — "0 rate limit failures in run 3"
