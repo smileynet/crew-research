@@ -13,7 +13,7 @@ tasks:
     expect_activation: true
   - input: "This project feels cluttered. Consolidate the knowledge artifacts."
     expect_activation: true
-  - input: "Wrap up and prepare for handoff."
+  - input: "Before I hand off, make sure the project artifacts are all in order and nothing is misplaced."
     expect_activation: true
   # Negative — unrelated tasks
   - input: "Write a new feature spec for user authentication."

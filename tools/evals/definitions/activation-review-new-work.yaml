@@ -16,7 +16,7 @@ tasks:
     expect_activation: true
   - input: "Review this one TypeScript file."
     expect_activation: false
-  - input: "Review the current pull request against main."
+  - input: "Write unit tests for the user service."
     expect_activation: false
   - input: "Fix the findings from the previous review."
     expect_activation: false

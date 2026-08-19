@@ -13,29 +13,59 @@ conditions:
 tasks:
   - input: "Research how defu handles circular references (read the source and tests), then plan a fix if it doesn't handle them, then implement it with tests."
     criteria: |
-      PRIMARY: Agent maintains coherent objective across phases and compresses prior phase output before moving forward.
       AUTOMATIC FAIL (score 1): Agent loses track of the objective, repeats searches from phase 1 during phase 3, or contradicts earlier findings.
-      Score 3: Completes all phases but carries verbose exploration into later phases (raw source dumps in implementation reasoning).
-      Score 4: Clean phase transitions, summarizes research before planning, summarizes plan before implementing, restates objective at transitions.
-      BONUS (score 5): Explicitly compresses between phases, demonstrates decaying resolution (phase 1 findings become one-line references by phase 3), reinforces constraints before implementation.
+
+      Score each YES/NO independently:
+      1. Completes all three phases (research, plan, implement).
+      2. Summarizes research findings before transitioning to planning phase.
+      3. Summarizes plan before transitioning to implementation phase.
+      4. Does NOT carry raw source dumps or verbose exploration into later phases.
+      5. Restates the objective at phase transitions.
+      6. Phase 1 findings become one-line references by phase 3 (decaying resolution).
+      7. Does NOT repeat file reads or searches already performed in earlier phases.
+      8. Reinforces constraints (e.g., "don't break existing behavior") before implementation.
+      9. Implementation phase references plan decisions without re-deriving them.
+      10. Final output is coherent — implementation matches the plan which matches the research.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
   - input: "Add support for merging Map objects in defu. Requirements: preserve existing Map entries, handle nested Maps, add tests. Important constraint: do NOT modify the existing merge behavior for plain objects."
     criteria: |
-      PRIMARY: Agent maintains constraint awareness throughout implementation (doesn't modify plain object behavior).
       AUTOMATIC FAIL (score 1): Modifies existing plain object merge behavior or never references the constraint after initial reading.
-      Score 3: Respects constraint but never explicitly re-states it during implementation.
-      Score 4: Re-states the constraint at least once during implementation, verifies existing tests still pass.
-      BONUS (score 5): Explicitly reinforces constraint before writing code AND verifies with existing test suite that plain object behavior is preserved.
+
+      Score each YES/NO independently:
+      1. Acknowledges the constraint (do NOT modify plain object behavior) before starting implementation.
+      2. Re-states or reinforces the constraint at least once during implementation.
+      3. Implements Map merging that preserves existing Map entries.
+      4. Handles nested Maps (recursive merge).
+      5. Adds tests for the new Map merging behavior.
+      6. Verifies existing tests still pass (runs test suite or explicitly checks).
+      7. Implementation is scoped — only touches Map-related code paths.
+      8. Does NOT carry verbose research or exploration into the implementation section.
+      9. Distinguishes Map handling from plain object handling in the code.
+      10. Final code does not alter the existing merge paths for non-Map values.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
   - input: "I have research findings about Set merging patterns in .scratch/research/set-handling.md. Use those findings to implement Set merging in defu with full test coverage."
     criteria: |
-      PRIMARY: Agent extracts relevant information from research file rather than carrying full content through implementation.
       AUTOMATIC FAIL (score 1): Quotes or references the entire research file verbatim in reasoning without summarization.
-      Score 3: Reads the file and implements correctly but doesn't demonstrate compression (carries all detail forward).
-      Score 4: Reads file, extracts relevant patterns, summarizes key points, then implements from the summary without re-reading.
-      BONUS (score 5): Explicitly states what it's keeping and what's irrelevant, uses structured summary as implementation reference, produces clean implementation without research artifacts in reasoning.
 
-threshold: 4
+      Score each YES/NO independently:
+      1. Reads the research file (.scratch/research/set-handling.md).
+      2. Extracts relevant patterns from the file rather than using it wholesale.
+      3. Summarizes key points before starting implementation.
+      4. Does NOT re-read the file during implementation (works from the summary).
+      5. Explicitly states what's relevant and what's irrelevant from the findings.
+      6. Implementation follows the extracted patterns without research artifacts in code comments.
+      7. Adds comprehensive test coverage for Set merging.
+      8. Does NOT carry raw research prose into implementation reasoning.
+      9. Uses a structured summary as implementation reference.
+      10. Final implementation is clean — no research commentary, just working code and tests.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
+
+threshold: 3.0
 delta_threshold: 0
 timeout: 300
 tags: [skill-effectiveness, context-budget, efficiency]

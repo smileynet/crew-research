@@ -13,30 +13,63 @@ conditions:
 tasks:
   - input: "I have a vague idea for a feature but I'm not sure where to start. What should I do first?"
     criteria: |
-      PRIMARY: Agent names a specific workflow entry point (grill-with-docs, planning-cycles, or plan-prereqs) and explains the flow from idea to implementation.
       AUTOMATIC FAIL (score 1): Generic advice like "just start coding" or "think about it" without naming a structured workflow.
-      Score 3: Names a relevant skill but doesn't describe the flow or next steps after it.
-      Score 4: Names the correct entry point (planning or grill), explains what happens next in the flow (plan → spec → build), and mentions how to invoke it.
-      BONUS (score 5): Maps the full path (idea → grill → spec → implement → review), mentions branching points (need research first?), and connects skills as a chain.
+
+      Score each independently YES/NO:
+      1. Names a specific workflow entry point (grill-with-docs, planning-cycles, or plan-prereqs)
+      2. Explains what the named workflow does (not just the name)
+      3. Describes the flow from idea to implementation (plan → spec → build or similar)
+      4. Mentions how to invoke the workflow (slash command or trigger)
+      5. Identifies branching points (e.g. "need research first?" → different path)
+      6. Connects multiple skills as a chain (not isolated recommendations)
+      7. Maps a full path from idea to completion (≥3 steps)
+      8. Mentions what happens AFTER planning (implementation, review)
+      9. Distinguishes between "vague idea" vs "clear requirement" paths
+      10. Provides actionable next step the user can take immediately
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
   - input: "Something is broken in production and I need to debug it. What's the best approach?"
     criteria: |
-      PRIMARY: Agent routes to the debugging workflow (feedback-loop-debugging) and emphasizes building a feedback loop BEFORE fixing.
       AUTOMATIC FAIL (score 1): Jumps straight to "check the logs" or debugging steps without referencing a structured approach.
-      Score 3: Mentions debugging but doesn't emphasize the feedback-loop-first discipline.
-      Score 4: Routes to debugging skill, explains the feedback-loop-first principle, mentions specific techniques (failing test, curl, bisection).
-      BONUS (score 5): Routes correctly, explains WHY loop-first matters, mentions that if loop can't be built → stop and ask for access/artifacts.
+
+      Score each independently YES/NO:
+      1. Routes to the debugging workflow (feedback-loop-debugging or equivalent)
+      2. Emphasizes building a feedback loop BEFORE attempting fixes
+      3. Explains WHY loop-first matters (avoid chasing symptoms, confirm the fix works)
+      4. Mentions specific loop techniques (failing test, curl, log tailing, bisection)
+      5. Names the skill or command to invoke
+      6. Mentions what to do if a feedback loop can't be built (stop, ask for access/artifacts)
+      7. Distinguishes urgency (production) from approach (still loop-first)
+      8. Provides a concrete first step (not abstract advice)
+      9. Mentions verification after fix (confirm the loop now passes)
+      10. References deployment safety or rollback as complementary concern
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
   - input: "I finished a session and need to hand off to tomorrow. Also I want to know what's available."
     criteria: |
-      PRIMARY: Agent names both /handoff (for ending) and /read-handoff (for starting tomorrow), plus shows awareness of the full command catalog.
       AUTOMATIC FAIL (score 1): Doesn't mention handoff or any session continuity mechanism.
-      Score 3: Mentions handoff but doesn't distinguish start-of-session vs end-of-session workflows.
-      Score 4: Names both /handoff and /read-handoff with correct usage, mentions /cheatsheet or lists other available commands.
-      BONUS (score 5): Explains the full session lifecycle (read-handoff → work → handoff), mentions recall for cross-session memory, provides a concise command reference.
+
+      Score each independently YES/NO:
+      1. Names /handoff for ending the session
+      2. Names /read-handoff for starting tomorrow's session
+      3. Distinguishes start-of-session vs end-of-session workflows
+      4. Explains what /handoff captures (state, decisions, next steps)
+      5. Shows awareness of the full command catalog (lists multiple commands)
+      6. Mentions /cheatsheet as the way to see everything available
+      7. Explains the session lifecycle (read-handoff → work → handoff)
+      8. Mentions recall for cross-session memory
+      9. Provides a concise command reference or points to one
+      10. Gives the user a clear immediate action (run /handoff now)
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.5
 timeout: 120
 tags: [skill-effectiveness, routing, cheatsheet]

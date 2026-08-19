@@ -14,34 +14,64 @@ tasks:
   - input: |
       I have a flaky test that fails about 10% of the time. It's a race condition in the WebSocket handler — sometimes messages arrive out of order. How do I debug this?
     criteria: |
-      PRIMARY: Agent addresses non-determinism specifically — strategies to RAISE reproduction rate before attempting a fix.
       AUTOMATIC FAIL (score 1): Suggests a fix without addressing the flakiness ("just add a lock") or says "run it a few times."
-      Score 3: Suggests running the test multiple times but doesn't describe systematic approaches to increase flake rate.
-      Score 4: Proposes specific non-determinism strategies: loop 100×, add stress/concurrency, narrow timing windows, inject sleeps. Mentions target repro rate ("50% is debuggable, 1% is not").
-      BONUS (score 5): All of score 4, plus suggests determinism techniques (pin time, seed RNG, recorded fixtures) and evaluates whether the loop is TIGHT (fast + sharp + deterministic).
+
+      Score each YES/NO independently:
+      1. Proposes raising the reproduction rate BEFORE attempting a fix.
+      2. Suggests a specific looping strategy (e.g., run 100× in a loop, --repeat flag).
+      3. Suggests adding stress/concurrency to increase flake rate (parallel runners, thread pressure).
+      4. Suggests narrowing timing windows (inject sleeps, reduce timeouts, add artificial delays).
+      5. Mentions a target reproduction rate (e.g., "50% is debuggable, 1% is not").
+      6. Suggests determinism techniques (pin time, seed RNG, recorded fixtures, deterministic scheduling).
+      7. Evaluates whether the loop is TIGHT (fast iteration, sharp signal, quick feedback).
+      8. Addresses the WebSocket-specific non-determinism (message ordering, arrival timing).
+      9. Proposes a measurement step to confirm the flake rate before and after changes.
+      10. Structures the approach as an explicit loop (reproduce → measure → change → re-measure).
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
   - input: |
       I'm debugging a memory leak in a Node.js service. It grows by ~50MB per hour. The service handles HTTP requests and writes to PostgreSQL. Where do I start?
     criteria: |
-      PRIMARY: Agent constructs a feedback loop with a measurable signal (memory growth metric) BEFORE proposing a fix.
       AUTOMATIC FAIL (score 1): Jumps to "check for event listener leaks" without establishing a measurement loop.
-      Score 3: Mentions measuring memory but doesn't describe a loop structure (run → measure → change → re-measure).
-      Score 4: Constructs a specific loop: load test script → measure heap at intervals → establish baseline growth rate → make ONE change → re-measure. Mentions tightening (faster load, narrower measurement window).
-      BONUS (score 5): All of score 4, plus considers loop speed ("can I isolate to one request type?"), differential approach (compare with/without PG writes), and states the PASS/FAIL criterion explicitly (growth rate < X MB/hr).
+
+      Score each YES/NO independently:
+      1. Establishes a measurable signal first (heap size metric, RSS tracking, process.memoryUsage()).
+      2. Proposes a load test script to drive reproducible traffic.
+      3. Describes measuring heap at intervals to establish a baseline growth rate.
+      4. Structures approach as an explicit loop: load → measure → change ONE thing → re-measure.
+      5. Mentions tightening the loop (faster load, shorter measurement window, isolated request types).
+      6. Considers differential approach (compare with/without PG writes, with/without specific endpoints).
+      7. States a PASS/FAIL criterion explicitly (growth rate < X MB/hr, or flat line).
+      8. Suggests isolating to one request type or endpoint to narrow the signal.
+      9. Recommends specific Node.js memory tooling (--inspect, heap snapshots, clinic.js, heapdump).
+      10. Insists on measurement BEFORE proposing any fix or hypothesis.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
   - input: |
       A user reports that clicking "Save" sometimes doesn't persist their data. We can't reproduce it locally. What should we do?
     criteria: |
-      PRIMARY: Agent acknowledges it CANNOT build a local loop, states what to ask for (artifacts, environment access, instrumentation permission), and does NOT proceed to hypothesize.
       AUTOMATIC FAIL (score 1): Guesses at a cause ("probably a race condition") without addressing the inability to reproduce.
-      Score 3: Says "we need more info" generically without specifying WHAT artifacts would enable a loop.
-      Score 4: Explicitly states "cannot build a loop locally," lists specific asks: HAR file, network logs, error logs with timestamps, permission to add production instrumentation, screen recording. Does NOT hypothesize.
-      BONUS (score 5): All of score 4, plus suggests intermediate strategies (add logging to narrow the window, A/B between browser versions), and explicitly refuses to fix without a loop.
+
+      Score each YES/NO independently:
+      1. Explicitly states it CANNOT build a local feedback loop with current information.
+      2. Lists specific artifacts to request (HAR file, network logs, error logs with timestamps).
+      3. Requests environment details (browser version, OS, network conditions).
+      4. Suggests adding production instrumentation or logging to narrow the window.
+      5. Requests a screen recording or steps-to-reproduce from the user.
+      6. Does NOT hypothesize a root cause without evidence.
+      7. Proposes intermediate strategies (add logging, A/B between browsers, feature flags).
+      8. Explicitly refuses to fix without a reproducible signal.
+      9. Prioritizes the asks (what would give the most signal fastest).
+      10. Distinguishes between "cannot reproduce" and "haven't tried hard enough" — asks what reproduction was attempted.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
 # 2026-07-22 (ticket 28): trials 3->5 — variance remedy per steering-pointer precedent;
 # def classified FLAKY (straddles gate across runs at unchanged content).
 trials: 5
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.5
 timeout: 120
 tags: [skill-effectiveness, debugging, feedback-loop]

@@ -12,7 +12,7 @@ tasks:
     expect_activation: true
   - input: "Create a helper script for running the test suite with different configurations."
     expect_activation: true
-  - input: "Write a deployment script that handles rollback on failure."
+  - input: "Write a bash script that validates input arguments and exits with proper codes."
     expect_activation: true
   - input: "Explain how virtual memory works."
     expect_activation: false

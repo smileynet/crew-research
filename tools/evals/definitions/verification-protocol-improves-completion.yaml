@@ -15,11 +15,22 @@ tasks:
     input: |
       Create a Python module intervals.py with a function merge_intervals(intervals) that takes a list of [start, end] pairs and returns them merged (overlapping and adjacent intervals combined, output sorted by start). Handle: empty input, single interval, unsorted input, fully-contained intervals, and adjacent intervals like [1,3],[3,5]. Also create test_intervals.py with tests covering those cases. Report done when finished.
     criteria: |
-      PRIMARY: Agent executes the tests (or the module) and cites actual output as evidence before claiming done — not just "the tests should pass."
       AUTOMATIC FAIL (score 1): Claims done without running anything, or claims tests pass without showing a run.
-      Score 3: Runs the tests once but doesn't cite the output in the completion claim, or ignores a failure and claims done anyway.
-      Score 4: Runs the tests, all pass, completion claim cites the run result (e.g., "5 passed"). If a test failed first, fixes it and re-runs before claiming done.
-      BONUS (score 5): Follows an explicit verification sequence (identify checks → run → read output → claim with evidence), covers the adjacent-interval edge case explicitly, and reports evidence in a "command → output" format.
+
+      Score each independently YES/NO:
+      1. Agent executes tests (or the module) at least once before claiming done
+      2. All tests pass in the final run (or failures are fixed and re-run succeeds)
+      3. Completion claim cites actual output (e.g. "5 passed", not just "tests should pass")
+      4. Adjacent-interval edge case ([1,3],[3,5]) is explicitly covered in tests
+      5. Verification follows an identify-checks → run → read-output → cite-evidence sequence
+      6. Test failure (if any) is fixed and re-verified before claiming done
+      7. Evidence presented in "command → output" format (not paraphrased)
+      8. Tests cover all specified cases: empty, single, unsorted, contained, adjacent
+      9. Agent reads test output (not just exit code) before claiming success
+      10. Completion claim explicitly links evidence to the task requirements
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
   - name: refactor-without-breaking
     input: |
@@ -41,14 +52,25 @@ tasks:
 
       Create this file, then refactor parse_qs so repeated keys ALWAYS produce a list (single values become one-element lists) while empty and valueless pairs keep current behavior. Write tests proving both the new list behavior and that previous single-key parsing still returns the value (now wrapped in a list). Report done.
     criteria: |
-      PRIMARY: Agent verifies the behavior change with executed tests before claiming done, including the regression direction (old behavior that must be preserved).
       AUTOMATIC FAIL (score 1): Claims done with no executed check, or tests only the new behavior and never the preserved behavior.
-      Score 3: Runs tests but coverage misses either the new always-list behavior or the preserved empty/valueless handling.
-      Score 4: Runs tests covering both directions, cites pass output in the done claim.
-      BONUS (score 5): Explicitly frames verification as a gate (checks identified before claiming), demonstrates a failing-then-fixed cycle or explains why none occurred, evidence in "command → output" format.
+
+      Score each independently YES/NO:
+      1. Agent executes tests before claiming done
+      2. Tests cover the new always-list behavior (single keys return one-element list)
+      3. Tests cover preserved empty/valueless pair handling
+      4. Tests cover repeated-key behavior (multiple values in list)
+      5. Completion claim cites pass output with evidence
+      6. Both new behavior AND regression direction verified in the same run
+      7. Agent identifies what checks are needed before running them
+      8. A failing-then-fixed cycle is demonstrated OR agent explains why none occurred
+      9. Evidence presented in "command → output" format
+      10. Verification is framed as a gate (checks identified before claiming done)
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0
 timeout: 180
 tags: [skill-effectiveness, verification]

@@ -14,23 +14,45 @@ tasks:
   - input: |
       I have a UserService class that handles registration, authentication, password reset, profile updates, and notification preferences. It's 800 lines long. Every controller calls it for different things. How should I restructure it?
     criteria: |
-      PRIMARY: Agent uses deep-module vocabulary (depth, interface, seam, shallow/deep) to diagnose the problem and propose a restructuring.
       AUTOMATIC FAIL (score 1): Generic advice ("split it up") without architectural reasoning or consistent terminology.
-      Score 3: Identifies the class is too large and proposes splitting, but uses ad-hoc language ("too many responsibilities", "SRP violation") without the deeper design reasoning.
-      Score 4: Diagnoses as a SHALLOW module (large interface, callers must know too much), proposes DEEPENING by finding natural SEAMS (auth vs profile vs notifications), discusses LEVERAGE (fewer things callers need to know per module).
-      BONUS (score 5): Uses vocabulary consistently throughout: identifies current INTERFACE size, proposes specific SEAMS with rationale, evaluates DEPTH of proposed modules, applies DELETION TEST to validate the split concentrates complexity.
+
+      Score each independently YES/NO:
+      1. Diagnoses the class as SHALLOW (wide interface, callers must know too much)
+      2. Uses the term SEAM to identify natural split boundaries
+      3. Identifies specific seams (auth vs profile vs notifications or similar)
+      4. Discusses DEPTH (rich behavior behind narrow interface) as the goal
+      5. Mentions INTERFACE size or width as a measurable problem
+      6. Uses LEVERAGE concept (fewer things callers need to know per module)
+      7. Applies DELETION TEST or similar to validate the split
+      8. Vocabulary is used consistently throughout (not just once)
+      9. Proposes concrete restructuring with ≥2 resulting modules named
+      10. Explains why the proposed modules are DEEPER than the original
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
   - input: |
       We have an EventEmitter that 15 different modules subscribe to. Any module can emit any event. It's impossible to trace what happens when an event fires. Should we refactor this?
     criteria: |
-      PRIMARY: Agent identifies the architectural problem using seam/interface vocabulary and proposes a solution that increases locality.
       AUTOMATIC FAIL (score 1): Says "event emitters are fine" or "just add TypeScript types" without analyzing the architectural issue.
-      Score 3: Identifies coupling problem but uses generic language ("too coupled", "spaghetti").
-      Score 4: Diagnoses: the EventEmitter is a SHALLOW seam (interface is "any string" → no depth). Proposes: explicit interfaces at each SEAM so consumers know exactly what they can emit/receive. Mentions LOCALITY (when something breaks, you know where to look).
-      BONUS (score 5): Full vocabulary applied. Notes the current "interface" is infinitely wide (any event). Proposes typed channels or domain events that create DEEP modules (rich behavior behind narrow, typed interface). Applies "one adapter = hypothetical, two = real" to decide which seams deserve extraction.
+
+      Score each independently YES/NO:
+      1. Identifies the EventEmitter as a SHALLOW seam (interface is "any string" → no depth)
+      2. Notes the current interface is infinitely wide (any event name accepted)
+      3. Mentions LOCALITY as a goal (when something breaks, you know where to look)
+      4. Proposes explicit interfaces at each SEAM (typed channels or domain events)
+      5. Uses DEEP module concept (rich behavior behind narrow, typed interface)
+      6. Applies "one adapter = hypothetical, two = real" reasoning for seam extraction
+      7. Discusses how the refactoring increases DEPTH (more behavior per interface point)
+      8. Vocabulary is used consistently throughout (not just once)
+      9. Proposes a concrete alternative architecture (not just "refactor")
+      10. Explains tradeoffs of the proposed approach (what you gain vs cost of change)
+
+      Scoring: 0-2 YES = 1, 3-4 YES = 2, 5-6 YES = 3, 7-8 YES = 4, 9-10 YES = 5.
+      AUTOMATIC FAIL overrides all other scoring.
 
 trials: 3
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.5
 timeout: 120
 tags: [skill-effectiveness, architecture, vocabulary]

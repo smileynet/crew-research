@@ -4,15 +4,15 @@ skill: ai-generation-hygiene
 category: activation
 
 tasks:
-  - input: "Generate a Python class for managing database connections with proper error handling."
+  - input: "Review this code for redundant defensive checks, catch-everything handlers, and restating comments."
     expect_activation: true
-  - input: "Write a TypeScript utility module for date formatting."
+  - input: "Check this function for the nine banned patterns before I commit."
     expect_activation: true
-  - input: "Create a REST API endpoint for user registration."
+  - input: "Scan this module for gratuitous logging and single-use abstractions."
     expect_activation: true
-  - input: "Implement a caching layer for the product catalog service."
+  - input: "Does this code have any verbose conditionals or redundant casts that should be cleaned up?"
     expect_activation: true
-  - input: "Generate the CRUD operations for the orders table."
+  - input: "Audit this PR for AI generation hygiene — unused imports, defensive copies, and catch-everything blocks."
     expect_activation: true
   - input: "What's the difference between merge and rebase?"
     expect_activation: false

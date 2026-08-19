@@ -19,25 +19,45 @@ tasks:
 
       Write a handoff for the next session.
     criteria: |
-      PRIMARY: Handoff compresses prior sessions (1-2) to essentials while keeping current session (3) in full detail.
       AUTOMATIC FAIL (score 1): Handoff is >80 lines or includes full detail from all 3 sessions equally.
-      Score 3: Under 60 lines but treats all sessions equally (no compression of older work).
-      Score 4: Current session in full detail (types, array fix, tests), prior sessions compressed to outcomes + decisions only ("chose recursive approach", "circular refs punted"), under 60 lines.
-      BONUS (score 5): Explicitly marks what's decayed ("Prior: ..."), includes base_commit placeholder, evidence paths, and next steps. Session 1 is one line, Session 2 is 2-3 lines, Session 3 is full.
+
+      Score each YES/NO independently:
+      1. Handoff is under 60 lines total.
+      2. Session 1 is compressed to 1-2 lines (outcomes/decisions only, no exploration detail).
+      3. Session 2 is compressed to 2-3 lines (outcomes/decisions only, e.g. "circular refs punted").
+      4. Session 3 (current) retains full detail: TypeScript types added, array merge fix (concat), 5 new tests passing.
+      5. Handoff includes explicit next steps or states "none".
+      6. Handoff includes evidence paths (test output, files changed) or base_commit placeholder.
+      7. Older sessions are visually separated or labeled as prior/decayed context.
+      8. Handoff includes a handoff_key or session identifier.
+      9. Current work section includes specific file paths or code locations touched.
+      10. Format follows a structured template (sections for status, decisions, next steps) rather than prose.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
   - input: |
       Write a handoff. This session I fixed a failing test in defu — the 'should handle nested arrays' test was broken because the merge function wasn't recursing into array elements. I also ran the full test suite (23 tests pass) and pushed to main.
     criteria: |
-      PRIMARY: Handoff is concise (under 40 lines for a simple bug fix session) with evidence and next steps.
       AUTOMATIC FAIL (score 1): Handoff is >60 lines for what was a single bug fix, or missing evidence (test output, commit SHA).
-      Score 3: Reasonable length but missing either evidence or next steps.
-      Score 4: Under 40 lines, includes what was fixed, evidence (test count, push confirmation), and next steps or "none".
-      BONUS (score 5): Includes base_commit, handoff_key, concise format matching the template, no bloat.
+
+      Score each YES/NO independently:
+      1. Handoff is under 40 lines.
+      2. States what was fixed (nested arrays test, recursion into array elements).
+      3. Includes test evidence (23 tests pass).
+      4. Includes push confirmation or commit reference.
+      5. Includes next steps or explicitly states "none needed".
+      6. Includes base_commit or handoff_key.
+      7. No unnecessary sections or padding for a single-fix session.
+      8. Includes file paths or code locations of the fix.
+      9. Format follows a structured template (not prose paragraphs).
+      10. Proportional to work done — concise for a small fix, no bloat.
+
+      Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
 # 2026-07-22 (ticket 28): trials 3->5 — variance remedy per steering-pointer precedent;
 # def classified FLAKY (straddles gate across runs at unchanged content).
 trials: 5
-threshold: 4
+threshold: 3.0
 delta_threshold: 0.75
 timeout: 120
 tags: [skill-effectiveness, session-management]

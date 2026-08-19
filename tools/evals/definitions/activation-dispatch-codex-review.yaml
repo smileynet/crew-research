@@ -12,7 +12,9 @@ tasks:
     expect_activation: true
   - input: "Check whether the independent Codex review returned clean or ticketed."
     expect_activation: true
-  - input: "Have Codex review everything since its marker."
+  - input: "Get an independent review of all the changes we made today."
+    expect_activation: true
+  - input: "Have another AI check our work before we merge."
     expect_activation: true
   - input: "Review the latest commit yourself."
     expect_activation: false
