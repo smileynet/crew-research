@@ -1,0 +1,31 @@
+id: activation-project-cleanup  # immutable — survives renames; never change once results reference it
+name: activation-project-cleanup
+skill: project-cleanup
+category: activation
+
+tasks:
+  # Positive — end-of-session / cleanup triggers
+  - input: "The session is wrapping up. Clean things up before I hand off."
+    expect_activation: true
+  - input: "CONTEXT.md has gotten really long, can you tidy up the project artifacts?"
+    expect_activation: true
+  - input: "Before we end, make sure everything is in order — glossary, tickets, agents file."
+    expect_activation: true
+  - input: "This project feels cluttered. Consolidate the knowledge artifacts."
+    expect_activation: true
+  - input: "Wrap up and prepare for handoff."
+    expect_activation: true
+  # Negative — unrelated tasks
+  - input: "Write a new feature spec for user authentication."
+    expect_activation: false
+  - input: "Fix the failing test in src/parser.rs"
+    expect_activation: false
+  - input: "What does this function do?"
+    expect_activation: false
+  - input: "Create a new ticket for the login page redesign."
+    expect_activation: false
+  - input: "Review this pull request for security issues."
+    expect_activation: false
+
+threshold: 3.5
+timeout: 60

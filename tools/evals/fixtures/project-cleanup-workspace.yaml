@@ -1,0 +1,160 @@
+repo: ""
+description: >
+  Synthetic project with known knowledge-routing issues:
+  - .scratch/ with stale files
+  - .memory/CONTEXT.md with 8 entries that fail the disambiguation gate
+  - AGENTS.md at 160 lines with glossary content embedded
+  - .tickets/ with plan drift (done ticket not reflected in plan)
+files:
+  .memory/CONTEXT.md: |
+    ---
+    type: glossary
+    title: "Context"
+    ---
+
+    # Context
+
+    **Widget**:
+    A UI component that renders a single interactive element.
+    _Avoid_: control, element (too generic)
+
+    **Pipeline**:
+    The ordered sequence of transforms applied to input data before storage.
+    _Avoid_: chain (implies linked-list), flow (too vague)
+
+    **Envelope**:
+    The metadata wrapper around a message payload (timestamp, source, correlation ID).
+    _Avoid_: header (that's just one field), wrapper (too generic)
+
+    **PowerShell StrictMode**:
+    User's PS profile has Set-StrictMode -Version Latest. All powershell -Command invocations with variables will fail. Always use powershell -ExecutionPolicy Bypass -File script.ps1 instead.
+
+    **Two-step import pattern**:
+    Required sequence for GDUnit4 CI: godot --headless --import || true then xvfb-run godot -s GdUnitCmdTool.gd. The import registers class_names; without it, the test runner fails with "type not found".
+    _Avoid_: running tests without importing first.
+
+    **Not going public**:
+    This project stays private. Not being published as a public template.
+    _Avoid_: planning for public API stability or semantic versioning for external consumers.
+
+    **mise pre-release versions**:
+    Fuzzy/prefix version matching does not work with hyphenated pre-release versions. Must use exact version string (e.g., "0.24.0-ccs.1" not "0.24.0-ccs").
+
+    **Context loading strategy**:
+    The fundamental mechanism by which content reaches an agent's context window. Three tiers: eager (always-on), lazy (on-demand), progressive (depth-on-demand within a loaded skill). Eager uses steering files injected at session start. Lazy uses SKILL.md directories with frontmatter-based activation. Progressive uses references/ companion files within a loaded skill.
+
+    **Identity hash (eval result)**:
+    A recomputable fingerprint stamped on each scores.jsonl row so staleness is computed, not remembered. Four separate components keep drift KIND visible: skill_hash, def_hash, judge_hash, env_id.
+
+    **Shadow study**:
+    Offline model-comparison method: candidate models re-judge RETAINED outputs from a completed run and are scored on agreement with the recorded consensus.
+
+    **Deployment target**:
+    The filesystem path where skills are placed for a given tool (e.g., ~/.kiro/skills/ for kiro-cli).
+    _Avoid_: install path (nothing is "installed")
+
+  AGENTS.md: |
+    # AGENTS.md
+
+    ## Project
+
+    example-project — A demonstration project for testing knowledge routing.
+
+    ## Workspace Layout
+
+    ```
+    .memory/CONTEXT.md  — Project glossary
+    .memory/adr/        — Architecture decisions
+    .scratch/           — Ephemeral working notes
+    tools/              — Project scripts
+    ```
+
+    ## Commands
+
+    ```bash
+    cargo build          # build (exit 0)
+    cargo test           # 23 tests (exit 0)
+    cargo clippy         # lint (exit 0)
+    ```
+
+    ## Workflow
+
+    | Situation | Action |
+    |-----------|--------|
+    | New feature | Plan first with /planning-cycles |
+    | Bug fix | Reproduce → fix → test → commit |
+    | End of session | /project-cleanup then /handoff |
+
+    ## Constraints
+
+    - Do NOT commit to main directly
+    - Do NOT add dependencies without justification
+
+    ## Terms
+
+    **Envelope**:
+    The metadata wrapper around a message payload (timestamp, source, correlation ID).
+    _Avoid_: header, wrapper
+
+    **Pipeline**:
+    The ordered sequence of transforms applied to input data.
+    _Avoid_: chain, flow
+
+    ## Architecture Overview
+
+    The system uses a three-layer architecture with a clear separation between
+    the ingestion layer, the processing layer, and the storage layer. The
+    ingestion layer accepts input from multiple sources (HTTP, WebSocket, file
+    watchers) and normalizes them into Envelope format. The processing layer
+    applies the Pipeline transforms in order, with each transform receiving the
+    output of the previous one. Transforms can be stateless (pure functions) or
+    stateful (maintaining counters, aggregations, or time windows). The storage
+    layer persists processed envelopes to SQLite with FTS5 for full-text search.
+    Each layer communicates via typed channels (tokio::mpsc) to maintain backpressure.
+    The system handles ~10K messages/second on a single core with <50MB memory footprint.
+    Graceful shutdown drains all channels before closing the database connection.
+
+    ## When Blocked
+
+    - Can't build: check Rust toolchain version (1.75+)
+    - Test failures: read the assertion message before changing the test
+    - Unclear requirements: ask in the issue thread
+
+  .scratch/old-handoff.md: |
+    ---
+    created_at: 2026-07-15T10:00:00-07:00
+    base_commit: abc1234
+    ---
+    # Handoff
+    ## Objective
+    Implement the retry mechanism for failed pipeline transforms.
+    ## Current State
+    Done — merged in PR #47.
+
+  .scratch/research-note.md: |
+    # Quick research on backpressure patterns
+    Found that bounded channels with drop-oldest semantics work best for our use case.
+    Applied in commit ef56789. No further action needed.
+
+  .tickets/01-retry-mechanism.md: |
+    ---
+    id: "01"
+    title: "Implement retry mechanism for pipeline transforms"
+    status: done
+    blocked_by: []
+    ---
+    # Implement retry mechanism
+    ## What to build
+    Add configurable retry with exponential backoff to failed transforms.
+    ## Acceptance criteria
+    - [x] Retry count configurable per-transform
+    - [x] Exponential backoff with jitter
+    - [x] Dead letter queue after max retries
+
+  docs/plan.md: |
+    # Plan
+
+    | Ticket | Title | Status |
+    |--------|-------|--------|
+    | 01 | Retry mechanism | in progress |
+    | 02 | Monitoring dashboard | open |

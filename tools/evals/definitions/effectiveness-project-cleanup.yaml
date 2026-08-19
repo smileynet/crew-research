@@ -1,0 +1,48 @@
+id: effectiveness-project-cleanup  # immutable — survives renames; never change once results reference it
+name: effectiveness-project-cleanup
+description: "Does the skill correctly detect role violations, apply the disambiguation gate, route content, and fix mechanical issues?"
+skill: project-cleanup
+fixture: project-cleanup-workspace
+
+conditions:
+  with-skill:
+    skills: [project-cleanup]
+  baseline:
+    skills: []
+
+tasks:
+  - name: full-cleanup-orchestration
+    input: "This project needs cleanup before I hand off. Run through it and fix what you find."
+    criteria: |
+      PRIMARY: Agent detects issues across multiple artifact types (CONTEXT.md, AGENTS.md, scratch, tickets) and applies correct fixes per the knowledge routing rules.
+
+      AUTOMATIC FAIL (score 1): Agent says "looks fine" without reading the files, or only addresses one artifact type while ignoring obvious issues in others.
+
+      Score 2: Identifies some issues but misclassifies them (e.g., keeps gotchas in CONTEXT.md, doesn't notice the glossary terms in AGENTS.md, ignores stale scratch).
+
+      Score 3: Correctly identifies most issues across artifact types. Applies the disambiguation gate to CONTEXT.md (recognizes that "PowerShell StrictMode", "Two-step import pattern", "mise pre-release versions" are operational gotchas, not terms). But doesn't route all findings to correct destinations or misses the AGENTS.md architecture section being too long.
+
+      Score 4: Correctly applies the disambiguation gate (keeps Widget, Pipeline, Envelope, Deployment target; routes gotchas to AGENTS.md, decisions to ADR consideration, specs to .memory/specs/). Identifies AGENTS.md violations (Terms section = glossary content in wrong file; Architecture section >10 lines inline). Identifies stale scratch (old-handoff done, research-note one-time). Detects plan-ticket drift (ticket 01 is done but plan says in progress). Proposes or dispatches subagent for unbiased review.
+
+      BONUS (score 5): All of score 4, PLUS: mentions that the current session context may bias the review (justifying subagent dispatch), correctly identifies which CONTEXT.md entries pass vs fail the gate with explicit reasoning, and produces a clean summary of what was fixed vs what needs user decision.
+
+  - name: context-md-gate-only
+    input: "Review .memory/CONTEXT.md and enforce the glossary scope. Apply the disambiguation test to each entry."
+    criteria: |
+      PRIMARY: Correctly classifies each CONTEXT.md entry as passing or failing the "could two people mean different things?" test, and routes failures to appropriate destinations.
+
+      AUTOMATIC FAIL (score 1): Keeps all entries as-is, or removes entries without routing them anywhere.
+
+      Score 2: Recognizes some entries don't belong but can't articulate why (vague "this seems like implementation detail" without the specific gate question).
+
+      Score 3: Applies the gate and correctly classifies most entries. Keeps Widget, Pipeline, Envelope, Deployment target. Identifies that "PowerShell StrictMode", "Two-step import", "mise pre-release versions" are gotchas (→ AGENTS.md). But may misclassify "Not going public" (decision → ADR or delete) or the spec-level entries.
+
+      Score 4: Correctly gates all 11 entries. Keeps 4 (Widget, Pipeline, Envelope, Deployment target). Routes: 3 gotchas → AGENTS.md Constraints; 1 decision ("Not going public") → ADR or delete; 3 specs (Context loading strategy, Identity hash, Shadow study) → .memory/specs/ or delete. Entries are trimmed to ≤3 lines.
+
+      BONUS (score 5): All of score 4, PLUS: explicitly states the disambiguation test for each entry, explains WHY each routing decision is correct (not just WHAT), and produces the cleaned file with proper format preserved.
+
+trials: 3
+threshold: 3.5
+delta_threshold: 1.0
+timeout: 180
+tags: [skill-effectiveness, knowledge-routing, orchestration]
