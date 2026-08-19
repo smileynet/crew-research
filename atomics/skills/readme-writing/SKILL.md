@@ -9,91 +9,92 @@ metadata:
 
 # README Writing
 
-The README is the front door. Most people decide whether to use a project based on the README alone.
+The README is the front door. Most people decide whether to use a project in the first 10 seconds of reading it.
 
-## The One-Line Test
+## The Opening Line
 
-The first line (project name + one-sentence description) must answer "what is this?" completely. Test: cover the name, show the rest to someone unfamiliar — can they say what it does?
+One sentence that names what it IS and what makes it different:
 
-- Bad: "A tool for document processing built with modern technologies."
-- Good: "Convert Markdown files to PDF, HTML, and EPUB from the command line."
+- "A tool for glamorous shell scripts." (gum)
+- "An extremely fast Python linter and formatter, written in Rust." (ruff)
+- "A simple terminal UI for git commands." (lazygit)
 
-Write what the project does, not how it does it.
+Pattern: `A [category] that [differentiator].` Write what it does, not how it works.
 
-## Jobs-To-Be-Done Table
+## Let Readers Self-Select
 
-For tools and libraries, include a JTBD table after "What it does" — shows who uses this and why in natural language:
+Don't tell people who should use this. Show what it does and trust them to decide:
 
-```markdown
-| When I'm... | I want to... | So I can... |
-|-------------|-------------|-------------|
-| Starting a new project | scaffold conventions | stop re-inventing structure |
-| Ending a session | capture state for next time | continue without re-discovery |
-| Reviewing my own code | get objective feedback | catch issues before shipping |
-```
+| Strategy | Example |
+|----------|---------|
+| Name what it replaces | "Drop-in replacement for grep, 10x faster" |
+| Show the output | Screenshot, GIF, or terminal recording |
+| Solve a real task | Tutorial that builds something useful in 60 seconds |
+| Name who's using it | "Used by FastAPI, Airflow, pandas..." |
 
-5-7 rows. User's language, not implementation language. Each row is a trigger condition for the project's value.
+Readers recognize their own situation. They don't need a table explaining personas.
 
-## Quick Start Is the Most Important Section
+## Quick Start: Speed to First Value
 
-Get a reader to a working state in under five minutes. Show real commands, expected output, and minimal required setup. No theory, no background.
+Install → run → see output. Under 30 seconds. No theory, no background, no prerequisites before the hook.
 
 ```bash
-# Good: real commands, expected output, honest about requirements
-npm install -g myproject
-export MYPROJECT_API_KEY=your_key_here
-myproject convert input.md output.pdf
-# Converted 3 pages → output.pdf
+brew install myproject       # or: cargo install, pip install, curl
+myproject init
+myproject run example.md
+# ✨ Output: 3 pages processed
 ```
 
-If quick start requires a config file or API key, show that. A quick start that omits a required step manufactures frustration.
+Show expected output. Omitting a required step manufactures frustration.
 
-## Recommended Section Order
+## Section Order
 
-Readers evaluate top-down and stop when they have enough. Put decision-relevant content first:
+Put decision-relevant content first. Readers evaluate top-down and stop when satisfied:
 
-1. **Project name + one-line description** — what it is
-2. **Badges** (optional) — CI, version, license; 3–5 max
-3. **What it does** — 2-4 sentences on the problem and approach
-4. **Quick start** — fastest path from zero to working
-5. **Installation** — full options, platform notes, prerequisites
-6. **Usage** — common operations with working examples
-7. **Configuration** — options, env vars, config file format
-8. **Architecture** (if applicable) — high-level diagram, key components
-9. **Development** — how to contribute, build, test, lint
-10. **License** — one line or link
+1. **Identity** — one sentence + differentiator
+2. **Proof** — benchmark, screenshot, GIF, or feature bullets
+3. **Features** — what can it do? (short list with examples)
+4. **Getting started** — install + first command
+5. **Usage** — common operations, configuration
+6. **Community** — contributing, links, support
+7. **License**
 
-Not every project needs every section. Fit structure to the project, but don't invent a new order.
+Not every project needs every section. Fit to the project, but don't invent a new order.
 
-## Show, Don't Tell
+## Feature Lists
 
-Every claim has a runnable example. "Supports many output formats" teaches nothing. A code block demonstrating three formats teaches everything.
+Emoji-bullet lists communicate capability at a glance:
 
-## What Doesn't Belong in README
+```markdown
+⚡️ 10-100x faster than existing tools
+📦 Zero configuration needed
+🔧 Drop-in replacement for X and Y
+🪶 Single binary, no dependencies
+```
 
-| Content | Where It Goes |
+3-6 bullets. Each one a concrete capability, not a vague quality.
+
+## What Doesn't Belong
+
+| Content | Where it goes |
 |---------|--------------|
+| Internal architecture | docs/architecture.md |
 | Agent instructions | AGENTS.md |
-| Detailed API reference | Generated docs (Rustdoc, JSDoc, Sphinx) |
-| Architecture decisions | .memory/adr/ |
-| Research notes | docs/research/ |
-| Tutorials | docs/tutorials/ |
-| Operational runbooks | docs/ or ops wiki |
+| Detailed API reference | Generated docs |
+| Changelog/roadmap | CHANGELOG.md, GitHub releases |
+| Design philosophy | A blog post, not the README |
+| Prerequisites | Inside the Installation section, not before the hook |
 
 ## Anti-Patterns
 
 - **Wall of text before quick start** — reader left after paragraph two
-- **README as AGENTS.md** — agent tool invocations mixed with human orientation
-- **TODO sections** — "TODO: add examples" that hasn't moved in two years. Write it or omit it.
+- **Prerequisites above the fold** — "You'll need Node 18..." before showing what the tool does
+- **TODO sections that never shipped** — write it or omit it
+- **Config-first setup** — show the CLI command first, configuration comes after first use
+- **Comparison tables** ("us ✅ them ❌") — let benchmarks and demos speak instead
 - **Badge bloat** — twelve badges signaling decoration, not quality
-- **Quick start that doesn't work** — omits a required step or produces wrong output
-- **Screenshots of text** — inaccessible, not copy-pasteable, goes stale
 - **Stale version numbers in prose** — "Install v1.2.3" when latest is 2.5.0
-- **README that hasn't changed since initial commit** — not wrong, just absent
 
-## Sources
+## References
 
-- Art of README (Stephen Whitmore) — README as adoption decision point
-- Standard Readme Specification (Richard Litt) — consensus section order
-- arXiv 2025 — README and CONTRIBUTING in OSS: early README publication increases contributor activity
-- best_practices/docs/practices/readme-writing.md (internal)
+- For detailed patterns from popular repos (ripgrep, bat, ruff, uv, vite, ollama, lazygit, gum), read [references/patterns.md](references/patterns.md)

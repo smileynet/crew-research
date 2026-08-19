@@ -13,15 +13,8 @@ You install skills into your project. Your AI assistant gets better without chan
 
 Skills are plain markdown files. They work with kiro-cli, codex, and other skill-compatible tools.
 
-| When I'm... | I want to... | So I can... |
-|-------------|-------------|-------------|
-| Starting a new feature | get structured planning | stop diving in without thinking |
-| Ending a session | capture state automatically | continue tomorrow without re-discovery |
-| Asking "what did we decide?" | get the actual decision, not a guess | avoid contradicting past choices |
-| Reviewing generated code | have objective standards applied | catch bloat and missing verification |
-| Deploying to production | get safety checks enforced | avoid breaking things on Friday |
-| Working across projects | have consistent conventions | stop re-learning workspace layout |
-| Onboarding to a codebase | get existing knowledge surfaced | skip the "where is everything?" phase |
+**Before:** AI dives straight in, skips verification, loses context between sessions.
+**After:** Planning before building, evidence before "done", memory across sessions — automatically.
 
 ## Quick Start
 

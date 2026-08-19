@@ -5,6 +5,14 @@ status: done
 blocked_by: []
 priority: high
 validation_criteria:
+  - "No Python recall references in user-facing files"
+  - "mise run validate passes"
+  - "tools/recall/ Python source removed"
+  - "doctor.sh detects Python recall"
+  - "Helper scripts have deprecation headers"
+  - "Existing deployments still function"
+  - "mise run doctor runs clean"
+validation_criteria:
   - "No uv/Python recall references in user-facing files"
   - "mise run validate passes"
   - "tools/recall/ Python source removed"
