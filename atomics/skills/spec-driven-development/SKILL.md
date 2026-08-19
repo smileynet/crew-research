@@ -81,7 +81,7 @@ Optional: Unresolved Questions, Alternatives Considered.
 Draft → Accepted → Tickets Created → Implemented → Reconciled → Validated
 ```
 
-After a spec is **Accepted**, decompose it into tickets using `/ticket-planning`. Tickets become the workable units; the spec remains the authoritative requirements doc.
+After a spec is **Accepted**, decompose it into tickets using the `tkt` skill. Tickets become the workable units; the spec remains the authoritative requirements doc.
 
 ## Rules
 

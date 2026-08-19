@@ -89,7 +89,7 @@ Use subagents for CONTEXT.md and AGENTS.md review — the working session normal
 ## Does NOT
 
 - Write the handoff (that's `/handoff` — recommend it after cleanup)
-- Decompose new work into tickets (that's `/ticket-planning`)
+- Decompose new work into tickets (that's the `tkt` skill)
 - Rewrite README from scratch (recommend `/readme-writing` if stale)
 - Audit user-facing docs quality (that's `/docs-audit`)
 

@@ -35,7 +35,7 @@ metadata:
 → `/vertical-slice-planning` — routes between spikes, tracer bullets, and slices based on uncertainty.
 
 **Maintenance / cleanup:**
-→ `/project-cleanup` (weekly) or `/project-audit` (drift check).
+→ `/project-cleanup` (weekly, or when drift suspected — detects, fixes, and tickets the rest).
 
 ---
 
@@ -47,8 +47,7 @@ metadata:
 | `/handoff` | **End of session.** Writes a handoff so the next session can continue without re-discovery. |
 | `/grill-with-docs` | **Designing something.** Interrogates your plan one question at a time, updates CONTEXT.md inline. |
 | `/plan-prereqs` | **Before building.** Identifies research, spikes, and tooling needed before implementation. |
-| `/project-cleanup` | **Periodic housekeeping.** Promotes scratch→memory, deduplicates, processes decisions→ADR, verifies accuracy. |
-| `/project-audit` | **Drift check.** Verifies commands work, AGENTS.md is accurate, skills are relevant. |
+| `/project-cleanup` | **Periodic housekeeping + drift check.** Promotes scratch→memory, deduplicates, processes decisions→ADR, verifies commands/AGENTS.md accuracy, tickets the rest. |
 | `/adopt-project` | **Brownfield migration.** Inventories existing setup, captures special instructions, deploys. |
 
 ## Workflow

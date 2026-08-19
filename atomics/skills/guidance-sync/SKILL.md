@@ -48,7 +48,7 @@ What existing guidance did this session ignore, contradict, or work around? Cura
 - Guidance contradicted by observed reality → fix in place now (repair-on-touch — don't defer to a scheduled review that won't happen)
 - Two files own the same rule → consolidate to one source of truth, delete the copy
 
-Route removals to their owners — never build a parallel prune mechanism: skill retirement → `compositions/deprecated.yaml` flow; AGENTS.md over budget → agents-md-authoring trim gate; systemic multi-file drift → propose `/project-audit`; doc decay → docs-audit.
+Route removals to their owners — never build a parallel prune mechanism: skill retirement → `compositions/deprecated.yaml` flow; AGENTS.md over budget → agents-md-authoring trim gate; systemic multi-file drift → propose `/project-cleanup`; doc decay → docs-audit.
 
 ## Output Format
 

@@ -94,4 +94,4 @@ Each slice adds exactly ONE new capability. If it breaks, you know what caused i
 
 ## After Choosing Methodology
 
-Once you've chosen spike, tracer bullet, or vertical slice — use `/ticket-planning` to break the work into individual tickets with blocking edges. Each ticket becomes one unit of work sized to a single session.
+Once you've chosen spike, tracer bullet, or vertical slice — use the `tkt` skill to break the work into individual tickets with blocking edges. Each ticket becomes one unit of work sized to a single session.

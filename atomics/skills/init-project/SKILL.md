@@ -13,7 +13,7 @@ Scaffold project conventions. Skills come from ~/.kiro/ (global). This creates t
 
 ## Check First
 
-If `.memory/` and `AGENTS.md` already exist, this project is already scaffolded. Ask if the user wants to update/verify instead (suggest `@project-audit`).
+If `.memory/` and `AGENTS.md` already exist, this project is already scaffolded. Ask if the user wants to update/verify instead (suggest `@project-cleanup`).
 
 ## Scaffold
 
