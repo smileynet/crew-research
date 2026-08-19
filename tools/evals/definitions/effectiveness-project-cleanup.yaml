@@ -14,35 +14,64 @@ tasks:
   - name: full-cleanup-orchestration
     input: "This project needs cleanup before I hand off. Run through it and fix what you find."
     criteria: |
-      PRIMARY: Agent detects issues across multiple artifact types (CONTEXT.md, AGENTS.md, scratch, tickets) and applies correct fixes per the knowledge routing rules.
+      Score by counting independently verified checks (YES = observed in output, NO = absent):
 
-      AUTOMATIC FAIL (score 1): Agent says "looks fine" without reading the files, or only addresses one artifact type while ignoring obvious issues in others.
+      DETECTION (did it find the issues?):
+      □ Read .memory/CONTEXT.md and identified entries that don't belong
+      □ Read AGENTS.md and identified the Terms section as misplaced glossary content
+      □ Read AGENTS.md and identified Architecture section as over-length inline content (>10 lines)
+      □ Identified stale scratch files (old-handoff.md is done, research-note.md is one-time)
+      □ Detected plan-ticket drift (ticket 01 done but plan says "in progress")
 
-      Score 2: Identifies some issues but misclassifies them (e.g., keeps gotchas in CONTEXT.md, doesn't notice the glossary terms in AGENTS.md, ignores stale scratch).
+      CORRECT ACTION (did it fix correctly?):
+      □ CONTEXT.md: kept Widget, Pipeline, Envelope, Deployment target (genuine disambiguation)
+      □ CONTEXT.md: removed/routed gotchas (PowerShell StrictMode, Two-step import, mise pre-release)
+      □ CONTEXT.md: removed/routed specs (Context loading strategy, Identity hash, Shadow study)
+      □ AGENTS.md: removed Terms section (or moved terms to CONTEXT.md)
+      □ AGENTS.md: extracted Architecture to .memory/specs/ (or flagged for extraction)
+      □ Deleted or proposed deleting stale scratch files
+      □ Fixed plan.md to reflect ticket 01 as done
 
-      Score 3: Correctly identifies most issues across artifact types. Applies the disambiguation gate to CONTEXT.md (recognizes that "PowerShell StrictMode", "Two-step import pattern", "mise pre-release versions" are operational gotchas, not terms). But doesn't route all findings to correct destinations or misses the AGENTS.md architecture section being too long.
+      METHODOLOGY:
+      □ Mentioned subagent dispatch (or fresh-context benefit) for CONTEXT.md/AGENTS.md review
 
-      Score 4: Correctly applies the disambiguation gate (keeps Widget, Pipeline, Envelope, Deployment target; routes gotchas to AGENTS.md, decisions to ADR consideration, specs to .memory/specs/). Identifies AGENTS.md violations (Terms section = glossary content in wrong file; Architecture section >10 lines inline). Identifies stale scratch (old-handoff done, research-note one-time). Detects plan-ticket drift (ticket 01 is done but plan says in progress). Proposes or dispatches subagent for unbiased review.
+      AUTOMATIC FAIL (score 1): Says "looks fine" without reading files, or addresses only one artifact type.
 
-      BONUS (score 5): All of score 4, PLUS: mentions that the current session context may bias the review (justifying subagent dispatch), correctly identifies which CONTEXT.md entries pass vs fail the gate with explicit reasoning, and produces a clean summary of what was fixed vs what needs user decision.
+      Scoring: 0-2 checks = 1, 3-4 = 2, 5-7 = 3, 8-10 = 4, 11-13 = 5
 
   - name: context-md-gate-only
     input: "Review .memory/CONTEXT.md and enforce the glossary scope. Apply the disambiguation test to each entry."
     criteria: |
-      PRIMARY: Correctly classifies each CONTEXT.md entry as passing or failing the "could two people mean different things?" test, and routes failures to appropriate destinations.
+      Score by counting independently verified checks (YES = observed in output, NO = absent):
 
-      AUTOMATIC FAIL (score 1): Keeps all entries as-is, or removes entries without routing them anywhere.
+      GATE APPLICATION (did it test each entry?):
+      □ Explicitly applied a disambiguation question to entries (not just "this looks like a spec")
+      □ Stated the test: resolves which meaning vs describes how something works
 
-      Score 2: Recognizes some entries don't belong but can't articulate why (vague "this seems like implementation detail" without the specific gate question).
+      CORRECT CLASSIFICATION:
+      □ KEPT: Widget (genuine term — UI widget vs dashboard widget vs hardware)
+      □ KEPT: Pipeline (genuine term — CI vs data vs rendering)
+      □ KEPT: Envelope (genuine term — SOAP vs email vs this project's wrapper)
+      □ KEPT: Deployment target (genuine term — cloud vs filesystem path)
+      □ REMOVED: PowerShell StrictMode (gotcha, not disambiguation)
+      □ REMOVED: Two-step import pattern (procedure, not disambiguation)
+      □ REMOVED: mise pre-release versions (gotcha, not disambiguation)
+      □ REMOVED: Not going public (decision, not disambiguation)
+      □ REMOVED: Context loading strategy (describes HOW, not resolves WHICH MEANING)
+      □ REMOVED: Identity hash (describes HOW, not resolves WHICH MEANING)
+      □ REMOVED: Shadow study (describes HOW, not resolves WHICH MEANING)
 
-      Score 3: Applies the gate and correctly classifies most entries. Keeps Widget, Pipeline, Envelope, Deployment target. Identifies that "PowerShell StrictMode", "Two-step import", "mise pre-release versions" are gotchas (→ AGENTS.md). But may misclassify "Not going public" (decision → ADR or delete) or the spec-level entries.
+      ROUTING (did removals go to correct destinations?):
+      □ Gotchas routed to AGENTS.md Constraints (or staged for it)
+      □ Specs routed to .memory/specs/ (or deletion)
+      □ Decision routed to ADR consideration (or AGENTS.md Constraints)
 
-      Score 4: Correctly gates all 11 entries. Keeps 4 (Widget, Pipeline, Envelope, Deployment target). Routes: 3 gotchas → AGENTS.md Constraints; 1 decision ("Not going public") → ADR or delete; 3 specs (Context loading strategy, Identity hash, Shadow study) → .memory/specs/ or delete. Entries are trimmed to ≤3 lines.
+      AUTOMATIC FAIL (score 1): Keeps all entries as-is, or removes entries without routing.
 
-      BONUS (score 5): All of score 4, PLUS: explicitly states the disambiguation test for each entry, explains WHY each routing decision is correct (not just WHAT), and produces the cleaned file with proper format preserved.
+      Scoring: 0-3 checks = 1, 4-6 = 2, 7-9 = 3, 10-12 = 4, 13-15 = 5
 
 trials: 3
-threshold: 3.5
+threshold: 3.0
 delta_threshold: 1.0
 timeout: 180
 tags: [skill-effectiveness, knowledge-routing, orchestration]

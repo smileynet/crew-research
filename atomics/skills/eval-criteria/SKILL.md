@@ -9,62 +9,87 @@ metadata:
 
 # Eval Criteria Style Guide
 
-## Structure (required fields)
+## The Central Problem
+
+LLM judges exhibit central tendency bias — scores cluster at 2-3 on a 1-5 scale regardless of actual quality. This is intrinsic (from RLHF training), not a prompt failure. The fix is structural: decompose holistic rubrics into binary checks.
+
+## Preferred: Binary Checklist Criteria
+
+Convert "score 3 vs 4" prose into independently verifiable YES/NO checks:
 
 ```yaml
-- name: agent-verb-noun
-  input: "realistic user message"
-  criteria: |
-    PRIMARY: ...
-    AUTOMATIC FAIL: ...
-  tags: [category]
-  threshold: 4
+criteria: |
+  Score by counting independently verified checks (YES/NO):
+  □ [observable behavior 1]
+  □ [observable behavior 2]
+  □ [observable behavior 3]
+  ...
+  AUTOMATIC FAIL (score 1): [condition]
+  Scoring: 0-2 checks = 1, 3-4 = 2, 5-6 = 3, 7-8 = 4, 9-10 = 5
 ```
 
-## Criteria Format
+**Why this works:** Judges are ~87% accurate on binary decisions vs 38-58% on ordinal scales. The mechanical score derivation prevents clustering.
 
+**Writing good checks:**
+- Each check must be independently observable in the output (a grep could find it)
+- Group by phase: DETECTION → CORRECT ACTION → METHODOLOGY
+- 10-15 checks total is the sweet spot (fewer = coarse, more = judge fatigue)
+- Harder checks (methodology, reasoning quality) count the same as easy ones — that's fine
+
+## Fallback: Anchored Ordinal (when checks don't fit)
+
+For evaluating quality/style where binary checks are unnatural:
+
+```yaml
+criteria: |
+  PRIMARY: The ONE thing being tested. One sentence.
+  AUTOMATIC FAIL (score 1): [specific observable failure condition]
+  Score 2: [what "wrong" looks like — observable symptoms]
+  Score 3: [what "partial" looks like — specific items present/absent]
+  Score 4: [what "good" looks like — reserved for meeting all requirements]
+  Score 5: [what "excellent" looks like — reserved for clear excellence, do NOT award by default]
 ```
-PRIMARY: The ONE thing being tested. One sentence.
-AUTOMATIC FAIL (score 1): Condition that means instant failure.
-Score 3: What partial credit looks like.
-Score 4: What "good" looks like.
-BONUS (score 5): What excellence looks like.
-```
+
+**Anti-compression techniques:**
+- Add "do NOT award by default" to score 5 description
+- Add "most outputs that feel 'fine' belong here" to score 3
+- Each level must describe observable differences, not degree words ("better", "more thorough")
 
 ## Rules
 
 1. **One primary signal per eval.** Testing two things? Write two evals.
-2. **Automatic-fail is mandatory.** The judge needs a clear "wrong" signal.
+2. **Automatic-fail is mandatory.** Judges need a clear "wrong" signal.
 3. **Countable over subjective.** "Mentions 3 of [list]" beats "thorough."
-4. **Threshold matches criticality:** 4 = correctness-critical, 3 = quality.
+4. **Binary checks for orchestrator/multi-step skills.** Holistic criteria miss cross-step defects.
+5. **Threshold matches panel health:** 3.0 for degraded (2-judge) panels, 3.5 for full (3+), 4.0 for correctness-critical.
 
-## Anti-Patterns
+## Orchestrator/Multi-Step Evals
 
-| ❌ Bad | ✅ Good |
-|--------|---------|
-| "Should handle correctly" | "PRIMARY: Reads the file before proposing changes" |
-| "Should not do bad things" | "AUTOMATIC FAIL: Implements feature (scope is bugs only)" |
-| Testing routing + style in one eval | Separate eval per concern |
-| No ideal on routing eval | Ideal showing correct delegation |
-| Scoring vocabulary over reasoning | Score correct resolution regardless of terminology used |
+Agent workflows that dispatch, route, and manage state need special criteria design:
 
-## Scoring Principle
+- **Decompose by phase** — separate detection checks from action checks from methodology checks
+- **Include trajectory markers** — "read file X" and "wrote to file Y" are observable tool calls
+- **Name the expected classifications** — don't say "correctly classifies"; list WHAT should be classified HOW
+- **State the fixture's ground truth** — judges can't verify against invisible expectations
 
-Score reasoning quality, not vocabulary. An agent that correctly resolves a source conflict using natural language ("official docs beat community answers because the maintainers control the source") should score the same as one using formal framework terms ("L4 > L6"). The framework makes reasoning visible; the reasoning is what matters.
+## Activation Task Design
 
-## Activation Task Design (activation defs)
+Negative tasks (`expect_activation: false`) must stay OUT of the skill's downstream territory. Use read-only/Q&A negatives for skills whose triggers overlap post-change workflow.
 
-Negative tasks (`expect_activation: false`) must stay OUT of the skill's legitimate downstream territory, not just its trigger vocabulary. A task that instructs the agent to produce changes can legitimately end in commit territory — loading git-protocol there is correct behavior, and the "negative" flakes at the FPR gate. Use read-only/Q&A negatives for skills whose triggers include post-change workflow (incident: activation-git-protocol, ticket 27 — two verified-genuine FPs from change-producing negatives).
+## Threshold Rationale
+
+| Panel state | Recommended threshold | Why |
+|-------------|----------------------|-----|
+| Full (3+ judges, 2+ families) | 3.5-4.0 | Reliable signal |
+| Degraded (2 judges) | 3.0 | Score variance too high for tight thresholds |
+| Single judge | 2.5 (provisional only) | Cannot distinguish signal from bias |
+
+Delta threshold (1.0) is more reliable than absolute threshold — less affected by panel size.
 
 ## Naming Convention
 
 `{skill}-{verb}-{noun}` — e.g., `planning-cycles-produces-phases`, `code-review-checks-security`
 
-## Threshold Rationale
-
-- `threshold: 4` — wrong answer = broken system (routing, scope, safety)
-- `threshold: 3` — partial credit acceptable (identity, style, narration)
-
 ## References
 
-- For session transcript review patterns and red flags, read [references/session-review.md](references/session-review.md)
+- For session transcript review patterns, read [references/session-review.md](references/session-review.md)
