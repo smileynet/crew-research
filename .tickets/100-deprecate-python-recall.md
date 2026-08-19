@@ -1,7 +1,7 @@
 ---
 id: "100"
 title: "Deprecate Python recall in favor of Rust rewrite (~/code/recall)"
-status: open
+status: in_progress
 blocked_by: []
 priority: high
 ---
