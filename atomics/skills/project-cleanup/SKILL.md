@@ -1,97 +1,99 @@
 ---
 name: project-cleanup
-description: "Consolidate project artifacts — promote scratch to memory, deduplicate memory, process decisions, organize scripts, update steering/skills accuracy. Use periodically or when the project feels cluttered."
+description: "End-of-session orchestrator — consolidate knowledge artifacts, enforce role conformance, sync tickets, and prepare for handoff. Dispatches subagents for unbiased CONTEXT.md and AGENTS.md review. Use before handoff, when the project feels cluttered, or periodically. Trigger: clean up, wrap up, project cleanup, end of session, before handoff, consolidate, tidy up, is everything in order."
 metadata:
   type: process
-  invocation: user-only
+  invocation: both
   practice: null
-  params:
-    ephemeral_path: ".scratch"
-    durable_path: ".memory"
-    scripts_path: "tools"
-    mise_file: "mise.toml"
-    crosslink_lint: "tools/lint/check-crosslinks.sh"
 ---
 
 # Project Cleanup
 
-Systematic consolidation of project artifacts. Run periodically to prevent drift and clutter.
+End-of-session orchestrator. Detect what needs attention, fix what's mechanical, dispatch subagents for unbiased review, create tickets for the rest.
 
-## Phase 1: Promote Scratch → Memory
+## When to Run
 
-Review all files in `{{params.ephemeral_path}}/`:
-- **Promote** findings/decisions that have lasting value → `{{params.durable_path}}/`
-- **Archive** completed handoffs (superseded by newer ones) → delete
-- **Keep** only the current handoff and active scratch notes
+- Before `/handoff` (the standard pre-handoff ritual)
+- When the project feels cluttered
+- After a long session that created/modified knowledge artifacts
+- Periodically (weekly or at session start if drift suspected)
 
-## Phase 2: Process Decisions → ADR
+## Process
 
-Check for decisions files (`decisions.md`, `DECISIONS.md`, `.memory/decisions.md`, `docs/decisions.md`). Route each entry per the knowledge routing table: ADR-worthy → write ADR; disambiguation term → CONTEXT.md; gotcha → AGENTS.md Constraints; not worth preserving → delete. Remove the decisions file once all entries are processed.
+### 1. Auto-detect (fast, inline)
 
-## Phase 3: Consolidate Memory
+Scan the project. Only phases with findings run:
 
-Review all files in `{{params.durable_path}}/`:
-- **Deduplicate** — merge documents covering the same topic
-- **CONTEXT.md scope enforcement** — for each entry, apply the disambiguation gate ("could two people mean different things by this word?"):
-  - Passes → keep, trim to ≤3 lines (term + definition + avoid)
-  - Fails → route: gotcha/env → stage for AGENTS.md Constraints; spec → `.memory/specs/`; decision → ADR or delete; stale → delete
-  - Stage routed content in `.scratch/context-cleanup/` for integration
-- **Deprecate** — mark outdated ADRs as superseded (don't delete)
-- **Aggregate** — if multiple small findings exist on one topic, combine into one document
+| Check | Trigger | Phase |
+|-------|---------|-------|
+| `.scratch/` has files besides HANDOFF.md | stale scratch | 2 |
+| CONTEXT.md >30 entries OR entries >3 lines with instructions | glossary bloat | 3 (subagent) |
+| AGENTS.md >150 lines OR has `_Avoid_` patterns | role violation | 4 (subagent) |
+| `.tickets/` exists | ticket drift | 5 |
+| Session had corrections or new knowledge | guidance capture | 6 |
 
-## Phase 4: References Directory
+Report what was detected, skip phases with no findings.
 
-Verify reference-repo layout per [init-project](../init-project/SKILL.md)'s detection procedure: gitignored `references/` or `resources/` → rename to `.references/`; ensure `.references/` is gitignored and documented in AGENTS.md.
+### 2. Promote/delete scratch
 
-## Phase 5: Organize Scripts
+- Promote lasting findings → `.memory/` (specs, ADRs per routing table)
+- Delete completed handoffs, stale plans, one-time notes
+- Keep only current HANDOFF.md and active working files
 
-Review `{{params.scripts_path}}/`:
-- **Document** — every script has a usage comment in its header
-- **Consolidate** — merge scripts with overlapping purpose
-- **Remove** — delete dead scripts (not referenced anywhere)
-- **README** — ensure each tool directory has a README with quick-reference commands
+### 3. CONTEXT.md review (dispatch subagent)
 
-## Phase 6: Update Task Runner
+Dispatch a fresh subagent — the working session's context is biased:
 
-Review `{{params.mise_file}}` (or Makefile/justfile):
-- **Add** commonly used invocation patterns as named tasks
-- **Remove** tasks that reference deleted/renamed scripts
-- **Document** — each task has a description
+> "Read .memory/CONTEXT.md. For each entry, apply the disambiguation gate: could two people mean different things by this word? Route failures to .scratch/context-cleanup/ (gotchas→move-to-agents.md, specs→move-to-spec.md, decisions→move-to-decisions.md). Rewrite CONTEXT.md with only passing entries (≤3 lines each)."
 
-## Phase 7: Verify Steering & Skills
+Integrate staged content into AGENTS.md Constraints after subagent returns.
 
-For each eager-context file and skill:
-- **Accuracy** — do file paths and commands referenced still exist?
-- **Freshness** — does the content reflect current project state?
-- **Cross-links** — run `{{params.crosslink_lint}}` if it exists
-- **Params** — do declared params have sensible defaults?
+### 4. AGENTS.md review (dispatch subagent)
 
-Flag any skill that references files/tools that no longer exist.
+Dispatch a fresh subagent:
 
-## Phase 8: README & AGENTS.md Currency
+> "Read AGENTS.md. Check: (1) no term+_Avoid_ patterns (→ CONTEXT.md), (2) no inline content >10 lines without a link (→ extract to .memory/specs/), (3) total ≤150 lines, (4) commands still work. Report findings with proposed fixes."
 
-- **README.md** (user-facing): reflects what the project IS and HOW to use it — what it does, quick start, how to get value. No internal architecture or agent-only details.
-- **AGENTS.md** (agent-facing): check both currency AND role:
-  - Commands still work? Layout accurate? Workflows available?
-  - No term definitions (term + _Avoid_ pattern) — move to CONTEXT.md
-  - No inline specs (>10 lines on one topic) — extract to `.memory/specs/`, leave a link
-  - Constraints section includes operational gotchas from `.scratch/context-cleanup/move-to-agents.md` if it exists
-  - Under 150 lines? If over → extract per agents-md-authoring trim rules
+Apply fixes or create a ticket if AGENTS.md needs major restructuring (→ `/agents-md-authoring`).
 
-## Phase 9: Ticket Hygiene
+### 5. Ticket sync
 
-If `.tickets/` exists:
-- **Stale open tickets** — work completed but ticket not closed? `tkt close <id>`
-- **Plan drift** — `tkt sync-plan --check` to detect status mismatches vs plan.md
-- **Orphaned tickets** — tickets referencing deleted specs or features? Close with note
-- **Done tickets with unchecked ACs** — `tkt validate` reports these; check or document why skipped
+```bash
+tkt sync-plan --check --brief
+```
 
-## Phase 10: Dependency & Config Hygiene
+If findings: run `/plan-ticket-sync` process (audit tickets, create missing ones, fix ordering).
 
-- **Dependencies** — tools referenced by scripts installed?
-- **Git** — untracked files to commit or gitignore? Merged branches to delete?
-- **Issues** — completed work that should close an open issue?
+### 6. Guidance capture
 
-## Report
+Run guidance-sync probes P1-P4 inline (corrections, friction, new knowledge, repetition). Apply trivial fixes directly. Propose non-trivial changes for user decision.
 
-After cleanup, summarize: files promoted, decisions processed, scratch deleted, memory consolidated, skills flagged, tickets closed, issues closeable.
+### 7. Verify + report
+
+```bash
+tkt validate --brief          # structural health
+tkt sync-plan --check --brief # plan agreement (should pass now)
+```
+
+Present summary: what was fixed, what was ticketed, what needs user decision. Recommend `/handoff` to close the session.
+
+## Subagent Dispatch
+
+Use subagents for CONTEXT.md and AGENTS.md review because:
+- Fresh context applies the disambiguation test without session bias
+- The working agent normalized misplaced content during the session
+- Small prompt + file-reading task = high reliability per subagent-reliability steering
+
+Skip subagent dispatch if files are small and clearly clean (<20 CONTEXT.md entries, <100 AGENTS.md lines).
+
+## Does NOT
+
+- Write the handoff (that's `/handoff` — recommend it after cleanup)
+- Decompose new work into tickets (that's `/ticket-planning`)
+- Rewrite README from scratch (recommend `/readme-writing` if stale)
+- Audit user-facing docs quality (that's `/docs-audit`)
+
+## References
+
+- [Phase checklist](references/phase-checklist.md) — detailed per-check items
+- [Subagent prompts](references/subagent-prompts.md) — dispatch templates

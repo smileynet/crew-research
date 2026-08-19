@@ -80,3 +80,7 @@ skills:
     replaced_by: tkt steering (self-deployed from tkt repo)
     reason: tkt owns its own steering — frontier-work.md deployed by tools/deploy-skills.sh
     since: 0.3.0
+  - name: project-audit
+    replaced_by: project-cleanup
+    reason: merged — detect-only role folded into cleanup orchestrator (detect → fix → ticket)
+    since: 0.3.0
