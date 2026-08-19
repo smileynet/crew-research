@@ -22,7 +22,7 @@ When you learn something mid-session, route it by type:
 | A process or workflow instruction | "Does this tell HOW to do something?" | `AGENTS.md` or a skill |
 | An ephemeral finding | "Will this matter next week?" If no: | `.scratch/` (or delete) |
 
-**CONTEXT.md is a glossary only.** Gate: if it doesn't fit the format below, it doesn't belong there.
+**CONTEXT.md is a glossary only.** Gate: "Does this entry resolve WHICH MEANING we use for an ambiguous word?" If it describes how something works (even if the word is ambiguous), it's a spec — not a glossary entry.
 
 ```
 **Term**:

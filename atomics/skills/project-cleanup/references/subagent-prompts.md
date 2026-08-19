@@ -9,10 +9,10 @@ Write task file to `.scratch/subagent-input/context-review.md`, then dispatch:
 ```
 Read {project}/.memory/CONTEXT.md.
 
-For each entry, apply the disambiguation gate: "Could two people mean different things by this word?"
+For each entry, apply the disambiguation gate: "Does this entry resolve WHICH MEANING we use for an ambiguous word?"
 
-- YES → keep (trim to ≤3 lines: term + definition + _Avoid_)
-- NO → route to the appropriate staging file:
+- YES (it disambiguates — picks one meaning over others) → keep (trim to ≤3 lines: term + definition + _Avoid_)
+- NO (it describes HOW something works, even if the word is ambiguous) → route to the appropriate staging file:
   - Operational gotcha/environment fact → .scratch/context-cleanup/move-to-agents.md
   - Implementation detail/spec → .scratch/context-cleanup/move-to-spec.md
   - Decision with rationale → .scratch/context-cleanup/move-to-decisions.md

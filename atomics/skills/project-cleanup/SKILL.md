@@ -44,9 +44,10 @@ Report what was detected, skip phases with no findings.
 
 Dispatch a fresh subagent — the working session's context is biased. The subagent must apply this exact test to EVERY entry:
 
-> "Could two people mean different things by this word?"
-> YES → keep (trim to ≤3 lines: term + definition + _Avoid_)
-> NO → route: gotcha/env fact → AGENTS.md Constraints, spec/implementation → .memory/specs/, decision → ADR or delete, stale → delete
+> "Does this entry resolve WHICH MEANING we use for an ambiguous word?"
+> YES (it disambiguates) → keep (trim to ≤3 lines: term + definition + _Avoid_)
+> NO (it describes HOW something works, even if the word is ambiguous) → route:
+> gotcha/env fact → AGENTS.md Constraints, spec/implementation → .memory/specs/, decision → ADR or delete, stale → delete
 
 If the file is small (<20 entries, all ≤3 lines): apply the gate directly instead of dispatching. See [subagent prompts](references/subagent-prompts.md) for the dispatch template.
 
