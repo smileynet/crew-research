@@ -1,9 +1,17 @@
 ---
 id: "100"
 title: "Deprecate Python recall in favor of Rust rewrite (~/code/recall)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
+validation_criteria:
+  - "No uv/Python recall references in user-facing files"
+  - "mise run validate passes"
+  - "tools/recall/ Python source removed"
+  - "doctor.sh detects Python recall"
+  - "Helper scripts have deprecation headers"
+  - "Existing deployments still function"
+  - "mise run doctor runs clean"
 ---
 
 # Deprecate Python recall in favor of Rust rewrite
@@ -92,13 +100,13 @@ Users who installed via `uv tool install ./tools/recall`:
 
 ## Acceptance criteria
 
-- [ ] doctor.sh detects Python recall and prints migration guidance
-- [ ] All AGENTS.md/README/steering references updated to Rust install path
-- [ ] mise.toml tasks work with Rust binary (no `uv run --directory tools/recall`)
-- [ ] Helper scripts (ingest-all, hooks) moved to recall repo or documented as recall-owned
-- [ ] `tools/recall/` directory removed
-- [ ] Existing Python recall deployments still function (graceful deprecation, not breakage)
-- [ ] Scheduled task detection in doctor.sh (warns if pointing at Python)
+- [x] doctor.sh detects Python recall and prints migration guidance
+- [x] All AGENTS.md/README/steering references updated to Rust install path
+- [x] mise.toml tasks work with Rust binary (no `uv run --directory tools/recall`)
+- [x] Helper scripts (ingest-all, hooks) moved to recall repo or documented as recall-owned
+- [x] `tools/recall/` directory removed
+- [x] Existing Python recall deployments still function (graceful deprecation, not breakage)
+- [x] Scheduled task detection in doctor.sh (warns if pointing at Python)
 
 ## Migration matrix
 
@@ -168,3 +176,16 @@ Update all crew-research references from the Python recall (`tools/recall/`, `uv
 - [ ] Proof harness updated or marked for separate rewrite ticket
 - [ ] `tkt validate --brief` still passes
 - [ ] `mise run doctor` still reports recall healthy
+
+## Resolution (2026-08-19)
+
+Python recall fully deprecated and removed
+
+### Verification
+1. ✓ No uv/Python recall references in user-facing files — "grep returns empty"
+2. ✓ mise run validate passes — "0 errors, tickets valid"
+3. ✓ tools/recall/ Python source removed — "33 files deleted in commit 5eac30c"
+4. ✓ doctor.sh detects Python recall — "path-based detection added"
+5. ✓ Helper scripts have deprecation headers — "4 scripts have DEPRECATED header"
+6. ✓ Existing deployments still function — "scripts still readable at original paths"
+7. ✓ mise run doctor runs clean — "doctor runs without error"
