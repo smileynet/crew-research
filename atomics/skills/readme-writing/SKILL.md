@@ -63,16 +63,16 @@ Not every project needs every section. Fit to the project, but don't invent a ne
 
 ## Feature Lists
 
-Emoji-bullet lists communicate capability at a glance:
+Short bullet lists communicate capability at a glance:
 
 ```markdown
-⚡️ 10-100x faster than existing tools
-📦 Zero configuration needed
-🔧 Drop-in replacement for X and Y
-🪶 Single binary, no dependencies
+- **10-100x faster** than existing tools
+- **Zero configuration** needed
+- **Drop-in replacement** for X and Y
+- **Single binary** — no dependencies
 ```
 
-3-6 bullets. Each one a concrete capability, not a vague quality.
+3-6 bullets. Each one a concrete capability, not a vague quality. Emoji bullets are optional style — use them deeper in the README if they fit the project's voice, but keep opening descriptions clean.
 
 ## What Doesn't Belong
 
