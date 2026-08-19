@@ -9,13 +9,13 @@ metadata:
 
 # README Writing
 
-The README is the front door. Most people decide whether to use a project in the first 10 seconds of reading it.
+Developers decide in ~7 seconds whether to stay or leave. The first screenful is a landing page.
 
 ## The Opening Line
 
-One sentence that names what it IS and what makes it different:
+One sentence: category + differentiator.
 
-- "A tool for glamorous shell scripts." (gum)
+- "A git-native ticket tracker where tasks are markdown files." (tkt)
 - "An extremely fast Python linter and formatter, written in Rust." (ruff)
 - "A simple terminal UI for git commands." (lazygit)
 
@@ -23,58 +23,56 @@ Pattern: `A [category] that [differentiator].` Write what it does, not how it wo
 
 ## Let Readers Self-Select
 
-Don't tell people who should use this. Show what it does and trust them to decide:
+Don't tell people who should use this. Show what it does — name what it replaces, show the output (GIF/screenshot), solve a real task in 60 seconds, or name who's already using it. Readers recognize their own situation.
 
-| Strategy | Example |
-|----------|---------|
-| Name what it replaces | "Drop-in replacement for grep, 10x faster" |
-| Show the output | Screenshot, GIF, or terminal recording |
-| Solve a real task | Tutorial that builds something useful in 60 seconds |
-| Name who's using it | "Used by FastAPI, Airflow, pandas..." |
+## Quick Start
 
-Readers recognize their own situation. They don't need a table explaining personas.
-
-## Quick Start: Speed to First Value
-
-Install → run → see output. Under 30 seconds. No theory, no background, no prerequisites before the hook.
+State the promise, then deliver in 3-5 steps. Always show output.
 
 ```bash
-brew install myproject       # or: cargo install, pip install, curl
-myproject init
-myproject run example.md
-# ✨ Output: 3 pages processed
+# Get a working project in under 2 minutes:
+cargo install tkt
+tkt new auth --title "Implement authentication"
+tkt ready
+# → Ready (1):
+# →   01  Implement authentication
 ```
 
-Show expected output. Omitting a required step manufactures frustration.
+- Install command visible without scrolling (above line 30)
+- 3-5 steps max — each produces a visible result
+- Show expected output so readers verify success
+- No prerequisites before quick start — those go in Installation
 
 ## Section Order
 
-Put decision-relevant content first. Readers evaluate top-down and stop when satisfied:
+Readers evaluate top-down and stop when satisfied:
 
 1. **Identity** — one sentence + differentiator
-2. **Proof** — benchmark, screenshot, GIF, or feature bullets
-3. **Features** — what can it do? (short list with examples)
-4. **Getting started** — install + first command
-5. **Usage** — common operations, configuration
-6. **Community** — contributing, links, support
+2. **Proof** — feature bullets, benchmark, screenshot, or GIF
+3. **Quick start** — install + first command + output
+4. **Usage** — common operations, configuration
+5. **Installation** — exhaustive (every package manager)
+6. **Community** — contributing, links
 7. **License**
 
-Not every project needs every section. Fit to the project, but don't invent a new order.
+## Fit to Project Type
+
+| Type | Emphasize | Skip |
+|------|-----------|------|
+| CLI tool | Commands/flags table, shell completion, piping examples | Architecture, deployment |
+| Library | Import + minimal example, API link, compatibility | Infrastructure, config files |
+| Framework | Core concepts, scaffold→hello world, ecosystem | Internal architecture |
+| Application | Run locally, deploy, env vars, troubleshoot | Public API docs |
 
 ## Feature Lists
 
-Short bullet lists communicate capability at a glance:
-
 ```markdown
-- **10-100x faster** than existing tools
-- **Zero configuration** needed
-- **Drop-in replacement** for X and Y
-- **Single binary** — no dependencies
+- **~50ms reads** — tickets are local files, not API calls
+- **Single binary** — no runtime dependencies beyond git
+- **Race-safe** — concurrent sessions get unique IDs automatically
 ```
 
-3-6 bullets. Each one a concrete capability, not a vague quality.
-
-**Style note:** Some popular repos (ruff, uv, vite) use emoji-prefixed bullets in feature lists; others (ripgrep, bat) use plain dashes or skip lists entirely. Both work. Default to plain `- **Bold** — description` bullets. Never put emojis in the project's opening sentence or description paragraph — they undercut seriousness.
+3-6 bullets. Concrete capabilities, not vague qualities ("fast", "easy", "modern"). Default to plain `- **Bold** — description`. Never emojis in the opening sentence.
 
 ## What Doesn't Belong
 
@@ -82,19 +80,20 @@ Short bullet lists communicate capability at a glance:
 |---------|--------------|
 | Internal architecture | docs/architecture.md |
 | Agent instructions | AGENTS.md |
-| Detailed API reference | Generated docs |
+| Detailed API reference | Generated docs (Rustdoc, JSDoc) |
 | Changelog/roadmap | CHANGELOG.md, GitHub releases |
-| Design philosophy | A blog post, not the README |
-| Prerequisites | Inside the Installation section, not before the hook |
+| Design philosophy | A blog post |
+| Prerequisites | Inside Installation, not before the hook |
 
 ## Anti-Patterns
 
 - **Wall of text before quick start** — reader left after paragraph two
-- **Prerequisites above the fold** — "You'll need Node 18..." before showing what the tool does
-- **TODO sections that never shipped** — write it or omit it
-- **Config-first setup** — show the CLI command first, configuration comes after first use
-- **Badge bloat / stale versions** — twelve badges are decoration; "Install v1.2.3" when latest is 2.5.0 is worse than nothing
+- **Prerequisites above the fold** — show what the tool does first
+- **Config-first setup** — CLI command first, configuration after first use
+- **Badge bloat** — twelve badges pushing content below the fold
+- **Screenshots of code** — can't be copied, can't be parsed by AI tools
+- **TODO sections** — write it or omit it; "coming soon" that never came erodes trust
 
 ## References
 
-- For detailed patterns from popular repos (ripgrep, bat, ruff, uv, vite, ollama, lazygit, gum), read [references/patterns.md](references/patterns.md)
+- For per-repo findings and type-specific detail, read [references/patterns.md](references/patterns.md)
