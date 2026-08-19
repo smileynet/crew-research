@@ -72,7 +72,9 @@ Short bullet lists communicate capability at a glance:
 - **Single binary** — no dependencies
 ```
 
-3-6 bullets. Each one a concrete capability, not a vague quality. Emoji bullets are optional style — use them deeper in the README if they fit the project's voice, but keep opening descriptions clean.
+3-6 bullets. Each one a concrete capability, not a vague quality.
+
+**Style note:** Some popular repos (ruff, uv, vite) use emoji-prefixed bullets in feature lists; others (ripgrep, bat) use plain dashes or skip lists entirely. Both work. Default to plain `- **Bold** — description` bullets. Never put emojis in the project's opening sentence or description paragraph — they undercut seriousness.
 
 ## What Doesn't Belong
 
@@ -91,9 +93,7 @@ Short bullet lists communicate capability at a glance:
 - **Prerequisites above the fold** — "You'll need Node 18..." before showing what the tool does
 - **TODO sections that never shipped** — write it or omit it
 - **Config-first setup** — show the CLI command first, configuration comes after first use
-- **Comparison tables** ("us ✅ them ❌") — let benchmarks and demos speak instead
-- **Badge bloat** — twelve badges signaling decoration, not quality
-- **Stale version numbers in prose** — "Install v1.2.3" when latest is 2.5.0
+- **Badge bloat / stale versions** — twelve badges are decoration; "Install v1.2.3" when latest is 2.5.0 is worse than nothing
 
 ## References
 
