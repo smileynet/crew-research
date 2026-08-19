@@ -36,6 +36,27 @@ if [[ -f "$ROOT_DIR/compositions/deprecated.yaml" ]]; then
       echo "  ❌ deprecated name referenced: $dep appears in a tier/composition but is in compositions/deprecated.yaml"
       errors=$((errors + 1))
     fi
+    # Dangling COMMAND references: a retired skill invoked as /name or @name in a
+    # shipped skill body or AGENTS.md is a dead pointer on deployed machines. Lint
+    # missed exactly this when project-audit was retired (4 stale refs shipped,
+    # 2026-08-19). Exclude `references/name.md` file links (the `/` there is a path
+    # separator, not a command sigil) — a retired skill may still have a companion
+    # reference file of the same slug. Match /name or @name NOT preceded by a word
+    # char and NOT followed by `.md` or `/`.
+    dangling=$(grep -rEln "[/@]${dep}\b" "$SKILLS_DIR" "$ROOT_DIR/AGENTS.md" 2>/dev/null \
+      | grep -v "compositions/deprecated.yaml" \
+      | while IFS= read -r f; do
+          grep -Eq "[/@]${dep}\b" "$f" \
+            && grep -Eq "(^|[^a-zA-Z0-9._/-])[/@]${dep}\b([^./]|$)" "$f" \
+            && echo "$f"
+        done || true)
+    if [[ -n "$dangling" ]]; then
+      while IFS= read -r hit; do
+        [[ -n "$hit" ]] || continue
+        echo "  ❌ deprecated name referenced as a command: /$dep or @$dep in ${hit#$ROOT_DIR/} — repoint to its replacement"
+        errors=$((errors + 1))
+      done <<< "$dangling"
+    fi
   done < <(yq -r '.skills[].name' "$ROOT_DIR/compositions/deprecated.yaml" 2>/dev/null)
 fi
 
