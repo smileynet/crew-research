@@ -42,11 +42,15 @@ Report what was detected, skip phases with no findings.
 
 ### 3. CONTEXT.md review (dispatch subagent)
 
-Dispatch a fresh subagent — the working session's context is biased:
+Dispatch a fresh subagent — the working session's context is biased. The subagent must apply this exact test to EVERY entry:
 
-> "Read .memory/CONTEXT.md. For each entry, apply the disambiguation gate: could two people mean different things by this word? Route failures to .scratch/context-cleanup/ (gotchas→move-to-agents.md, specs→move-to-spec.md, decisions→move-to-decisions.md). Rewrite CONTEXT.md with only passing entries (≤3 lines each)."
+> "Could two people mean different things by this word?"
+> YES → keep (trim to ≤3 lines: term + definition + _Avoid_)
+> NO → route: gotcha/env fact → AGENTS.md Constraints, spec/implementation → .memory/specs/, decision → ADR or delete, stale → delete
 
-Integrate staged content into AGENTS.md Constraints after subagent returns.
+If the file is small (<20 entries, all ≤3 lines): apply the gate directly instead of dispatching. See [subagent prompts](references/subagent-prompts.md) for the dispatch template.
+
+Integrate staged content (`.scratch/context-cleanup/move-to-agents.md`) into AGENTS.md Constraints after review.
 
 ### 4. AGENTS.md review (dispatch subagent)
 
@@ -79,12 +83,7 @@ Present summary: what was fixed, what was ticketed, what needs user decision. Re
 
 ## Subagent Dispatch
 
-Use subagents for CONTEXT.md and AGENTS.md review because:
-- Fresh context applies the disambiguation test without session bias
-- The working agent normalized misplaced content during the session
-- Small prompt + file-reading task = high reliability per subagent-reliability steering
-
-Skip subagent dispatch if files are small and clearly clean (<20 CONTEXT.md entries, <100 AGENTS.md lines).
+Use subagents for CONTEXT.md and AGENTS.md review — the working session normalized misplaced content and won't catch it. Small prompt + file-reading = high reliability per subagent-reliability steering.
 
 ## Does NOT
 
