@@ -5,16 +5,14 @@ Portable markdown skills that make AI coding assistants plan before building, ve
 - **Plans before building** — asks clarifying questions, tracks assumptions
 - **Verifies before reporting done** — runs checks, cites evidence
 - **Remembers across sessions** — recalls past decisions, continues prior work
-- **Produces cleaner code** — concise, well-structured, no defensive bloat
+- **Less defensive bloat** — no single-use abstractions, no redundant checks
 
 **Before:** AI dives straight in, skips verification, loses context between sessions.
-**After:** Planning before building, evidence before "done", memory across sessions — automatically.
+**After:** Planning before building, evidence before "done", memory across sessions.
 
 ## What It Does
 
-You install skills into your project. Your AI assistant gets better without changing how you work.
-
-Skills are plain markdown files. They work with kiro-cli, codex, crush, and agy. One deploy command, then every session benefits.
+You install skills into your project. Skills are plain markdown files — they work with kiro-cli, codex, crush, and agy. One deploy command, then skills activate in every session.
 
 | Command | What it does |
 |---------|-------------|
@@ -50,7 +48,7 @@ That's it. Open any kiro-cli session — skills activate automatically.
 | **basic** | Planning, code review, testing, git, session continuity | Everyday development |
 | **full** | + research, architecture, diagrams, deployment safety, docs | Full lifecycle |
 
-Start with **basic**. Everything you need in every project, nothing you don't.
+Start with **basic** unless you need research, architecture, or deployment safety.
 
 ```bash
 mise run catalog    # browse all available skills
@@ -90,7 +88,7 @@ mise run init -- --global --tier basic --tool agy       # ~/.gemini/antigravity-
 mise run init -- --global --tier basic --tool crush     # ~/.agents/skills/
 ```
 
-Same skill content, different delivery paths. Deploy to multiple tools if you switch between them.
+Deploy to multiple tools if you switch between them.
 
 ## How It Works
 
