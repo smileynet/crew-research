@@ -1,7 +1,7 @@
 ---
 id: "121"
 title: "Add opencode as a first-class deployment target"
-status: open
+status: done
 blocked_by: []
 priority: high
 ---
@@ -45,10 +45,14 @@ OpenCode (anomalyco/opencode, v1.14.19+) is now deployed and working on this mac
 
 ## Acceptance criteria
 
-- [ ] `mise run init -- --global --tier basic --tool opencode` succeeds
-- [ ] Skills deployed to `~/.config/opencode/skills/` with correct SKILL.md format
-- [ ] Steering concatenated and referenced in opencode.json instructions
-- [ ] `mise run doctor -- --tool opencode` reports healthy
-- [ ] `opencode debug skill` lists deployed skills
-- [ ] Idempotent: running init twice produces same result
-- [ ] Does not break existing `~/.agents/skills/` deployment for codex/crush
+- [x] `mise run init -- --global --tier basic --tool opencode` succeeds
+- [x] Skills deployed to `~/.config/opencode/skills/` with correct SKILL.md format
+- [x] Steering concatenated and referenced in opencode.json instructions
+- [x] `mise run doctor -- --tool opencode` reports healthy
+- [x] `opencode debug skill` lists deployed skills
+- [x] Idempotent: running init twice produces same result
+- [x] Does not break existing `~/.agents/skills/` deployment for codex/crush
+
+## Resolution (2026-08-22)
+
+Implemented deploy_opencode() in init.sh with idempotent opencode.json instructions merge, doctor.sh validation, adapter proof, and docs updates
