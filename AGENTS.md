@@ -62,10 +62,12 @@ tkt telemetry --enable                  # opt in to local usage recording
 # CREW_ENV (gitignored .mise.local.toml) gates the tool set: corp = kiro-cli + codex
 # + crush-via-Bedrock (agy policy-blocked mechanically: init refuses, doctor flags
 # artifacts, harnesses exclude legs with reason "policy-blocked (CREW_ENV=corp)");
-# personal adds agy. Crush/Bedrock config: deploy-toolkit references/crush-bedrock.md.
+# personal adds agy. opencode is unrestricted (all environments).
+# Crush/Bedrock config: deploy-toolkit references/crush-bedrock.md.
 # Detail: .kiro/steering/user-setup-guide.md § Environment Designation.
 mise run init -- --project <path> --tier basic --tool kiro-cli
 mise run init -- --global --tier basic --tool kiro-cli
+mise run init -- --global --tier basic --tool opencode  # ~/.config/opencode/skills/
 mise run init -- --skip-extension recall   # deploy without recall
 mise run catalog
 mise run doctor -- --project <path>

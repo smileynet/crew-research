@@ -1,0 +1,33 @@
+tool: opencode
+version_command: "opencode --version"
+
+invoke:
+  command: 'opencode run "{query}"'
+  timeout: 300
+
+skill:
+  global_location: "~/.config/opencode/skills/{name}/SKILL.md"
+  project_location: ".opencode/skills/{name}/SKILL.md"
+  format: markdown-frontmatter
+  # Also auto-loads from ~/.agents/skills/ and ~/.claude/skills/
+
+steering:
+  location: "~/.config/opencode/AGENTS.md"
+  wiring: 'opencode.json → "instructions" array (concat-dedup across layers)'
+
+output:
+  strip_ansi: true
+  encoding: utf-8
+
+notes: |
+  OpenCode (anomalyco/opencode, TypeScript) — MIT-licensed AI coding agent.
+  Skill format identical to crew-research (SKILL.md + YAML frontmatter: name, description).
+  Auto-loads skills from 6 paths: .opencode/skills/, ~/.config/opencode/skills/,
+  .claude/skills/, ~/.claude/skills/, .agents/skills/, ~/.agents/skills/.
+  First-discovered wins on duplicate skill names (native path checked first).
+  Config: ~/.config/opencode/opencode.json (or .jsonc — supports comments).
+  Non-interactive mode: 'opencode run "prompt"' (exits after completion).
+  Auth: 'opencode providers login' (interactive) or env vars (OPENROUTER_API_KEY, etc.).
+  CloseCode (Amazon fork) shares the same adapter pattern but is Bedrock-only.
+
+eval_harness_status: "supported (invoke.command provides non-interactive execution)"

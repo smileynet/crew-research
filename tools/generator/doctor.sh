@@ -336,6 +336,40 @@ if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx crush; then
   fi
 fi
 
+# Check opencode deployment (if in CREW_TOOLS)
+if printf '%s\n' "${DEPLOYED_TOOLS[@]}" | grep -qx opencode; then
+  echo ""
+  echo "Global (opencode):"
+  if command -v opencode &>/dev/null; then
+    oc_ver=$(opencode --version 2>/dev/null || echo "unknown")
+    echo "  ✅ opencode ($oc_ver)"
+  else
+    echo "  ⚠️  opencode not found on PATH"
+    warnings=$((warnings + 1))
+  fi
+  oc_skills=$(find "$DEPLOY_HOME/.config/opencode/skills" -name "SKILL.md" 2>/dev/null | wc -l || echo 0)
+  oc_agents_md="$DEPLOY_HOME/.config/opencode/AGENTS.md"
+  if [[ $oc_skills -gt 0 && -f "$oc_agents_md" ]]; then
+    echo "  ✅ $oc_skills skills, AGENTS.md present"
+    # Check instructions wiring
+    oc_config="$DEPLOY_HOME/.config/opencode/opencode.json"
+    oc_jsonc="$DEPLOY_HOME/.config/opencode/opencode.jsonc"
+    cfg_file="$oc_config"
+    [[ -f "$oc_jsonc" ]] && cfg_file="$oc_jsonc"
+    if [[ -f "$cfg_file" ]] && grep -qF "$oc_agents_md" "$cfg_file" 2>/dev/null; then
+      echo "  ✅ AGENTS.md wired in config instructions"
+    else
+      echo "  ⚠️  AGENTS.md not in opencode config instructions"
+      warnings=$((warnings + 1))
+    fi
+  else
+    echo "  ❌ opencode not fully deployed (run: mise run init -- --global --tool opencode)"
+    [[ $oc_skills -eq 0 ]] && echo "     missing: ~/.config/opencode/skills/"
+    [[ ! -f "$oc_agents_md" ]] && echo "     missing: $oc_agents_md"
+    errors=$((errors + 1))
+  fi
+fi
+
 # Check project workspace
 echo ""
 echo "Project:"

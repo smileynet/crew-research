@@ -86,6 +86,7 @@ mise run init -- --global --tier basic --tool kiro-cli  # ~/.kiro/skills/
 mise run init -- --global --tier basic --tool codex     # ~/.agents/skills/
 mise run init -- --global --tier basic --tool agy       # ~/.gemini/antigravity-cli/skills/
 mise run init -- --global --tier basic --tool crush     # ~/.agents/skills/
+mise run init -- --global --tier basic --tool opencode  # ~/.config/opencode/skills/
 ```
 
 Deploy to multiple tools if you switch between them.

@@ -131,6 +131,13 @@ CREW_ENV = "corp"      # or "personal"
 - **personal** — full tool access. Deploy set adds `--tool agy` (and `--tool crush` when configured).
 - **unset** — tooling proceeds with a notice; set the flag to make policy mechanical.
 
+**opencode** is unrestricted — available in all environments (corp, personal, unset). Deploy with `--tool opencode` alongside other tools:
+
+```bash
+mise run init -- --global --tier basic --tool opencode
+# Skills → ~/.config/opencode/skills/, steering → ~/.config/opencode/AGENTS.md
+```
+
 ## Windows / WSL Setup
 
 On Windows, crew-research deploys via WSL bash. The init script auto-detects WSL and writes to the Windows home (`C:\Users\<user>\`) so all tools can read the files.

@@ -511,6 +511,38 @@ if [[ "$GLOBAL" == true ]]; then
     done
   }
 
+  deploy_opencode() {
+    # OpenCode native paths:
+    #   Skills: ~/.config/opencode/skills/<name>/SKILL.md
+    #   Steering: AGENTS.md referenced via opencode.json "instructions" array
+    # Note: opencode also auto-loads from ~/.agents/skills/ (codex/crush path)
+    deploy_agents_md_tool "opencode" \
+      "$DEPLOY_HOME/.config/opencode/skills" \
+      "$DEPLOY_HOME/.config/opencode/AGENTS.md"
+
+    # Wire AGENTS.md into opencode.json instructions (idempotent)
+    local oc_config="$DEPLOY_HOME/.config/opencode/opencode.json"
+    local oc_jsonc="$DEPLOY_HOME/.config/opencode/opencode.jsonc"
+    local agents_path="$DEPLOY_HOME/.config/opencode/AGENTS.md"
+
+    if [[ -f "$oc_jsonc" ]]; then
+      # JSONC: can't safely mutate without stripping comments; warn if not wired
+      if ! grep -qF "$agents_path" "$oc_jsonc" 2>/dev/null; then
+        echo "  ⚠️  Add to instructions in opencode.jsonc: \"$agents_path\""
+      fi
+    elif [[ -f "$oc_config" ]]; then
+      # Pure JSON: idempotent jq merge
+      local tmp; tmp=$(mktemp)
+      jq --arg path "$agents_path" \
+        '.instructions = ((.instructions // []) | if any(. == $path) then . else . + [$path] end)' \
+        "$oc_config" > "$tmp" && mv "$tmp" "$oc_config"
+    else
+      # No config exists: create minimal one
+      printf '{\n  "$schema": "https://opencode.ai/config.json",\n  "instructions": ["%s"]\n}\n' \
+        "$agents_path" > "$oc_config"
+    fi
+  }
+
   # ─── Deploy to each requested tool ───────────────────────────
 
   for tool in "${TOOLS[@]}"; do
@@ -519,6 +551,7 @@ if [[ "$GLOBAL" == true ]]; then
       crush)    deploy_crush ;;
       codex)    deploy_codex ;;
       agy)      deploy_agy ;;
+      opencode) deploy_opencode ;;
       *)        echo "Error: unknown tool '$tool'" >&2; exit 1 ;;
     esac
   done
