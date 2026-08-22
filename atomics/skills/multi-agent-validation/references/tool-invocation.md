@@ -2,6 +2,18 @@
 
 Quick reference for invoking each validation tool from bash.
 
+## Codex Sandbox Mode Selection
+
+| Mode | Flag | When to use |
+|------|------|-------------|
+| Read-only | `--sandbox read-only` | Pure analysis: reading files, inspecting images, reviewing code. Cannot run commands or write files. |
+| Full bypass | `--dangerously-bypass-approvals-and-sandbox` | Needs to execute: run tests, compile shaders, push git, invoke linters. Required for `dispatch-codex-review`. |
+
+**Rule:** Use `--sandbox read-only` for validation/analysis tasks. Use
+`--dangerously-bypass-approvals-and-sandbox` when Codex must execute commands
+(test suites, build tools, git push). Never use the bypass flag for untrusted
+repos or when network access is unacceptable.
+
 ## codex (OpenAI Codex CLI)
 
 ```bash
@@ -25,6 +37,12 @@ codex exec -i image.png --sandbox read-only -m gpt-5.5 "prompt"
 
 # Parse clean response
 codex exec -i image.png --sandbox read-only "prompt" 2>&1 | tail -15
+
+# Full bypass (when Codex must run commands — tests, linters, git push)
+codex exec --dangerously-bypass-approvals-and-sandbox "Review and run tests"
+
+# Bypass + image (visual check that also runs validation scripts)
+codex exec --dangerously-bypass-approvals-and-sandbox -i render.png "Validate this render, run godot --headless to check shaders"
 ```
 
 ## agy (Google Antigravity CLI)

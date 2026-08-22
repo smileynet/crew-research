@@ -28,9 +28,17 @@ Empirical observations from validation runs. Companion to SKILL.md.
 
 ## Code validation examples
 
+Use `--sandbox read-only` for pure review (reading code, analyzing diffs). Use
+`--dangerously-bypass-approvals-and-sandbox` when Codex must execute commands
+(run tests, compile, push). See [tool-invocation.md](tool-invocation.md) for the
+full decision table.
+
 ```bash
-# codex: logic review
+# codex: logic review (read-only — just reads the diff)
 codex exec --sandbox read-only "Review this diff for bugs and regressions"
+
+# codex: review + run tests (needs bypass)
+codex exec --dangerously-bypass-approvals-and-sandbox "Review since main. Run the test suite. Report failures."
 
 # agy: security/performance audit
 agy -p "Audit /path/to/file.py - Check for: injection, auth bypass, N+1 queries" --print-timeout 5m
