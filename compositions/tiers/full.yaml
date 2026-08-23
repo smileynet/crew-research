@@ -70,7 +70,7 @@ extensions:
     description: "Cross-session memory — recalls past decisions, imports project knowledge"
     prerequisite:
       command: "recall --version"
-      install_hint: "uv tool install ./tools/recall (from a crew-research clone; PyPI name is squatted)"
+      install_hint: "cargo install --path ~/code/recall (from a recall repo clone)"
     steering:
       - recall-session-start
       - recall-check

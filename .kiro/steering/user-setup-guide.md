@@ -197,6 +197,7 @@ Get-ScheduledTask -TaskName "RecallIngest" | Select State
 # Install
 cargo install --path ~/code/recall
 
-# .bashrc staleness hook (fires on shell open if >4h stale)
-cat tools/recall/bashrc-hook.sh >> ~/.bashrc
+# Staleness is handled by recall-session-start steering (checks on session open).
+# Optional cron for background sync:
+(crontab -l 2>/dev/null; echo "0 */4 * * * recall sync >> /tmp/recall-ingest.log 2>&1") | crontab -
 ```

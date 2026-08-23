@@ -106,7 +106,7 @@ Moving an artifact from ephemeral (`.scratch/`) to durable (`.memory/`) when it 
 _Avoid_: archiving (implies cold storage)
 
 **Recall**:
-Purpose-built CLI tool (`tools/recall/`) providing cross-session semantic memory. Hybrid BM25 + vector search over ingested conversation history, with agent write-back.
+Purpose-built Rust CLI (`~/code/recall`) providing cross-session semantic memory. Hybrid BM25 + vector search over ingested conversation history, with agent write-back. Single binary, no runtime deps beyond cached ONNX model.
 _Avoid_: MemPalace (upstream project we chose not to wrap), memory system (too generic)
 
 **Wing**:

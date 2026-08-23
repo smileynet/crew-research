@@ -3,26 +3,22 @@
 ## Installation
 
 ```bash
-uv tool install ./tools/recall                # from a crew-research clone (PyPI "recall" is squatted — never install from PyPI)
+cargo install --path ~/code/recall            # from a recall repo clone
 ```
 
-**Verify:** `recall --version` should print `recall 0.1.0`
+**Verify:** `recall --version` should print `recall 0.2.0`
 
 ## Scheduled Ingestion
 
-Recall needs periodic ingestion of project knowledge and session transcripts. The `Invoke-RecallIngestAll.ps1` (Windows) or `ingest-all.sh` (Unix) script auto-discovers projects and ingests everything.
+Recall needs periodic ingestion of project knowledge and session transcripts. The `recall sync` command auto-discovers projects and ingests everything.
 
 ### Windows (native — recommended)
 ```powershell
 # One-time: register scheduled task (every 4h)
-$action = New-ScheduledTaskAction -Execute "pwsh.exe" `
-  -Argument "-NoProfile -NonInteractive -File `"$env:USERPROFILE\code\crew-research\tools\recall\Invoke-RecallIngestAll.ps1`""
+$action = New-ScheduledTaskAction -Execute "recall.exe" -Argument "sync"
 $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Hours 4)
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
 Register-ScheduledTask -TaskName "RecallIngest" -Action $action -Trigger $trigger -Settings $settings
-
-# Profile hook (add to $PROFILE — fires on shell open if >4h stale)
-. $env:USERPROFILE\code\crew-research\tools\recall\profile-hook.ps1
 ```
 
 ### macOS
@@ -33,8 +29,7 @@ cat > ~/Library/LaunchAgents/com.recall.ingest.plist << 'EOF'
 <plist version="1.0"><dict>
   <key>Label</key><string>com.recall.ingest</string>
   <key>ProgramArguments</key><array>
-    <string>recall</string><string>ingest</string>
-    <string>~/.kiro/sessions/cli</string>
+    <string>recall</string><string>sync</string>
   </array>
   <key>StartCalendarInterval</key><dict>
     <key>Hour</key><integer>3</integer>
@@ -47,10 +42,7 @@ launchctl load ~/Library/LaunchAgents/com.recall.ingest.plist
 
 ### Linux
 ```bash
-(crontab -l 2>/dev/null; echo "0 */4 * * * ~/.local/bin/recall-ingest-all.sh >> /tmp/recall-ingest.log 2>&1") | crontab -
-
-# .bashrc staleness hook (fires on shell open if >4h stale)
-cat tools/recall/bashrc-hook.sh >> ~/.bashrc
+(crontab -l 2>/dev/null; echo "0 */4 * * * recall sync >> /tmp/recall-ingest.log 2>&1") | crontab -
 ```
 
 ### Verify schedule
@@ -60,15 +52,12 @@ cat tools/recall/bashrc-hook.sh >> ~/.bashrc
 
 ## Staleness Check
 
-After each ingestion, the scripts write a stamp file (`~/.recall-last-ingest`). The profile hook checks this on shell open and fires background ingestion if >4h stale.
+After each sync, recall writes a timestamp to `~/.recall/last_ingest`. The `recall-session-start`
+steering checks this on session open and warns if >24h stale.
 
-To manually check staleness:
-- Windows: `Get-Item $env:USERPROFILE\.recall-last-ingest | Select LastWriteTime`
-- Unix: `stat ~/.recall-last-ingest`
+To manually check: `recall health --json | jq .last_ingest`
 
-To manually run full ingestion:
-- Windows: `pwsh -File tools/recall/Invoke-RecallIngestAll.ps1`
-- Unix: `bash tools/recall/ingest-all.sh`
+To manually run: `recall sync`
 
 ## Commands
 
