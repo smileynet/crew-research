@@ -9,34 +9,78 @@ metadata:
 
 # Changelog Discipline
 
-## Entry Quality Rules
+## The Rule
 
-1. **Technology-replacement test:** If you replaced the underlying technology, would the entry still be true? If yes, it describes value.
-2. **Can't-name-a-file test:** If you can't write the entry without naming a file or class, it's not user-facing.
-3. **Impact over mechanism:** State what changed for the user, not how the code does it.
-4. **One entry per logical change:** Group related commits into a single entry.
-5. **Active voice, specific words:** "Users can now X" not "X functionality was added."
-6. **Jargon self-check:** After drafting all entries, re-read each one asking "does this use internal/architectural terms?" If it names a pattern, abstraction, or internal component (sink, serializer, autoload, hook, buffer), rewrite to describe the observable user outcome instead.
+Entries serve the reader, not the writer. Every entry answers one question: **"why should I care?"**
 
-## Decision Test
+## Three Tests (apply before committing any entry)
 
-| Commit type | Changelog? | Category |
-|-------------|:----------:|----------|
-| feat | Yes | Added |
-| fix | Yes | Fixed |
-| perf | Yes | Changed |
-| BREAKING CHANGE | Yes | Changed/Removed |
-| docs, chore, test, ci, refactor | No | — |
+1. **Reader test:** Would someone who's never seen the code understand this?
+2. **Impact test:** Does it state what's different for the user, not how the code changed?
+3. **Scan test:** Can a reader skim 20 entries and find what affects them in seconds?
+
+If any test fails, rewrite.
+
+## Include or Exclude
+
+| Change type | Include? | Category |
+|-------------|:--------:|----------|
+| New feature | Yes | Added |
+| Bug fix (user-visible) | Yes | Fixed |
+| Performance improvement (noticeable) | Yes | Changed |
+| Breaking change | Yes | Changed or Removed |
+| Deprecation | Yes | Deprecated |
+| Security fix | Yes | Security |
+| Docs, CI, tests, refactoring, formatting | **No** | — |
+| Dependency bumps (no behavior change) | **No** | — |
+
+**Edge cases that ARE included:** Refactors with observable side effects (faster, different errors). New docs for previously undocumented features. Dev dependency changes that alter build output.
+
+## Scale Depth to Impact
+
+- **Trivial fix** → one line: `Fixed tooltip flickering on hover`
+- **Feature** → 1-2 sentences: what changed + why it matters
+- **Breaking change** → paragraph with before/after code + migration path
+
+## Match Your Audience
+
+| Project type | Language to use | Example |
+|-------------|-----------------|---------|
+| Library/SDK | API surface (function names, types) | "Add `parse()` option to skip validation" |
+| CLI tool | Commands, flags, output | "New `--dry-run` flag shows what would change" |
+| Application | Features, screens, workflows | "Export reports as PDF from the dashboard" |
+| Framework | Extension points, config, hooks | "Middleware can now return early" |
+
+## Never Include in Entry Text
+
+- Internal filenames or class names (`generate.py`, `FooHandler`)
+- Architecture patterns (`strategy pattern`, `event sourcing`)
+- Internal identifiers (ADR numbers, config file paths)
+- Implementation verbs (`refactored`, `migrated X to Y` — unless user action required)
+- Jargon self-check: if it names a pattern, abstraction, or internal component, rewrite to describe the observable outcome
+
+## Breaking Changes
+
+- Separate section or bold `**Breaking:**` prefix — readers must not miss these
+- Before/after code example when behavior changes
+- Migration path is mandatory: what does the reader need to do?
+- Deprecation entries must include timeline ("removed in v4.0")
 
 ## Good vs Bad
 
 | ✅ Good | ❌ Bad |
 |---------|--------|
-| Projects can now inherit base crews with `extends:` | Added resolve_extends function to generate.py |
+| Projects can now inherit base configs with `extends:` | Added resolve_extends function to generate.py |
 | Fixed crash when project has no theme configured | Fixed bug in line 47 of generate.py |
+| Always-on context reduced by ~90 lines per session | Steering companion files deploy to skills tree (ADR 0009) |
+| Deploys no longer delete skills from other sources | Prune logic respects per-tool manifest ownership |
+| Background jobs run 3x faster (no action needed) | Migrated from Sidekiq to Oban |
+| CJK text renders correctly on Windows | Use explicit platform fonts instead of system-ui |
 
-## Breaking Change Requirements
+## Jargon Self-Check
 
-- Entry under "Changed" or "Removed"
-- Migration path mandatory: "use X instead"
-- Deprecation entries must include timeline
+After drafting all entries, re-read asking: "does this use internal terms?" If it names an internal component, pattern, or file — rewrite to describe what the user observes instead.
+
+## References
+
+For extended examples, anti-patterns gallery, audience guide, and depth scaling patterns, see [references/patterns.md](references/patterns.md).

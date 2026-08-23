@@ -7,21 +7,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- Independent Codex reviews can now return a correlated, pushed high-priority findings ticket whose claims must be confirmed before implementation
-- Repositories can establish review continuity by auditing complete history in resumable batches, then reviewing only new commits and changed tickets in later sessions
-- Interrupted eval runs resume with `--skip-completed <dir>` — already-scored definitions are skipped and remaining results append into the same directory, so analysis never merges scattered runs
-
-- Retired skills clean themselves up — deploys remove renamed/merged skills left behind by old versions (`compositions/deprecated.yaml`); symlinked and personal skills are never touched
-- Deploys no longer delete skills installed by other projects — only skills crew-research itself deployed are pruned; everything else gets a warning instead
+- Codex code reviews now produce actionable findings — each finding must be independently confirmed before acting on it
+- Full repository history can be reviewed incrementally — first pass covers everything, later sessions only review what's new
+- Interrupted eval runs resume where they left off instead of restarting
+- Retired skills clean themselves up on redeploy — personal and symlinked skills are never touched
+- Deploys no longer delete skills from other sources — only crew-research's own skills are updated
+- OpenCode added as a first-class deployment target (`--tool opencode`)
 
 ### Changed
 
-- Architecture reviews now push back on rubber-stamping — accepting 3+ refactoring candidates in a row without discussion triggers a hard pause and a trade-off challenge instead of silent agreement
-- Debugging guidance now covers continuous signals (memory leaks, latency) — establish a baseline, state a numeric pass/fail criterion, change one thing, re-measure
-- Eval tasks can now target per-task fixtures — debugging evals run against fixtures with real injected bugs instead of describing bugs that don't exist
-- Steering companion files no longer load on every turn — references deploy to the skills tree and load on demand, cutting ~90 always-loaded lines per session (ADR 0009)
-- Steering references now work outside kiro — codex and agy AGENTS.md links point at deployed files instead of dangling
-- Tool-scoped skills stay in their tool — kiro-only skills no longer leak into codex/agy deployments, and codex/agy no longer delete each other's files in the shared skills directory
+- Architecture reviews push back on rubber-stamping — accepting 3+ candidates without discussion triggers a pause and trade-off challenge
+- Debugging guidance covers continuous signals (memory leaks, latency) — establish baseline, set numeric pass/fail, change one thing, re-measure
+- Debugging evals test against real injected bugs instead of hypothetical ones
+- Always-on context reduced by ~90 lines per session — companion content loads only when the relevant skill activates
+- Skill reference links now work correctly in Codex and Agy (previously broken)
+- Tool-specific skills no longer appear in tools they don't belong to
 
 ## [0.2.0] - 2026-07-18
 
