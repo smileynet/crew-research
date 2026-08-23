@@ -1,7 +1,7 @@
 ---
 id: "113"
 title: "Review and improve changelog-discipline skill — research popular GitHub patterns, remove jargon"
-status: open
+status: done
 blocked_by: []
 priority: high
 ---
@@ -43,15 +43,19 @@ Based on findings:
 
 ## Acceptance criteria
 
-- [ ] 15+ popular projects' changelogs studied with findings documented
-- [ ] changelog-discipline SKILL.md rewritten with user-facing focus
-- [ ] No methodology jargon in the skill content
-- [ ] Guidance distinguishes user-facing vs developer-facing entries
-- [ ] crew-research CHANGELOG.md reviewed against new guidance
-- [ ] Skill still ≤100 lines (use references/ for detail)
-- [ ] `mise run validate` passes
+- [x] 15+ popular projects' changelogs studied with findings documented
+- [x] changelog-discipline SKILL.md rewritten with user-facing focus
+- [x] No methodology jargon in the skill content
+- [x] Guidance distinguishes user-facing vs developer-facing entries
+- [x] crew-research CHANGELOG.md reviewed against new guidance
+- [x] Skill still ≤100 lines (use references/ for detail)
+- [x] `mise run validate` passes
 
 ## Out of scope
 
 - Changing the release-protocol skill (keep the mechanical steps)
 - Automating changelog generation (this is about what to write, not how to generate)
+
+## Resolution (2026-08-23)
+
+Rewrote changelog-discipline with user-facing focus, added references/patterns.md, fixed CHANGELOG.md
