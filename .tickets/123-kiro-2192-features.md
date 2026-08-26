@@ -58,15 +58,41 @@ kiro-cli chat --no-interactive --output-format stream-json --agent-engine v3 "Re
 ```
 Document actual event types, field names, and terminal behavior. Compare against Cursor/Claude Code schemas.
 
+Questions to answer empirically:
+1. Does `--output-format stream-json` suppress normal text? (output ONLY events, or interleaved?)
+2. Exact `type` field vocabulary — matches Cursor (system/assistant/tool_call/result)?
+3. Do tool_call events include full input/output or just metadata?
+4. Is there a `context_loaded` event that replaces `context_contains` log_checks?
+5. Works with `--agent` flag? (proofs use custom agents)
+6. Does `--wrap never` conflict or get ignored with stream-json?
+7. Does v2 engine default suffice, or must v3 be explicit?
+
 **Phase 1: Proof Harness — Event-Level Assertions** (highest value, 2-3 hr)
+
+The current proof system has a race condition: `inspect-session.sh` finds the session log via `find ... | xargs ls -t | head -1` (most recent by mtime). This can pick up a judge session, concurrent proof, or user session instead of the trial. Stream-json eliminates this — the event stream captured from stdout IS the session data.
+
+Implementation:
 - Add `output_format: stream-json` field to `adapters/kiro-cli.yaml`
-- Modify `harness/run.sh` proof runner: when adapter declares stream-json, pipe output through `jq` to extract events
-- New assertion types in proof definitions:
-  - `event_present: {type: "tool_call", tool: "read"}` — did the agent call read?
-  - `event_absent: {type: "tool_call", tool: "shell"}` — did it NOT call shell?
-  - `event_count: {type: "tool_call", min: 1, max: 5}` — tool call budget
-- **Eliminates** `inspect-session.sh`'s "most recent by mtime" race condition (the stream IS the session)
-- Gate: `kiro-cli --version` ≥ 2.19.2; fall back to existing grep for older versions
+- In `run.sh` invoke path: when adapter declares stream-json, capture events to `$workdir/events.jsonl`, extract final text via `jq 'select(.type=="result") | .result'` for existing `expect.present/absent` grading
+- New `events:` section in proof definition YAML (additive, not replacing):
+  ```yaml
+  events:
+    present:
+      - type: tool_call
+        tool: read
+        input_contains: "canary.md"
+    absent:
+      - type: tool_call
+        tool: shell
+    count:
+      - type: tool_call
+        min: 1
+        max: 5
+  ```
+- Existing `expect.present/absent` unchanged (text from result event)
+- Existing `log_checks` unchanged (fallback for codex/agy adapters without stream-json)
+- Gate: `kiro-cli --version` ≥ 2.19.2; older versions use existing raw-text path
+- Proof definitions can declare BOTH `log_checks` and `events:` — harness picks the appropriate mechanism per adapter
 
 **Phase 2: Eval Harness — Dual Capture** (medium value, 1-2 hr)
 - In `invoke_agent()`, when engine is v2/v3: add `--output-format stream-json`
