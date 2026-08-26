@@ -71,6 +71,14 @@ On Unix: `nohup <command> > /tmp/output.log 2>&1 &`, then observe with `kill -0 
 
 When a command fails with "not found", install the tool for your OS immediately, verify it works, then continue. Project-level steering may provide a project-specific install guide.
 
+## Shell Command Serialization
+
+Run shell commands **one at a time**. Never chain multiple commands that could block (e.g., CLI invocations that call an API, builds, tests) in a single shell call. A blocking command prevents all subsequent commands in the chain from executing and wastes the entire call on a timeout.
+
+- One logical operation per shell invocation
+- If a command might take >10s, run it alone and check the result before proceeding
+- Compound commands (`&&` chains) are fine only when each step is instant (mkdir, cd, echo, git add)
+
 ## Tool Use Notes
 
 - The write tool creates parent directories automatically — don't mkdir first.
