@@ -1,7 +1,7 @@
 ---
 id: "125"
 title: "Run stream-json schema discovery proof"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
