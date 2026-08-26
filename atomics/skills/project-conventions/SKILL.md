@@ -18,7 +18,8 @@ When you learn something mid-session, route it by type:
 | A name where two people might mean different things | "Does this need disambiguation?" | `.memory/CONTEXT.md` |
 | A hard-to-reverse decision with trade-offs | "Would a future session re-propose the rejected alternative?" | `.memory/adr/NNNN-slug.md` |
 | A lasting technical contract or interface | "Is this a spec someone would implement against?" | `.memory/specs/` |
-| An operational surprise, workaround, or environment quirk | "Would the next agent hit this same trap?" | `AGENTS.md` Constraints |
+| An operational surprise (project-wide) | "Would ANY workflow hit this trap?" | `AGENTS.md` Constraints |
+| An operational surprise (tool/workflow-scoped) | "Only during a workflow that has a covering skill?" | Covering skill (`references/` or inline) |
 | A process or workflow instruction | "Does this tell HOW to do something?" | `AGENTS.md` or a skill |
 | An ephemeral finding | "Will this matter next week?" If no: | `.scratch/` (or delete) |
 

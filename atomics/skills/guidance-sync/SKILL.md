@@ -27,10 +27,17 @@ Where did work stall or need archaeology this session?
 
 ### P3 — New knowledge
 What did this session learn that the next session shouldn't rediscover?
-- Gotchas with incidents → AGENTS.md Constraints (or skill hard-rules if skill-scoped)
-- Environment facts (access limits, version quirks) → AGENTS.md Constraints
-- Output-interpretation rules (what a field/verdict actually means) → guide skill or AGENTS.md
-- Term disambiguation resolved → `.memory/CONTEXT.md` (ONLY if two people could mean different things by the word)
+
+**Scope gate (evaluate first for gotchas/surprises):**
+1. Does a skill cover this tool/workflow? → skill `references/` or inline rules
+2. Does it affect ALL work in this repo regardless of active workflow? → AGENTS.md Constraints
+3. No covering skill AND not universal? → create a `references/` note or `.scratch/`
+
+Route by type:
+- Environment facts affecting all workflows (CI quirks, access limits) → AGENTS.md Constraints
+- Tool-specific gotchas (format limitations, export flags, API quirks) → covering skill
+- Output-interpretation rules → guide skill `references/`
+- Term disambiguation → `.memory/CONTEXT.md` (ONLY if two people could mean different things)
 
 ### P4 — Repetition
 What did I do manually 2+ times this session? Candidates for:
