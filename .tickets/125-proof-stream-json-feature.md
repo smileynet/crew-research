@@ -3,6 +3,7 @@ id: "125"
 title: "Run stream-json schema discovery proof"
 status: open
 blocked_by: []
+tags: [kiro-v3]
 ---
 
 # Run stream-json schema discovery proof

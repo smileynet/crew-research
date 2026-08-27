@@ -5,6 +5,7 @@ status: open
 blocked_by: []
 spec: "Evaluate stream-json output and local image attachment for eval harness, proofs, and workflows"
 priority: high
+tags: [kiro-v3]
 ---
 
 # Review kiro-cli 2.19.2 features for project use
