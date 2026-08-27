@@ -42,6 +42,22 @@ tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 - **Every agent-invoking script MUST run the agent inside a temp workdir** (`mktemp -d` + subshell `cd`). `run-model-comparison.sh` ran closecode in the repo root on 2026-07-15 and leaked ~30 generated files (debounce.ts etc.) into the repo, overwriting README.md. Judges score only — invoke them without `-a` and inside a temp dir.
 - **After any run, check `git status`** — a dirty repo means a containment regression.
 
+## Headless kiro-cli invocation (stream-json — tickets 124/125)
+
+When invoking `kiro-cli chat` headlessly to capture structured output:
+
+- **`--agent-engine v2 -a`** — v1 rejects `--output-format stream-json` ("not supported on the v1 engine"); v3 rejects `-a` and needs a user-global `permissions.yaml` (disrupts interactive sessions — avoid).
+- **Separate stdout from stderr**: `> events.jsonl 2>err.log`. NEVER `2>&1` — the JSON stream is stdout-only; merging stderr corrupts it.
+- **Run the invocation ALONE, inspect output in a SEPARATE call.** A `kiro-cli chat` stream call chained with trailing `Get-Content`/`jq`/`Write-Host` in one PowerShell invocation blocks the whole call and wastes it (observed 2026-08-27: test-4 cancelled 3× from chaining). Invoke, wait, then read the file in the next command.
+- Each invocation is its own session UUID — safe to run alongside an active interactive session; it never touches the live session's log.
+
+```bash
+# Invoke (one call)
+kiro-cli chat --agent-engine v2 -a --output-format stream-json "PROMPT" > events.jsonl 2>err.log
+# Inspect (separate call)
+jq -rn 'last(inputs | select(.type=="runFinished") | .data.finalText) // ""' events.jsonl
+```
+
 ## When done
 
 ```bash
