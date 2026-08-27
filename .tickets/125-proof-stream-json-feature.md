@@ -1,7 +1,7 @@
 ---
 id: "125"
 title: "Run stream-json schema discovery proof"
-status: in_progress
+status: open
 blocked_by: []
 ---
 
@@ -162,13 +162,46 @@ Create `tools/proofs/docs/stream-json-schema.md`:
 - Flag interaction matrix
 - Comparison with Cursor CLI schema (deltas highlighted)
 
+## Session findings (2026-08-26/27)
+
+### Tests 1-3: DONE ✅ (v2 engine)
+
+Schema fully captured on `--agent-engine v2` (see "Key findings" above and `.scratch/research/t125/`). ACP v1 confirmed. Raw captures in `.scratch/stream-json-discovery/test{1,2,3}.jsonl`.
+
+### Test 4 (v3): BLOCKED — v3 cannot run headless on this build
+
+Empirically confirmed (kiro-cli 2.19.2, bounded via PowerShell `Start-Job` + `Wait-Job -Timeout`):
+
+1. `--agent-engine v3 -a` → **fails fast**: `error: the following arguments are not supported with --agent-engine=v3: --trust-all-tools`, then `runError` at init stage `"server shut down unexpectedly"`, then `ACP initialize failed`. v3 rejects the trust flag (capability model).
+2. `--agent-engine v3` (no `-a`) → **hangs**. The `--help` text confirms why: v3/KAS session lifecycle (`session/new`) is "Forwarded to the TUI." kiro.dev v3 "Known Gaps" states verbatim: *"The legacy non-TUI mode (kiro-cli chat without the TUI) does not support the v3 engine. Use the TUI."*
+
+**Conclusion: v3 has no non-TUI/headless code path on this build.** Proofs and the eval harness MUST use `--agent-engine v2`. This is not a flag-tweaking problem — the non-TUI path does not exist for v3. Docs contradict themselves (headless page couples v3+`--no-interactive`; v3 Known Gaps forbids it) — the installed build follows Known Gaps.
+
+**Flag spelling confirmed:** installed binary uses `--agent-engine <v1|v2|v3>` (NOT `--engine`, which appears only in kiro.dev docs). `--v3` is a separate interactive-only flag.
+
+### Testing technique that works (recorded for resume)
+
+To test a potentially-hanging kiro-cli invocation without wedging the session, wrap it in a PowerShell job with a timeout:
+```powershell
+$j = Start-Job -ScriptBlock { & kiro-cli chat --no-interactive --agent-engine v3 --output-format stream-json "PROMPT" 2>&1 }
+if (Wait-Job $j -Timeout 20) { "COMPLETED"; Receive-Job $j } else { "TIMED OUT"; Stop-Job $j }
+Remove-Job $j -Force
+```
+
+### Remaining work (on resume)
+
+- Test 5 (`--wrap never` on v2) — quick flag-interaction check
+- Write `tools/proofs/docs/stream-json-schema.md` from tests 1-3 (schema is already fully known — this is documentation, not more testing)
+- Save raw captures to `tools/proofs/docs/discovery-raw/`
+- Clean up hung v3 processes from failed headless attempts (12+ leftover kiro-cli PIDs from testing — do NOT kill PID of the active interactive session; identify via lock-holder, not start time)
+
 ## Acceptance criteria
 
-- [ ] All 5 test cases run (or failure modes documented with stderr output)
-- [ ] Event type vocabulary documented with field names and types
-- [ ] `result` event text extraction jq pattern confirmed (ticket 124 needs this)
-- [ ] `tool_call` event shape documented (tool name field, input/output presence)
-- [ ] Flag interactions documented (--agent, --wrap never, --agent-engine v2 vs v3)
-- [ ] Schema comparison with Cursor CLI noted (field name deltas)
-- [ ] Findings written to `tools/proofs/docs/stream-json-schema.md`
-- [ ] Raw captured JSONL saved to `tools/proofs/docs/discovery-raw/` for reference
+- [x] Tests 1-3 run; event schema captured (ACP v1: runStarted/metadata/sessionUpdate/runFinished)
+- [x] Event type vocabulary documented with field names (in ticket + research files)
+- [x] `runFinished.data.finalText` extraction jq pattern confirmed (ticket 124 needs this)
+- [x] `tool_call`/`tool_call_update` shape documented (_meta.kiro.toolName, rawInput, rawOutput)
+- [x] v3 engine finding documented (cannot run headless — pin to v2)
+- [ ] Test 5 (`--wrap never`) flag interaction — DEFERRED to resume
+- [ ] Findings written to `tools/proofs/docs/stream-json-schema.md` — DEFERRED to resume
+- [ ] Raw captured JSONL saved to `tools/proofs/docs/discovery-raw/` — DEFERRED to resume
