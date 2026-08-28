@@ -65,21 +65,17 @@ Rejected: per-model tickets via `tkt batch` pre-allocation (works — batch is a
 6. **Update `frontier-work.md`** provenance matching (`Reporter:` no longer always Codex).
 7. **New skill `coding-plan-limits`** — handling quota/capacity exhaustion on subscription-plan endpoints (see below). Reviewers must not silently hang or hot-loop when a plan runs out of tokens.
 
-## Target model matrix (all on vendor CODING/TOKEN plans)
+## Target model matrix (all on vendor CODING/TOKEN plans) — LIVE-VERIFIED 2026-08-28
 
-| # | Model | Plan | opencode `-m` id (VERIFY LIVE) | Built-in? | Endpoint / key |
-|---|-------|------|-------------------------------|-----------|----------------|
-| 1 | Kimi K3 | Moonshot Kimi coding plan | `moonshot/kimi-k3` (balance path) — coding-plan path may be `kimi-for-coding/...` | Built-in | `MOONSHOT_API_KEY`, api.moonshot.ai/v1 |
-| 2 | Qwen 3.8 Max | Alibaba Token Plan | `bailian-token-plan-personal/qwen3.8-max` (CUSTOM provider) | Custom cfg | Anthropic-compat: token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1 |
-| 3 | GLM 5.3 | Z.ai coding plan | `zai-coding-plan/glm-5.3` (model-id INFERRED) | Built-in auth | Z.AI Coding Plan (auth login) |
+opencode 1.18.21. All three providers already authenticated (`opencode auth list`): Kimi For Coding, Alibaba Token Plan, Z.AI Coding Plan. All ids confirmed present in `opencode models --refresh` (485 models) and Kimi smoke-tested (`opencode run --auto -m kimi-for-coding/k3 "..."` → returns output headless).
 
-⚠️ **MANDATORY first build step: verify each id live** — `opencode models --refresh`, then `opencode models moonshot`, `opencode models zai-coding-plan`. Research flagged real risks:
-- Qwen 3.8 Max is a **Token-Plan** model, NOT on Alibaba's *Coding-Plan* endpoint (that tops out at qwen3-max-2026-01-23). Use the Token-Plan Anthropic-compat URL + a custom opencode provider block (`@ai-sdk/anthropic`).
-- `glm-5.3` id string is inferred from naming, not doc-confirmed.
-- Kimi K3 on the balance path needs account balance (no vouchers); coding-plan path historically `kimi-for-coding/*`.
-- All three are plan-scoped: endpoints/keys are NOT portable across a vendor's plan tiers.
+| # | Model | Plan | opencode `-m` id (CONFIRMED) | Auth |
+|---|-------|------|------------------------------|------|
+| 1 | Kimi K3 | Moonshot Kimi coding plan | `kimi-for-coding/k3` (also `/k3-256k`) | ✅ Kimi For Coding |
+| 2 | Qwen 3.8 Max | Alibaba Token Plan | `alibaba-token-plan/qwen3.8-max` (built-in provider) | ✅ Alibaba Token Plan |
+| 3 | GLM 5.3 | Z.ai coding plan | `zai-coding-plan/glm-5.3` (also `-flash`, `-highspeed`) | ✅ Z.AI Coding Plan |
 
-Do NOT hardcode unverified ids into the skill — resolve them empirically, then record the confirmed strings.
+Corrections to earlier research: Kimi coding-plan path is `kimi-for-coding/k3` (NOT `moonshot/kimi-k3`); Alibaba Token Plan is a **built-in** opencode provider (no custom `@ai-sdk/anthropic` block needed); `zai-coding-plan/glm-5.3` confirmed verbatim.
 
 ## Coding-plan quota handling (new `coding-plan-limits` skill)
 
