@@ -1,7 +1,7 @@
 ---
 id: "130"
 title: "Live e2e validation of dispatch-review multi-model matrix + fan-in"
-status: in_progress
+status: done
 blocked_by: ["127"]
 priority: high
 ---
@@ -253,3 +253,7 @@ NEVER silently clean; the run degrades gracefully instead of failing.
 - [x] Fail-closed confirmed: indeterminate/missing reviewer reported as coverage_gap, not clean (Phase 6 degradation run)
 - [~] Codex default path regression — PARTIAL: contract/invocation verified (codex exec ran, authed, accepted the findings-only prompt) but findings run BLOCKED by env — codex 0.147.0 default model `gpt-5.6-sol` needs a newer CLI; `gpt-5.1-codex` rejected on ChatGPT-account auth. Not a dispatch-review regression (env/model-availability). Filed tkt#131.
 - [x] Findings/gaps recorded; follow-up tickets filed (#131 codex env; #128 scoped perms, #129 per-model markers filed under 127)
+
+## Resolution (2026-08-28)
+
+dispatch-review multi-model matrix VALIDATED end-to-end live (Kimi/Qwen/GLM coding plans). Pipeline (fan-out, worktree isolation, JSONL validation, fan-in dedup/tier, two-layer provenance, fail-closed degradation) all proven. Judge-panel grading (3 families, unanimous) replaces the Phase 2 self-grade: 100% planted-bug recall incl all Type3, 0 hallucinations. Fixed 3 latent matrix.sh bugs (B1/B3/B9) before validating. One AC partial: Codex-default regression is env-blocked (codex 0.147.0 model availability) not a dispatch-review regression — contract/invocation verified, findings run tracked in tkt#131. Follow-ups: #131 codex env, #128 scoped perms, #129 per-model markers.
