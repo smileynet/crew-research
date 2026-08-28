@@ -1,7 +1,7 @@
 ---
 id: "123"
 title: "Review kiro-cli 2.19.2 features for project use"
-status: open
+status: done
 blocked_by: []
 spec: "Evaluate stream-json output and local image attachment for eval harness, proofs, and workflows"
 priority: high
@@ -171,3 +171,7 @@ All NO → build directly.
 - [ ] Eval harness captures structured events alongside raw text
 - [ ] image-handling steering updated (5 items above)
 - [ ] All changes gated on kiro-cli ≥ 2.19.2 (graceful fallback for older)
+
+## Resolution (2026-08-28)
+
+Umbrella review complete + decomposed. Stream-json feature fully realized: dispatch-review multi-model matrix (Kimi/Qwen/GLM), coding-plan-limits skill, opencode adapter, matrix.sh, live e2e judge-panel validation (130). Image-attachment feature spun out to ticket 132 (image-handling steering doc updates). Follow-ups: 124/125 (proof-harness stream-json, schema known), 126/128/129/131 (backlog), 132 (image), tkt#161 (frontier-work provenance).
