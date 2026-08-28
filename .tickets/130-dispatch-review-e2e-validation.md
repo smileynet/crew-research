@@ -203,7 +203,7 @@ validated live across all 3 target coding-plan models. Per-model recall/precisio
 - [ ] Each model's review-new-work activation observed (or non-activation documented)
 - [ ] Tool-using run JSONL parsed correctly (confirmed: last() step_finish + text join works; verify on the real run)
 - [ ] Quota/degradation on one model → indeterminate, run continues (observed or forced; document if code-verified only)
-- [ ] Fan-in produces ONE aggregate ticket with two-layer provenance + agreement tiers, no ID race
+- [ ] Fan-in (main context): dedup by location+fault (category advisory), tier by agreement (consensus/majority/single, keep singletons), aggregate written to `.scratch/review/t130-p4/aggregate-ticket.md` with two-layer provenance; `tkt new` single-writer/no-race proven against a THROWAWAY `.tickets/` (not the live tracker — frontier hygiene; research t130d/tracker-hygiene.md)
 - [ ] Recall/precision/hallucination graded by a JUDGE PANEL (multi-judge consensus, eval-harness pattern) against the manifest — not a deterministic matcher, not self-graded; Phase 2 numbers re-graded by the panel
 - [ ] Fail-closed confirmed: indeterminate/missing reviewer reported as gap, not clean
 - [~] Codex default path regression — PARTIAL: contract/invocation verified (codex exec ran, authed, accepted the findings-only prompt) but findings run BLOCKED by env — codex 0.147.0 default model `gpt-5.6-sol` needs a newer CLI; `gpt-5.1-codex` rejected on ChatGPT-account auth. Not a dispatch-review regression (env/model-availability). See tkt follow-up.
