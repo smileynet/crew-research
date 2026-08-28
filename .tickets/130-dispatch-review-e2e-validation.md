@@ -161,6 +161,27 @@ validated live across all 3 target coding-plan models. Per-model recall/precisio
 + cross-model agreement tiering → Phase 6 judge-panel grading. Artifacts in
 `.scratch/review/t130-p4/`.
 
+### Phase 5 RESULT — fan-in ✅ (2026-08-28)
+
+Parent (main context) read all 3 artifacts, deduped 35 raw finding-lines →
+**12 deduped findings**, tiered by agreement. Aggregate written to
+`.scratch/review/t130-p4/aggregate-ticket.md` with two-layer provenance
+(Reporter: aggregate(3 models) + per-finding Reviewers/Agreement/Confidence,
+Confirmation status: unconfirmed verbatim).
+
+- **10/12 consensus** (all 3 families agreed), **1 majority** (F12 fail-open, 2/3),
+  0 singletons. All 10 PLANTED bugs surfaced by all 3 models incl. all 3 Type3
+  discriminators. 2 unplanted PLAUSIBLE (F11 missing imports, F12 fail-open default).
+- **Cross-file merge validated:** F6 (quota overflow) — Kimi cited schema.sql:14,
+  Qwen/GLM cited users.ts:34; deduped as ONE finding on fault identity (the two
+  halves of the cross-file coupling), NOT split by differing location. This is the
+  dedup-on-fault-not-just-line rule working on real output.
+- **Single-writer / no ID race proven:** `tkt new` run against a THROWAWAY mktemp
+  tracker (not the live frontier — hygiene) allocated id 01 with correct
+  frontmatter, atomic single-process allocation. Live `.tickets/` untouched.
+- Category advisory confirmed useful: models labeled the same bugs
+  security/correctness/architecture differently; location+fault dedup was robust to it.
+
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
    against a real commit with actual findings (pick a diff with a known planted or
    real issue). Confirm each of kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max,
