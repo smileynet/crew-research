@@ -182,6 +182,30 @@ Confirmation status: unconfirmed verbatim).
 - Category advisory confirmed useful: models labeled the same bugs
   security/correctness/architecture differently; location+fault dedup was robust to it.
 
+### Phase 6 RESULT — judge-panel grading + degradation ✅ (2026-08-28)
+
+**Multi-judge consensus grading** (3 judges, 3 different families — Claude/kiro,
+Zhipu/GLM, Alibaba/Qwen — each grading the 12 aggregate findings against the
+manifest answer key). **UNANIMOUS 3/3 across all 12 verdicts:**
+- F1-F10 → CONFIRMED, each mapped 1:1 to a distinct manifest bug (B1-B10) — all 10
+  planted bugs matched, incl. all 3 Type3 discriminators (F6 cross-file, F7 TOCTOU, F9 over-mock).
+- F11, F12 → PLAUSIBLE (real, unplanted).
+- **0 FABRICATED** by any judge.
+
+Measured metrics (consensus tier, judge-panel-graded — REPLACES the Phase 2
+self-grade): **Recall 10/10 = 100%** planted bugs found by all 3 reviewers;
+**Precision 10/12 = 83%** planted (other 2 real→PLAUSIBLE); **Hallucination (FDR)
+0/12 = 0%**. Judge agreement 3/3 unanimous. (100% recall confirms the fixture is
+easy for strong models — expected; the value here is the pipeline + grading
+mechanics, proven end-to-end.)
+
+**Degradation path — validated LIVE** (not just code-verified): ran matrix.sh with
+`--models kimi-for-coding/k3,bogus-provider/nonexistent-model`. Result: Kimi
+produced valid (1/2), bogus model → `indeterminate (exit 1) → coverage gap`, run
+CONTINUED, matrix-summary `status: coverage_gap`, bogus in `missing[]` with
+`result: indeterminate`. Fail-closed holds: a degraded reviewer is a reported gap,
+NEVER silently clean; the run degrades gracefully instead of failing.
+
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
    against a real commit with actual findings (pick a diff with a known planted or
    real issue). Confirm each of kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max,
@@ -215,17 +239,17 @@ Confirmation status: unconfirmed verbatim).
 
 ## Acceptance criteria
 
-- [ ] matrix.sh B1 fixed: findings-only prompt (no ticket creation), inline output contract with closed severity/category enums + example
-- [ ] matrix.sh B3 fixed: text join with separator + fence-tolerant last-match REVIEW_RESULT extraction
-- [ ] matrix.sh B9 fixed: reviewers run in throwaway workdir (not live tree); git status clean after
-- [ ] events.jsonl sensitivity handled: only REVIEW_RESULT line surfaced, raw tool output not logged/shipped
-- [ ] Planted-bug fixture built with manifest (Type1/2/3 mix, location/class/severity)
-- [ ] matrix.sh run against the fixture with all 3 models; per-model artifacts + summary produced
-- [ ] Each model's review-new-work activation observed (or non-activation documented)
-- [ ] Tool-using run JSONL parsed correctly (confirmed: last() step_finish + text join works; verify on the real run)
-- [ ] Quota/degradation on one model → indeterminate, run continues (observed or forced; document if code-verified only)
-- [ ] Fan-in (main context): dedup by location+fault (category advisory), tier by agreement (consensus/majority/single, keep singletons), aggregate written to `.scratch/review/t130-p4/aggregate-ticket.md` with two-layer provenance; `tkt new` single-writer/no-race proven against a THROWAWAY `.tickets/` (not the live tracker — frontier hygiene; research t130d/tracker-hygiene.md)
-- [ ] Recall/precision/hallucination graded by a JUDGE PANEL (multi-judge consensus, eval-harness pattern) against the manifest — not a deterministic matcher, not self-graded; Phase 2 numbers re-graded by the panel
-- [ ] Fail-closed confirmed: indeterminate/missing reviewer reported as gap, not clean
-- [~] Codex default path regression — PARTIAL: contract/invocation verified (codex exec ran, authed, accepted the findings-only prompt) but findings run BLOCKED by env — codex 0.147.0 default model `gpt-5.6-sol` needs a newer CLI; `gpt-5.1-codex` rejected on ChatGPT-account auth. Not a dispatch-review regression (env/model-availability). See tkt follow-up.
-- [ ] Findings/gaps recorded; follow-up tickets filed for anything discovered
+- [x] matrix.sh B1 fixed: findings-only prompt (no ticket creation), inline output contract with closed severity/category enums + example (998875e)
+- [x] matrix.sh B3 fixed: text join with separator + fence-tolerant last-match REVIEW_RESULT extraction (998875e)
+- [x] matrix.sh B9 fixed: reviewers run in throwaway git worktree (not live tree); trap cleanup (998875e)
+- [x] events.jsonl sensitivity handled: only REVIEW_RESULT/findings surfaced to `<slug>.md`; raw JSONL kept in scratch, documented sensitive in README
+- [x] Planted-bug fixture built with manifest (10 bugs, Type1/2/3 mix, location/class/severity) (6dbceb1)
+- [x] matrix.sh run against the fixture with all 3 models; per-model artifacts + summary produced (Phase 4, t130-p4, 3/3)
+- [x] review-new-work activation OBSERVED: only GLM read it (1 ref); Kimi + Qwen did NOT activate it yet all 3 produced excellent reviews — confirms the inline findings-only contract makes activation optional (127's cross-model activation gap is real but neutralized by design)
+- [x] Tool-using run JSONL parsed correctly (real runs: last() step_finish + text join extracted clean findings + REVIEW_RESULT from all 3 tool-using reviews)
+- [x] Quota/degradation on one model → indeterminate, run continues (LIVE-observed via bogus model: coverage_gap, 1/2, run continued)
+- [x] Fan-in (main context): dedup by location+fault (category advisory), tier by agreement, aggregate at `.scratch/review/t130-p4/aggregate-ticket.md` with two-layer provenance; `tkt new` single-writer/no-race proven against a THROWAWAY `.tickets/` (Phase 5, 7564646)
+- [x] Recall/precision/hallucination graded by a 3-judge PANEL (Claude/GLM/Qwen, unanimous): recall 10/10, precision 10/12 (2 real PLAUSIBLE), FDR 0/12 — replaces Phase 2 self-grade
+- [x] Fail-closed confirmed: indeterminate/missing reviewer reported as coverage_gap, not clean (Phase 6 degradation run)
+- [~] Codex default path regression — PARTIAL: contract/invocation verified (codex exec ran, authed, accepted the findings-only prompt) but findings run BLOCKED by env — codex 0.147.0 default model `gpt-5.6-sol` needs a newer CLI; `gpt-5.1-codex` rejected on ChatGPT-account auth. Not a dispatch-review regression (env/model-availability). Filed tkt#131.
+- [x] Findings/gaps recorded; follow-up tickets filed (#131 codex env; #128 scoped perms, #129 per-model markers filed under 127)
