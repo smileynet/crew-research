@@ -1,7 +1,7 @@
 ---
 id: "127"
 title: "Extend dispatch review to opencode with multi-model matrix"
-status: open
+status: in_progress
 blocked_by: []
 priority: high
 ---
