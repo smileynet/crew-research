@@ -59,11 +59,15 @@ Rejected: per-model tickets via `tkt batch` pre-allocation (works — batch is a
 
 1. **Generalize to a `dispatch-review` skill** (supersede/alias `dispatch-codex-review`): parameterize `reviewer = codex | opencode:<model>`. Result prefix → tool-neutral `REVIEW_RESULT ` with a `reviewer` field. Preserve RUN_ID/TARGET/fail-closed contract verbatim.
 2. **Add `-m provider/model` + `--auto`** to opencode adapter invoke; verify exit codes and `--format json` empirically.
-3. **Matrix runner**: parent takes a model list, dispatches one `opencode run` per model (each in `mktemp -d` workdir, per eval-execution containment), writes per-model findings artifact. Bounded-parallel or sequential (one blocking command at a time per steering).
-4. **Parent fan-in**: read all artifacts against the pre-written manifest, dedup by location+category, tier by agreement, create ONE aggregate ticket tagged per-model.
-5. **Matrix config surface**: a dispatch config (NOT known-tools.yaml — opencode is a deploy target, not self-deploying). Decide: default model set vs. user-supplied list.
-6. **Update `frontier-work.md`** provenance matching (`Reporter:` no longer always Codex).
-7. **New skill `coding-plan-limits`** — handling quota/capacity exhaustion on subscription-plan endpoints (see below). Reviewers must not silently hang or hot-loop when a plan runs out of tokens.
+3. **Matrix fan-out (scriptable) — `tools/review/matrix.sh`**: takes `--run-id` + optional `--models`; dispatches one `opencode run --auto -m <id> --format json` per model, each in a `mktemp -d` workdir; captures per-model JSONL + a `REVIEW_RESULT` line to `.scratch/review/<RUN_ID>/<slug>.md`; validates each result (step_finish reason:"stop" + non-empty text, NOT exit code); classifies quota errors via `coding-plan-limits` (exhausted model → indeterminate, dropped from run). Emits `matrix-summary.json {status,run_id,target,reviewers[],expected,produced,missing[]}`. Exit 0=all completed, 1=coverage gap/indeterminate, 2=usage. Sequential (one blocking opencode call at a time). **Fan-out ONLY** — no dedup, no ticket creation.
+4. **Parent fan-in (skill-guided, main context ONLY — NOT scripted)**: agent reads per-model artifacts against the manifest, reconciles produced-vs-expected (missing = reported gap), dedups by `(normalized_file, line, category)`, tiers by agreement (Consensus ≥⌈R/2⌉ / Corroborated =2 / Singleton =1 — keep singletons, MAX severity on merge), creates ONE aggregate ticket via `tkt new` (single writer = no ID race), fail-closed verify (indeterminate/missing/empty ⇒ NOT clean). Forced to main context by subagent-reliability (cross-area merge + multi-step reasoning are not subagent/script tasks).
+5. **Matrix config surface**: model roster lives in `dispatch-review/references/model-matrix.md` (single source of truth) + the adapter `dispatch_review.models` block; `matrix.sh --models` overrides. NOT known-tools.yaml (opencode is a deploy target, not self-deploying). `mise run review:matrix` wires the FAN-OUT helper only — fan-in is agent work, never a mise task.
+6. **Update `frontier-work.md`** provenance matching (`Reporter:` no longer always Codex — accept `Reporter: aggregate (...)` too).
+7. **New skill `coding-plan-limits`** — handling quota/capacity exhaustion on subscription-plan endpoints (see below). Reviewers must not silently hang or hot-loop when a plan runs out of tokens. ✅ DONE (069bd69).
+
+## Per-finding JSON schema (reviewer output → parent dedup)
+
+Reviewers emit lightweight flat findings (SARIF-*semantics* but not SARIF nesting — LLM malformed-output risk). Required: `id, reviewer_id, severity(critical|high|medium|low), category(security|performance|architecture|testing|accessibility|style|correctness), location{file,line}, summary, evidence, confidence(0-1)`. Dedup key = `(normalized POSIX file, line ±1-2 fuzz, category)`. Agreement = count of DISTINCT reviewer_ids in a merged group (never sum confidence). SARIF export is a mechanical mapping at the code-host boundary if ever needed.
 
 ## Target model matrix (all on vendor CODING/TOKEN plans) — LIVE-VERIFIED 2026-08-28
 
@@ -132,12 +136,11 @@ Captured live (`.scratch/research/t127/opencode-json-VERIFIED.md`):
 - [ ] `dispatch-review` skill: reviewer is a param (codex | opencode/model); tool-neutral `REVIEW_RESULT` contract; fail-closed verify preserved; `indeterminate` (empty/timeout) → deny, never clean
 - [ ] `dispatch-codex-review` aliased in deprecated.yaml → dispatch-review, same commit; Codex is default (byte-identical existing behavior)
 - [ ] Marker migrated to `.review/review-marker.json` w/ plural `reviewers[]`; schema-1 wraps as reviewer:"codex" (Codex path unchanged)
-- [ ] opencode single-model review end-to-end: dispatch → per-model artifact → parent aggregate ticket (pushed) → fail-closed verify
-- [ ] Matrix launches the 3 target models (one opencode session each), isolated in temp workdirs
-- [ ] `coding-plan-limits` skill: classifies 429s by numeric code, distinguishes transient/windowed/terminal, backoff+circuit-breaker, structured status, model fallback — never silent hang/loop
-- [ ] Quota-exhausted model degrades gracefully (run continues with remaining models; gap reported)
-- [ ] Parent fan-in dedups by location+category, tiers by agreement (Consensus/Majority/Individual), tags findings per-model — done in main context
-- [ ] No ticket-ID races (single-writer aggregate ticket; manifest reconciliation detects missing reviewers)
-- [ ] Codex path unchanged (no regression to existing dispatch-codex-review behavior)
-- [ ] opencode adapter gains `-m provider/model` + `--auto`; exit codes + json schema documented
+- [ ] `tools/review/matrix.sh` fan-out: launches the 3 target models (one opencode session each) isolated in temp workdirs, per-model artifact + REVIEW_RESULT, matrix-summary.json, exit 0/1/2
+- [x] `coding-plan-limits` skill: classifies 429s by numeric code, distinguishes transient/windowed/terminal, backoff+circuit-breaker, structured status, model fallback — never silent hang/loop (069bd69)
+- [ ] Quota-exhausted model degrades gracefully (run continues with remaining models; gap reported as indeterminate)
+- [ ] Parent fan-in (main context, skill-guided): dedups by (file,line,category), tiers by agreement, ONE aggregate ticket tagged per-model
+- [ ] No ticket-ID races (single-writer parent aggregate ticket; manifest reconciliation detects missing reviewers)
+- [x] Codex path unchanged (dispatch-review keeps codex as default reviewer; deprecated.yaml alias) (6eee79c)
+- [x] opencode adapter gains `-m provider/model` + `--auto`; exit codes + json schema documented (8f787ff)
 - [ ] `frontier-work.md` provenance matching updated; `mise run validate` + lint pass
