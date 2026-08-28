@@ -28,15 +28,31 @@ gap (≥1 indeterminate/missing); 2 = usage/environment error.
 - `<slug>.jsonl`       — raw opencode JSONL per reviewer
 - `<slug>.md`          — extracted final text (findings + REVIEW_RESULT line)
 - `matrix-summary.json`— `{status, run_id, target, expected, produced, missing[], reviewers[]}`
+## Isolation & safety
+
+- Each run creates a throwaway `git worktree` at `--target` (shares the object
+  store, cheap) and runs the reviewer there — NOT the live working tree. Any
+  accidental write is contained; the worktree is removed on exit. `--target` must
+  be a valid commit or the run exits 2.
+- The reviewer prompt is **findings-only**: it forbids editing files and forbids
+  creating/committing/pushing any ticket. Reviewers emit findings inline (JSONL)
+  + one `REVIEW_RESULT` line; the PARENT fan-in creates the single aggregate
+  ticket (single writer → no ID race).
+- `events.jsonl` may contain FULL file contents (a reviewer's `read` tool output
+  is captured verbatim) — treat it as sensitive as the reviewed repo. Only the
+  extracted `REVIEW_RESULT`/findings text (`<slug>.md`) is surfaced; raw JSONL is
+  not logged or shipped.
 
 ## Validity rule (why exit code isn't trusted)
 
 opencode's exit code is unreliable (can exit 0 on failure, hang, or surface 429
 silently). A reviewer result counts as valid ONLY if its JSONL has a
-`step_finish` with `reason:"stop"` AND non-empty assistant text AND a
-`REVIEW_RESULT` line. Anything else → `indeterminate` → coverage gap (never
-"clean"). Quota-exhausted reviewers (see `coding-plan-limits`) land here as
-dropped reviewers, degrading the run without failing it.
+`step_finish` with `reason:"stop"` (the LAST one — a tool-using run has an earlier
+`reason:"tool-calls"` step_finish) AND non-empty assistant text AND a
+`REVIEW_RESULT` line (extracted fence-tolerant, last-match). Anything else →
+`indeterminate` → coverage gap (never "clean"). Quota-exhausted reviewers (see
+`coding-plan-limits`) land here as dropped reviewers, degrading the run without
+failing it.
 
 ## Platform
 

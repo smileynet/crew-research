@@ -88,10 +88,32 @@ echo "  models: ${ACTIVE_MODELS[*]}"
 echo "  out:    $OUT_DIR"
 echo "═══════════════════════════════════════════════════════════"
 
-REVIEW_PROMPT="Use review-new-work to review all uncovered work through TARGET=$TARGET. \
-Review run id: RUN_ID=$RUN_ID. Do not apply fixes. Emit each finding as a JSON object \
-{id,reviewer_id,severity,category,location:{file,line},summary,evidence,confidence}. \
-End with exactly one REVIEW_RESULT line (see the review result contract)."
+# Build the findings-only review prompt for a given reviewer id (model slug).
+# Self-contained contract — does NOT depend on review-new-work activating.
+build_prompt() {
+  local rid="$1"
+  cat <<EOF
+You are an independent code reviewer. Review all uncovered work through git commit
+TARGET=$TARGET in the current repository. Read the working tree; run tests or inspect
+code as needed. Follow the review-new-work method (two-axis: standards + spec) IF that
+skill is available, but do NOT depend on it — the output contract below is authoritative.
+
+STRICT RULES:
+- Do NOT apply fixes or edit any file.
+- Do NOT create, commit, or push any ticket or file. Emit findings inline ONLY.
+- Output findings as JSON Lines: one JSON object per line, no markdown fences, no prose.
+
+Each finding line (emit ALL keys; use null, never omit):
+{"id":"F1","reviewer_id":"$rid","severity":"critical|high|medium|low","category":"security|performance|architecture|testing|correctness|style","location":{"file":"path","line":0},"summary":"one line","evidence":"observed code/behavior","confidence":0.0}
+
+Example:
+{"id":"F1","reviewer_id":"$rid","severity":"high","category":"correctness","location":{"file":"src/x.ts","line":42},"summary":"off-by-one in loop bound","evidence":"i <= len iterates past end","confidence":0.9}
+
+After all findings, emit EXACTLY ONE final line at column 0, no fence, nothing after it:
+REVIEW_RESULT {"run_id":"$RUN_ID","reviewer":"$rid","target":"$TARGET","result":"findings"}
+If you found nothing, emit the same line with "result":"clean" and no finding lines.
+EOF
+}
 
 # ─── Validate one reviewer's captured JSONL ──────────────────────────────────
 # opencode exit code is unreliable — a result is VALID only if the stream has a
@@ -100,10 +122,41 @@ validate_output() {
   local jsonl="$1"
   [[ -s "$jsonl" ]] || { echo "empty"; return; }
   local stop text
+  # last() correctly skips a "tool-calls" step_finish; only the final is "stop".
   stop=$(jq -rn 'last(inputs | select(.type=="step_finish") | .part.reason) // "none"' "$jsonl" 2>/dev/null || echo "none")
-  text=$(jq -rn '[inputs | select(.type=="text") | .part.text] | join("")' "$jsonl" 2>/dev/null || echo "")
+  # join with newline (B3) so the REVIEW_RESULT line stays at column 0.
+  text=$(jq -rn '[inputs | select(.type=="text") | .part.text] | join("\n")' "$jsonl" 2>/dev/null || echo "")
   if [[ "$stop" == "stop" && -n "$text" ]]; then echo "valid"; else echo "indeterminate"; fi
 }
+
+# Fence-tolerant, last-match REVIEW_RESULT extraction (B3). Handles the line
+# appearing mid-stream (echoed example) by taking the LAST real one, and strips
+# a leading markdown fence marker if a model wrapped output.
+extract_result_line() {
+  local artifact="$1"
+  grep -Eo 'REVIEW_RESULT \{.*\}' "$artifact" 2>/dev/null | tail -1
+}
+
+# ─── Isolation (B9): review in a throwaway git worktree at TARGET, not the live tree ──
+# opencode runs with --auto (permission bypass); the prompt forbids edits, but a
+# worktree contains any accidental write and keeps the live repo clean. Worktrees
+# share the object store (cheap). Skipped in --dry-run.
+WORKTREE=""
+cleanup() {
+  [[ -n "$WORKTREE" && -d "$WORKTREE" ]] && git -C "$REVIEW_DIR" worktree remove --force "$WORKTREE" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+if [[ "$DRY_RUN" != true ]]; then
+  WORKTREE=$(mktemp -d -t "review-wt-XXXX")
+  if ! git -C "$REVIEW_DIR" worktree add --detach "$WORKTREE" "$TARGET" >/dev/null 2>&1; then
+    echo "Error: could not create worktree at $TARGET (is it a valid commit in $REVIEW_DIR?)" >&2
+    exit 2
+  fi
+  RUN_IN="$WORKTREE"
+else
+  RUN_IN="$REVIEW_DIR"
+fi
 
 # ─── Fan out: one reviewer per model, sequential (one blocking call at a time) ──
 declare -a PRODUCED=()
@@ -115,33 +168,34 @@ for model in "${ACTIVE_MODELS[@]}"; do
   jsonl="$OUT_DIR/$s.jsonl"
   err="$OUT_DIR/$s.err"
   artifact="$OUT_DIR/$s.md"
+  prompt=$(build_prompt "$s")
 
   echo ""
   echo "  ▶ $model"
 
   if [[ "$DRY_RUN" == true ]]; then
-    echo "    [dry-run] (cd $REVIEW_DIR && opencode run --auto -m $model --format json \"<review prompt>\")"
+    echo "    [dry-run] (cd $RUN_IN && opencode run --auto -m $model --format json \"<findings-only prompt>\")"
     REVIEWER_ROWS+=("{\"reviewer\":\"$s\",\"model\":\"$model\",\"result\":\"dry-run\"}")
     continue
   fi
 
-  # Isolated: run in the target repo dir; opencode reads the working tree.
-  # stdout(JSONL) and stderr kept SEPARATE — never 2>&1 (corrupts JSON).
-  ( cd "$REVIEW_DIR" && timeout "$TIMEOUT" \
-      opencode run --auto -m "$model" --format json "$REVIEW_PROMPT" ) \
+  # Run in the isolated worktree. stdout(JSONL) and stderr kept SEPARATE — never
+  # 2>&1 (corrupts JSON). events.jsonl may contain full tool-read file content →
+  # treat as sensitive; only the extracted REVIEW_RESULT/findings text is surfaced.
+  ( cd "$RUN_IN" && timeout "$TIMEOUT" \
+      opencode run --auto -m "$model" --format json "$prompt" ) \
       > "$jsonl" 2> "$err"
   ec=$?
 
   status=$(validate_output "$jsonl")
   if [[ $ec -ne 0 && "$status" == "valid" ]]; then
-    # nonzero exit but a clean stream — trust the stream (exit code unreliable), note it
-    echo "    (note: exit $ec but stream valid)"
+    echo "    (note: exit $ec but stream valid — opencode exit code is unreliable)"
   fi
 
   if [[ "$status" == "valid" ]]; then
-    # Extract the reviewer's final text as the artifact (findings + REVIEW_RESULT line).
-    jq -rn '[inputs | select(.type=="text") | .part.text] | join("")' "$jsonl" > "$artifact" 2>/dev/null
-    result_line=$(grep -m1 '^REVIEW_RESULT ' "$artifact" || echo "")
+    # Extract final text (findings + REVIEW_RESULT), newline-joined (B3).
+    jq -rn '[inputs | select(.type=="text") | .part.text] | join("\n")' "$jsonl" > "$artifact" 2>/dev/null
+    result_line=$(extract_result_line "$artifact")
     if [[ -n "$result_line" ]]; then
       echo "    ✓ valid — $(echo "$result_line" | cut -c1-80)"
       PRODUCED+=("$s")
