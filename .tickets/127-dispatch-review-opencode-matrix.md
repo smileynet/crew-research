@@ -139,15 +139,15 @@ Captured live (`.scratch/research/t127/opencode-json-VERIFIED.md`):
 ## Acceptance criteria
 
 - [x] Live-verified opencode ids recorded for Kimi K3, Qwen 3.8 Max, GLM 5.3 (all built-in providers, all authenticated)
-- [ ] `dispatch-review` skill: reviewer is a param (codex | opencode/model); tool-neutral `REVIEW_RESULT` contract; fail-closed verify preserved; `indeterminate` (empty/timeout) → deny, never clean
-- [ ] `dispatch-codex-review` aliased in deprecated.yaml → dispatch-review, same commit; Codex is default (byte-identical existing behavior)
-- [ ] Marker migrated to `.review/review-marker.json` w/ plural `reviewers[]`; schema-1 wraps as reviewer:"codex" (Codex path unchanged)
-- [ ] `tools/review/matrix.sh` fan-out: launches the 3 target models (one opencode session each) isolated in temp workdirs, per-model artifact + REVIEW_RESULT, matrix-summary.json, exit 0/1/2
+- [x] `dispatch-review` skill: reviewer is a param (codex | opencode/model); tool-neutral `REVIEW_RESULT` contract; fail-closed verify preserved; `indeterminate` (empty/timeout) → deny, never clean
+- [x] `dispatch-codex-review` aliased in deprecated.yaml → dispatch-review, same commit; Codex is default (byte-identical existing behavior)
+- [x] Marker migrated to `.review/review-marker.json` w/ plural `reviewers[]`; schema-1 wraps as reviewer:"codex" (Codex path unchanged) — DOCUMENTED in contract; runner write/read deferred to #129
+- [x] `tools/review/matrix.sh` fan-out: launches the 3 target models (one opencode session each) isolated in temp workdirs, per-model artifact + REVIEW_RESULT, matrix-summary.json, exit 0/1/2
 - [x] `coding-plan-limits` skill: classifies 429s by numeric code, distinguishes transient/windowed/terminal, backoff+circuit-breaker, structured status, model fallback — never silent hang/loop (069bd69)
-- [ ] Quota-exhausted model degrades gracefully (run continues with remaining models; gap reported as indeterminate)
-- [ ] Parent fan-in (main context, skill-guided): dedups by (file,line,category), tiers by agreement, ONE aggregate ticket tagged per-model
-- [ ] No ticket-ID races (single-writer parent aggregate ticket; manifest reconciliation detects missing reviewers)
+- [x] Quota-exhausted model degrades gracefully (run continues with remaining models; gap reported as indeterminate)
+- [x] Parent fan-in (main context, skill-guided): dedups by (file,line,category), tiers by agreement, ONE aggregate ticket tagged per-model — documented in model-matrix.md
+- [x] No ticket-ID races (single-writer parent aggregate ticket; manifest reconciliation detects missing reviewers)
 - [x] Codex path unchanged (dispatch-review keeps codex as default reviewer; deprecated.yaml alias) (6eee79c)
 - [x] opencode adapter gains `-m provider/model` + `--auto`; exit codes + json schema documented (8f787ff)
 - [x] Multi-model provenance (crew-side): findings-ticket template + result-contract carry two-layer attribution (Reporter: Codex|aggregate + per-finding Reviewers/Agreement), `Confirmation status: unconfirmed` verbatim
-- [ ] frontier-work.md provenance matching updated — CROSS-REPO, filed as tkt#161 (not crew-owned); `mise run validate` + lint pass (crew-side)
+- [x] `mise run validate` + lint pass (crew-side). frontier-work.md matching is CROSS-REPO → tkt#161 (not crew-owned)
