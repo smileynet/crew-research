@@ -1,7 +1,7 @@
 ---
 id: "127"
 title: "Extend dispatch review to opencode with multi-model matrix"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -151,3 +151,7 @@ Captured live (`.scratch/research/t127/opencode-json-VERIFIED.md`):
 - [x] opencode adapter gains `-m provider/model` + `--auto`; exit codes + json schema documented (8f787ff)
 - [x] Multi-model provenance (crew-side): findings-ticket template + result-contract carry two-layer attribution (Reporter: Codex|aggregate + per-finding Reviewers/Agreement), `Confirmation status: unconfirmed` verbatim
 - [x] `mise run validate` + lint pass (crew-side). frontier-work.md matching is CROSS-REPO → tkt#161 (not crew-owned)
+
+## Resolution (2026-08-28)
+
+Generalized dispatch-codex-review to tool-neutral dispatch-review (codex default + opencode matrix: kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max, zai-coding-plan/glm-5.3). Added coding-plan-limits skill, opencode adapter -m/--auto/json, tools/review/matrix.sh fan-out, two-layer provenance. Deferred: runner marker write/read (#129), scoped perms (#128, using --auto yolo now), frontier-work matching (tkt#161).
