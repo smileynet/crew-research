@@ -10,6 +10,15 @@ tags: [kiro-v3]
 
 # Review kiro-cli 2.19.2 features for project use
 
+> **Plan-sync note (2026-08-28):** the **stream-json half is DONE** — this review
+> spawned tickets 124-131 and the feature was BUILT + LIVE-VALIDATED in 127 (done)
+> and 130 (done): dispatch-review multi-model matrix, coding-plan-limits skill,
+> opencode adapter, matrix.sh, judge-panel grading. The **image-attachment half was
+> NOT acted on** — spun out to ticket 132 (update image-handling steering: remove
+> the 5 "field-proven/workaround" caveats now that 2.19.2 makes local image
+> attachment official). Once 132 is filed, this umbrella can close as "explored +
+> decomposed." Keeping open only until 132 exists.
+
 ## New Features (kiro-cli 2.19.2)
 
 ### 1. `--output-format stream-json` (non-interactive mode)

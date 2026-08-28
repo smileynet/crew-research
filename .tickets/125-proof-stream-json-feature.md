@@ -6,6 +6,15 @@ blocked_by: []
 tags: [kiro-v3]
 ---
 
+> **Plan-sync note (2026-08-28):** ticket 130's live e2e work independently
+> characterized the full stream-json / ACP v1 schema (tool-using runs included)
+> and it's now documented in `atomics/skills/dispatch-review/references/model-matrix.md`,
+> the opencode adapter `output.json` block, and `.scratch/research/t127|t130/`. So
+> the *knowledge* half of this ticket is DONE. Remaining discrete work: (a) test 5
+> `--wrap never` interaction, (b) produce the canonical `tools/proofs/docs/stream-json-schema.md`
+> deliverable, (c) save raw captures. Reduced scope, not superseded — do NOT re-run
+> discovery from scratch. Blocks 124 (proof-harness event grading).
+
 # Run stream-json schema discovery proof
 
 ## Purpose
