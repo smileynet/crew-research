@@ -143,6 +143,10 @@ B1 SQLi (F1 exact), B2 int-overflow×schema T3 (F9 exact — cross-file reasonin
 - 100% recall confirms the fixture is easy for a strong model (research predicted 90%+ = easy) — acceptable for TOOLING validation (proves the pipeline surfaces real findings); the harder signal is cross-model *disagreement* in Phase 4.
 - Output was clean JSONL, no markdown fences, no prose preamble — the hardened findings-only prompt (B1 fix) worked.
 
+### Phase 3 RESULT — Codex-default regression ⚠️ PARTIAL (2026-08-28, run_id t130-p3)
+
+Goal: confirm the generalized dispatch-review didn't break the original Codex reviewer path. **Contract + invocation verified** — `codex exec -s read-only --skip-git-repo-check "<findings-only prompt>"` ran, authenticated, and accepted the tool-neutral prompt; the failure was purely model availability. **Blocked from a clean findings run by env:** codex-cli 0.147.0's default model `gpt-5.6-sol` errors "requires a newer version of Codex"; explicit `-m gpt-5.1-codex` errors "not supported when using Codex with a ChatGPT account." Neither is a dispatch-review regression — the skill's codex invocation is unchanged and structurally correct; this machine's codex CLI/account can't currently serve a usable model. Also confirmed (incidentally) codex exit code is unreliable like opencode (exit 1 on model error AND would-be success). Follow-up: filed to upgrade codex CLI / pin a usable model, then complete the regression run.
+
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
    against a real commit with actual findings (pick a diff with a known planted or
    real issue). Confirm each of kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max,
@@ -188,5 +192,5 @@ B1 SQLi (F1 exact), B2 int-overflow×schema T3 (F9 exact — cross-file reasonin
 - [ ] Fan-in produces ONE aggregate ticket with two-layer provenance + agreement tiers, no ID race
 - [ ] Recall/precision/hallucination graded by a JUDGE PANEL (multi-judge consensus, eval-harness pattern) against the manifest — not a deterministic matcher, not self-graded; Phase 2 numbers re-graded by the panel
 - [ ] Fail-closed confirmed: indeterminate/missing reviewer reported as gap, not clean
-- [ ] Codex default path regression-checked (unchanged behavior)
+- [~] Codex default path regression — PARTIAL: contract/invocation verified (codex exec ran, authed, accepted the findings-only prompt) but findings run BLOCKED by env — codex 0.147.0 default model `gpt-5.6-sol` needs a newer CLI; `gpt-5.1-codex` rejected on ChatGPT-account auth. Not a dispatch-review regression (env/model-availability). See tkt follow-up.
 - [ ] Findings/gaps recorded; follow-up tickets filed for anything discovered
