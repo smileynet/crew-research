@@ -1,0 +1,93 @@
+# Planted-bug manifest — ground truth for dispatch-review e2e (ticket 130).
+# Scoring (Phase 6): a reported finding is CONFIRMED (true positive) when
+#   same_file AND line within ±5 AND category matches.
+# Report per-model recall + precision + hallucination-rate (FDR); score each
+# consensus tier (union≥1 / majority / unanimous) as a virtual reviewer.
+# A finding not in this manifest that is nonetheless real = PLAUSIBLE (excluded
+# from FP); a finding that is neither = FABRICATED (hallucination).
+
+fixture: planted-review
+description: >
+  Small TypeScript user-directory service with 8 deliberately planted defects
+  across a Type1/Type2/Type3 difficulty spread. Reviewed WHOLESALE at the tip
+  commit (matrix.sh checks out a detached worktree and reads the tree; there is
+  no diff). Type3 bugs span files and require reasoning, not pattern-matching —
+  they are the discriminators between reviewers that leave the diff and those
+  that don't.
+
+expected_findings:
+  - id: B1
+    severity: critical
+    category: security
+    location: { file: src/users.ts, line: 17 }
+    type: 1
+    summary: "String-interpolated SQL in findByEmail — SQL injection via email field"
+
+  - id: B2
+    severity: high
+    category: correctness
+    location: { file: src/users.ts, line: 34 }
+    type: 3
+    summary: "setQuota writes byte counts exceeding 32-bit accounts.quota (schema.sql) — silent integer overflow (cross-file)"
+
+  - id: B3
+    severity: critical
+    category: security
+    location: { file: src/auth.ts, line: 19 }
+    type: 2
+    summary: "Inverted authz comparison (<= instead of >=) — low-rank actor passes high-rank gate"
+
+  - id: B4
+    severity: medium
+    category: correctness
+    location: { file: src/auth.ts, line: 26 }
+    type: 1
+    summary: "Swallowed exception in tryAudit — failed audit of security action disappears silently"
+
+  - id: B5
+    severity: high
+    category: correctness
+    location: { file: src/pagination.ts, line: 9 }
+    type: 1
+    summary: "Off-by-one in pageBounds (+1) — returns pageSize+1 items, leaks next page's first item"
+
+  - id: B6
+    severity: medium
+    category: correctness
+    location: { file: src/pagination.ts, line: 23 }
+    type: 2
+    summary: "Mutable shared default bucket in collectInto — accumulates across calls"
+
+  - id: B7
+    severity: high
+    category: correctness
+    location: { file: src/storage.ts, line: 9 }
+    type: 3
+    summary: "TOCTOU race in ensureHome — existsSync check-then-create not atomic under concurrent signups"
+
+  - id: B8
+    severity: medium
+    category: correctness
+    location: { file: src/storage.ts, line: 21 }
+    type: 2
+    summary: "Resource leak in firstLine — file handle not closed on the no-newline early return"
+
+  - id: B9
+    severity: medium
+    category: testing
+    location: { file: test/auth.test.ts, line: 8 }
+    type: 3
+    summary: "Over-mocked findById returns admin — masks auth.ts inverted-comparison bug; false confidence"
+
+  - id: B10
+    severity: low
+    category: testing
+    location: { file: test/auth.test.ts, line: 21 }
+    type: 1
+    summary: "Test theater in testFindByEmailShape — assert(true), exercises nothing"
+
+# Difficulty / category spread (for the readout):
+#   Type1 (in-file, direct):   B1, B4, B5, B10
+#   Type2 (same-file context): B3, B6, B8
+#   Type3 (cross-file/latent): B2, B7, B9   <- discriminators
+#   security: B1,B3 | correctness: B2,B4,B5,B6,B7,B8 | testing: B9,B10
