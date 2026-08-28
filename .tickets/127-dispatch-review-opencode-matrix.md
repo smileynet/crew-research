@@ -12,6 +12,12 @@ priority: high
 
 Extend the independent-review dispatch (currently Codex-only, via the `dispatch-codex-review` skill) to ALSO use **opencode**, with the ability to run **multiple opencode sessions across a matrix of models**. Different model families catch different issues — a single reviewer has blind spots.
 
+## Decisions & deferred work
+
+- **Permissions: use `--auto` (yolo) for now.** opencode has no OS sandbox; `--auto` auto-approves anything not explicitly denied. Scoped read-only reviewer permissions deferred until issues are encountered → **backlog #128**.
+- **Per-model markers deferred.** The runner reviews the same TARGET in one shot; uneven progress / resume via `.review/review-marker.json` reviewers[] is spec'd in result-contract.md but not implemented → **backlog #129**.
+- **frontier-work provenance matching** is tkt-owned → cross-repo **tkt#161**.
+
 ## Research-backed findings (2026-08-28, `.scratch/research/t127/`)
 
 ### opencode headless invocation — CONFIRMED [L4]
