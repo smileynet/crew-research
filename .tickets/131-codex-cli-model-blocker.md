@@ -32,3 +32,4 @@ harnesses) on this machine. NOT a dispatch-review bug — the invocation is corr
 - [ ] codex exec produces a clean findings run (real findings + REVIEW_RESULT) on this machine
 - [ ] The usable model id / required CLI version is documented (tool-installation guide)
 - [ ] Ticket 130 Phase 3 Codex regression completes and is re-graded by the judge panel
+- [ ] Re-run uses the ACTUAL skill invocation `codex exec --dangerously-bypass-approvals-and-sandbox` (yolo, the documented default) — NOT the `-s read-only` variant used in the blocked Phase 3 attempt, which tested a safer path than production
