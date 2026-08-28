@@ -63,19 +63,53 @@ Rejected: per-model tickets via `tkt batch` pre-allocation (works — batch is a
 4. **Parent fan-in**: read all artifacts against the pre-written manifest, dedup by location+category, tier by agreement, create ONE aggregate ticket tagged per-model.
 5. **Matrix config surface**: a dispatch config (NOT known-tools.yaml — opencode is a deploy target, not self-deploying). Decide: default model set vs. user-supplied list.
 6. **Update `frontier-work.md`** provenance matching (`Reporter:` no longer always Codex).
+7. **New skill `coding-plan-limits`** — handling quota/capacity exhaustion on subscription-plan endpoints (see below). Reviewers must not silently hang or hot-loop when a plan runs out of tokens.
 
-## Open questions (smaller now — resolve during build)
+## Target model matrix (all on vendor CODING/TOKEN plans)
+
+| # | Model | Plan | opencode `-m` id (VERIFY LIVE) | Built-in? | Endpoint / key |
+|---|-------|------|-------------------------------|-----------|----------------|
+| 1 | Kimi K3 | Moonshot Kimi coding plan | `moonshot/kimi-k3` (balance path) — coding-plan path may be `kimi-for-coding/...` | Built-in | `MOONSHOT_API_KEY`, api.moonshot.ai/v1 |
+| 2 | Qwen 3.8 Max | Alibaba Token Plan | `bailian-token-plan-personal/qwen3.8-max` (CUSTOM provider) | Custom cfg | Anthropic-compat: token-plan.cn-beijing.maas.aliyuncs.com/apps/anthropic/v1 |
+| 3 | GLM 5.3 | Z.ai coding plan | `zai-coding-plan/glm-5.3` (model-id INFERRED) | Built-in auth | Z.AI Coding Plan (auth login) |
+
+⚠️ **MANDATORY first build step: verify each id live** — `opencode models --refresh`, then `opencode models moonshot`, `opencode models zai-coding-plan`. Research flagged real risks:
+- Qwen 3.8 Max is a **Token-Plan** model, NOT on Alibaba's *Coding-Plan* endpoint (that tops out at qwen3-max-2026-01-23). Use the Token-Plan Anthropic-compat URL + a custom opencode provider block (`@ai-sdk/anthropic`).
+- `glm-5.3` id string is inferred from naming, not doc-confirmed.
+- Kimi K3 on the balance path needs account balance (no vouchers); coding-plan path historically `kimi-for-coding/*`.
+- All three are plan-scoped: endpoints/keys are NOT portable across a vendor's plan tiers.
+
+Do NOT hardcode unverified ids into the skill — resolve them empirically, then record the confirmed strings.
+
+## Coding-plan quota handling (new `coding-plan-limits` skill)
+
+All three run on subscription plans that WILL hit token/capacity caps. Agents must classify and act, never silently hang or hot-loop. Research [L4 vendor docs, 24 sources]:
+
+- **All vendors overload HTTP 429 — status alone is insufficient; parse the body.** Match on **numeric error code, NOT English message text** (GLM emits Chinese overload strings; text-matching fallback silently fails — openclaw #93211).
+- **Classify every 429/error into:** `transient_rate` / `transient_overload` (retry w/ backoff), `quota_windowed` (wait for `{next_flush_time}`, don't hot-retry), `quota_terminal` / `plan_expired` / `plan_excludes_model` / `auth` / `invalid` (fail-closed — retries waste budget, never succeed).
+- **Vendor specifics:**
+  - Z.ai/GLM: business `error.code` — 1302 rate (retry), 1305 overload (retry; also content-fingerprint), 1113 insufficient balance (terminal), 1308/1310/1316-1321 windowed quota + reset time, 1309/1314 plan expired (terminal), 1311 plan excludes model (switch), 1313 fair-use (terminal). SSE mid-stream failures surface in `finish_reason`, not HTTP status.
+  - Kimi/Moonshot: 429 + `error.type` — `rate_limit_reached_error` (retry), `engine_overloaded_error` (honor Retry-After, retry), `exceeded_current_quota_error` (terminal); 403 insufficient balance. Account-level limits shared across all models.
+  - Qwen/DashScope: 429 + message text; "exceeded your current quota" (terminal) vs throttling (retry). Weakest docs — no canonical code table (biggest unknown).
+- **Handling order:** honor Retry-After → capped exp backoff w/ jitter (1s→30s, ≤5 attempts) for transient only → circuit-breaker after N consecutive 429s (converts silent-loop into fail-closed-with-evidence) → fallback to another matrix model (match on numeric code) → emit structured JSON status (`{status, reason, vendor, code, resets_at, retryable, action}`) per the project Validation Contract.
+- **Matrix implication:** if one model is quota-exhausted, the review continues with the remaining models (degraded coverage, reported in the manifest reconciliation) rather than failing the whole run.
+
+## Open questions (resolve during build)
 
 - opencode `--format json` event schema + exit-code-on-failure (empirical)
+- Exact live model ids for all 3 (verify first — see matrix warning)
+- Does opencode surface the vendor error body/code, or swallow it? (determines how the skill detects quota state)
 - Marker file: shared `.review/` with plural `reviewers:[]` vs per-model markers
-- Matrix default set (which model families ship as the default review crew?)
 - Native-Windows opencode headless recipe (or WSL like init.sh?)
 
 ## Acceptance criteria
 
+- [ ] Live-verified opencode ids recorded for Kimi K3, Qwen 3.8 Max, GLM 5.3 (with provider config for Alibaba custom provider)
 - [ ] `dispatch-review` skill: reviewer is a param (codex | opencode:model); tool-neutral `REVIEW_RESULT` contract; fail-closed verify preserved
 - [ ] opencode single-model review end-to-end: dispatch → per-model artifact → parent aggregate ticket (pushed) → fail-closed verify
-- [ ] Matrix launches N opencode sessions (one per model), isolated in temp workdirs
+- [ ] Matrix launches the 3 target models (one opencode session each), isolated in temp workdirs
+- [ ] `coding-plan-limits` skill: classifies 429s by numeric code, distinguishes transient/windowed/terminal, backoff+circuit-breaker, structured status, model fallback — never silent hang/loop
+- [ ] Quota-exhausted model degrades gracefully (run continues with remaining models; gap reported)
 - [ ] Parent fan-in dedups by location+category, tiers by agreement (Consensus/Majority/Individual), tags findings per-model — done in main context
 - [ ] No ticket-ID races (single-writer aggregate ticket; manifest reconciliation detects missing reviewers)
 - [ ] Codex path unchanged (no regression to existing dispatch-codex-review behavior)
