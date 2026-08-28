@@ -46,8 +46,9 @@ tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 
 When invoking `kiro-cli chat` headlessly to capture structured output:
 
-- **`--agent-engine v2 -a`** — v1 rejects `--output-format stream-json` ("not supported on the v1 engine"); v3 rejects `-a` and needs a user-global `permissions.yaml` (disrupts interactive sessions — avoid).
+- **`--agent-engine v2 -a` is MANDATORY for headless.** v1 rejects `--output-format stream-json` ("not supported on the v1 engine"). **v3 CANNOT run headless at all** — it forwards `session/new` to the TUI and HANGS with no non-TUI path (2026-08-28: `--agent-engine v3` headless hung 3× before diagnosis; kiro.dev v3 "Known Gaps" confirms "legacy non-TUI mode does not support the v3 engine"). v3 also rejects `-a` (capability `permissions.yaml` model). Pin v2 for anything scripted/non-interactive; bound the call (see windows.md Start-Job wrapper) so a v3/hang can't wedge the session.
 - **Separate stdout from stderr**: `> events.jsonl 2>err.log`. NEVER `2>&1` — the JSON stream is stdout-only; merging stderr corrupts it.
+- **Validate by output content, never exit code** — kiro-cli, opencode, AND codex all exit 0 on failure / nonzero on would-be success. Confirm a real terminal event (`runFinished`/`step_finish reason:"stop"`) + non-empty final text.
 - **Run the invocation ALONE, inspect output in a SEPARATE call.** A `kiro-cli chat` stream call chained with trailing `Get-Content`/`jq`/`Write-Host` in one PowerShell invocation blocks the whole call and wastes it (observed 2026-08-27: test-4 cancelled 3× from chaining). Invoke, wait, then read the file in the next command.
 - Each invocation is its own session UUID — safe to run alongside an active interactive session; it never touches the live session's log.
 

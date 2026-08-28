@@ -74,3 +74,18 @@ Two live failures in one field session, despite prior documentation (2026-07-17)
 
 - Single-quoted PowerShell strings (`'...'`) are safe for short commands, but fail as soon as the command itself needs single quotes — script file wins
 - Windows-native interpreters (python.exe) called from bash do NOT share bash's `/tmp` — a `python - <<EOF` heredoc asserting on `/tmp/...` files fails with a misleading assertion error, not a path error. Use repo-relative paths for cross-interpreter temp files.
+- **PowerShell `cd`/`Push-Location` CANNOT enter an MSYS `/tmp/...` path** (2026-08-28: codex silently ran in the repo root instead of a `/tmp` fixture, producing a misleading "target unavailable" result — not an error). Keep the whole `cd`+invoke chain INSIDE one `bash -c`; never resolve an MSYS path in PowerShell then hand it to a native exe.
+
+## Bounding hang-prone agent CLIs (Start-Job + Wait-Job)
+
+opencode (`run` has a documented never-exit bug) and kiro-cli/codex can hang or run for minutes. `timeout` alone does NOT catch never-exit (the process still looks "busy"). On Windows the reliable bounded wrapper is a PowerShell job with a hard timeout (field-proven ~6× on 2026-08-28):
+
+```powershell
+$j = Start-Job -ScriptBlock { & "C:\Program Files\Git\bin\bash.exe" -c 'cd <dir>; <agent-cli> ... > out.log 2>err.log' }
+if (Wait-Job $j -Timeout 240) { Receive-Job $j } else { "TIMED OUT"; Stop-Job $j }
+Remove-Job $j -Force
+```
+
+- Run the invocation ALONE in the job; inspect the output FILE in a separate call (chaining the CLI with output-reading blocks the whole call).
+- Validate success by OUTPUT CONTENT, never exit code — opencode AND codex both exit 0 on failure / nonzero on would-be success.
+- `Stop-Job` may leak grandchild MCP procs; for a hard kill of the tree use `taskkill /T /F` on the PID.
