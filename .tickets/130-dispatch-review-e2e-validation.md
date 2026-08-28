@@ -56,6 +56,36 @@ Live model calls are slow/non-deterministic/can hang → wrap every `opencode ru
 | 5 | Fan-in (main context): dedup/tier/aggregate ticket | Needs all 3 artifacts |
 | 6 | Degradation (opportunistic — force/observe a 429) | Hardest to force; document code-verified if not live-observed |
 
+## Phase 1 fixture design (research-backed, `.scratch/research/t130b/`)
+
+**Shape: a small self-contained repo, reviewed WHOLESALE at TARGET** (not a diff).
+matrix.sh checks out a detached worktree at TARGET and tells the reviewer to "read
+the working tree" — it never runs `git diff`. So plant bugs as ordinary source
+(real file:line); TARGET = the fixture's tip commit. (A diff-framed fixture would
+only work by accident.)
+
+**Location:** `tools/review/fixtures/planted-review/` — `project/` (committed small
+repo with planted bugs) + `manifest.yaml` (structured `expected_findings` using
+matrix.sh's own `severity`/`category`/`location{file,line}` vocabulary so fan-in
+reconciles by `(file,line,category)`). A structured findings manifest is new
+(existing defu-*-bug fixtures use prose) — align its schema to the fan-in matcher.
+
+**Bug set (~8-10, Type1/2/3 mix, weight toward Type3):** from the 13-bug catalog —
+e.g. Type1: string-interpolated SQL (security), off-by-one in a custom paginator
+(correctness), swallowed exception. Type2: inverted authz check (security), mutable
+default arg, resource leak on early return. Type3 (the discriminators): cross-file
+schema/int-width overflow, TOCTOU check-then-create race, over-mocked test hiding
+contract drift. Use NOVEL framing (invert a project business rule) over textbook
+patterns to resist memorization. Small enough for one blocking opencode pass/model.
+
+**Scoring (Phase 6): deterministic matcher, no LLM judge.** Match =
+`same_file ∧ line_within_τ(±3-5) ∧ category_eq`, one-to-one bipartite. 3-way labels:
+CONFIRMED (matched), PLAUSIBLE (real but unplanted — excluded from FP), FABRICATED
+(unmatched + not real → hallucination). Report per-model **recall + precision +
+hallucination-rate (=FDR, not FPR)** and per-category recall; score each consensus
+tier (union≥1 / majority / unanimous) as a virtual model to show the precision↑/
+recall↓ curve. Human eyeball only for the plausible-vs-fabricated split.
+
 ## What to validate (live)
 
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
