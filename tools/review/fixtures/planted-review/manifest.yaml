@@ -1,14 +1,14 @@
 # Planted-bug manifest — ground truth for dispatch-review e2e (ticket 130).
-# Scoring (Phase 6): a reported finding is CONFIRMED (true positive) when
-#   same_file AND line within ±5. Category is ADVISORY, NOT a match gate —
-#   category taxonomies are model-subjective (Phase 2: Kimi labelled the
-#   inverted-authz bug "correctness" vs manifest "security", location exact;
-#   gating on category_eq would falsely miss 3/10). Match on location + fault
-#   identity; use category only to bucket the readout.
-# Report per-model recall + precision + hallucination-rate (FDR); score each
+# Scoring (Phase 6): agents grade via a JUDGE PANEL (multi-judge consensus,
+#   reusing the eval-harness pattern) — NOT a deterministic matcher. For each
+#   reviewer finding the panel labels CONFIRMED / PLAUSIBLE / FABRICATED against
+#   this manifest as the answer key. same_file ∧ line±5 is a coarse locator/
+#   pre-filter only; the grade is the judges' semantic verdict (same defect +
+#   right reason). Category is ADVISORY (Phase 2: model taxonomies differ, e.g.
+#   Kimi "correctness" vs manifest "security" with exact location).
+# Report per-reviewer recall + precision + hallucination-rate (FDR); score each
 # consensus tier (union≥1 / majority / unanimous) as a virtual reviewer.
-# A finding not in this manifest that is nonetheless real = PLAUSIBLE (excluded
-# from FP); a finding that is neither = FABRICATED (hallucination).
+# PLAUSIBLE (real but unplanted) is excluded from FP; FABRICATED = hallucination.
 
 fixture: planted-review
 description: >

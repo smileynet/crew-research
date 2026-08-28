@@ -78,13 +78,29 @@ schema/int-width overflow, TOCTOU check-then-create race, over-mocked test hidin
 contract drift. Use NOVEL framing (invert a project business rule) over textbook
 patterns to resist memorization. Small enough for one blocking opencode pass/model.
 
-**Scoring (Phase 6): deterministic matcher, no LLM judge.** Match =
-`same_file ∧ line_within_τ(±3-5) ∧ category_eq`, one-to-one bipartite. 3-way labels:
-CONFIRMED (matched), PLAUSIBLE (real but unplanted — excluded from FP), FABRICATED
-(unmatched + not real → hallucination). Report per-model **recall + precision +
-hallucination-rate (=FDR, not FPR)** and per-category recall; score each consensus
-tier (union≥1 / majority / unanimous) as a virtual model to show the precision↑/
-recall↓ curve. Human eyeball only for the plausible-vs-fabricated split.
+**Scoring (Phase 6): multi-judge consensus grading — agents grade, not a matcher.**
+Matching a semantic finding to a planted bug is a JUDGMENT (same defect + right
+reason, not just same line), and a single grader has the same bias/blind-spot as a
+single reviewer — so grade with a PANEL, reusing the eval-harness consensus pattern
+(`run.sh` judge_output: parallel judges kiro/codex/crush, collect per-judge verdict,
+take consensus). Deterministic `line±5` is used only as a coarse pre-filter/locator,
+never as the grade.
+
+- Grader panel: for each reviewer finding, judges label it CONFIRMED (matches a
+  planted bug — same location AND same fault), PLAUSIBLE (real but unplanted —
+  excluded from FP), or FABRICATED (neither → hallucination). Consensus (median/
+  majority across judges) is the recorded label; disagreement is flagged.
+- Judges run read-only in temp dirs, WITHOUT `-a`, given the reviewer's findings +
+  the manifest (fixture author's answer key) as the rubric — same containment as
+  eval judging.
+- Report per-reviewer recall + precision + hallucination-rate (FDR); score each
+  consensus TIER of reviewers (union≥1 / majority / unanimous) as a virtual model
+  for the precision↑/recall↓ curve. Category is advisory (Phase 2 finding), not a gate.
+
+⚠️ **Phase 2's "10/10, 0 fabrications" was SELF-GRADED by eye** (I authored the bugs,
+manifest, AND the scoring) — informal, not validated. It must be RE-GRADED by the
+judge panel in Phase 6 alongside the other models. Treat the Phase 2 numbers as a
+confidence-building smoke signal, not a measured result.
 
 ## Phase 2 run mechanics (de-risked, `.scratch/research/t130c/`)
 
@@ -170,7 +186,7 @@ B1 SQLi (F1 exact), B2 int-overflow×schema T3 (F9 exact — cross-file reasonin
 - [ ] Tool-using run JSONL parsed correctly (confirmed: last() step_finish + text join works; verify on the real run)
 - [ ] Quota/degradation on one model → indeterminate, run continues (observed or forced; document if code-verified only)
 - [ ] Fan-in produces ONE aggregate ticket with two-layer provenance + agreement tiers, no ID race
-- [ ] Recall/precision/hallucination measured against the fixture manifest (not catch-rate alone)
+- [ ] Recall/precision/hallucination graded by a JUDGE PANEL (multi-judge consensus, eval-harness pattern) against the manifest — not a deterministic matcher, not self-graded; Phase 2 numbers re-graded by the panel
 - [ ] Fail-closed confirmed: indeterminate/missing reviewer reported as gap, not clean
 - [ ] Codex default path regression-checked (unchanged behavior)
 - [ ] Findings/gaps recorded; follow-up tickets filed for anything discovered
