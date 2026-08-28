@@ -90,18 +90,38 @@ All three run on subscription plans that WILL hit token/capacity caps. Agents mu
 - **Handling order:** honor Retry-After → capped exp backoff w/ jitter (1s→30s, ≤5 attempts) for transient only → circuit-breaker after N consecutive 429s (converts silent-loop into fail-closed-with-evidence) → fallback to another matrix model (match on numeric code) → emit structured JSON status (`{status, reason, vendor, code, resets_at, retryable, action}`) per the project Validation Contract.
 - **Matrix implication:** if one model is quota-exhausted, the review continues with the remaining models (degraded coverage, reported in the manifest reconciliation) rather than failing the whole run.
 
+## Skill generalization design (task 3) — research-backed 2026-08-28
+
+Research (`.scratch/research/t127/` result-contract-internals, skill-generalization-prior-art, review-marker-multimodel, opencode-skill-loading) resolves HOW to generalize without breaking the fail-closed contract:
+
+**1. Contract lives in the orchestrator, not the adapter.** The fail-closed gate stays in `dispatch-review`; adapters (codex, opencode) only translate native output into a common result `{clean | findings | indeterminate}`. A new reviewer tool cannot regress the contract by construction. **Critical: `indeterminate` is a distinct third outcome** — empty output / timeout / parse-loss → indeterminate → **deny** (never "clean"). This is the #1 documented regression ("service degradation is not a reason to allow") and matters here because subagent dispatch fails ~50% empty in this project.
+
+**2. Alias-and-supersede (not edit-in-place).** Rename `dispatch-codex-review` → `dispatch-review`; add `dispatch-codex-review` to `compositions/deprecated.yaml` (replaced_by: dispatch-review) in the SAME commit. Codex remains the DEFAULT reviewer so existing behavior is byte-identical. Broaden the frontmatter description triggers to cover opencode/multi-model while keeping codex keywords.
+
+**3. Tool-neutral result contract.** `CODEX_REVIEW_RESULT ` → `REVIEW_RESULT ` prefix + a `reviewer` field:
+`{"run_id","target","reviewer":"codex|opencode/<model>","result":"ticketed|clean|indeterminate","ticket":"..."|"reviewed_through":"..."}`
+
+**4. Marker: single file, plural `reviewers[]`, parent sole writer.** Move `.codex/review-marker.json` → `.review/review-marker.json` (one-time migration read from `.codex/`). Schema-1 migrates by wrapping existing fields as `reviewer:"codex"` (keeps Codex path unchanged — an AC). Each `reviewers[]` entry = per-reviewer coverage record (reviewer id, ancestry-closed `reviewed_through`, ticket blobs). `coverage_policy` (any-of | all-of | k-of-N) + `required_reviewers` stored as data. Finding attribution (`Reviewer: <provider/model>`) lives in the ticket, NOT the marker (separate "who looked where" from "who said what").
+
+**5. No consensus gating.** Marker stays an advisory coverage ledger; findings advisory; keep solo/minority findings (a bug flagged by 1-of-3 is often the real bug — "Consensus Trap" arXiv 2604.17139). Optional non-enforcing per-reviewer `verdict` field only if a downstream gate ever wants it (lean omit per P6).
+
+**6. opencode CAN load `review-new-work`** [L4 verified]: 4 of opencode's 6 skill-discovery paths are home-global, so the skill is visible in any repo (incl. a mktemp clone) — same mechanism Codex relies on. The dispatch prompt must explicitly name the skill; correctness is guaranteed by fail-closed verify, not activation trust. Caveat: cross-model activation reliability (Kimi/Qwen/GLM vs Claude) is untested — mitigated by the indeterminate→deny branch.
+
+**Build order (behavior-preserving refactor, characterization tests first):** funnel Codex invocation to one seam → parameterize reviewer → extract Reviewer interface + CodexReviewer (default) → rename + deprecated.yaml → add opencode adapter → add matrix. Golden tests pin: clean⇒reported-clean, findings⇒correlated-ticket, empty/timeout⇒NOT-clean.
+
 ## Open questions (resolve during build)
 
 - opencode `--format json` event schema + exit-code-on-failure (empirical)
-- Exact live model ids for all 3 (verify first — see matrix warning)
-- Does opencode surface the vendor error body/code, or swallow it? (determines how the skill detects quota state)
-- Marker file: shared `.review/` with plural `reviewers:[]` vs per-model markers
-- Native-Windows opencode headless recipe (or WSL like init.sh?)
+- Does opencode surface the vendor error body/code, or swallow it? (determines how `coding-plan-limits` detects quota state through opencode)
+- Cross-model skill-activation reliability (Kimi/Qwen/GLM) — mitigated by indeterminate→deny, but worth measuring
+- `verdict` field in marker: include (future gate) or omit (P6)? Lean omit until needed.
 
 ## Acceptance criteria
 
-- [ ] Live-verified opencode ids recorded for Kimi K3, Qwen 3.8 Max, GLM 5.3 (with provider config for Alibaba custom provider)
-- [ ] `dispatch-review` skill: reviewer is a param (codex | opencode:model); tool-neutral `REVIEW_RESULT` contract; fail-closed verify preserved
+- [x] Live-verified opencode ids recorded for Kimi K3, Qwen 3.8 Max, GLM 5.3 (all built-in providers, all authenticated)
+- [ ] `dispatch-review` skill: reviewer is a param (codex | opencode/model); tool-neutral `REVIEW_RESULT` contract; fail-closed verify preserved; `indeterminate` (empty/timeout) → deny, never clean
+- [ ] `dispatch-codex-review` aliased in deprecated.yaml → dispatch-review, same commit; Codex is default (byte-identical existing behavior)
+- [ ] Marker migrated to `.review/review-marker.json` w/ plural `reviewers[]`; schema-1 wraps as reviewer:"codex" (Codex path unchanged)
 - [ ] opencode single-model review end-to-end: dispatch → per-model artifact → parent aggregate ticket (pushed) → fail-closed verify
 - [ ] Matrix launches the 3 target models (one opencode session each), isolated in temp workdirs
 - [ ] `coding-plan-limits` skill: classifies 429s by numeric code, distinguishes transient/windowed/terminal, backoff+circuit-breaker, structured status, model fallback — never silent hang/loop
