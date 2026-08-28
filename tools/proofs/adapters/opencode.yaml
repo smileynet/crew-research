@@ -2,8 +2,21 @@ tool: opencode
 version_command: "opencode --version"
 
 invoke:
-  command: 'opencode run "{query}"'
+  command: 'opencode run --auto "{query}"'
   timeout: 300
+  # --auto = auto-approve permissions not explicitly denied (sandbox-bypass;
+  #   required headless or permission prompts hang).
+
+# dispatch-review matrix runner uses per-model invocation (NOT the proof harness,
+# which doesn't substitute {model}). See skills/dispatch-review/references/model-matrix.md.
+dispatch_review:
+  command: 'opencode run --auto -m {model} --format json "{query}"'
+  # {model} = provider/model id (e.g. kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max,
+  #   zai-coding-plan/glm-5.3). --format json → JSONL on stdout (see output.json).
+  models:
+    - kimi-for-coding/k3
+    - alibaba-token-plan/qwen3.8-max
+    - zai-coding-plan/glm-5.3
 
 skill:
   global_location: "~/.config/opencode/skills/{name}/SKILL.md"
@@ -18,6 +31,17 @@ steering:
 output:
   strip_ansi: true
   encoding: utf-8
+  json:
+    # `--format json` emits JSONL on stdout (verified opencode 1.18.21).
+    # Envelope: {type, timestamp, sessionID, part{...}}. Event types:
+    #   step_start | text (part.text = content) | step_finish (part.reason:"stop" = clean; part.tokens, part.cost)
+    # Final text:  jq -rn '[inputs|select(.type=="text")|.part.text]|join("")'
+    # Clean check: last step_finish .part.reason == "stop"
+    # Capture stdout/stderr SEPARATELY (> events.jsonl 2> logs.txt), never 2>&1.
+    exit_code: unreliable
+    # opencode may exit 0 on failure, hang, or surface 429 silently in-stream.
+    # Confirm success by step_finish reason:"stop" + non-empty final text, NOT exit code.
+    # Wrap every invocation in a timeout (no built-in run timeout).
 
 notes: |
   OpenCode (anomalyco/opencode, TypeScript) — MIT-licensed AI coding agent.
