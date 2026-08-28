@@ -7,7 +7,7 @@ Quick reference for invoking each validation tool from bash.
 | Mode | Flag | When to use |
 |------|------|-------------|
 | Read-only | `--sandbox read-only` | Pure analysis: reading files, inspecting images, reviewing code. Cannot run commands or write files. |
-| Full bypass | `--dangerously-bypass-approvals-and-sandbox` | Needs to execute: run tests, compile shaders, push git, invoke linters. Required for `dispatch-codex-review`. |
+| Full bypass | `--dangerously-bypass-approvals-and-sandbox` | Needs to execute: run tests, compile shaders, push git, invoke linters. Required for `dispatch-review`. |
 
 **Rule:** Use `--sandbox read-only` for validation/analysis tasks. Use
 `--dangerously-bypass-approvals-and-sandbox` when Codex must execute commands

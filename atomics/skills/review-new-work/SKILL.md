@@ -61,7 +61,7 @@ Compare committed path/blob pairs for new, changed, deleted, or renamed tickets.
 8. Advance after a complete batch even when changes are requested; coverage is not approval.
 9. Never advance partial ancestry or unread ticket blobs. Derive blobs from the pinned tree and validate JSON.
 10. Commit and push the marker separately only when project instructions authorize it.
-11. End with the [Codex review result contract](../dispatch-codex-review/references/result-contract.md),
+11. End with the [review result contract](../dispatch-review/references/result-contract.md),
     using the caller's run id and target.
 
 ## Scope

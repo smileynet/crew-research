@@ -1,12 +1,12 @@
-id: dispatch-codex-review-effectiveness
-name: dispatch-codex-review-effectiveness
-description: "Does dispatch-codex-review correlate and verify Codex review outcomes without trusting process output?"
-skill: dispatch-codex-review
+id: dispatch-review-effectiveness
+name: dispatch-review-effectiveness
+description: "Does dispatch-review correlate and verify reviewer outcomes without trusting process output?"
+skill: dispatch-review
 fixture: defu
 
 conditions:
   with-skill:
-    skills: [dispatch-codex-review, review-new-work, frontier-work]
+    skills: [dispatch-review, review-new-work, frontier-work]
   baseline:
     skills: [review-new-work]
 

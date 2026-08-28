@@ -84,3 +84,7 @@ skills:
     replaced_by: project-cleanup
     reason: merged — detect-only role folded into cleanup orchestrator (detect → fix → ticket)
     since: 0.3.0
+  - name: dispatch-codex-review
+    replaced_by: dispatch-review
+    reason: generalized to tool-neutral reviewer (codex default + opencode model matrix); contract moved to coordinator (ticket 127)
+    since: 0.3.0
