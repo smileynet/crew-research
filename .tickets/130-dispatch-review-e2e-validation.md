@@ -147,6 +147,20 @@ B1 SQLi (F1 exact), B2 int-overflow×schema T3 (F9 exact — cross-file reasonin
 
 Goal: confirm the generalized dispatch-review didn't break the original Codex reviewer path. **Contract + invocation verified** — `codex exec -s read-only --skip-git-repo-check "<findings-only prompt>"` ran, authenticated, and accepted the tool-neutral prompt; the failure was purely model availability. **Blocked from a clean findings run by env:** codex-cli 0.147.0's default model `gpt-5.6-sol` errors "requires a newer version of Codex"; explicit `-m gpt-5.1-codex` errors "not supported when using Codex with a ChatGPT account." Neither is a dispatch-review regression — the skill's codex invocation is unchanged and structurally correct; this machine's codex CLI/account can't currently serve a usable model. Also confirmed (incidentally) codex exit code is unreliable like opencode (exit 1 on model error AND would-be success). Follow-up: filed to upgrade codex CLI / pin a usable model, then complete the regression run.
 
+### Phase 4 RESULT — full 3-model matrix ✅ (2026-08-28, run_id t130-p4)
+
+`matrix.sh` (default roster, no filter) fanned out all 3 models against the fixture
+in one run, under a 420s bounded wrapper: **produced 3/3, no coverage gaps.** Each
+ran isolated in its own worktree checkout, sequential, all validated (step_finish
+stop + non-empty text + REVIEW_RESULT). Raw finding-line counts: Kimi 11, Qwen 12,
+GLM 12 — all clean JSONL (no fences/prose). Spot-check confirms real reviews:
+Qwen caught B1 SQLi + B3 inverted authz at exact lines AND flagged a fail-open
+default (auth.ts:14) that ISN'T planted (a real observation → PLAUSIBLE). The
+matrix mechanics (fan-out, isolation, per-model artifacts, summary) are fully
+validated live across all 3 target coding-plan models. Per-model recall/precision
++ cross-model agreement tiering → Phase 6 judge-panel grading. Artifacts in
+`.scratch/review/t130-p4/`.
+
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
    against a real commit with actual findings (pick a diff with a known planted or
    real issue). Confirm each of kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max,
