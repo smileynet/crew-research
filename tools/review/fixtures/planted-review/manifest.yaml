@@ -8,7 +8,7 @@
 
 fixture: planted-review
 description: >
-  Small TypeScript user-directory service with 8 deliberately planted defects
+  Small TypeScript user-directory service with 10 deliberately planted defects
   across a Type1/Type2/Type3 difficulty spread. Reviewed WHOLESALE at the tip
   commit (matrix.sh checks out a detached worktree and reads the tree; there is
   no diff). Type3 bugs span files and require reasoning, not pattern-matching —

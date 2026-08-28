@@ -86,6 +86,31 @@ hallucination-rate (=FDR, not FPR)** and per-category recall; score each consens
 tier (union≥1 / majority / unanimous) as a virtual model to show the precision↑/
 recall↓ curve. Human eyeball only for the plausible-vs-fabricated split.
 
+## Phase 2 run mechanics (de-risked, `.scratch/research/t130c/`)
+
+**⚠️ opencode has a documented never-exit bug** (#17516, open on v1.2.26) that fires
+"when the model uses tools then has nothing left to do" — exactly a review's shape,
+and specifically hit when driving `run` from an automation loop. `timeout` alone
+won't catch it (the process looks "busy"). **matrix.sh already wraps opencode in
+`timeout` inside a subshell; run matrix.sh ITSELF under a hard bounded wrapper**
+(Start-Job + Wait-Job -Timeout on Windows) so a hung reviewer can't wedge the session.
+
+**Exact Phase 2 recipe** (Git Bash on Windows — NOT WSL; opencode is native there):
+```bash
+TMP=$(mktemp -d); cp -r tools/review/fixtures/planted-review/project/* "$TMP"/   # CONTENTS not the dir
+git -C "$TMP" init -q && git -C "$TMP" add -A && git -C "$TMP" commit -qm fixture
+TARGET=$(git -C "$TMP" rev-parse HEAD); RUN_ID=t130-p2-$(date +%s)
+bash tools/review/matrix.sh --run-id "$RUN_ID" --target "$TARGET" --models kimi-for-coding/k3 --dir "$TMP"
+rm -rf "$TMP"    # matrix.sh removes its worktree via trap; caller cleans $TMP
+```
+Artifacts: `.scratch/review/<RUN_ID>/kimi-for-coding-k3.md` (findings + REVIEW_RESULT),
+`matrix-summary.json`. Verified interactions: --dir must be a git repo with TARGET
+(the git init is mandatory; matrix.sh never inits); copy `project/*` CONTENTS so files
+land at `$TMP/src/...` matching manifest locations; artifacts survive the worktree
+cleanup (they're in .scratch/, disjoint). Cost ~1-5¢, ~15-90s happy path (negligible
+quota dent). Timeout 120-180s is the sweet spot; matrix.sh's 300s default is a fine
+outer margin.
+
 ## What to validate (live)
 
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
