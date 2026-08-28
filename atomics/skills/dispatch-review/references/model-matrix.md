@@ -51,6 +51,25 @@ out of the run (reported in manifest reconciliation) rather than failing the who
 review. A dropped model is an `indeterminate` result for that reviewer, never a
 `clean`.
 
+## Parsing opencode output (verified opencode 1.18.21)
+
+`opencode run --auto --format json -m <id> "<prompt>"` emits JSONL on stdout
+(envelope `{type, timestamp, sessionID, part{...}}`). Capture stdout/stderr
+separately (`> events.jsonl 2> logs.txt`, never `2>&1`).
+
+```bash
+# Final assistant text
+jq -rn '[inputs | select(.type=="text") | .part.text] | join("")' events.jsonl
+# Clean-stop check (must be present for a valid result)
+jq -rn 'last(inputs | select(.type=="step_finish") | .part.reason) // "none"' events.jsonl
+```
+
+**Exit code is NOT trustworthy** — opencode can exit 0 on failure, hang, or
+surface 429 silently. A result counts as valid ONLY if a `step_finish` with
+`reason:"stop"` is present AND a non-empty final text / `REVIEW_RESULT` line was
+produced. Otherwise → `indeterminate` (deny). Wrap every invocation in a timeout
+(opencode has no built-in run timeout).
+
 ## Concurrency
 
 Bounded parallel or sequential — respect subagent concurrency limits and run one

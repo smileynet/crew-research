@@ -109,10 +109,20 @@ Research (`.scratch/research/t127/` result-contract-internals, skill-generalizat
 
 **Build order (behavior-preserving refactor, characterization tests first):** funnel Codex invocation to one seam → parameterize reviewer → extract Reviewer interface + CodexReviewer (default) → rename + deprecated.yaml → add opencode adapter → add matrix. Golden tests pin: clean⇒reported-clean, findings⇒correlated-ticket, empty/timeout⇒NOT-clean.
 
-## Open questions (resolve during build)
+## opencode JSON output — EMPIRICALLY VERIFIED 2026-08-28 (opencode 1.18.21)
 
-- opencode `--format json` event schema + exit-code-on-failure (empirical)
-- Does opencode surface the vendor error body/code, or swallow it? (determines how `coding-plan-limits` detects quota state through opencode)
+Captured live (`.scratch/research/t127/opencode-json-VERIFIED.md`):
+
+- **Flags:** `-m provider/model`, `--format json`, `--auto` (sandbox-bypass), `--dir <path>` (isolation), `--print-logs` (stderr, off by default).
+- **`--format json` = JSONL** on stdout. Envelope `{type, timestamp, sessionID, part{...}}`. Event types seen (no-tool run): `step_start`, `text` (`part.text` = content), `step_finish` (`part.reason:"stop"` = clean, plus tokens/cost).
+- **Final text:** `jq -rn '[inputs|select(.type=="text")|.part.text]|join("")'`. **Clean check:** last `step_finish.part.reason=="stop"`.
+- **Exit code is NOT trustworthy** [confirmed + L6 issues]: opencode can exit 0 after failure/compaction-overflow, hang, or surface 429 silently in-stream. Runner MUST confirm success by `step_finish reason:"stop"` + non-empty final text / valid REVIEW_RESULT — else `indeterminate → deny`. Wrap every call in a timeout (no built-in).
+- stdout/stderr separate; capture `> events.jsonl 2> logs.txt`, never `2>&1`. Empty stderr on clean run.
+
+## Open questions (narrowed — resolve during build)
+
+- Tool-using opencode run: exact tool event types in the JSONL (minimal run had none — verify when wiring the review path)
+- Does opencode surface the vendor 429/error CODE in-stream, or a generic "Provider returned error"? [research: often generic/silent — `coding-plan-limits` must handle the silent-no-output case as indeterminate]
 - Cross-model skill-activation reliability (Kimi/Qwen/GLM) — mitigated by indeterminate→deny, but worth measuring
 - `verdict` field in marker: include (future gate) or omit (P6)? Lean omit until needed.
 
