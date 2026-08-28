@@ -1,6 +1,10 @@
 # Planted-bug manifest — ground truth for dispatch-review e2e (ticket 130).
 # Scoring (Phase 6): a reported finding is CONFIRMED (true positive) when
-#   same_file AND line within ±5 AND category matches.
+#   same_file AND line within ±5. Category is ADVISORY, NOT a match gate —
+#   category taxonomies are model-subjective (Phase 2: Kimi labelled the
+#   inverted-authz bug "correctness" vs manifest "security", location exact;
+#   gating on category_eq would falsely miss 3/10). Match on location + fault
+#   identity; use category only to bucket the readout.
 # Report per-model recall + precision + hallucination-rate (FDR); score each
 # consensus tier (union≥1 / majority / unanimous) as a virtual reviewer.
 # A finding not in this manifest that is nonetheless real = PLAUSIBLE (excluded

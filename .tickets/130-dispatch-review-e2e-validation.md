@@ -113,6 +113,20 @@ outer margin.
 
 ## What to validate (live)
 
+### Phase 2 RESULT — Kimi single-model ✅ (2026-08-28, run_id t130-p2)
+
+Live run succeeded end-to-end: worktree isolation → `opencode run --auto -m kimi-for-coding/k3 --format json` → JSONL validation (step_finish stop + REVIEW_RESULT) → artifact extraction. Completed well under the 240s bounded wrapper; matrix-summary.json status "pass", produced 1/1.
+
+**Kimi caught 10/10 planted bugs (100% recall, 0 fabrications):**
+B1 SQLi (F1 exact), B2 int-overflow×schema T3 (F9 exact — cross-file reasoning worked), B3 inverted authz (F2), B4 swallowed exc (F8), B5 off-by-one (F3), B6 mutable default (F4), B7 TOCTOU T3 (F7), B8 handle leak (F6), B9 over-mock T3 (F10 — connected test to auth.ts), B10 test theater (F11). All 3 Type3 discriminators caught.
+
+**3 unplanted findings, all PLAUSIBLE (real, not fabricated):** F5 type mismatch on default bucket, F12 missing imports (./audit/./client/./fs-shim), F13 no test runner/package.json. Excluded from FP → precision uncompromised.
+
+**Scoring observations for Phase 6:**
+- **Category drift** on B3/B4/B7: Kimi's category (correctness/security/architecture) differs from manifest (security/correctness/correctness) though location is exact. Strict `category_eq` would MISS these 3 → recall would falsely read 7/10. **Decision: score on `same_file ∧ line±5` as primary; treat category as advisory, not a match gate.** Category taxonomies are model-subjective; location+fault-identity is the real signal.
+- 100% recall confirms the fixture is easy for a strong model (research predicted 90%+ = easy) — acceptable for TOOLING validation (proves the pipeline surfaces real findings); the harder signal is cross-model *disagreement* in Phase 4.
+- Output was clean JSONL, no markdown fences, no prose preamble — the hardened findings-only prompt (B1 fix) worked.
+
 1. **Fan-out per model** — run `tools/review/matrix.sh --run-id <uuid> --target <sha>`
    against a real commit with actual findings (pick a diff with a known planted or
    real issue). Confirm each of kimi-for-coding/k3, alibaba-token-plan/qwen3.8-max,
