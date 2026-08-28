@@ -20,14 +20,21 @@ Invocation: `opencode run --auto -m <id> "<prompt>"`.
 
 1. **Parent pre-writes a manifest** listing the expected reviewer slugs for this
    `RUN_ID` (`.scratch/review/<RUN_ID>/manifest.json`).
-2. **Dispatch one reviewer per model**, each in its own `mktemp -d` workdir
-   (eval-execution containment). Each writes structured findings to
-   `.scratch/review/<RUN_ID>/<provider-model-slug>.md` and returns a
-   `REVIEW_RESULT` line.
+2. **Dispatch one reviewer per model.** Use the fan-out helper
+   `bash tools/review/matrix.sh --run-id <uuid> --target <sha> [--models a,b,c]`
+   (or the host subagent facility). It runs each `opencode run --auto -m <id>
+   --format json` reviewer, validates by `step_finish reason:"stop"` + non-empty
+   text + a `REVIEW_RESULT` line (NOT exit code), writes each reviewer's findings
+   to `.scratch/review/<RUN_ID>/<slug>.md`, and emits
+   `.scratch/review/<RUN_ID>/matrix-summary.json` `{status, expected, produced,
+   missing[], reviewers[]}`. A quota-exhausted or degraded reviewer is recorded
+   as `indeterminate` (a coverage gap), never dropped silently.
 3. **Parent fan-in (main context only)** reads all per-model artifacts against
-   the manifest, reconciles produced-vs-expected (missing reviewer = reported
-   coverage gap, not silent), then creates **ONE** aggregate findings ticket.
-   Ticket creation stays single-threaded → no tkt ID race.
+   the manifest / `matrix-summary.json`, reconciles produced-vs-expected (each
+   `missing` entry = a reported coverage gap, NOT clean), then creates **ONE**
+   aggregate findings ticket via `tkt new` (single writer → no ID race).
+   Fail-closed: any `indeterminate`/`missing` reviewer means the target is not
+   fully covered — report it, do not report clean.
 
 Cross-model dedup MUST happen in main context (subagent-reliability: cross-area
 merge is not a subagent task).

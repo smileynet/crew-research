@@ -23,6 +23,10 @@ run = "bash tools/evals/harness/test-noise-floor.sh"
 description = "Judge panel accounting tests (family derivation, cross-family floor)"
 run = "bash tools/evals/harness/test-panel.sh"
 
+[tasks."review:matrix"]
+description = "Multi-model dispatch-review FAN-OUT (opencode). Fan-in (dedup/ticket) is agent-driven, not this task. Args: --run-id <uuid> --target <sha> [--models a,b,c]"
+run = "bash tools/review/matrix.sh"
+
 [tasks."check:design"]
 description = "Archwright design gates: static constraint checks + link resolution"
 run = """
