@@ -52,11 +52,22 @@ network access is acceptable (CI runners, local dev machines).
 
 Do not pass repository content inline; the reviewer reads it from the working tree.
 
-## Reviewer identity in artifacts
+## Reviewer identity in artifacts (two-layer provenance)
 
-- Findings ticket provenance: `- Reporter: <reviewer-id>` (was `Codex`).
-- Per-finding confidence: `- <reviewer-id> confidence: verified | inferred | tentative`.
+Keep two layers — do NOT collapse them (a collapsed "codex+kimi" reporter
+destroys the agreement signal a consumer needs):
+
+- **Top-level** findings-ticket `Reporter:` = `Codex` for a single reviewer, or
+  `aggregate (<id>, <id>, …)` for a multi-model matrix run.
+- **Per-finding** `Reviewers: <id>[, <id>…]` + `Agreement: consensus | majority |
+  single` (multi-model only) — records which reviewers raised each finding.
+- Per-finding `Confidence: verified | inferred | tentative` is reviewer-scoped.
+- Keep `Confirmation status: unconfirmed` verbatim (frontier-work matches it).
+  Agreement raises reproduction PRIORITY, never confirmation — reproduction is
+  never waived, even for consensus findings.
 - Review marker (`.review/review-marker.json`): each `reviewers[]` entry carries
   its `reviewer` id and coverage boundary. On first read, migrate a legacy
   `.codex/review-marker.json` (schema 1) by wrapping its fields as
   `reviewer:"codex"`.
+
+See the producer template: `../review-new-work/references/review-findings-ticket.md`.
