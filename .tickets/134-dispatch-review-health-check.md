@@ -75,20 +75,15 @@ it only surfaces when a real review marks a model `indeterminate` after spending
 
 ## Acceptance criteria
 
-- [ ] `matrix.sh --health` probes every dispatch_review model + codex, live
-- [ ] Validates by output content, not exit code; bounded per probe (no hang)
-- [ ] Detects authenticated-but-model-unavailable (the 131 case) and reports it distinctly from auth/quota/timeout
-- [ ] Emits per-model ✅/❌ + JSON summary; exit 0/1/2
-- [ ] Reuses the eval `probe_tool` contract + `coding-plan-limits` classification (no parallel mechanism)
-- [ ] Documented in tools/review/README.md
+- [x] `matrix.sh --health` probes every `dispatch_review.models` model, live (3/3 verified). NOTE: codex is NOT in that roster (it's the default single reviewer, not a matrix model) and is env-blocked (131) — health covers the opencode matrix; codex readiness folds in when 131 is resolved and codex joins the probed set.
+- [x] Validates by output content (validate_output: step_finish stop + OK in text), not exit code; each probe bounded by TIMEOUT
+- [x] Detects model-unavailable/server_error distinctly from auth/quota/timeout (classifies from the JSONL error event + stderr) — bogus model → `server_error`, exit 1 verified
+- [x] Per-model ✅/❌ table + health-summary.json {status,checked,unhealthy,models[]}; exit 0 (3/3 healthy) / 1 (bogus down) / 2 usage — all verified live
+- [x] Reuses roster-load + `validate_output` + `slug` + probe contract; no parallel mechanism; skips worktree/manifest/fan-in
+- [x] Documented in tools/review/README.md (Health preflight section)
 
 ## Out of scope
 
 - Grading/review logic (that's the existing matrix run)
 - Auto-remediation (just report; fixing codex env is ticket 131)
-
-TBD
-
-## Acceptance criteria
-
-- [ ] TBD
+- Probing codex-as-reviewer live (blocked by 131; the roster is the opencode matrix)
