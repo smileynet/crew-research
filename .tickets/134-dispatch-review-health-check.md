@@ -32,6 +32,34 @@ it only surfaces when a real review marks a model `indeterminate` after spending
 - Windows: bound each probe with Start-Job + Wait-Job -Timeout (project-conventions
   references/windows.md); run under Git Bash.
 
+## Research-backed design decisions (2026-08-29, `.scratch/research/t134/`)
+
+1. **`--health` flag ON matrix.sh, NOT a sibling script.** The only two reusable
+   pieces (roster load `yq '.dispatch_review.models[]'` + `validate_output()`) live
+   in matrix.sh; it's a linear execute-on-source script a sibling can't safely
+   `source` without a refactor. Extract `tools/review/lib.sh` only if/when a 2nd
+   consumer appears (avoid speculative single-use abstraction). Branch AFTER roster
+   load, BEFORE the worktree/manifest regions; relax the `--target` guard for health.
+2. **Per-model iteration is the genuinely-new work.** The eval `probe_tool` is
+   per-TOOL binary (live/dead); opencode is ONE binary hosting N models, so a single
+   opencode probe would MISS one down model — exactly the codex-131 case. Loop each
+   `dispatch_review.models` id with the REAL invocation
+   `opencode run --auto -m <id> --format json "Reply with exactly: OK"`, validate via
+   the existing `validate_output()` + grep text for OK.
+3. **Readiness, not liveness** (prior-art central lesson): a liveness-only/auth-only
+   check goes GREEN for exactly the failures we must catch (bad key, disabled model,
+   exhausted quota). Must send a minimal real completion and validate the OUTPUT.
+   Keep the probe cheapest-possible (trivial prompt, deterministic expected "OK").
+4. **Reuse, don't reinvent:** lift the eval probe contract (trivial prompt +
+   OK-substring + validate-by-content-not-exit-code + `EVAL_PROBE_TIMEOUT` env pattern,
+   ~60s for slow coding-plan models), `slug()`, separate stdout/stderr, mktemp cwd
+   (contains stray `--auto` writes; NO git worktree — health needs no repo state).
+5. **NOT in doctor.sh.** doctor is presence-only / cost-free / deterministic;
+   a token-spending live probe violates that contract and its `exit $errors` would
+   misclassify a transient-down reviewer as a hard deployment error. Optional free
+   seam: doctor may print an advisory "run `matrix.sh --health` before a review" pointer.
+6. **TTL:** standalone `--health` is uncached; if auto-run at the start of a real
+   matrix run, memoize the verdict for that run (probe once, not per-model-per-item).
 ## What to build
 
 `tools/review/matrix.sh --health` (or a sibling `tools/review/health.sh`):
