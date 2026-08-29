@@ -1,7 +1,7 @@
 ---
 id: "134"
 title: "matrix.sh --health preflight: live-probe each reviewer model before a run"
-status: in_progress
+status: done
 blocked_by: []
 validation_criteria:
   - "a health command pings all dispatch_review models + codex, reports per-model up/down, catches authenticated-but-model-unavailable (the 131 failure mode) before token spend"
@@ -87,3 +87,10 @@ it only surfaces when a real review marks a model `indeterminate` after spending
 - Grading/review logic (that's the existing matrix run)
 - Auto-remediation (just report; fixing codex env is ticket 131)
 - Probing codex-as-reviewer live (blocked by 131; the roster is the opencode matrix)
+
+## Resolution (2026-08-29)
+
+Added --health readiness preflight to matrix.sh: per-model live probe (opencode is one binary hosting N models, so single probe would miss a down model — the 131 case), readiness-not-liveness (sends Reply-OK, validates output), failure classified from JSONL error event + stderr (model_unavailable/auth/quota/server_error/timeout), exit 0/1/2, per-model table + JSON summary. Kept out of doctor.sh (presence-only/cost-free contract). codex-as-reviewer probing folds in when 131 resolves. Documented in README.
+
+### Verification
+1. ✓ a health command pings all dispatch_review models + codex, reports per-model up/down, catches authenticated-but-model-unavailable (the 131 failure mode) before token spend — "matrix.sh --health live-verified: 3/3 models healthy exit 0; bogus model -> server_error, degraded, exit 1; health-summary.json valid. Reuses roster-load+validate_output+slug. Commits 5df3953, 2bafa0c."
