@@ -20,6 +20,26 @@ bash tools/review/matrix.sh --run-id <uuid> --target <sha> [--models a,b,c] [--d
 - `--dir`      repo to review in (default: this repo root)
 - `--dry-run`  print invocations, write manifest/summary, no opencode calls
 
+## Health preflight (`--health`)
+
+Readiness-probe every reviewer model BEFORE spending tokens on a real run. Sends a
+trivial "Reply with exactly: OK" to each model and validates the OUTPUT (readiness,
+not just auth/liveness) — catches the "authenticated but model unavailable" case
+(the codex-131 failure mode) that a presence check misses.
+
+```bash
+bash tools/review/matrix.sh --health [--models a,b,c]
+```
+
+- No `--target`/`--run-id` needed (defaults a timestamp run-id).
+- Per-model ✅/❌ table + `.scratch/review/<run-id>/health-summary.json`
+  `{status, checked, unhealthy, models:[{model,healthy,reason}]}`.
+- Failure reason classified best-effort: `model_unavailable | auth | quota |
+  server_error | empty_or_timeout | indeterminate` (from the JSONL error event +
+  stderr, per `coding-plan-limits` vocabulary).
+- Exit 0 = all healthy, 1 = ≥1 down, 2 = usage/env error.
+- Run under Git Bash, bounded (opencode can hang). One probe per model, sequential.
+
 **Exit codes:** 0 = all expected reviewers produced a valid result; 1 = coverage
 gap (≥1 indeterminate/missing); 2 = usage/environment error.
 

@@ -24,6 +24,7 @@ TARGET=""
 MODEL_FILTER=""
 REVIEW_DIR=""
 DRY_RUN=false
+HEALTH=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -32,13 +33,19 @@ while [[ $# -gt 0 ]]; do
     --models) MODEL_FILTER="$2"; shift 2 ;;
     --dir) REVIEW_DIR="$2"; shift 2 ;;
     --dry-run) DRY_RUN=true; shift ;;
+    --health) HEALTH=true; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
-# Require explicit scope — a bare invocation must not silently do nothing/everything.
-[[ -n "$RUN_ID" ]] || { echo "Error: --run-id required" >&2; exit 2; }
-[[ -n "$TARGET" ]] || { echo "Error: --target <sha> required" >&2; exit 2; }
+# --health is a preflight readiness probe (no review, no target/run-id needed).
+if [[ "$HEALTH" == true ]]; then
+  RUN_ID="${RUN_ID:-health-$(date +%s)}"
+else
+  # Require explicit scope — a bare review invocation must not silently do nothing/everything.
+  [[ -n "$RUN_ID" ]] || { echo "Error: --run-id required" >&2; exit 2; }
+  [[ -n "$TARGET" ]] || { echo "Error: --target <sha> required" >&2; exit 2; }
+fi
 REVIEW_DIR="${REVIEW_DIR:-$REPO_ROOT}"
 
 for tool in opencode yq jq; do
@@ -68,6 +75,7 @@ SUMMARY="$OUT_DIR/matrix-summary.json"
 slug() { echo "$1" | tr '/' '-' | tr -cd '[:alnum:]-'; }
 
 # Pre-write the manifest of EXPECTED reviewers (fan-in reconciles against this).
+if [[ "$HEALTH" != true ]]; then
 {
   echo "{"
   echo "  \"run_id\": \"$RUN_ID\","
@@ -80,13 +88,16 @@ slug() { echo "$1" | tr '/' '-' | tr -cd '[:alnum:]-'; }
   echo "]"
   echo "}"
 } > "$MANIFEST"
+fi
 
+if [[ "$HEALTH" != true ]]; then
 echo "═══════════════════════════════════════════════════════════"
 echo "  dispatch-review matrix fan-out"
 echo "  run_id: $RUN_ID   target: $TARGET"
 echo "  models: ${ACTIVE_MODELS[*]}"
 echo "  out:    $OUT_DIR"
 echo "═══════════════════════════════════════════════════════════"
+fi
 
 # Build the findings-only review prompt for a given reviewer id (model slug).
 # Self-contained contract — does NOT depend on review-new-work activating.
@@ -136,6 +147,69 @@ extract_result_line() {
   local artifact="$1"
   grep -Eo 'REVIEW_RESULT \{.*\}' "$artifact" 2>/dev/null | tail -1
 }
+
+# ─── --health preflight: readiness-probe each model (ticket 134) ──────────────
+# Per-model (opencode is ONE binary hosting N models — a single probe would miss a
+# down model, the codex-131 case). Readiness not liveness: send a real minimal
+# completion, validate OUTPUT (not exit code). Cheapest possible prompt.
+probe_model() {
+  local model="$1" s jsonl err status text
+  s=$(slug "$model")
+  jsonl="$OUT_DIR/health-$s.jsonl"; err="$OUT_DIR/health-$s.err"
+  ( cd "$REPO_ROOT" && timeout "$TIMEOUT" \
+      opencode run --auto -m "$model" --format json "Reply with exactly: OK" ) \
+      > "$jsonl" 2> "$err"
+  status=$(validate_output "$jsonl")
+  if [[ "$status" == "valid" ]]; then
+    text=$(jq -rn '[inputs | select(.type=="text") | .part.text] | join("")' "$jsonl" 2>/dev/null || echo "")
+    if grep -qi "OK" <<<"$text"; then echo "healthy"; return; fi
+    echo "unhealthy:no_ok_in_reply"; return
+  fi
+  # Classify the failure (coding-plan-limits vocabulary) — best-effort. opencode
+  # surfaces provider errors as a type:"error" event in the JSONL (stdout), not
+  # always stderr, so inspect both.
+  local reason="$status" errtext
+  errtext=$(jq -rn 'last(inputs | select(.type=="error") | (.error.data.message // .error.name // "")) // ""' "$jsonl" 2>/dev/null || echo "")
+  errtext="$errtext $(cat "$err" 2>/dev/null)"
+  if grep -qiE "not supported|requires a newer|not found|invalid model|no such model|unknown.?model" <<<"$errtext"; then reason="model_unavailable"
+  elif grep -qiE "401|unauthor|invalid.*key|\bauth" <<<"$errtext"; then reason="auth"
+  elif grep -qiE "429|quota|rate.?limit|insufficient|overloaded" <<<"$errtext"; then reason="quota"
+  elif grep -qiE "server error|UnknownError|unexpected" <<<"$errtext"; then reason="server_error"
+  elif [[ "$status" == "empty" ]]; then reason="empty_or_timeout"; fi
+  echo "unhealthy:$reason"
+}
+
+run_health() {
+  echo "═══════════════════════════════════════════════════════════"
+  echo "  dispatch-review health check (readiness probe)"
+  echo "  models: ${ACTIVE_MODELS[*]}"
+  echo "═══════════════════════════════════════════════════════════"
+  local rows=() down=0
+  for model in "${ACTIVE_MODELS[@]}"; do
+    printf "  ▶ %-34s " "$model"
+    local r; r=$(probe_model "$model")
+    if [[ "$r" == "healthy" ]]; then
+      echo "✅ healthy"
+      rows+=("{\"model\":\"$model\",\"healthy\":true,\"reason\":null}")
+    else
+      echo "❌ ${r#unhealthy:}"
+      down=$((down+1))
+      rows+=("{\"model\":\"$model\",\"healthy\":false,\"reason\":\"${r#unhealthy:}\"}")
+    fi
+  done
+  local hsum="$OUT_DIR/health-summary.json" st="healthy"; [[ $down -gt 0 ]] && st="degraded"
+  { echo "{"; echo "  \"status\": \"$st\","; echo "  \"checked\": ${#ACTIVE_MODELS[@]},";
+    echo "  \"unhealthy\": $down,"; printf '  "models": [';
+    for i in "${!rows[@]}"; do [[ $i -gt 0 ]] && printf ', '; printf '%s' "${rows[$i]}"; done
+    echo "]"; echo "}"; } > "$hsum"
+  echo ""
+  echo "  summary: $hsum  ($st — ${#ACTIVE_MODELS[@]} checked, $down down)"
+  [[ $down -eq 0 ]] && return 0 || return 1
+}
+
+if [[ "$HEALTH" == true ]]; then
+  run_health; exit $?
+fi
 
 # ─── Isolation (B9): review in a throwaway git worktree at TARGET, not the live tree ──
 # opencode runs with --auto (permission bypass); the prompt forbids edits, but a
