@@ -81,6 +81,26 @@ Known tools are separately-owned repos whose skills integrate with crew-research
 
 **Ownership boundary:** archwright's skills/steering are authored in its repo; crew-research never copies them. If `doctor` reports broken archwright symlinks, the repo moved — re-run its deploy script.
 
+**Orchestrating recall + tkt (deploy / doctor / telemetry).** For known tools that declare an `orchestration:` block in `known-tools.yaml` (currently `recall` and `tkt`), crew-research offers three discrete cross-platform tasks that shell out to each tool's OWN scripts/CLI (never reimplementing them):
+
+```bash
+mise run tools:doctor      # each tool's health/audit (recall health, tkt doctor/audit/validate) — read-only
+mise run tools:telemetry   # each tool's usage + debug telemetry — read-only
+mise run tools:deploy      # build binary + refresh skills (recall: deploy-local.{ps1,sh}; tkt: cargo install + deploy-skills.sh)
+mise run tools:doctor recall   # restrict to one tool (optional 2nd arg)
+```
+
+These run on Windows, macOS, Linux, and WSL. The dispatcher (`tools/generator/known-tools.sh`) is bash, so on Windows run it through Git Bash or WSL — the same requirement as `init.sh`. The `deploy` action picks the right build leg per OS automatically (recall's `.ps1` on Windows-proper, `.sh` elsewhere; `pwsh` falls back to `powershell`).
+
+**Repo path resolution.** The dispatcher probes for each tool's repo in order: `$CREW_TOOLS_ROOT/<name>` → the registry `repo:` value → `~/code/<name>` → (WSL) `/mnt/c/Users/$USER/code/<name>`. If your tool repos live elsewhere (e.g. a `D:` drive), set `CREW_TOOLS_ROOT`:
+
+```bash
+CREW_TOOLS_ROOT=/d/code mise run tools:deploy      # Git Bash on Windows
+CREW_TOOLS_ROOT=/mnt/d/code mise run tools:deploy  # WSL
+```
+
+A tool whose repo (deploy) or binary (doctor/telemetry) isn't found is skipped with a notice (`○`), never a hard failure. Note the deploy target matches the shell you run from: run from WSL to build the Linux binary, from Git Bash to build the Windows `.exe`.
+
 ### Extensions (Auto-Deploy)
 
 Extensions add capabilities that require external tools. They deploy automatically when prerequisites are met during tier deploy.

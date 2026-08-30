@@ -155,7 +155,7 @@ for ((i=0; i<kt_count; i++)); do
             summary=$(printf '%s\n' "$out" | tr -d '\r' | grep -v '^[[:space:]]*$' \
               | sed 's/^[[:space:]]*//' | grep -v '^[{}]$' | head -1)
           fi
-          echo "  ✅ $cmd → $(printf '%s' "${summary:-ok}" | head -c 180)"
+          echo "  ✅ $cmd → $(printf '%s' "${summary:-ok}" | tr -d '\r' | head -c 180)"
         else
           echo "  ⚠️  $cmd → no output / failed"
           warnings=$((warnings + 1))

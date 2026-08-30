@@ -12,7 +12,7 @@ atomics/skills/{slug}/references/ — Progressive-loading companion files
 atomics/eager-context/            — Always-on context modules
 compositions/tiers/{name}.yaml    — What ships in each tier (inc. extensions)
 compositions/project-level.yaml   — Per-project installable skills (lint membership)
-compositions/known-tools.yaml     — External self-deploying tools (archwright); doctor/catalog consume
+compositions/known-tools.yaml     — External self-deploying tools (archwright, recall, tkt); doctor/catalog + tools:* orchestration consume
 compositions/agent-archetypes/    — Agent role manifests (skills, tools, prompt)
 compositions/crew-patterns/       — Multi-agent crew manifests
 compositions/workspace-conventions/ — File/folder contracts
@@ -72,6 +72,13 @@ mise run init -- --skip-extension recall   # deploy without recall
 mise run catalog
 mise run doctor -- --project <path>
 mise run validate-deployment
+
+# Known-tool orchestration (recall, tkt — reads known-tools.yaml orchestration: blocks)
+# Cross-platform (Win/Mac/Linux/WSL). On Windows run via Git Bash or WSL (like init.sh).
+# Set CREW_TOOLS_ROOT if tool repos aren't under ~/code (e.g. /d/code or /mnt/d/code).
+mise run tools:doctor                # runtime health + audit (read-only)
+mise run tools:telemetry             # usage + debug telemetry (read-only)
+mise run tools:deploy                # build + install + refresh skills (state-changing)
 
 # Development
 mise run validate                    # compositions + cross-links

@@ -54,6 +54,25 @@ description = "Health check for a deployment"
 raw = true
 run = "bash tools/generator/doctor.sh"
 
+# --- Known-tool orchestration (recall, tkt) — reads compositions/known-tools.yaml
+# orchestration: blocks. Cross-platform (Win/Mac/Linux/WSL). On Windows run via
+# Git Bash or WSL like init.sh. Set CREW_TOOLS_ROOT if the tool repos aren't
+# under ~/code (e.g. CREW_TOOLS_ROOT=/d/code or /mnt/d/code).
+[tasks."tools:deploy"]
+description = "Build + install known tools (recall, tkt) and refresh their skills"
+raw = true
+run = "bash tools/generator/known-tools.sh deploy"
+
+[tasks."tools:doctor"]
+description = "Aggregate known-tool runtime health + audit (read-only)"
+raw = true
+run = "bash tools/generator/known-tools.sh doctor"
+
+[tasks."tools:telemetry"]
+description = "Show known-tool usage + debug telemetry (read-only)"
+raw = true
+run = "bash tools/generator/known-tools.sh telemetry"
+
 [tasks.eval]
 description = "Run all dual-run evals (3 trials)"
 run = "bash tools/evals/harness/run.sh --all --trials 3"
