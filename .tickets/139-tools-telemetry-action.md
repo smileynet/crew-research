@@ -1,7 +1,7 @@
 ---
 id: "139"
 title: "Implement tools:telemetry read-only action"
-status: open
+status: in_progress
 blocked_by: ["137"]
 ---
 
