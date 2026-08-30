@@ -42,6 +42,11 @@ output:
     # opencode may exit 0 on failure, hang, or surface 429 silently in-stream.
     # Confirm success by step_finish reason:"stop" + non-empty final text, NOT exit code.
     # Wrap every invocation in a timeout (no built-in run timeout).
+    # Provider/model errors surface as a type:"error" event in the JSONL on STDOUT
+    #   (e.g. {"type":"error",...,"error":{"name":"UnknownError","data":{"message":...}}}),
+    #   NOT on stderr — stderr is often empty on failure. To classify a failure,
+    #   parse the error event: jq 'select(.type=="error") | .error.data.message // .error.name'.
+    #   (Verified 2026-08-29 building matrix.sh --health: a stderr-only classifier missed it.)
 
 notes: |
   OpenCode (anomalyco/opencode, TypeScript) — MIT-licensed AI coding agent.

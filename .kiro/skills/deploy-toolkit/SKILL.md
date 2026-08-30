@@ -17,6 +17,8 @@ bash tools/generator/doctor.sh                         # health check
 bash tools/generator/catalog.sh                        # browse available skills
 ```
 
+**Committing skill/steering source does NOT deploy it.** `atomics/` and `.kiro/steering/` edits only reach live sessions after `init.sh` runs — the deployed tree under `~/.kiro/` (and `~/.agents/`) is a separate copy. After finishing skill work that should take effect (new skill, retired skill, changed steering), redeploy and confirm with doctor. Symptom of skipping this: a "done + validated" skill that sessions still don't use, and a deprecated skill still loading (observed 2026-08-29: dispatch-review built + closed in tickets 127/130 but never deployed — old dispatch-codex-review still live until an init run pruned it).
+
 ## Placement semantics (ADR 0009)
 
 - Steering bodies → eager dir (`~/.kiro/steering/*.md`, or rendered into AGENTS.md for codex/agy).
