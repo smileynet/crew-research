@@ -13,66 +13,108 @@ tags: ["kiro-v3"]
 ## Intent source
 
 Session review 2026-08-30: "Does the dispatch review skill include agy (when
-available)?" Audit of `atomics/skills/dispatch-review/SKILL.md` +
-`references/model-matrix.md` found it supports exactly two reviewers — **codex**
-(default) and **opencode/<provider>/<model>** (single or matrix). agy (Google
-Antigravity CLI) is deployed as a full tool on personal machines but is NOT a
-recognized reviewer, even when installed. The skill's own rationale —
-"family diversity is the lever" (a model tends to miss the bug categories it
-itself would introduce) — argues for a Gemini-family leg alongside the Kimi/Qwen/GLM
-matrix.
+available)?" Audit found dispatch-review supports exactly two reviewers — **codex**
+(default) and **opencode/<model>** (single or matrix). agy (Google Antigravity CLI)
+is deployed as a full tool on personal machines but is NOT a recognized reviewer.
+The skill's own rationale — "family diversity is the lever" — argues for a
+Gemini-family leg alongside the Kimi/Qwen/GLM matrix.
 
-## Context
+## Verified findings (2026-08-30) — L1 unless noted
 
-- Reviewer table lives in `atomics/skills/dispatch-review/SKILL.md` (§ Reviewers):
-  codex = `codex exec --dangerously-bypass-approvals-and-sandbox`; opencode =
-  `opencode run --auto -m <id>`. Both require the sandbox/permission bypass or the
-  reviewer's gate blocks subprocess execution + git push (false results).
-- Matrix roster: `tools/proofs/adapters/opencode.yaml` → `dispatch_review.models`.
-  An agy leg needs the analogous non-interactive, auto-approve invocation for agy.
-- The result contract (`references/result-contract.md`) and fail-closed verify loop
-  are reviewer-agnostic by design — the coordinator owns the gate; a new reviewer
-  only has to emit the `REVIEW_RESULT ` line and push the aggregate ticket.
-- agy binary present on this machine: `/home/sam/.local/bin/agy`.
-- The `matrix.sh --health` preflight (ticket 134) must learn to probe the agy leg too.
+Research subagents (`.scratch/research/t142/`) + code-review subagents
+(`.scratch/review/t142/`) + LIVE probing of the installed binary:
 
-## Unknowns to resolve first
-
-1. agy's non-interactive invocation + the auto-approve/sandbox-bypass flag
-   (equivalent of codex `--dangerously-bypass-approvals-and-sandbox` / opencode
-   `--auto`). Without it the reviewer can't run tests/linters or push.
-2. agy headless output contract — how to validate by OUTPUT content (not exit code),
-   mirroring the opencode `step_finish reason:"stop"` + non-empty-text rule.
-   (See eval-execution steering: kiro-cli/opencode/codex all exit unreliably.)
-3. Quota/capacity behavior (fold into `coding-plan-limits` degrade-not-fail).
+1. **agy headless works end-to-end — the stored blocker is STALE.** `agy.yaml`
+   marks agy `eval_harness_status: blocked` on Issue #76 ("`--print` drops stdout
+   in non-TTY", "no `--json`/`--output` flag exists"). All false on the installed
+   build. Live test (`agy 1.1.22`, piped, stdin `</dev/null`, stdout→file):
+   **2030 bytes stdout, 0 stderr, exit 0**, terminal
+   `{"event":"result","result":{"status":"SUCCESS","response":"OK\n"}}`. Issue #76
+   is fixed as of ≥1.1.22. → **Correcting `agy.yaml` is a prerequisite folded into
+   this ticket.**
+2. **Invocation + auto-approve flag:**
+   `agy --dangerously-skip-permissions --model <id> --output-format stream-json --print="<prompt>"`.
+   `--dangerously-skip-permissions` = the codex `--dangerously-bypass-approvals-and-sandbox`
+   / opencode `--auto` equivalent (init event shows `permission_mode:"always-proceed"`).
+3. **`--print` is a GREEDY value flag** — the prompt MUST be attached as
+   `--print="<prompt>"` with `--dangerously-skip-permissions` elsewhere on the line,
+   or agy swallows the flag as the prompt and errors. The stored adapter example
+   (`--print "{query}" --dangerously-skip-permissions`) is the broken form.
+4. **Validation predicate is agy-specific** (NOT opencode's `step_finish reason:"stop"`):
+   terminal `event:"result"` + `result.status=="SUCCESS"` + non-empty `result.response`.
+   Status enum: `SUCCESS|ERROR|CANCELED|INTERRUPTED|INVALID|WAITING|RUNNING`. Validate
+   by OUTPUT content, never exit code (eval-execution steering). [research: agy-headless-docs, L4]
+5. **Integration is CODE-BRANCHING, not config-only.** `matrix.sh` does NOT expand
+   the adapter `command` template — it hard-codes the opencode invocation and reads
+   only `dispatch_review.models[]` from a hard-coded `opencode.yaml` path. The roster
+   is a flat model list with no "which tool hosts this model" field. Adding a
+   `dispatch_review:` block to `agy.yaml` alone changes nothing. Real work: a
+   tool-resolution seam + `invoke_agy`/`parse_agy` that NORMALIZE agy's `result`
+   event into the shared JSONL contract so `validate_output` stays unchanged.
+   [review: matrix-sh, adapter-config]
+6. **matrix.sh has NO CREW_ENV policy check** (only init/run/run-proof/doctor carry
+   `policy-blocked`). Harmless today (opencode models aren't gated) but an agy leg
+   would RUN AGY ON CORP — breaking the ticket-36 floor + ticket-144 invariant. The
+   agy leg must gate policy→PATH→probe at fan-out AND `--health`, using the judge-leg
+   degrade-as-gap pattern (distinct reason `policy-blocked (CREW_ENV=corp)`), NOT
+   init's hard-exit (a matrix has other legs). [review: env-policy-health]
+7. **Model: pin `gemini-3.1-pro-high`.** All controlled review benchmarks test Pro,
+   not Flash ("Flash for review" is unvalidated; Flash only wins on generation).
+   Gemini Pro is the high-SNR/high-precision, lower-recall diversity voice (60.9%
+   vs 65.2% coverage vs a Claude+GPT blend; SNR 3.5 vs 2.6), with a documented
+   concurrency-race weakness and an overreach tic (labels minors "Critical"). A
+   diversity voice, not a solo reviewer — which matches the matrix design.
+   [research: gemini-as-reviewer, CodeRabbit Mar-2026 25-PR benchmark, L4]
+8. **Aggregation guardrail (reinforce, don't rebuild):** cross-family diversity
+   lifts detection, but consensus ≠ verification (80+ agents unanimously endorsed a
+   nonexistent vuln). The skill already handles this (advisory-not-blocking, keep
+   single-model findings low-confidence-labeled, tier by agreement). Adding a Gemini
+   family leg strengthens de-correlation; do NOT add consensus-as-gate logic.
+   [research: multimodel-review-priorart]
 
 ## What to build
 
-1. Determine + document agy's headless auto-approve invocation and output contract.
-2. Add agy to the § Reviewers table and (as a Gemini-family leg) to the matrix
-   roster + `matrix.sh` fan-out, gated on `agy` present on PATH ("when available").
-3. Extend `matrix.sh --health` to probe the agy leg (readiness, not liveness).
-4. Regression: run the agy reviewer against `tools/review/fixtures/planted-review/`
-   and confirm a contract-compliant findings run (real findings + REVIEW_RESULT,
-   pushed aggregate ticket, correct provenance tag `Reviewer: agy/<model>`).
+1. **Fix `tools/proofs/adapters/agy.yaml`** — remove `eval_harness_status: blocked`
+   + Issue-#76 blocker; add a `dispatch_review:` block (invocation in `--print=`
+   form, roster default `gemini-3.1-pro-high`, `result.status` validation, timeout
+   via `--print-timeout`). Note #76 fixed as of 1.1.22 (verified).
+2. **Generalize `matrix.sh`** — tool-resolution seam; `invoke_agy`/`parse_agy`
+   normalizing agy's `result` event into the shared contract so `validate_output`
+   is unchanged; fix the `for tool in opencode yq jq` PATH gate so an agy-only run
+   doesn't hard-fail on missing opencode. Keep MINIMAL (144 owns the general registry).
+3. **CREW_ENV floor in matrix.sh** — policy→PATH→probe ordering at fan-out +
+   `--health`; agy on corp = reported `policy-blocked` gap, distinct from
+   unavailable/quota.
+4. **`--health` agy probe** — cannot reuse `probe_model()` (opencode-coupled);
+   validate via `result.status=="SUCCESS"` (stdout capture works on ≥1.1.22; keep
+   the file-canary as a documented fallback for older builds).
+5. **Skill doc edits** (additive; contract unchanged) — Reviewers-table row (agy
+   invocation + bypass flag), a `# agy` line in `result-contract.md`, an agy
+   terminal-signal recipe in `model-matrix.md`, extend frontmatter `description` for
+   agy-review activation. Provenance tag `Reviewer: agy/gemini-3.1-pro-high`.
+6. **Live regression** against `tools/review/fixtures/planted-review/` — contract-
+   compliant `REVIEW_RESULT` + pushed aggregate ticket.
 
 ## Acceptance criteria
 
-- [ ] agy's non-interactive auto-approve invocation + output-validation contract documented (in the skill or opencode.yaml-analogous adapter)
-- [ ] dispatch-review § Reviewers lists agy with its invocation + required bypass flag
-- [ ] agy appears as a matrix leg when `agy` is on PATH; absent → skipped as a reported coverage gap, never a hard failure
-- [ ] `matrix.sh --health` probes the agy leg (validate by output content, classify auth/quota/timeout)
-- [ ] Live regression against planted-review fixture: agy produces a contract-compliant REVIEW_RESULT + pushed aggregate ticket tagged `Reviewer: agy/<model>`
+- [ ] `agy.yaml` corrected (blocked status removed; dispatch_review block with `--print=` invocation + result.status validation added; #76-fixed noted)
+- [ ] dispatch-review § Reviewers lists agy with its invocation + `--dangerously-skip-permissions`
+- [ ] agy appears as a matrix leg when `agy` is on PATH; absent → skipped as a reported coverage gap, never a hard failure; opencode-only PATH gate no longer hard-fails an agy-only run
+- [ ] matrix.sh gates the agy leg by CREW_ENV policy (corp → `policy-blocked` gap, distinct reason) at fan-out AND `--health`, before `command -v agy`
+- [ ] `matrix.sh --health` probes the agy leg (validate by `result.status`, classify auth/quota/timeout)
+- [ ] Live regression against planted-review fixture: agy produces a contract-compliant REVIEW_RESULT + pushed aggregate ticket tagged `Reviewer: agy/gemini-3.1-pro-high`
 
 ## Relationship to other tickets
 
 - Sibling: **143** (same work for Claude Code).
-- **Superseded-by 144** (per-job harness enable/disable config): if 144 lands a
-  general reviewer/harness registry with per-job toggles, agy becomes a registry
-  entry rather than a hard-coded leg. Coordinate — build the reviewer adapter here
-  in a way 144 can absorb (declarative entry, not bespoke branching).
+- **Superseded-by 144**: agy is built as a declarative adapter entry (agy.yaml
+  dispatch_review block) so 144's shared reader can absorb it; the matrix.sh
+  generalization stays minimal (a tool-resolution branch), leaving the general
+  per-job registry to 144. The CREW_ENV floor added here is the hard floor 144
+  layers under (distinct reasons: disabled / unavailable / policy-blocked).
 
 ## Out of scope
 
 - Confirming/triaging the findings agy produces (that's `review-new-work` + frontier consumption)
 - The general per-job harness toggle framework (ticket 144)
+- The broader per-tool adapter-interface refactor (minimal branch here; 144 owns it)
