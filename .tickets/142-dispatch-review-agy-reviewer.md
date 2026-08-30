@@ -1,7 +1,7 @@
 ---
 id: "142"
 title: "Add agy/Gemini as a dispatch-review reviewer (matrix leg when available)"
-status: open
+status: in_progress
 blocked_by: []
 validation_criteria:
   - "dispatch-review can dispatch an agy (Google Antigravity CLI) reviewer that produces a contract-compliant REVIEW_RESULT run against the planted-review fixture, and the matrix includes an agy/Gemini leg when agy is on PATH"
