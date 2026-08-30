@@ -1,7 +1,7 @@
 ---
 id: "110"
 title: "Document recall import --force gotcha and add import to CLI reference skill"
-status: in_progress
+status: done
 blocked_by: []
 priority: medium
 validation_criteria:
@@ -38,9 +38,9 @@ The `--force` flag has a destructive gotcha that caused data loss in a godot-hel
 
 ## Acceptance criteria
 
-- [ ] CLI reference includes `recall import` with all flags
-- [ ] --force gotcha documented with clear DO/DON'T examples
-- [ ] Decision on whether to add a safety guard in the tool (issue or ADR)
+- [x] CLI reference includes `recall import` with all flags
+- [x] --force gotcha documented with clear DO/DON'T examples
+- [x] Decision on whether to add a safety guard in the tool (issue or ADR)
 
 ## Scope refinement (2026-08-30, research + code review)
 
@@ -66,3 +66,7 @@ import internals, crew doc conventions). Findings that adjust execution:
   `sync`/`import-all` so the scheduled task keeps working; print blast-radius
   (chunk count) first. Prior art (terraform/rsync/git/npm): `--force` (skip guards)
   should be separate from `--yes` (skip prompt); show blast radius; non-TTY needs `--yes`.
+
+## Resolution (2026-08-30)
+
+AC1: cli-reference.md Commands block now has recall import/import-all with all flags (deployed copy verified: 6 import refs). AC2: house-style bold warning (not DANGER banner, per doc-convention review) with Do/Never examples + incident line + Known Issues row; also fixed caveat-free cheatsheet/SKILL.md:115. Deployed + verified live ('wipes the ENTIRE wing' present). AC3: decision recorded (coarse guard: confirm on non-empty wing force-delete, --yes distinct from --force threaded through sync/import-all, show blast radius; literal subdir-detection is HARD - no import root stored); filed recall-repo ticket 072 (commit 8b4eb99). Research-informed via 4 dispatched subagents (destructive-flag safety, prior art, recall internals, doc conventions).
