@@ -1,7 +1,7 @@
 ---
 id: "145"
 title: "Research + propose a skill for creating and reviewing data structures (invalid-states-unrepresentable)"
-status: in_progress
+status: done
 blocked_by: []
 priority: medium
 ---
@@ -75,8 +75,12 @@ targets an unprompted-behavior gap (agents won't self-review representations).
 
 ## Acceptance criteria
 
-- [ ] Research findings written up (sources cited with authority levels; the 12.5% claim explicitly labeled by confidence)
-- [ ] Overlap analysis vs existing code-review skill documented (distinct skill vs extension vs steering)
-- [ ] Recommendation (a/b/c) with rationale grounded in findings + eval-proven skill patterns
-- [ ] If a skill is recommended: a draft SKILL.md sketch (frontmatter + creation-mode + review-mode sections) and target tier
-- [ ] Decision on whether the behavior is measurable → an eval definition proposed
+- [x] Research findings written up (sources cited with authority levels; the 12.5% claim explicitly labeled by confidence)
+- [x] Overlap analysis vs existing code-review skill documented (distinct skill vs extension vs steering)
+- [x] Recommendation (a/b/c) with rationale grounded in findings + eval-proven skill patterns
+- [x] If a skill is recommended: a draft SKILL.md sketch (frontmatter + creation-mode + review-mode sections) and target tier
+- [x] Decision on whether the behavior is measurable → an eval definition proposed
+
+## Resolution (2026-08-30)
+
+RESEARCH COMPLETE (2 dispatch rounds, 8 subagents; raw in .scratch/research/145-*.md + .scratch/subagent-raw/145-*.md). RECOMMENDATION: new on-demand skill 'data-modeling' (type:protocol, invocation:both), global FULL tier under #Build (peer to code-review/architecture-deepening). Covers BOTH create-mode (sum types over mutually-exclusive booleans, new-type wrappers, parse-don't-validate at boundaries, single source of truth in the type) and review-mode (~13-item per-language checklist). FORK RESOLVED: on-demand skill NOT always-on steering - fails eager-context.md 3-part AND gate (situational, not every-turn); patterns with code-review (event-driven), unlike ai-generation-hygiene (always-on). Wire into code-review via cross-link from references/smells.md (dedup Primitive Obsession one-liner); NOT a 3rd axis (data-structure quality is a Standards sub-dimension). Per-language enforcement differs (Rust native / TS assertNever / Python static-only needs CI type-checker / Go sealed-interface+linter, nil always invalid). Normalization lit adds NEW checklist items beyond King/Wlaschin (one-fact-one-place, key/constraint strategy). EVIDENCE: principle L4:verified (King parse-dont-validate, Wlaschin); phenomenon L4:established (arXiv 2510.03029 21% design smells, 2603.24755 2.2x erosion); the 12.5%/feature figure stays L5:reported (single-source podcast, direction corroborated not magnitude). Follow-ons: implementation ticket + eval-tuning-against-live-projects ticket.
