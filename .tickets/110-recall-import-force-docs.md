@@ -1,7 +1,7 @@
 ---
 id: "110"
 title: "Document recall import --force gotcha and add import to CLI reference skill"
-status: open
+status: in_progress
 blocked_by: []
 priority: medium
 validation_criteria:
