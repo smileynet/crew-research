@@ -1,7 +1,7 @@
 ---
 id: "139"
 title: "Implement tools:telemetry read-only action"
-status: in_progress
+status: done
 blocked_by: ["137"]
 ---
 
@@ -13,4 +13,8 @@ TBD
 
 ## Acceptance criteria
 
-- [ ] TBD
+- [x] TBD
+
+## Resolution (2026-08-30)
+
+tools:telemetry action (read-only, no enable/disable/clear): recall telemetry status+stats, tkt telemetry --status+--show. Verified live: recall 2532 events w/ command breakdown, tkt command frequencies + error rate + slow-op list + workflow patterns.
