@@ -224,18 +224,18 @@ R5 should wait for the current eval run to finish (avoid changing harness mid-ru
 | 63 | ~~recall pytest suite~~ | ✅ done — moved to recall repo |
 | 64, 66 | ~~tkt sync-plan --fix (research + impl)~~ | ✅ done — moved to D:/code/tkt |
 | 70 | Restore a second judge family on corp (codex fix or non-Anthropic Bedrock leg) | open (priority: high) — every corp run is a single Claude judge |
-| 71 | Delta noise floor for single-family judge panels | open |
-| 72 | Judge prompt/rubric into the identity scheme (template edits must read as drift) | open |
+| 71 | Delta noise floor for single-family judge panels | ✅ done |
+| 72 | Judge prompt/rubric into the identity scheme (template edits must read as drift) | ✅ done |
 | 73 | Canonical judge panel + deviation reporting | open — blocked by 70 |
-| 74 | Agreement-as-confidence audit; ICC + chance-corrected stats; measure our own γ̄ | open |
-| 75 | Resumable full-history review adoption skill | done |
-| 76 | Make activation verdict comparisons portable across `bc` implementations | open |
-| 77 | Fix Windows `mise run generate` argument forwarding | open |
-| 78 | Dispatch Codex reviews into confirm-first high-priority tickets | done |
-| 87 | Validate the prose linter as an instrument (E-INST-1, no agent calls) | open (priority: high) — decides 84, calibrates 88 |
+| 74 | Agreement-as-confidence audit; ICC + chance-corrected stats; measure our own γ̄ | ✅ done |
+| 75 | Resumable full-history review adoption skill | ✅ done |
+| 76 | Make activation verdict comparisons portable across `bc` implementations | ✅ done |
+| 77 | Fix Windows `mise run generate` argument forwarding | ✅ done |
+| 78 | Dispatch Codex reviews into confirm-first high-priority tickets | ✅ done |
+| 87 | Validate the prose linter as an instrument (E-INST-1, no agent calls) | ✅ done |
 | 88 | Cross-model writing-system experiment (E-SYS-1) + substance/mode/vocab readouts | open — blocked by 87; decides the prose arc |
 | 83 | Add prose hygiene rules to writing-style (STE-inspired) | open — blocked by 88; premises corrected (em dash is not an STE rule) |
-| 84 | Evaluate deterministic prose linter (ste-lint.py pattern) | open — blocked by 87 |
+| 84 | Evaluate deterministic prose linter (ste-lint.py pattern) | ✅ done |
 | 85 | Explore: strict vs flavored writing modes | open — blocked by 88 (mode readout) |
 | 86 | Explore: slop word substitution table | open — blocked by 88 (vocab readout; may close as not-applicable) |
 
@@ -309,3 +309,28 @@ tickets for these tools live in their respective projects.
 
 - `tools/tkt/` → `D:/code/tkt` (Rust binary, crates.io/cargo-binstall)
 - `tools/recall/` → recall repo (Rust binary, single-file distribution)
+
+
+
+## kiro-v3 / dispatch-review workstream (2026-08-26 → 08-29)
+
+Multi-model independent code review, spawned from the kiro-cli 2.19.2 feature review.
+Separate initiative from the Deep Dive Review (R1-R8) and Tool Extraction above.
+
+| # | Item | Status |
+|---|------|--------|
+| 123 | Review kiro-cli 2.19.2 features | ✅ done — decomposed; stream-json built, image → 132 |
+| 124 | Add stream-json event grading to proof harness | open — blocked_by 125 |
+| 125 | Stream-json schema discovery proof | open — schema known (via 130); remaining: doc + test-5 |
+| 126 | v3-engine invocation path when non-TUI v3 ships | backlog |
+| 127 | Extend dispatch review to opencode multi-model matrix | ✅ done |
+| 128 | Scoped reviewer permissions (opencode + codex) | backlog — yolo is the default |
+| 129 | Per-model review markers for uneven progress | backlog |
+| 130 | Live e2e validation of the matrix + fan-in | ✅ done — 3-judge unanimous, recall 10/10 |
+| 131 | codex CLI can't serve a usable model (env blocker) | backlog |
+| 132 | Update image-handling steering (official in 2.19.2) | open |
+| 133 | CONTEXT.md trim + AGENTS.md over-budget restructure | backlog |
+| 134 | matrix.sh --health readiness preflight | ✅ done |
+| 135 | Verify --health failure-reason taxonomy (4/5 untested) | backlog |
+
+Cross-repo: tkt#161 (frontier-work aggregate-provenance matching).
