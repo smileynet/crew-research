@@ -73,10 +73,27 @@ recall add "text" --type decision             # wing auto-detects from cwd
 recall ingest ~/.kiro/sessions/cli            # auto-tag wings from cwd
 recall ingest <path> --project ~/code/myapp   # filter to one project
 
+recall import .memory/ --wing name            # import a project's markdown into a wing
+recall import .memory/ --wing name --force    # WIPES the wing's imports first, then reimports
+recall import-all                             # import every discovered .memory/ dir
+recall import-all --force                     # wipe + reimport all discovered dirs
+
 recall prime --wing name                      # session-start context
 recall prime                                  # wing auto-detects from cwd
 recall status                                 # show indexed content
 ```
+
+**`--force` wipes the ENTIRE wing, not just the path you pass.** It deletes ALL of
+the wing's imported chunks, then reimports only the files under `<PATH>`. Never run
+`--force` on a subdirectory — it destroys everything else in the wing. STOP and use
+the full `.memory/` root.
+
+```bash
+Do:    recall import .memory/ --wing X --force         # full root — safe
+Never: recall import .memory/cards/ --wing X --force   # wipes all but cards
+```
+
+Incident 2026-08-17: a subdirectory `--force` wiped 11,409 drawers → 68; recovery took a 60-minute full reimport.
 
 ## Types for write-back
 
@@ -107,3 +124,4 @@ recall status                                 # show indexed content
 | Issue | Symptom | Workaround |
 |-------|---------|------------|
 | `recall status` empty output | Command returns exit 0 but prints nothing, even with indexed data | Use `recall search "test"` to verify DB is populated; status display is cosmetic |
+| `import --force` wing wipe | `--force` on a subdirectory deletes the whole wing, keeping only that subdir | Always `--force` from the full `.memory/` root (see Commands warning above) |

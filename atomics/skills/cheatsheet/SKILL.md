@@ -112,7 +112,7 @@ recall search "what did we decide about X"     # find past decisions
 recall search "query" --type decision           # filter by type
 recall add "We chose Y because Z" --type decision  # persist a decision
 recall import .memory/ --wing project_name      # index project knowledge
-recall import .memory/ --force --wing name      # reimport after changes
+recall import .memory/ --force --wing name      # reimport; ALWAYS full .memory/ root (--force wipes the whole wing)
 recall status                                   # see what's indexed
 recall prime                                    # session-start context
 ```
