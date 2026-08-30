@@ -2,11 +2,20 @@
 # deployments. Unlike extensions (crew-owned content gated on a prerequisite),
 # known tools own and deploy their OWN skills/steering; crew-research detects
 # them, surfaces hydration hints, and carries recommendation seams in adjacent
-# skills. Registry consumers: doctor.sh (detection), catalog.sh (listing).
+# skills. Registry consumers: doctor.sh (detection), catalog.sh (listing),
+# known-tools.sh (deploy/doctor/telemetry orchestration — reads the
+# `orchestration:` block per tool).
 #
 # Ownership rule: crew-research references known tools, never copies their
 # content. Their skills survive crew deploys via the symlink convention
 # (init.sh prune preserves symlinks; see user-setup-guide).
+#
+# Repo path resolution (known-tools.sh): `repo:` holds the conventional
+# ~/code/<name> location. The dispatcher resolves the ACTUAL path by probing,
+# in order: $CREW_TOOLS_ROOT/<name>, the literal `repo:` value, ~/code/<name>,
+# and (under WSL) /mnt/c/Users/$USER/code/<name>. A tool whose repo isn't found
+# is skipped with a notice — never a hard failure. Set CREW_TOOLS_ROOT for
+# non-standard layouts (e.g. repos on a D: drive).
 
 tools:
   - name: archwright
@@ -15,7 +24,7 @@ tools:
     # Detection: archwright self-deploys its skills as symlinks into the skills tree
     detect:
       skill_glob: "archwright-*"
-    hydrate: "git clone <archwright-repo> ~/code/archwright && bash ~/code/archwright/tools/deploy-skills.sh"
+    hydrate: "gh repo clone smileynet/archwright ~/code/archwright && bash ~/code/archwright/tools/deploy-skills.sh"
     # Recommendation seams: crew skills that route to archwright when the work
     # shape fits. Content lives in each skill's SKILL.md (conditional on
     # detection — no broken references on machines without archwright).
@@ -43,12 +52,29 @@ tools:
     detect:
       binary: recall
       skill_glob: "recall"
-    manifest: "SKILL_MANIFEST.yaml"
-    hydrate: "gh repo clone smileynet/recall ~/code/recall && bash ~/code/recall/tools/deploy-skills.sh"
-    # recall's skill is currently a crew-research fallback (atomics/skills/recall/).
-    # Once recall deploys its own skill, the symlink takes priority and the
-    # fallback activates only when the tool is installed but skills aren't deployed.
+    # recall self-deploys its BINARY via scripts/deploy-local.{sh,ps1} (build +
+    # OS-specific swap). It does NOT self-deploy a skill: its skill is the
+    # crew-research fallback (atomics/skills/recall/), deployed by init.sh.
+    # NOTE: `cargo install --path .` is broken for recall (ort dep, recall #049) —
+    # the deploy-local scripts are the supported build path.
+    hydrate: "gh repo clone smileynet/recall ~/code/recall && bash ~/code/recall/scripts/deploy-local.sh"
     fallback: "atomics/skills/recall"
+    orchestration:
+      # build: OS-selected — .ps1 on Windows-proper (Git Bash), .sh elsewhere
+      #        (macOS/Linux/WSL). recall's scripts handle the per-OS binary swap
+      #        and scheduler detection (launchd/systemd/cron/scheduled-task).
+      # skills: none — recall's skill is crew's fallback, not self-deployed.
+      deploy:
+        build:
+          windows: "pwsh scripts/deploy-local.ps1"
+          unix: "bash scripts/deploy-local.sh"
+        skills: null
+      doctor:
+        - "recall health --json"
+        - "recall status"
+      telemetry:
+        - "recall telemetry status"
+        - "recall telemetry stats"
     seams:
       - skill: recall
         when: "always (the skill IS the interface to this tool)"
@@ -63,10 +89,22 @@ tools:
     detect:
       binary: tkt
       skill_glob: "tkt"
-    manifest: "SKILL_MANIFEST.yaml"
     hydrate: "gh repo clone smileynet/tkt ~/code/tkt && cargo install --path ~/code/tkt && bash ~/code/tkt/tools/deploy-skills.sh"
-    # tkt's skill (CLI usage) will live in tkt's repo. ticket-planning stays
-    # in crew-research (it's methodology, not tool-specific).
+    orchestration:
+      # tkt builds via cargo install (works, unlike recall) and self-deploys its
+      # skill via tools/deploy-skills.sh (symlink into ~/.kiro,~/.claude,~/.codex).
+      deploy:
+        build:
+          windows: "cargo install --path ."
+          unix: "cargo install --path ."
+        skills: "bash tools/deploy-skills.sh"
+      doctor:
+        - "tkt doctor -o json"
+        - "tkt audit --brief"
+        - "tkt validate --brief"
+      telemetry:
+        - "tkt telemetry --status"
+        - "tkt telemetry --show"
     seams:
       - skill: ticket-planning
         when: "decomposing work into tickets (ticket-planning uses tkt when available)"
