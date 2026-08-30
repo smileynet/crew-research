@@ -2,7 +2,7 @@
 id: "139"
 title: "Implement tools:telemetry read-only action"
 status: open
-blocked_by: []
+blocked_by: ["137"]
 ---
 
 # Implement tools:telemetry read-only action
