@@ -111,33 +111,6 @@ mise run release -- <version>             # changelog roll, tag, push, GH releas
 
 On Windows, **only init.sh requires WSL** (the generator is bash) — everything else, including recall, runs natively. Full setup flow (yq prerequisite, the deploy command with its load-bearing single quotes, username-mismatch variant, mise trust, recall scheduled task + profile hook) is owned by `.kiro/steering/user-setup-guide.md` § "Windows / WSL Setup" — do not duplicate it here. Tool set reminder: corp machines (CREW_ENV=corp) deploy kiro-cli + codex only (no agy); personal machines add `--tool agy`.
 
-## Recall Operations
-
-```bash
-# Install (Rust binary — single binary, no Python/venv deps)
-cargo install --path ~/code/recall
-# Or after crates.io publish: cargo install recall
-
-# Manual full ingestion
-recall sync                      # all projects + sessions
-
-# Check what's indexed
-recall status
-
-# Search memory
-recall search "what did we decide about X"
-
-# Import a project's knowledge
-recall import .memory/ --wing name
-
-# Health check
-recall health --json             # machine-readable (coverage, duplicates, freshness)
-
-# Verify scheduled task (Windows)
-Get-ScheduledTask -TaskName "RecallIngest" | Select State
-# Linux/macOS: crontab -l | grep recall
-```
-
 ## Skill Authoring Rules
 
 - `atomics/skills/{slug}/SKILL.md` — primary file, <100 lines
