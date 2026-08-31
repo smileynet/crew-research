@@ -1,7 +1,7 @@
 ---
 id: "147"
 title: "Tune data-modeling skill via eval against live/existing projects"
-status: open
+status: in_progress
 blocked_by: ["146"]
 ---
 
