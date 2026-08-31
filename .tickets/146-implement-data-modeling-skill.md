@@ -1,7 +1,7 @@
 ---
 id: "146"
 title: "Implement the data-modeling skill (create + review modes, references, code-review cross-link, full-tier entry)"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
