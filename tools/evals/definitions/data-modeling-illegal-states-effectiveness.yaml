@@ -1,0 +1,239 @@
+id: data-modeling-illegal-states-effectiveness  # immutable — never change once results reference it
+name: data-modeling-illegal-states-effectiveness
+description: "Does the data-modeling skill flag genuinely invalid-state-prone structures and refactor toward unrepresentable illegal states, WITHOUT over-flagging legitimately-simple ones? Tuning set: 2 synthetic + 8 real structures from live repos."
+skill: data-modeling
+
+conditions:
+  with-skill:
+    skills: [data-modeling]
+  baseline:
+    skills: []
+
+# TUNING SET — the skill IS tuned against these. Held-out corpus lives in
+# data-modeling-corpus-holdout.yaml (scored, never tuned against — overfit guard).
+# Per-item label encoded in criteria: FLAG items AUTOMATIC-FAIL if not flagged;
+# PASS items AUTOMATIC-FAIL if a problem is fabricated (over-application guard).
+
+tasks:
+  # ---- Synthetic positive: refactor boolean-flag soup ----
+  - name: synthetic-order-flags
+    input: |
+      Here is our Order type. Add support for a "refunded" state. An order that is
+      cancelled can't be shipped; an order can't be both pending and paid.
+      ```ts
+      interface Order {
+        isPending: boolean;
+        isPaid: boolean;
+        isShipped: boolean;
+        isCancelled: boolean;
+      }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Adds `isRefunded: boolean` (or any new bool) to the flag set without addressing that contradictory combinations remain representable.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Names the core problem: multiple booleans allow contradictory/illegal combinations
+      2. Proposes a single-field representation (enum / discriminated union / state machine)
+      3. The proposed type makes at least one previously-representable illegal combination unrepresentable by construction
+      4. Places "refunded" as a state rather than an orthogonal boolean
+      5. Reflects the stated transition constraints (cancelled≠shipped, pending≠paid)
+      6. Does NOT rely on runtime `if` guards as the primary mechanism
+      7. Justifies in terms of the type system enforcing invariants
+
+      SCORING: 0-1 = 1, 2-3 = 2, 4-5 = 3, 6 = 4, 7 = 5
+
+  # ---- Synthetic negative: over-application guard (independent flags) ----
+  - name: synthetic-feature-flags-no-refactor
+    input: |
+      Add a `betaDashboard` feature flag to this config. These are independent
+      opt-in toggles with no interdependencies.
+      ```ts
+      interface FeatureFlags { darkMode: boolean; betaSearch: boolean; }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Over-engineers genuinely independent booleans into a union/enum, or refuses to add the flag, when there are no illegal combinations.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Simply adds `betaDashboard: boolean`
+      2. Recognizes the flags are genuinely independent (all combinations legal)
+      3. Does NOT force a sum-type refactor where none is warranted
+      4. Change is minimal and correct
+      5. If it comments, correctly distinguishes this from the illegal-states case
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  # ---- Corpus SHOULD-PASS (well-modeled — must NOT fabricate findings) ----
+  - name: pass-tkt-status-enum
+    input: |
+      Review this Rust type for data-modeling issues (invalid states, source of truth).
+      ```rust
+      pub enum Status { Backlog, Open, InProgress, Done }
+      impl Status {
+        pub fn parse(s: &str) -> Result<Self> { /* fallible string boundary */ }
+        pub fn as_str(&self) -> &'static str { /* total */ }
+      }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant invalid-state/refactor finding — this is a correctly-modeled lifecycle sum type with a fallible parse boundary.
+
+      CHECKLIST:
+      1. Recognizes the closed lifecycle set is correctly modeled as a sum type
+      2. Notes the only string boundary is the fallible parse (correct "parse, don't validate")
+      3. Does NOT demand a refactor / reports no significant finding (a one-line "looks sound" is ideal)
+      4. Any comment is NIT-level at most, not a required change
+      5. Does not invent multiple-source-of-truth or invalid-state claims that don't apply
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: pass-recall-decision-enum
+    input: |
+      Review this Rust type for data-modeling issues.
+      ```rust
+      enum Decision { Proceed, Abort, RefuseNonInteractive, NeedsPrompt }
+      fn decide(assume_yes: bool, is_tty: bool, answer: Option<&str>) -> Decision { }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant finding — each decision outcome (including "needs a prompt first") is a distinct variant resolved by a pure function.
+
+      CHECKLIST:
+      1. Recognizes the outcome states are correctly modeled as an enum
+      2. Notes "NeedsPrompt" is a modeled state, not an ambiguous bool/null
+      3. Reports no required refactor (approving is correct)
+      4. Any comment is NIT-level
+      5. Does not invent invalid-state claims
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: pass-bigg-pi-result-union
+    input: |
+      Review this TypeScript type for data-modeling issues.
+      ```ts
+      type Result<T> = { status: "ok"; value: T } | { status: "error"; error: DomainError };
+      interface DomainError { code: "not-found" | "illegal-transition" | "stale-revision"; entity: "job" | "run"; id: string; message: string; }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant finding — this is a textbook discriminated union with closed string-literal unions.
+
+      CHECKLIST:
+      1. Recognizes Result<T> is a correct discriminated union (ok/error mutually exclusive)
+      2. Recognizes code/entity are closed literal unions (no invalid value representable)
+      3. Reports no required refactor
+      4. Any comment is NIT-level
+      5. Does not invent invalid-state claims
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: pass-bigg-pi-runphase
+    input: |
+      Review this TypeScript type for data-modeling issues.
+      ```ts
+      type RunPhase = "admitted" | "starting" | "running" | "completed" | "failed" | "cancelled";
+      interface RunRecord {
+        readonly id: string; readonly phase: RunPhase;
+        readonly settlement?: { outcome: string; reason: string };
+        readonly revision: number;
+      }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant finding — phase is a single closed enum, fields are readonly, and correlated settlement fields are grouped so they can't be half-populated.
+
+      CHECKLIST:
+      1. Recognizes phase is correctly a single closed enum (not boolean soup)
+      2. Recognizes grouping settlement fields prevents half-populated state
+      3. Reports no required refactor
+      4. Any comment is NIT-level
+      5. Does not invent invalid-state claims
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  # ---- Corpus SHOULD-FLAG (invalid states representable — must be flagged) ----
+  - name: flag-recall-searchresult-strings
+    input: |
+      Review this Rust struct for data-modeling issues.
+      ```rust
+      pub struct SearchResult {
+        pub id: i64, pub content: String, pub wing: String, pub room: String,
+        pub dtype: String,   // closed set: chunk type
+        pub source: String,  // closed set: "import:...", "agent", "session"
+        pub score: f64,
+      }
+      ```
+      Context: elsewhere the code matches `source = 'agent'`, `source LIKE 'import:%'`, `type = 'session'`.
+    criteria: |
+      AUTOMATIC FAIL (score 1): Approves without flagging that dtype/source encode closed category sets as unconstrained String (typos like "sesion" are representable-but-invalid).
+
+      CHECKLIST (score each YES/NO independently):
+      1. Flags dtype and/or source as closed categories typed as bare String
+      2. Notes a typo/invalid category is a representable invalid state
+      3. Notes the category set lives implicitly in scattered match/SQL sites (no single source of truth)
+      4. Recommends an enum (or newtype) for the closed categories
+      5. The recommendation is grounded (cites the field + the fix)
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: flag-recall-telemetryconfig-bools
+    input: |
+      Review this Rust struct for data-modeling issues.
+      ```rust
+      pub struct TelemetryConfig { pub enabled: bool, pub crash_reporting: bool }
+      ```
+      Context: crash_reporting is meaningless when telemetry is disabled.
+    criteria: |
+      AUTOMATIC FAIL (score 1): Approves without noticing that `enabled=false, crash_reporting=true` is a representable-but-meaningless combination.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Identifies the illegal/meaningless combination (enabled=false, crash_reporting=true)
+      2. Notes the 4-combo state space exceeds the valid space
+      3. Proposes a 3-state enum (Off | ErrorsOnly | Full) or a guard
+      4. Correctly treats this as an invariant to confirm, not a blanket "bools are bad"
+      5. Recommendation is grounded
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: flag-bigg-pi-hardgates
+    input: |
+      Review this TypeScript type for data-modeling issues.
+      ```ts
+      hardGates: { correctness: boolean; scope: boolean; tests: boolean; cancellation: boolean; security: boolean; };
+      ```
+      Context: overall pass = all true; pass/fail is computed at read time.
+    criteria: |
+      AUTOMATIC FAIL (score 1): Approves without flagging that five parallel booleans model a gate result whose summary state is derived, not encoded.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Flags the five parallel booleans as a derived-state smell
+      2. Notes 2^5 combinations are representable but the summary (pass/fail) is computed not encoded
+      3. Proposes an explicit representation (e.g. failedGates: GateName[] or a status enum)
+      4. Distinguishes this from genuinely-independent flags (these roll up to one result)
+      5. Recommendation is grounded
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  # ---- Borderline calibration (SHOULD-FLAG but must respect open-surface nuance) ----
+  - name: flag-tkt-config-stringly
+    input: |
+      Review this Rust config type for data-modeling issues.
+      ```rust
+      pub struct Config { values: BTreeMap<String, String> }
+      impl Config {
+        pub fn get(&self, key: &str) -> String { }
+        pub fn get_bool(&self, key: &str) -> bool { matches!(self.get(key).as_str(), "true" | "1" | "yes") }
+      }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Either ignores the stringly-typed smell entirely, OR demands a full rewrite without acknowledging an open config surface can legitimately use a map.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Notes values are fully stringly-typed and keys are unvalidated (typos read as default silently)
+      2. Notes get_bool's ad-hoc truthy set ("yes" true but "on" silently not) is fragile
+      3. Proposes typed accessors or a schema for known keys
+      4. Acknowledges an OPEN config surface may justify a map (frames it as a deliberate decision, not an automatic fail)
+      5. Recommendation is balanced and grounded
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+trials: 3
+threshold: 3.0
+delta_threshold: -0.5
+timeout: 180
+tags: [skill-effectiveness, data-modeling, illegal-states, tuning-set]

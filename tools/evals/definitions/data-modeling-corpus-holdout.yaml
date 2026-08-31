@@ -1,0 +1,129 @@
+id: data-modeling-corpus-holdout  # immutable — never change once results reference it
+name: data-modeling-corpus-holdout
+description: "HELD-OUT calibration set for the data-modeling skill — 5 real structures scored but NEVER tuned against. Its score is the generalization signal (guards against overfitting the skill to its tuning corpus, per ticket 147 research)."
+skill: data-modeling
+
+conditions:
+  with-skill:
+    skills: [data-modeling]
+  baseline:
+    skills: []
+
+# DO NOT tune the skill against these tasks. If tuning changes are needed, make them
+# from data-modeling-illegal-states-effectiveness (the tuning set) only. This def's
+# score measures whether those changes GENERALIZE. Overfit = tuning-set high, holdout low.
+
+tasks:
+  # ---- SHOULD-PASS ----
+  - name: holdout-pass-tkt-consent-enum
+    input: |
+      Review this Rust type for data-modeling issues.
+      ```rust
+      pub enum Consent { Enabled, Disabled }
+      pub enum ConsentReason { DoNotTrack, EnvVar, CiDetected, ConfigFile, Default }
+      pub fn check_consent() -> (Consent, ConsentReason) { }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant finding — the consent decision and its provenance are both enums; the priority hierarchy maps 1:1 to variants.
+
+      CHECKLIST:
+      1. Recognizes provenance (the "why") is correctly an enum, not free-text
+      2. Recognizes the (state, reason) pair is returned together
+      3. Reports no required refactor
+      4. Any comment is NIT-level
+      5. Does not invent invalid-state claims
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: holdout-pass-tkt-publishresult
+    input: |
+      Review this Rust type for data-modeling issues.
+      ```rust
+      pub enum PublishResult { Published, LocalOnly, Retried }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant finding — three genuinely distinct terminal outcomes as variants; a (bool, bool, bool) alternative would admit nonsense combos.
+
+      CHECKLIST:
+      1. Recognizes the three outcomes are correctly modeled as exclusive variants
+      2. Notes a bool-triple alternative would admit illegal combinations
+      3. Reports no required refactor
+      4. Any comment is NIT-level
+      5. Does not invent invalid-state claims
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: holdout-pass-bigg-pi-capabilities
+    input: |
+      Review this TypeScript type for data-modeling issues.
+      ```ts
+      const capabilities = ["filesystem_read","filesystem_write","network","credentials"] as const;
+      type Capability = (typeof capabilities)[number];
+      type CapabilityLevel = "deny" | "dormant" | "allow";
+      interface CapabilityRule { capability: Capability; level: CapabilityLevel; scopes: string[]; }
+      ```
+    criteria: |
+      AUTOMATIC FAIL (score 1): Fabricates a significant finding — single source of truth via `as const`, and a 3-state level enum instead of overlapping booleans.
+
+      CHECKLIST:
+      1. Recognizes the `as const` array is a single source of truth deriving the Capability type
+      2. Recognizes the 3-state level enum avoids overlapping booleans (deny/dormant/allow)
+      3. Reports no required refactor
+      4. Any comment is NIT-level
+      5. Does not invent invalid-state claims
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  # ---- SHOULD-FLAG ----
+  - name: holdout-flag-tkt-planentry
+    input: |
+      Review this Rust struct for data-modeling issues.
+      ```rust
+      pub struct PlanEntry {
+        pub source_path: PathBuf, pub old_slug: String, pub new_id: String,
+        pub status_mapped: String,          // output of a status-mapping step
+        pub priority_mapped: Option<String>,
+        pub deps_remapped: Vec<String>,
+      }
+      ```
+      Context: the crate already defines `Status` and `Priority` enums in core::ticket.
+    criteria: |
+      AUTOMATIC FAIL (score 1): Approves without flagging that status_mapped/priority_mapped are re-stringified despite existing Status/Priority enums.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Flags status_mapped: String as re-stringifying a value that has a proper enum
+      2. Flags priority_mapped: Option<String> similarly
+      3. Notes this invites drift and re-parse errors (multiple sources of truth for the type)
+      4. Recommends using Status / Option<Priority>
+      5. Recommendation is grounded
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+  - name: holdout-flag-line-cook-errortype
+    input: |
+      Review this Python dataclass for data-modeling issues.
+      ```python
+      @dataclass
+      class LoopError:
+          error_type: str   # "timeout|json_decode|subprocess|io|unknown" — documented in docstring only
+          message: str
+          context: dict[str, Any] = field(default_factory=dict)
+      ```
+      Context: the same module already defines `class FailureCategory(Enum)`.
+    criteria: |
+      AUTOMATIC FAIL (score 1): Approves without flagging that error_type is a stringly-typed closed category whose valid values live only in a docstring.
+
+      CHECKLIST (score each YES/NO independently):
+      1. Flags error_type: str as a stringly-typed closed category
+      2. Notes valid values live only in the docstring, not the type (typos invisible to the checker)
+      3. Notes an idiomatic fix already exists in-module (FailureCategory enum)
+      4. Recommends making error_type the enum
+      5. Recommendation is grounded
+
+      SCORING: 0-1 = 1, 2 = 2, 3 = 3, 4 = 4, 5 = 5
+
+trials: 3
+threshold: 3.0
+delta_threshold: -0.5
+timeout: 180
+tags: [skill-effectiveness, data-modeling, illegal-states, holdout]

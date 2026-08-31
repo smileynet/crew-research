@@ -1,0 +1,31 @@
+id: activation-data-modeling  # immutable — survives renames; never change once results reference it
+name: activation-data-modeling
+skill: data-modeling
+category: activation
+
+tasks:
+  # Positives — modeling decisions + data-structure review
+  - input: "I'm adding a 'refunded' state to our Order type that currently uses isPending/isPaid/isShipped booleans. How should I model this?"
+    expect_activation: true
+  - input: "Review this struct for invalid states — should these fields be an enum instead of separate booleans?"
+    expect_activation: true
+  - input: "We have a `status` field that's a plain string. Should it be a discriminated union?"
+    expect_activation: true
+  - input: "Model the seat states for a ticketing app: a seat is open, held during checkout, or sold."
+    expect_activation: true
+  - input: "Look at our data structures and tell me if any of them let illegal states be represented."
+    expect_activation: true
+  # Negatives — pure Q&A + unrelated build/ops (stay OUT of modeling/review territory)
+  - input: "What's the difference between a struct and a class in C++?"
+    expect_activation: false
+  - input: "Deploy the staging environment to AWS."
+    expect_activation: false
+  - input: "Generate a UUID in Python."
+    expect_activation: false
+  - input: "Write a migration script to add the email_verified column."
+    expect_activation: false
+  - input: "Rename the variable `tmp` to `buffer` throughout this file."
+    expect_activation: false
+
+threshold: 3.5
+timeout: 60
