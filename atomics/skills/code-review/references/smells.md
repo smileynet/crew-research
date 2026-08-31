@@ -16,6 +16,8 @@ Apply to every diff regardless of project standards. Each is a heuristic — fla
 
 - **Primitive Obsession** — string or int standing in for a domain concept. → Give the concept its own type.
 
+_For deeper representation review (invalid states, sum types, single source of truth, denormalization drift) beyond these tactical smells, apply the data-modeling skill's [review-lens](../../data-modeling/references/review-lens.md)._
+
 - **Repeated Switches** — same switch/if-cascade on the same type recurs across the change. → Replace with polymorphism or one shared map.
 
 - **Shotgun Surgery** — one logical change forces scattered edits across many files. → Gather what changes together into one module.
