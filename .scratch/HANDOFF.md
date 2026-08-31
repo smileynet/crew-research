@@ -1,55 +1,54 @@
 ---
-created_at: 2026-08-31T12:02:00-07:00
-base_commit: c66d731
-handoff_key: data-modeling-eval
+created_at: 2026-08-31T16:03:00-07:00
+base_commit: f26dc81
+handoff_key: ticket-plan-handoff-workstream
 ---
 
 # Handoff
 
 ## Objective
-Ship + validate the `data-modeling` skill (invalid-states-unrepresentable design/review).
-Skill is DONE and deployed (146). Eval infra is built and RAN on Windows (147). Remaining:
-optional skill tuning once the eval's own confounds are addressed.
+Reduce ticket-workflow ceremony/drift: (148) enforce ticket readiness, (149) slim PLAN.md to
+narrative + retire sync-plan tabular drift machinery, (150) restructure handoff to the in-flight
+delta. All are DESIGNED + ticketed; none implemented yet. Companion tkt#173 (mechanical readiness).
 
 ## Constraints
-- Windows host + minimal Fedora WSL: the Linux eval harness (`run.sh`/`run-activation.sh`)
-  CANNOT run here (kiro-cli is a `.exe` off WSL PATH; no `sqlite3` CLI; setsid dies on
-  `wsl.exe` return). Use `tools/evals/scripts/run-eval-windows.py` (native, no WSL).
-- `wsl -- bash -c '...'` mangles nested quotes/loop vars/`$?` — run native PowerShell/python
-  for non-bash work (see project-conventions windows.md).
+- **No archwright pipeline needed** — the design is already resolved on disk: cite
+  `design/patterns/automate-or-drop.md` (★★), `design/forces/ceremony-decays.md`,
+  `design/forces/pf-plan-reflects-truth.md`. Direct edits.
+- **`sync-plan` is a tkt CLI subcommand (D:/code/tkt)** — 149's retirement spans TWO repos; needs
+  a tkt companion ticket for the CLI half.
+- Windows eval env: use `tools/evals/scripts/run-eval-windows.py`, not the Linux harness.
 
 ## Prior Decisions
-- data-modeling = standalone on-demand skill, NOT always-on steering, NOT a 3rd code-review
-  axis; review lens cross-linked from code-review Standards (145 resolution).
-- eval-execution moved from steering → `eval-harness/references/execution.md` (failed all 3
-  eager-context gates). Guidance belongs in skills when situational.
-- Did NOT tune the skill from eval FPs: the high FP-rate is EVAL mislabels/criteria, not
-  skill over-application (skill is more discerning than the hand-labels).
+- PLAN.md: replace-with-lighter, NOT deprecate. Tabular layer (status/blocked_by/frontier) =
+  redundant with tickets; narrative layer (campaign arc, ordering rationale) = keep. spec-driven-
+  development survives untouched (uses PLAN.md as narrative map, not status table).
+- Handoff: over-specified; collapse to Focus/In-Flight/Fog/Constraints + `in_flight_ticket`
+  frontmatter. Prior-Decisions/Next-Steps RELOCATE to recall/ticket pointers, never delete.
+- Full rationale + 20-row change map: `.memory/specs/ticket-plan-handoff-workstream.md`.
 
 ## Current State
-Tickets: 136–141 (known-tools orchestration) + 145/146 (data-modeling) DONE. 147 in_progress.
-Working tree clean, all pushed. Eval ran (trials=2): TPR=1.0 both sets; FP-rate 0.8/1.0 traced
-to over-generous PASS labels + strict criteria (verified by reading outputs). Full analysis:
-`docs/development/data-modeling-eval-2026-08-31.md`.
+This session was pure DESIGN + ticketing — no implementation code written for 148/149/150.
+Reference `tkt ready` for frontier. In-head-not-in-a-file: nothing pending — all analysis is in
+the tracked spec, all tickets self-sufficient (refs point to tracked paths, verified).
 
 ## Next Steps
-1. (147, optional) Re-label corpus: `Consent`/`RunPhase`/likely `PublishResult`/`capabilities`
-   are FLAG-worthy (model found real coupling smells). Loosen PASS criteria to reward
-   "affirms soundness + NITs". Re-run via run-eval-windows.py, then confusion-matrix.py.
-2. Only after that: decide if skill wording needs any change (evidence says probably not).
-3. Close 147 or leave as documented-deferred.
+1. Implement in order: 150 (has an eval to catch regression) → 148 → tkt#173 + 149 (cross-repo, ADR).
+2. 150 MUST update `handoff-decaying-resolution.yaml` criteria in the same change + re-run 5 trials
+   (eval is flaky at the delta gate; relocate-don't-delete or it false-fails).
+3. 148 ships with a new `activation-plan-ticket-sync.yaml` (zero coverage today).
+4. 149 authors an ADR reversing ticket 64 (sync-plan --fix) + files the tkt companion ticket.
 
 ## Fog
-Whether the near-zero with-skill−baseline delta means the skill adds little on clear-cut
-cases, or the single kiro-cli judge just can't discriminate. Needs a 2nd judge to resolve —
-don't tune the skill on single-judge signal.
+Whether 149 should retire `sync-plan` entirely or narrow it to Title-only drift — depends on
+whether the tkt CLI keeps any plan awareness after the slim. Decide during 149 with the tkt owner.
 
 ## Evidence
-- `docs/development/data-modeling-eval-2026-08-31.md` (results + confusion matrices + finding)
-- `tools/evals/definitions/data-modeling-*.yaml` (3 defs), `tools/evals/scripts/run-eval-windows.py`, `confusion-matrix.py`
-- Skill: `atomics/skills/data-modeling/` (SKILL.md + references/patterns.md, review-lens.md)
-- Commits this session: eb18149→f62c680→c66d731 (guidance, AGENTS dedup, eval-execution move)
+- `.memory/specs/ticket-plan-handoff-workstream.md` (3-layer model, all 3 parts, change map, exec order)
+- Tickets: `.tickets/148,149,150-*.md`; tkt repo `.tickets/173-*.md`
+- Design basis: `design/patterns/automate-or-drop.md`, `design/forces/{ceremony-decays,pf-plan-reflects-truth}.md`
+- Commits: 85537bd (spec+ticket refs), f26dc81 (guidance-sync gate), tkt 4233d1e (durable-refs rule)
 
 ## Recommended Updates
-- [ ] eval-criteria: PASS-item criteria pattern that doesn't score NITs as fabrication (147 revealed the gap)
-- [ ] .tickets: plan.md drift (orphan rows 07/63; ~15 open tickets lack plan rows) — pre-existing, run /plan-ticket-sync
+- [ ] (150) handoff restructure will itself apply the leaner shape this handoff still uses — expected
+- [ ] CONTEXT.md: 11 verbose entries could trim + 4 gate-failures to route (subagent-reviewed, deferred — needs a decision)
