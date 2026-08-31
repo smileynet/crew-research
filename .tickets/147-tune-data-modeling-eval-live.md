@@ -83,3 +83,23 @@ the harness-scored run + tuning — needs a **Linux-native machine** (or a harne
 Windows-interop adapter). Run commands + tuning protocol are in the results doc.
 
 **Blocked on: Linux-native eval environment.** Reopen the run/tune ACs there.
+
+## Status 2026-08-31 (later) — UNBLOCKED via Windows-native runner
+
+The Linux-harness blocker was worked around: `kiro-cli.exe` runs headless on Windows and
+honors `KIRO_HOME` isolation, so `tools/evals/scripts/run-eval-windows.py` (pure Python +
+PyYAML, no WSL) drives the same dual-run job natively. Committed 0e0859f.
+
+Both defs RAN on Windows (trials=2). Effectiveness: TPR=1.0, precision=0.56, FP-rate=0.80,
+F1=0.71. Holdout: TPR=0.5, precision=0.25, FP-rate=1.0. Strong recall, high false-positive
+rate (over-flags well-modeled types — the predicted over-application). Full numbers +
+per-item confusion matrices in `docs/development/data-modeling-eval-2026-08-31.md`.
+
+**Skill tuning DEFERRED (with reason, not blocked):** the FP signal is confounded by
+(a) empty generations scored as failures (tkt-planentry produced 0 bytes), (b) single
+kiro-cli judge noise vs the Linux consensus panel, (c) review-prompt framing the judge reads
+as "fabrication" on PASS items. Editing the skill now would overfit to judge noise. Next:
+add empty-gen retry to the runner + a second judge / tighter PASS criteria, re-run, then
+attribute residual FP to skill vs harness and tune the "When NOT to model harder" suppression.
+
+Remaining AC (skill tuning) is a follow-on once the runner confounds are fixed.
