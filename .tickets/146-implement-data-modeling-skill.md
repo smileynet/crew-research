@@ -1,7 +1,7 @@
 ---
 id: "146"
 title: "Implement the data-modeling skill (create + review modes, references, code-review cross-link, full-tier entry)"
-status: in_progress
+status: done
 blocked_by: []
 ---
 
@@ -64,9 +64,13 @@ carry the over-application tension into the eval (ticket 147 task 2).
 
 ## Acceptance criteria
 
-- [ ] `atomics/skills/data-modeling/SKILL.md` exists, <100 lines, valid frontmatter, both modes
-- [ ] `references/patterns.md` (per-language) + `references/review-checklist.md` (~13 items, 2 groups)
-- [ ] code-review cross-link added; Primitive Obsession one-liner dedup'd to one owner
-- [ ] added to full.yaml under # Build; `mise run validate` passes
-- [ ] deployed + activation smoke-checked (skill triggers on data-modeling phrasings)
-- [ ] eval defs are ticket 147's scope (not this ticket)
+- [x] `atomics/skills/data-modeling/SKILL.md` exists, <100 lines, valid frontmatter, both modes
+- [x] `references/patterns.md` (per-language) + `references/review-checklist.md` (~13 items, 2 groups)
+- [x] code-review cross-link added; Primitive Obsession one-liner dedup'd to one owner
+- [x] added to full.yaml under # Build; `mise run validate` passes
+- [x] deployed + activation smoke-checked (skill triggers on data-modeling phrasings)
+- [x] eval defs are ticket 147's scope (not this ticket)
+
+## Resolution (2026-08-31)
+
+Built data-modeling skill. SKILL.md (67 lines, type:reference, invocation:both): create-side 4 moves (sum types over bool pairs, new-type wrappers, parse-dont-validate, single source of truth) + 'When NOT to model harder' (6 over-modeling exemptions) + Scope (no verdict, defers to code-review). references/patterns.md: per-language table (Rust/TS/Python/Go enforcement + gotchas, L4 sources). references/review-lens.md: 5 firing gates (invariant test primary, NIT-default+3x-escalate, repo-override, grounding, no-over-modeling) + 12-item checklist (type-shape + schema), findings-only NO verdict. Cross-referenced from code-review SKILL.md Standards source list + smells.md pointer (dedup: smells owns review one-liners, data-modeling owns depth). Added to full.yaml # Build. VERIFIED: validate 21 files resolve, lint exit 0, deployed global (skills 44->45, both refs + cross-link resolve in deployed tree), activation smoke-check PASSED (headless kiro-cli on held:bool/sold:bool produced skill's exact guidance - state-count table, discriminated union w/ state-carrying variants, per-language TS/Rust/Python, transition+DB-boundary concerns, clarifying Qs not over-modeling). Unblocks 147 (eval-tune).
