@@ -59,3 +59,27 @@ false-negative rates that a hand-made fixture can't.
 - [ ] Skill tuned from FP/FN findings; changes fed back to 146's skill files
 - [ ] Activation gates pass (TPR>=0.5, FPR<=0.2) AND live-corpus false-positive rate documented as acceptable
 - [ ] Results recorded in docs/development/
+
+## Status 2026-08-31 — BUILD DONE, EXECUTION BLOCKED (env)
+
+Artifacts complete + committed (a8a735a) + pushed; results/blocker recorded in
+`docs/development/data-modeling-eval-2026-08-31.md`:
+- 3 defs: `activation-data-modeling`, `data-modeling-illegal-states-effectiveness`
+  (2 synthetic + 8 tuning corpus), `data-modeling-corpus-holdout` (5 held-out; 8/5 split
+  chosen to avoid overfitting the skill to its own test set).
+- `tools/evals/scripts/confusion-matrix.py` (per-item TP/FP/TN/FN + precision/recall/FP-rate/F1).
+- Live corpus: 13 real structures from recall/tkt (Rust) + bigg-pi (TS) + line-cook (Py);
+  no Go on this machine.
+
+**Execution (run + tune) BLOCKED by a Linux-native-vs-Windows/WSL harness mismatch** —
+confirmed via multiple approaches (see the doc): (1) `run.sh` adapter probe fails because
+kiro-cli is a Windows `.exe` not on the WSL PATH, and a `.exe` PATH-wrapper hit WSL→exe
+arg-marshalling failure; (2) activation harness needs the `sqlite3` CLI (absent; minimal
+Fedora WSL, no package manager) and the XDG DB path (real DB is in Windows AppData);
+(3) `setsid nohup` background jobs die when the `wsl.exe` invocation returns.
+
+Activation *behavior* is field-proven (ticket 146 headless smoke-check). What remains is
+the harness-scored run + tuning — needs a **Linux-native machine** (or a harness
+Windows-interop adapter). Run commands + tuning protocol are in the results doc.
+
+**Blocked on: Linux-native eval environment.** Reopen the run/tune ACs there.
