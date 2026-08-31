@@ -23,8 +23,7 @@ rationale for zero gain.
 Design is ALREADY RESOLVED (no archwright pipeline needed) — cite existing artifacts:
 - `design/patterns/automate-or-drop.md` (★★): "Every contract field has a named owner, or it isn't in the contract"
 - `design/forces/pf-plan-reflects-truth.md`: polices against a third status copy
-- `design/patterns/ceremony-decays.md`
-
+- `design/forces/ceremony-decays.md`
 Prior art: tektoncd/pipeline roadmap.md (narrative + label-fed board, "don't manually set Done —
 let automation handle it") — the exact target shape. Hand-maintained status table = recognized anti-pattern.
 
@@ -48,10 +47,12 @@ let automation handle it") — the exact target shape. Hand-maintained status ta
 
 ## References
 
-- `.scratch/subagent-raw/planmd-analysis.md` (layer split, breakage map, verdict)
-- `.scratch/subagent-raw/migration-map.md` (20-row change map: 8 load-bearing / 9 incidental)
-- `.scratch/research/plan-vs-tickets-priorart.md`, `.scratch/research/roadmap-as-code-priorart.md`
-- Relates: 148 (frees plan-ticket-sync), 150 (handoff sync-step removal overlaps)
+- **`.memory/specs/ticket-plan-handoff-workstream.md` § Part 2 + Change map** — the two-layer analysis
+  (tabular=redundant / narrative=irreducible), maintenance-cost breakdown, tektoncd prior art, the full
+  20-row change map, and the cross-repo flag (TRACKED source of truth)
+- Design basis (TRACKED): `design/patterns/automate-or-drop.md` (★★), `design/forces/ceremony-decays.md`,
+  `design/forces/pf-plan-reflects-truth.md`
+- Relates: 148 (frees plan-ticket-sync), 150 (handoff sync-step removal overlaps), tkt companion (sync-plan CLI)
 
 ## Acceptance criteria
 

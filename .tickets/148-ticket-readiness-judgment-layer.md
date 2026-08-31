@@ -44,9 +44,9 @@ its core job with no regression signal is a standing gap — ship with at least
 
 ## References
 
-- `.scratch/subagent-raw/ticket-completeness.md` (readiness definition, where-to-enforce)
-- `.scratch/research/ticket-readiness-priorart.md` (DoR/INVEST), `.scratch/research/dor-tooling-priorart.md` (Jira/Linear precedent)
-- Relates to 149 (frees plan-ticket-sync's row-maintenance) and ticket B in tkt repo (mechanical rule)
+- **`.memory/specs/ticket-plan-handoff-workstream.md` § Part 1** — readiness definition (WELL-FORMED
+  vs READY-TO-START), layered mechanical/judgment enforcement, DoR/INVEST + Jira/Linear prior art (TRACKED source of truth)
+- Relates to 149 (frees plan-ticket-sync's row-maintenance) and tkt#173 (the mechanical validate rule)
 
 ## Acceptance criteria
 

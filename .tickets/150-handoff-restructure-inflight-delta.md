@@ -50,9 +50,9 @@ Restructure `atomics/skills/handoff/SKILL.md` required sections:
 
 ## References
 
-- `.scratch/subagent-raw/handoff-necessity.md` (per-section verdict + leaner shape)
-- `.scratch/subagent-raw/eval-regression-risk.md` (eval coverage, flakiness, relocate-not-delete)
-- `.scratch/research/handoff-priorart.md` (three-layer model, point-don't-paste)
+- **`.memory/specs/ticket-plan-handoff-workstream.md` § Part 3** — per-section KEEP/COLLAPSE verdict,
+  the leaner shape, eval coverage + flakiness, and the relocate-not-delete lesson (TRACKED source of truth)
+- Covering eval (TRACKED): `tools/evals/definitions/handoff-decaying-resolution.yaml` (criteria to update in the same change)
 - Relates: 148 (readiness nudge line), 149 (removes the handoff sync-plan step)
 
 ## Acceptance criteria
