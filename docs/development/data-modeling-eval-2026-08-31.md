@@ -82,11 +82,64 @@ Then tune SKILL.md / review-lens.md from **tuning-set** FP/FN only; report the *
 confusion matrix separately as the generalization signal. Honest target per the calibration
 research: real review tools score 33–47% F1 — favor precision (low over-flag rate) over recall.
 
+## UPDATE 2026-08-31 (later) — Windows-native runner UNBLOCKS execution
+
+The blocker was the Linux harness, not the agent. `kiro-cli.exe` runs headlessly on
+Windows and honors `KIRO_HOME` isolation (both verified). So a Windows-native runner was
+built: `tools/evals/scripts/run-eval-windows.py` (pure Python + PyYAML, no WSL). Per
+task/condition/trial it builds a temp `KIRO_HOME` with only the condition's skills, invokes
+`kiro-cli.exe chat --no-interactive -a --wrap never`, judges the output with `kiro-cli.exe`
+(1–5 vs the task criteria), and emits a `scores.jsonl` compatible with `confusion-matrix.py`
+(plus an incremental `task_scores.partial.jsonl` so long runs are partial-safe).
+
+### Results (trials=2, single kiro-cli judge)
+
+**Effectiveness / tuning set** (`confusion-matrix.py`): TP=5 FP=4 TN=1 FN=0 →
+**TPR=1.0, precision=0.56, FP-rate=0.80, F1=0.71**. with-skill avg 3.35 vs baseline 3.40 (delta −0.05).
+
+**Holdout set**: TP=1 FP=3 TN=0 FN=1 → TPR=0.5, precision=0.25, FP-rate=1.0, F1=0.33.
+with-skill 2.00 vs baseline 1.90 (delta +0.10).
+
+### Findings (why NOT to blindly tune the skill yet)
+
+1. **Strong recall, weak precision.** The skill/model reliably flags genuinely-bad
+   structures (all FLAG items caught on the tuning set) but over-flags well-modeled ones —
+   inspected PASS outputs show the model volunteering refactors for already-sound enums
+   (e.g. proposing to fold recall's `Decision::RefuseNonInteractive` into `Abort`). This is
+   the over-application risk the 145 fork analysis predicted, now measured.
+2. **with-skill ≈ baseline everywhere.** Near-zero delta means the skill isn't changing
+   behavior much vs an unaided model on these tasks — consistent with 145's prediction that
+   capable models handle the obvious cases unprompted, but it also means the current judge
+   isn't discriminating skill effect.
+3. **Measurement confounds found (must fix before the FP signal drives skill edits):**
+   - **Empty generations scored as failures.** All 4 `tkt-planentry` outputs were 0 bytes
+     (a kiro-cli invocation miss on that task), so its FN is a runner artifact, not a skill
+     gap. The runner needs empty-output detection + retry.
+   - **Single-judge noise.** The Linux harness uses a consensus panel; this runner uses one
+     kiro-cli judge with terse criteria — noisier, and it reads review-mode suggestions as
+     "fabrication" on PASS items.
+   - **Review-prompt framing.** Asking "review this for issues" invites suggestions; the
+     PASS-item criteria treat any suggestion as a false positive. The criteria wording (not
+     just the skill) needs calibration.
+
+### Conclusion / next tuning step (evidence-based, not reflexive)
+
+The infrastructure now runs end-to-end on Windows and produces a real, repeatable signal.
+Before editing the skill: (a) add empty-generation retry to the runner, (b) either add a
+second judge or tighten the PASS-item criteria so principled "no significant finding"
+answers score high, then (c) re-run and attribute the residual FP rate to the skill vs the
+harness. The high-recall/low-precision shape suggests the eventual skill tuning will
+strengthen the "When NOT to model harder" suppression — but only after the confounds are
+removed, to avoid overfitting to single-judge noise. Honest target (calibration research):
+real review tools reach only 33–47% F1; favor precision.
+
 ## AC status
 
-- [x] Both eval defs created and runnable (dry-run accepted; runtime blocked by env, not defs)
+- [x] Both eval defs created and runnable — RUN on Windows via run-eval-windows.py
 - [x] Live-project corpus assembled (13 real structures, multi-language, PASS/FLAG mix)
-- [ ] Review mode scored over the corpus — BLOCKED (harness can't drive kiro-cli in this env)
-- [ ] Skill tuned from FP/FN — BLOCKED (depends on scores)
-- [ ] Activation gates pass — activation behavior field-proven (146); harness TPR/FPR BLOCKED
+- [x] Review mode scored over the corpus — per-item TPR/precision recorded (above)
+- [~] Skill tuned from FP/FN — DEFERRED with reason: confounds (empty-gen, single-judge,
+      criteria framing) must be removed first so tuning doesn't overfit to judge noise
+- [~] Activation gates — behavior field-proven (146); harness TPR/FPR uses the Linux
+      activation runner (sqlite3/DB-path bound); a Windows activation variant is future work
 - [x] Results recorded (this doc)
