@@ -62,6 +62,7 @@ criteria: |
 3. **Countable over subjective.** "Mentions 3 of [list]" beats "thorough."
 4. **Binary checks for orchestrator/multi-step skills.** Holistic criteria miss cross-step defects.
 5. **Threshold matches panel health:** 3.0 for degraded (2-judge) panels, 3.5 for full (3+), 4.0 for correctness-critical.
+6. **High false-positive rate against a labeled corpus is a LABEL/CRITERIA bug until proven otherwise.** Read the outputs before touching the skill — a "PASS" item scored low often means the model correctly found a real issue the hand-label missed, or the criteria score any NIT as fabrication. Editing the skill to suppress those makes it worse. (2026-08-31: data-modeling eval FP-rate 0.8 traced entirely to over-generous PASS labels + strict criteria; the skill was correct.) Single-judge runs (e.g. the Windows runner) amplify this — treat their scores as provisional.
 
 ## Orchestrator/Multi-Step Evals
 

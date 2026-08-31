@@ -2,7 +2,40 @@
 
 When running evals (`mise run eval`, `mise run eval:one`, or the harness directly):
 
-## Always use background execution
+## Windows-native execution (harness can't run under WSL here)
+
+On this Windows host the Linux harness (`run.sh`, `run-activation.sh`) CANNOT run — use
+`tools/evals/scripts/run-eval-windows.py` instead (validated 2026-08-31). Three confirmed
+causes the Linux harness trips on (don't retry them):
+
+- **Adapter probe SKIPs every def** — `run.sh` invokes `kiro-cli` (bare); inside WSL only
+  `kiro-cli.exe` exists (not on the WSL PATH). A `.exe` PATH-wrapper fails on WSL→exe arg
+  marshalling (empty subcommand).
+- **Activation harness needs the `sqlite3` CLI** (absent; minimal Fedora WSL, no package
+  manager) and reads `$HOME/.local/share/kiro-cli/data.sqlite3`, but the real DB is at
+  `%LOCALAPPDATA%\Kiro-Cli\data.sqlite3` (Windows AppData).
+- **`setsid nohup … &` dies** when the `wsl.exe` invocation returns — the WSL session tears
+  down its process tree, so backgrounded runs leave no log. (Verified: even a trivial loop.)
+
+`run-eval-windows.py` (pure Python + PyYAML, native Windows — no WSL) reads the same def
+YAML, isolates each condition with a temp `KIRO_HOME` containing only its skills, invokes
+`kiro-cli.exe chat --no-interactive -a --wrap never`, judges each output with `kiro-cli.exe`
+(`SCORE: N`), and emits a `scores.jsonl` compatible with `tools/evals/scripts/confusion-matrix.py`.
+
+```powershell
+python tools\evals\scripts\run-eval-windows.py tools\evals\definitions\<def>.yaml --trials 2 --out tools\evals\results\<dir>
+python tools\evals\scripts\confusion-matrix.py tools\evals\results\<dir>\scores.jsonl <def-name>
+```
+
+Runner rules (learned the hard way, don't re-derive):
+- Capture kiro-cli output with `encoding="utf-8", errors="replace"` — default cp1252 crashes
+  on box-drawing chars (`charmap codec can't decode`).
+- Empty/timeout generations must retry then be EXCLUDED from the average (sentinel), never
+  scored low — otherwise an empty gen reads as a false negative.
+- It runs foreground and finishes in minutes (no setsid needed — that's the Linux path);
+  it writes `task_scores.partial.jsonl` incrementally so a killed call keeps progress.
+
+## Always use background execution (Linux/native only)
 
 Evals take 5-15 minutes each. A full suite (100+) takes hours. Never run inline.
 (Exception: `--dry-run` finishes in seconds — inline is fine.)
