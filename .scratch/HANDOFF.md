@@ -1,57 +1,55 @@
 ---
-created_at: 2026-08-29T22:24:00-07:00
-base_commit: d70b4b6
-handoff_key: dispatch-review-kiro-v3
+created_at: 2026-08-31T12:02:00-07:00
+base_commit: c66d731
+handoff_key: data-modeling-eval
 ---
 
 # Handoff
 
 ## Objective
-Multi-model independent code review (dispatch-review), from a kiro-cli 2.19.2 feature review.
-Capability is BUILT, VALIDATED, and now DEPLOYED. Remaining = follow-up hardening + doc edits.
+Ship + validate the `data-modeling` skill (invalid-states-unrepresentable design/review).
+Skill is DONE and deployed (146). Eval infra is built and RAN on Windows (147). Remaining:
+optional skill tuning once the eval's own confounds are addressed.
 
 ## Constraints
-- Reviewer permissions: **yolo is the default in all cases** (opencode `--auto`, codex
-  `--dangerously-bypass-approvals-and-sandbox`); contained by throwaway git-worktree isolation.
-- Run matrix.sh under **Git Bash, not WSL** (opencode is native-Windows). Bound hang-prone CLIs
-  with `Start-Job`+`Wait-Job -Timeout`. Validate by output content, never exit code.
-- kiro-cli v3 CANNOT run headless (hangs) — pin `--agent-engine v2` for scripted work.
-- **Committing skill/steering source ≠ deploying it** — run `init.sh` + doctor after skill work.
+- Windows host + minimal Fedora WSL: the Linux eval harness (`run.sh`/`run-activation.sh`)
+  CANNOT run here (kiro-cli is a `.exe` off WSL PATH; no `sqlite3` CLI; setsid dies on
+  `wsl.exe` return). Use `tools/evals/scripts/run-eval-windows.py` (native, no WSL).
+- `wsl -- bash -c '...'` mangles nested quotes/loop vars/`$?` — run native PowerShell/python
+  for non-bash work (see project-conventions windows.md).
 
-## Prior Decisions (durable — also in recall/decisions)
-- Parent-aggregates single-writer fan-in over per-model tickets (ID-race).
-- Multi-JUDGE panel grades (agents grade, not a matcher, not self-grade).
-- Dedup findings on location+fault; category advisory. Two-layer provenance.
+## Prior Decisions
+- data-modeling = standalone on-demand skill, NOT always-on steering, NOT a 3rd code-review
+  axis; review lens cross-linked from code-review Standards (145 resolution).
+- eval-execution moved from steering → `eval-harness/references/execution.md` (failed all 3
+  eager-context gates). Guidance belongs in skills when situational.
+- Did NOT tune the skill from eval FPs: the high FP-rate is EVAL mislabels/criteria, not
+  skill over-application (skill is more discerning than the hand-labels).
 
 ## Current State
-Status lives in docs/plan.md (new "kiro-v3 / dispatch-review workstream" section, tickets 123-135)
-and tkt. This session-arc: deployed the skill (pruned old dispatch-codex-review), built+closed 134
-(`matrix.sh --health` readiness preflight), reconciled the plan (`sync-plan --fix` cleared 9 status
-drifts + added the kiro-v3 section). Nothing half-done in-head — all committed at d70b4b6.
+Tickets: 136–141 (known-tools orchestration) + 145/146 (data-modeling) DONE. 147 in_progress.
+Working tree clean, all pushed. Eval ran (trials=2): TPR=1.0 both sets; FP-rate 0.8/1.0 traced
+to over-generous PASS labels + strict criteria (verified by reading outputs). Full analysis:
+`docs/development/data-modeling-eval-2026-08-31.md`.
 
 ## Next Steps
-- Frontier (open): 125 (write stream-json-schema.md + test-5), 132 (image-handling steering edits),
-  124 (blocked_by 125). Backlog: 128/129/131/133/135, 126.
-- Two USER DECISIONS still pending: (1) scratch cleanup — ~141 gitignored files in .scratch/research|review,
-  findings distilled to tickets, safe to delete (irreversible); (2) 17 pre-existing missing-plan-rows
-  (old spikes 69,92-122 — not this workstream's; adopt or accept as backlog-not-in-plan).
+1. (147, optional) Re-label corpus: `Consent`/`RunPhase`/likely `PublishResult`/`capabilities`
+   are FLAG-worthy (model found real coupling smells). Loosen PASS criteria to reward
+   "affirms soundness + NITs". Re-run via run-eval-windows.py, then confusion-matrix.py.
+2. Only after that: decide if skill wording needs any change (evidence says probably not).
+3. Close 147 or leave as documented-deferred.
 
 ## Fog
-- Codex reviewer leg (131): env-blocked — codex 0.147.0 can't serve a usable model
-  (gpt-5.6-sol needs newer CLI; gpt-5.1-codex rejected on ChatGPT auth). Can't confirm codex leg live.
-- `--health` failure taxonomy (135): only 1 of 5 reason-classes (`server_error`) verified live;
-  model_unavailable/auth/quota/empty_or_timeout are regex-only, unproven.
-- Cross-model skill activation unreliable (only GLM read review-new-work) — neutralized by the
-  inline findings-only prompt, not solved.
+Whether the near-zero with-skill−baseline delta means the skill adds little on clear-cut
+cases, or the single kiro-cli judge just can't discriminate. Needs a 2nd judge to resolve —
+don't tune the skill on single-judge signal.
 
 ## Evidence
-- Validated matrix run: `.scratch/review/t130-p4/` (3-model + aggregate-ticket.md + judge-*.out).
-- 3-judge unanimous: recall 10/10, precision 10/12, FDR 0/12 (ticket 130 Phase 6).
-- Health: `matrix.sh --health` → 3/3 healthy exit 0; bogus → server_error exit 1.
-- Code: `tools/review/matrix.sh` (+ `--health`), `tools/review/fixtures/planted-review/`,
-  `atomics/skills/dispatch-review/`, `atomics/skills/coding-plan-limits/`.
+- `docs/development/data-modeling-eval-2026-08-31.md` (results + confusion matrices + finding)
+- `tools/evals/definitions/data-modeling-*.yaml` (3 defs), `tools/evals/scripts/run-eval-windows.py`, `confusion-matrix.py`
+- Skill: `atomics/skills/data-modeling/` (SKILL.md + references/patterns.md, review-lens.md)
+- Commits this session: eb18149→f62c680→c66d731 (guidance, AGENTS dedup, eval-execution move)
 
 ## Recommended Updates
-- [ ] Decide + execute .scratch cleanup (deferred twice).
-- [ ] Verify --health failure taxonomy or label best-effort (ticket 135).
-- [ ] Resolve 17 pre-existing missing-plan-rows (spikes) — separate /plan-ticket-sync pass.
+- [ ] eval-criteria: PASS-item criteria pattern that doesn't score NITs as fabrication (147 revealed the gap)
+- [ ] .tickets: plan.md drift (orphan rows 07/63; ~15 open tickets lack plan rows) — pre-existing, run /plan-ticket-sync
