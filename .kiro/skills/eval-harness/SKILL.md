@@ -9,9 +9,9 @@ metadata:
 
 # Eval Harness
 
-Run discipline (backgrounding, setsid, observation cycles) lives in `.kiro/steering/eval-execution.md` — always loaded. This skill covers invocation and output interpretation.
+Run discipline (backgrounding, setsid, observation cycles, headless invocation) is in [references/execution.md](references/execution.md) — load it when actually running evals. This skill covers invocation and output interpretation.
 
-**On Windows the Linux `run.sh` can't run** (kiro-cli is a `.exe` off the WSL PATH, no `sqlite3`, setsid dies on `wsl.exe` return) — use `tools/evals/scripts/run-eval-windows.py` instead; see eval-execution.md § "Windows-native execution".
+**On Windows the Linux `run.sh` can't run** (kiro-cli is a `.exe` off the WSL PATH, no `sqlite3`, setsid dies on `wsl.exe` return) — use `tools/evals/scripts/run-eval-windows.py` instead; see [references/execution.md](references/execution.md) § "Windows-native execution".
 
 ## Judged evals — `tools/evals/harness/run.sh`
 

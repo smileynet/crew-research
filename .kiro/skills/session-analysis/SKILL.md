@@ -33,7 +33,7 @@ Direct: `python tools/session-analyzer/skill_usage.py --days N` (JSON to stdout)
 **Measurement soundness:** session JSONLs do NOT embed injected steering text (verified 2026-07-19: zero matches for steering markers in stored transcripts) — compliance regexes match real conversation content, not the steering that teaches the phrases.
 
 **Transcript format (verified 2026-07-25, ticket 34 spike):** user prompts are `kind: Prompt` JSONL lines (`data.content[].data`); there are NO "USER MESSAGE BEGIN" wrappers in stored transcripts (317/319 sessions — only interactive sessions with injected context embed them). Slash invocations arrive as the EXPANDED skill body — `skill_usage.py` matches prompt H1s against deployed skills' H1s (fixed 2026-07-25; `slash_invoke` counts before this date are ~0 and undercount user-invoked skills — don't compare across the boundary).
-| `steering_compliance.eval_run_sessions` vs `.eval_run_with_nohup` | eval-execution steering compliance |
+| `steering_compliance.eval_run_sessions` vs `.eval_run_with_nohup` | eval-execution run-discipline compliance (eval-harness skill) |
 | `sessions_per_project` | denominator context — low-session projects give noisy rates |
 
 ## Interpretation rules

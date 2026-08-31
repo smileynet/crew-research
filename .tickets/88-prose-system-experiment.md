@@ -50,7 +50,7 @@ paragraph — each carrying an explicit required-fact checklist for the substanc
       verdict on whether ticket 86's failure mode exists in our generations at all
 - [ ] Judge panel state recorded per ADR 0010 — a degraded single-family panel must be
       flagged, since family affinity (~3–9%) sits inside the effect size being chased
-- [ ] Run in background per `.kiro/steering/eval-execution.md`; never edit the harness mid-run
+- [ ] Run in background per `.kiro/skills/eval-harness/references/execution.md`; never edit the harness mid-run
 
 ## Decision this ticket produces
 

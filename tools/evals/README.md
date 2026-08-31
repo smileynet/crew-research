@@ -13,7 +13,7 @@ mise run eval:one -- <definition>      # single eval by name (no .yaml)
 mise run eval:activation               # activation suite
 ```
 
-Always run in background (see `.kiro/steering/eval-execution.md`): a full suite takes hours.
+Always run in background (see `.kiro/skills/eval-harness/references/execution.md`): a full suite takes hours.
 
 ## Dual-Run Definition Schema (run.sh)
 

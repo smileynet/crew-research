@@ -1,6 +1,8 @@
-# Eval Execution
+# Eval Execution — Run Discipline
 
-When running evals (`mise run eval`, `mise run eval:one`, or the harness directly):
+Load when actually running evals (`mise run eval`, `mise run eval:one`, the harness
+directly, or the Windows runner). Invocation flags + output interpretation are in the
+parent `SKILL.md`; this file is the run-time operational discipline.
 
 ## Windows-native execution (harness can't run under WSL here)
 
@@ -79,7 +81,7 @@ tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 
 When invoking `kiro-cli chat` headlessly to capture structured output:
 
-- **`--agent-engine v2 -a` is MANDATORY for headless.** v1 rejects `--output-format stream-json` ("not supported on the v1 engine"). **v3 CANNOT run headless at all** — it forwards `session/new` to the TUI and HANGS with no non-TUI path (2026-08-28: `--agent-engine v3` headless hung 3× before diagnosis; kiro.dev v3 "Known Gaps" confirms "legacy non-TUI mode does not support the v3 engine"). v3 also rejects `-a` (capability `permissions.yaml` model). Pin v2 for anything scripted/non-interactive; bound the call (see windows.md Start-Job wrapper) so a v3/hang can't wedge the session.
+- **`--agent-engine v2 -a` is MANDATORY for headless.** v1 rejects `--output-format stream-json` ("not supported on the v1 engine"). **v3 CANNOT run headless at all** — it forwards `session/new` to the TUI and HANGS with no non-TUI path (2026-08-28: `--agent-engine v3` headless hung 3× before diagnosis; kiro.dev v3 "Known Gaps" confirms "legacy non-TUI mode does not support the v3 engine"). v3 also rejects `-a` (capability `permissions.yaml` model). Pin v2 for anything scripted/non-interactive; bound the call (see the project-conventions windows.md Start-Job wrapper) so a v3/hang can't wedge the session.
 - **Separate stdout from stderr**: `> events.jsonl 2>err.log`. NEVER `2>&1` — the JSON stream is stdout-only; merging stderr corrupts it.
 - **Validate by output content, never exit code** — kiro-cli, opencode, AND codex all exit 0 on failure / nonzero on would-be success. Confirm a real terminal event (`runFinished`/`step_finish reason:"stop"`) + non-empty final text.
 - **Run the invocation ALONE, inspect output in a SEPARATE call.** A `kiro-cli chat` stream call chained with trailing `Get-Content`/`jq`/`Write-Host` in one PowerShell invocation blocks the whole call and wastes it (observed 2026-08-27: test-4 cancelled 3× from chaining). Invoke, wait, then read the file in the next command.
@@ -95,7 +97,7 @@ jq -rn 'last(inputs | select(.type=="runFinished") | .data.finalText) // ""' eve
 ## When done
 
 ```bash
-cat tools/evals/results/<timestamp>/scores.jsonl | jq -s '.' 
+cat tools/evals/results/<timestamp>/scores.jsonl | jq -s '.'
 ```
 
 Report: total pass/fail, any new failures vs previous run, notable delta changes.
