@@ -43,19 +43,49 @@ def strip_ansi(s: str) -> str:
     return ANSI.sub("", s)
 
 
-def run_kiro(query: str, kiro_home: Path, timeout: int) -> str:
-    """Invoke kiro-cli.exe headlessly with an isolated KIRO_HOME; return clean stdout."""
+def _extract_answer(raw: str) -> str:
+    """Pull the assistant's final answer text out of kiro-cli's decorated stream.
+
+    kiro-cli prints progress lines then the answer after a '> ' prompt marker. Keep
+    everything from the last '> ' onward; fall back to the whole cleaned text.
+    """
+    clean = strip_ansi(raw or "")
+    # The final answer starts after the last standalone "> " marker kiro prints.
+    idx = clean.rfind("\n> ")
+    if idx == -1 and clean.startswith("> "):
+        idx = 0
+    if idx != -1:
+        clean = clean[idx:].lstrip("\n> ")
+    return clean.strip()
+
+
+def _run_once(query: str, kiro_home: Path, timeout: int) -> str:
     env = dict(os.environ)
     env["KIRO_HOME"] = str(kiro_home)
     try:
         proc = subprocess.run(
             [str(KIRO_EXE), "chat", "--no-interactive", "-a", "--wrap", "never", query],
-            capture_output=True, text=True, timeout=timeout, env=env,
-            cwd=str(kiro_home),  # run from the isolated home so project .kiro doesn't leak
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=timeout, env=env, cwd=str(kiro_home),
         )
     except subprocess.TimeoutExpired:
         return "[TIMEOUT]"
-    return strip_ansi(proc.stdout or "")
+    return proc.stdout or ""
+
+
+def run_kiro(query: str, kiro_home: Path, timeout: int, retries: int = 2) -> str:
+    """Invoke kiro-cli.exe with an isolated KIRO_HOME; retry on empty/timeout output.
+
+    Returns the extracted answer text, or "" if still empty after retries (caller
+    treats "" as an error, NOT as a low score, so empty generations don't pollute
+    the confusion matrix as false negatives).
+    """
+    for attempt in range(retries + 1):
+        answer = _extract_answer(_run_once(query, kiro_home, timeout))
+        if answer and answer != "[TIMEOUT]":
+            return answer
+        time.sleep(2)  # brief backoff before retry
+    return ""
 
 
 def build_home(base: Path, skills: list[str]) -> Path:
@@ -69,7 +99,17 @@ def build_home(base: Path, skills: list[str]) -> Path:
     return home
 
 
-JUDGE_TEMPLATE = """You are scoring an AI assistant's response against a rubric. Output ONLY a single integer 1-5, nothing else.
+JUDGE_TEMPLATE = """You are a strict evaluator scoring an AI assistant's response against a rubric. Read the rubric, then the response, then output your score.
+
+Output format: exactly one line, `SCORE: N` where N is an integer 1-5. No other text.
+
+Guidance:
+- Score by the rubric's checklist/criteria ONLY, not your own taste.
+- If the rubric rewards NOT fabricating findings (a "PASS" / "well-modeled" case), then a
+  response that correctly says the structure is sound with at most minor notes deserves a
+  HIGH score (4-5). Do not penalize it for being brief or for declining to refactor.
+- If the rubric rewards flagging a problem, only a response that actually identifies the
+  specific invalid state / smell deserves a high score.
 
 RUBRIC:
 {criteria}
@@ -77,16 +117,25 @@ RUBRIC:
 RESPONSE TO SCORE:
 {response}
 
-Score (1-5):"""
+SCORE:"""
 
 
-def judge(criteria: str, response: str, judge_home: Path, timeout: int) -> int:
+def judge(criteria: str, response: str, judge_home: Path, timeout: int, retries: int = 2) -> int:
+    """Score 1-5 via kiro-cli; retry on empty/unparseable judge output. Returns 0 if the
+    response itself is empty (an errored generation — not a real score)."""
+    if not response:
+        return 0  # errored/empty generation — sentinel, excluded from scoring
     prompt = JUDGE_TEMPLATE.format(criteria=criteria, response=response[:6000])
-    out = run_kiro(prompt, judge_home, timeout)
-    nums = re.findall(r"[1-5]", out.splitlines()[-1] if out.strip() else "")
-    if not nums:
-        nums = re.findall(r"[1-5]", out)
-    return int(nums[-1]) if nums else 1
+    for _ in range(retries + 1):
+        out = run_kiro(prompt, judge_home, timeout, retries=1)
+        m = re.search(r"SCORE:\s*([1-5])", out)
+        if m:
+            return int(m.group(1))
+        # fallback: last standalone digit
+        nums = re.findall(r"\b([1-5])\b", out)
+        if nums:
+            return int(nums[-1])
+    return 0  # unparseable after retries — sentinel
 
 
 def main() -> int:
@@ -133,14 +182,25 @@ def main() -> int:
             cbase = Path(tempfile.mkdtemp(prefix=f"eval-{cond}-"))
             chome = build_home(cbase, spec.get("skills", []))
             trial_scores = []
+            errors = 0
             for tr in range(trials):
                 resp = run_kiro(inp, chome, timeout)
                 (outputs_dir / f"{task_name}.{cond}.t{tr}.txt").write_text(resp, encoding="utf-8")
+                if not resp:
+                    errors += 1
+                    print(f"  [{task_name}] {cond} trial{tr}: EMPTY (excluded)")
+                    continue
                 score = judge(criteria, resp, judge_home, timeout)
+                if score == 0:
+                    errors += 1
+                    print(f"  [{task_name}] {cond} trial{tr}: JUDGE-FAIL (excluded)")
+                    continue
                 trial_scores.append(score)
                 print(f"  [{task_name}] {cond} trial{tr}: {score}")
-            avg = sum(trial_scores) / len(trial_scores) if trial_scores else 0
-            rec = {"task": t_idx, "condition": cond, "avg": avg, "scores": trial_scores}
+            # Average over VALID trials only; None avg means all trials errored.
+            avg = sum(trial_scores) / len(trial_scores) if trial_scores else None
+            rec = {"task": t_idx, "condition": cond, "avg": avg,
+                   "scores": trial_scores, "errors": errors}
             task_scores.append(rec)
             with partial_path.open("a", encoding="utf-8") as pf:
                 pf.write(json.dumps(rec) + "\n")
@@ -148,7 +208,7 @@ def main() -> int:
     shutil.rmtree(judge_base, ignore_errors=True)
 
     def cond_avg(cond):
-        vals = [ts["avg"] for ts in task_scores if ts["condition"] == cond]
+        vals = [ts["avg"] for ts in task_scores if ts["condition"] == cond and ts["avg"] is not None]
         return sum(vals) / len(vals) if vals else 0
 
     with_avg = cond_avg("with-skill")

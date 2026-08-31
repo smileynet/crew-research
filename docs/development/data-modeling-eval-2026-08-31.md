@@ -122,12 +122,60 @@ with-skill 2.00 vs baseline 1.90 (delta +0.10).
      PASS-item criteria treat any suggestion as a false positive. The criteria wording (not
      just the skill) needs calibration.
 
-### Conclusion / next tuning step (evidence-based, not reflexive)
+## UPDATE 2026-08-31 (third pass) — confounds fixed, re-run, KEY FINDING
 
-The infrastructure now runs end-to-end on Windows and produces a real, repeatable signal.
-Before editing the skill: (a) add empty-generation retry to the runner, (b) either add a
-second judge or tighten the PASS-item criteria so principled "no significant finding"
-answers score high, then (c) re-run and attribute the residual FP rate to the skill vs the
+Applied the recommended runner fixes: utf-8 decode (`errors="replace"`, fixes the charmap
+crash), `_extract_answer` pulls the assistant's final text after kiro's `> ` marker,
+empty/timeout generations retry 2× and return an `""` sentinel that is EXCLUDED from the
+average (not scored as a low value), and the judge uses a `SCORE: N` format with explicit
+"reward a correct no-findings answer on a well-modeled type" guidance + retry. Re-ran both
+defs (trials=2). **ERR=0 both runs — the empty-generation artifacts are gone.**
+
+### Results (confounds removed)
+
+| Def | TP | FP | TN | FN | ERR | TPR | precision | FP-rate |
+|-----|----|----|----|----|----|-----|-----------|---------|
+| effectiveness | 5 | 4 | 1 | 0 | 0 | 1.0 | 0.56 | 0.80 |
+| holdout | 2 | 3 | 0 | 0 | 0 | 1.0 | 0.40 | 1.0 |
+
+The prior `tkt-planentry` FN was purely the empty-generation bug — it now scores 5/5
+(correctly flags the re-stringified status). **TPR = 1.0 on both sets: the skill catches
+every genuine smell.**
+
+### KEY FINDING — the "false positives" are eval mislabels, NOT skill over-application
+
+Reading the PASS-item outputs (with confounds gone) shows the model is behaving CORRECTLY;
+the FPs come from two eval-side causes, not the skill:
+
+1. **The corpus PASS labels were too generous — the model found REAL smells I missed.**
+   - `Consent`/`ConsentReason` (labeled PASS): the model correctly notes the *tuple*
+     `(Consent, ConsentReason)` admits illegal pairings like `(Enabled, DoNotTrack)` — the
+     two enums are semantically coupled but structurally independent. That's a real
+     invalid-state smell; my label only looked at "provenance is an enum."
+   - `RunPhase`/`RunRecord` (labeled PASS): the model correctly flags that optional
+     `settlement` is disconnected from `phase`, permitting a "completed" run with no
+     settlement / a "running" run with one. Real coupling smell my label missed.
+2. **PASS criteria equate any NIT with "fabrication."** On genuinely-sound `Status`, the
+   model opens "this type is actually pretty well-designed… the enum makes illegal states
+   unrepresentable," THEN offers a NIT (add a round-trip test). The criteria score that
+   affirm-then-nit answer as a fabricated finding.
+
+**Conclusion: do NOT tune the skill to suppress these — that would make it worse.** The
+skill is *more discerning than the hand-labels*: it affirms sound cores, flags real smells
+(TPR 1.0), and surfaces subtle structural coupling. The corrective action is on the EVAL:
+(a) re-label `consent`, `runphase` (and re-examine `publishresult`/`capabilities`) as FLAG
+or partial now that the model exposed the coupling; (b) rewrite PASS criteria to score
+"affirms soundness + at most NIT-level notes" as 4-5, reserving low scores for a genuinely
+fabricated *invalid-state* claim. Then residual FP will reflect true over-application (near
+zero on this evidence).
+
+This is the intended payoff of running against live projects: it caught that my synthetic
+labels were less rigorous than the skill. with-skill≈baseline delta persists — on these
+clear-cut structures a capable model already reasons well; the skill's value is the
+variance-reduction floor + the review lens, consistent with `delta_threshold: -0.5`.
+
+Artifacts: hardened `run-eval-windows.py` + `confusion-matrix.py` (ERR outcome). Result
+dirs `dm-eff-win2`, `dm-holdout-win2` (gitignored).
 harness. The high-recall/low-precision shape suggests the eventual skill tuning will
 strengthen the "When NOT to model harder" suppression — but only after the confounds are
 removed, to avoid overfitting to single-judge noise. Honest target (calibration research):

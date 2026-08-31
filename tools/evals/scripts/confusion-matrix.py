@@ -82,11 +82,16 @@ def main():
         return 0
 
     avgs = with_skill_task_avgs(row)
-    tp = fp = tn = fn = 0
+    tp = fp = tn = fn = err = 0
     rows = []
     for idx, (label, name) in enumerate(labels):
         avg = avgs.get(idx)
-        met = (avg is not None) and (avg >= THRESHOLD)  # task met its own intent
+        if avg is None:
+            outcome = "ERR"  # all trials errored/empty — exclude from the matrix
+            err += 1
+            rows.append({"idx": idx, "task": name, "label": label, "avg": avg, "outcome": outcome})
+            continue
+        met = avg >= THRESHOLD  # task met its own intent
         # met + FLAG = correctly flagged (TP); met + PASS = correctly didn't fabricate (TN)
         # !met + FLAG = missed a real smell (FN); !met + PASS = fabricated a finding (FP)
         if label == "FLAG":
@@ -109,7 +114,7 @@ def main():
         "status": "pass" if fn == 0 and fp == 0 else "fail",
         "def": def_name,
         "metrics": {
-            "TP": tp, "FP": fp, "TN": tn, "FN": fn,
+            "TP": tp, "FP": fp, "TN": tn, "FN": fn, "ERR": err,
             "precision": precision, "recall_TPR": recall,
             "false_positive_rate": fp_rate, "f1": f1,
         },
