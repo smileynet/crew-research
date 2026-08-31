@@ -82,4 +82,5 @@ Apply approved items in the same session. Trivial corrections (stale syntax, dea
 - Supersede, don't obliterate: decision records get marked superseded, never deleted; removals go through owned mechanisms; git history + recall are the archive (no quarantine lists — manual status flags rot without a sweep)
 - One source of truth: command lines in AGENTS.md, interpretation in guide skills, incidents in hard-rules sections
 - Capture into the right layer: terminology disambiguation → `.memory/CONTEXT.md`; decisions → recall/ADR; gotchas/environment → AGENTS.md Constraints; behavior rules → steering/skills
+- **Steering vs skill gate (apply before routing a behavior rule to steering):** steering/eager-context is ONLY for content that (1) applies regardless of task, (2) must be followed every turn, (3) is <50 lines (see `.memory/specs/eager-context.md`). If it's situational (only during a specific workflow), it's a SKILL, not steering — even if it feels like a rule. (2026-08-31: eval-execution was wrongly captured as steering here; it's situational → belongs in the eval-harness skill.)
 - Skill budget: <100 lines per SKILL.md; split to `references/` if over
