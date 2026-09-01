@@ -1,7 +1,7 @@
 ---
 id: "143"
 title: "Add Claude Code as a dispatch-review reviewer (matrix leg when available)"
-status: open
+status: in_progress
 blocked_by: []
 validation_criteria:
   - "dispatch-review can dispatch a Claude Code reviewer that produces a contract-compliant REVIEW_RESULT run against the planted-review fixture, and the matrix includes a Claude leg when the claude CLI is on PATH"
