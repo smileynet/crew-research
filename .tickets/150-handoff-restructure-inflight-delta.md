@@ -1,7 +1,7 @@
 ---
 id: "150"
 title: "Restructure handoff to in-flight delta shape + in_flight_ticket frontmatter"
-status: in_progress
+status: done
 blocked_by: []
 ---
 
@@ -57,8 +57,12 @@ Restructure `atomics/skills/handoff/SKILL.md` required sections:
 
 ## Acceptance criteria
 
-- [ ] handoff SKILL.md restructured to Focus/In-Flight/Fog/Constraints (+ optional Pointers/Recommended Updates); `in_flight_ticket` frontmatter added
-- [ ] Prior Decisions + Next Steps RELOCATED to recall/ADR/ticket pointers (not deleted)
-- [ ] `handoff-decaying-resolution.yaml` criteria updated to match the new shape; re-run 5 trials, no regression (flake ruled out)
-- [ ] read-handoff verified to work without the roster (no functional change needed)
-- [ ] `mise run validate` + lint pass
+- [x] handoff SKILL.md restructured to Focus/In-Flight/Fog/Constraints (+ optional Pointers/Recommended Updates); `in_flight_ticket` frontmatter added
+- [x] Prior Decisions + Next Steps RELOCATED to recall/ADR/ticket pointers (not deleted)
+- [x] `handoff-decaying-resolution.yaml` criteria updated to match the new shape; re-run 5 trials, no regression (flake ruled out)
+- [x] read-handoff verified to work without the roster (no functional change needed)
+- [x] `mise run validate` + lint pass
+
+## Resolution (2026-09-01)
+
+Restructured handoff to Focus/In-Flight/Fog/Constraints (+optional Pointers/Recommended Updates) + in_flight_ticket frontmatter; relocated Prior Decisions/Next Steps to recall/ADR/ticket pointers (not deleted). Eval criteria updated to the new shape. read-handoff verified (re-derives from git log/tickets; no change). Eval: 5-trial run with-skill 2.9 vs baseline 2.8; isolation run with ORIGINAL criteria scored delta -0.20, proving the sub-gate delta is pre-existing (floor-raiser eval, no-interactive mode doesn't surface the template) - my rename did not regress it. validate+lint pass, skill 74 lines.
