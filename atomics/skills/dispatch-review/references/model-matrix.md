@@ -16,6 +16,21 @@ All three are built-in opencode providers (no custom provider block). Verify ids
 live with `opencode models --refresh` then `opencode models <provider>`.
 Invocation: `opencode run --auto -m <id> "<prompt>"`.
 
+### Gemini leg via agy (Google Antigravity CLI) — added ticket 142
+
+`matrix.sh` resolves this leg to the `agy` tool automatically when the model is in
+`agy.yaml`'s `dispatch_review.models` or prefixed `agy:` in `--models`. It runs on a
+separate binary/auth from opencode, so it adds a genuinely de-correlated family voice.
+
+| Model | agy `--model` id | Notes |
+|-------|------------------|-------|
+| Gemini 3.1 Pro | `gemini-3.1-pro-high` | Pro is the review-grade tier (Flash is generation-grade, unvalidated for review). High-SNR/high-precision, lower-recall — a diversity voice, not a solo reviewer. |
+
+Invocation (note the greedy `--print=`): `agy --dangerously-skip-permissions --model <id>
+--output-format stream-json --print="<prompt>"`. **PATH-gated + CREW_ENV-gated:** absent
+`agy` → skipped as a reported gap; `CREW_ENV=corp` → `policy-blocked` gap (never runs,
+zero token spend). Requires agy ≥ 1.1.22 (Issue #76 stdout-capture fix).
+
 ## Fan-out / fan-in (single-writer parent aggregation)
 
 1. **Parent pre-writes a manifest** listing the expected reviewer slugs for this
@@ -76,6 +91,23 @@ surface 429 silently. A result counts as valid ONLY if a `step_finish` with
 `reason:"stop"` is present AND a non-empty final text / `REVIEW_RESULT` line was
 produced. Otherwise → `indeterminate` (deny). Wrap every invocation in a timeout
 (opencode has no built-in run timeout).
+
+## Parsing agy output (Google Antigravity CLI, stream-json — verified agy 1.1.22)
+
+agy's NDJSON envelope differs from opencode: `{event, ...}` with `init` →
+`step_update*` → a terminal `result`. The clean-stop signal is the `result` event's
+`status`, NOT opencode's `step_finish`. Capture stdout/stderr separately.
+
+```bash
+# Final assistant text (whole answer)
+jq -rn 'last(inputs | select(.event=="result") | .result.response) // ""' events.jsonl
+# Clean-stop check (must be "SUCCESS" for a valid result)
+jq -rn 'last(inputs | select(.event=="result") | .result.status) // "none"' events.jsonl
+```
+
+Same rule: validate by content (`result.status=="SUCCESS"` + non-empty
+`result.response` + a `REVIEW_RESULT` line), never exit code. `matrix.sh` handles
+both tools' predicates via its per-tool `validate_stream`/`extract_text` wrappers.
 
 ## Concurrency
 

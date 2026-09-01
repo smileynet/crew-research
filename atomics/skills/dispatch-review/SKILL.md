@@ -1,6 +1,6 @@
 ---
 name: dispatch-review
-description: "Dispatch one or more independent reviewers (Codex, or opencode with a model matrix) to review all unreviewed repository work, then verify each correlated findings ticket or clean result. Use when requesting an independent review, auditing all changes, checking work since the last review, running a multi-model review, or waiting for reviewer findings. Trigger: dispatch review, dispatch codex review, independent review, multi-model review, review all changes, check review findings, run review agent, opencode review."
+description: "Dispatch one or more independent reviewers (Codex, or opencode/agy with a model matrix) to review all unreviewed repository work, then verify each correlated findings ticket or clean result. Use when requesting an independent review, auditing all changes, checking work since the last review, running a multi-model review, or waiting for reviewer findings. Trigger: dispatch review, dispatch codex review, independent review, multi-model review, agy review, gemini review, review all changes, check review findings, run review agent, opencode review."
 metadata:
   type: process
   invocation: both
@@ -17,8 +17,18 @@ Run one or more independent reviewers and accept only correlated, committed resu
 |----------|-----------|---------------|
 | `codex` (default) | `codex exec --dangerously-bypass-approvals-and-sandbox <prompt>` | `REVIEW_RESULT ` |
 | `opencode/<provider>/<model>` | `opencode run --auto -m <provider>/<model> <prompt>` | `REVIEW_RESULT ` |
+| `agy/<gemini-model>` (matrix leg when `agy` on PATH) | `agy --dangerously-skip-permissions --model <id> --output-format stream-json --print="<prompt>"` | `REVIEW_RESULT ` |
 
-`--dangerously-bypass-approvals-and-sandbox` (codex) / `--auto` (opencode) are **required** — without them the reviewer's sandbox/permission gate blocks subprocess execution (tests, linters, `godot --headless`) and git push, producing false results. Only dispatch in trusted repos where network access is acceptable. See [references/result-contract.md](references/result-contract.md); model-matrix and quota handling in [references/model-matrix.md](references/model-matrix.md).
+`--dangerously-bypass-approvals-and-sandbox` (codex) / `--auto` (opencode) /
+`--dangerously-skip-permissions` (agy) are **required** — without them the
+reviewer's sandbox/permission gate blocks subprocess execution (tests, linters,
+`godot --headless`) and git push, producing false results. For agy, the prompt
+MUST be attached as `--print="<prompt>"` (greedy value flag) and validated by
+`result.status=="SUCCESS"`, not exit code. The agy leg is PATH-gated ("when
+available") and honors the CREW_ENV policy floor — on corp it degrades as a
+`policy-blocked` coverage gap (never runs). Only dispatch in trusted repos where
+network access is acceptable. See [references/result-contract.md](references/result-contract.md);
+model-matrix and quota handling in [references/model-matrix.md](references/model-matrix.md).
 
 ## Prepare
 

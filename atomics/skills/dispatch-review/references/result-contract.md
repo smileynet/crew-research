@@ -2,8 +2,8 @@
 
 Each reviewer must end with exactly one single-line JSON result prefixed by
 `REVIEW_RESULT `. The `reviewer` field identifies which reviewer produced it
-(`codex`, or `opencode/<provider>/<model>`) so a matrix coordinator can collect
-N results per target.
+(`codex`, `opencode/<provider>/<model>`, or `agy/<model>`) so a matrix
+coordinator can collect N results per target.
 
 Ticketed review:
 
@@ -40,9 +40,16 @@ codex exec --dangerously-bypass-approvals-and-sandbox <prompt>
 
 # opencode (single model or one per matrix entry)
 opencode run --auto -m <provider>/<model> <prompt>
+
+# agy / Google Antigravity CLI (Gemini family, matrix leg when on PATH)
+#   --print is a GREEDY value flag: attach the prompt as --print="..." and keep
+#   --dangerously-skip-permissions elsewhere, or agy swallows the flag as the prompt.
+#   Validate by result.status=="SUCCESS" (terminal event:"result"), not exit code.
+agy --dangerously-skip-permissions --model <gemini-model> --output-format stream-json --print="<prompt>"
 ```
 
-The bypass/auto flag is required. Without it the reviewer's sandbox/permission
+The bypass/auto flag is required (`--dangerously-bypass-approvals-and-sandbox` /
+`--auto` / `--dangerously-skip-permissions`). Without it the reviewer's sandbox/permission
 gate blocks subprocess execution (project verification commands like `cargo
 test`, `godot --headless`, etc.) and git push, producing false review results or
 failing to commit the findings ticket.

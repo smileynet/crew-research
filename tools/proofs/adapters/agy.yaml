@@ -2,17 +2,39 @@ tool: agy
 version_command: "agy --version"
 
 invoke:
-  command: 'agy --print "{query}" --dangerously-skip-permissions'
-  timeout: 90
-  eval_harness_status: blocked
-  blocker: "Issue #76 — --print drops stdout in non-TTY contexts. Output unrecoverable via pipe/redirect."
+  # NOTE: --print is a GREEDY value flag — attach the prompt as --print="..." and
+  # keep --dangerously-skip-permissions elsewhere on the line, or agy swallows the
+  # flag as the prompt (agy prints an explicit error telling you to do this).
+  command: 'agy --dangerously-skip-permissions --output-format stream-json --print="{query}"'
+  timeout: 120
+  eval_harness_status: supported
   notes: |
-    --print runs non-interactively, prints response to TUI (not capturable via stdout redirect).
-    --dangerously-skip-permissions auto-approves tool calls.
+    --print="..." runs non-interactively; --output-format stream-json emits NDJSON on
+    STDOUT (init → step_update* → result). --dangerously-skip-permissions =
+    permission_mode:"always-proceed" (auto-approves tool calls; the codex
+    --dangerously-bypass-approvals-and-sandbox / opencode --auto equivalent).
     Auth required: run `agy` interactively first to complete Google Sign-In.
-    Log: use --log-file <path> to capture debug output.
-    Proof pattern: ask agent to write answer to a file, then read the file.
-    Output goes to console directly (TUI), not stdout — cannot pipe/redirect.
+    Validate by OUTPUT content (terminal result.status=="SUCCESS" + non-empty
+    result.response), NOT exit code. Bound with --print-timeout (default 5m).
+    Issue #76 (--print drops stdout in non-TTY) is FIXED as of agy 1.1.22 — verified
+    2026-08-30: piped, stdin </dev/null, stdout→file yields 2030 bytes, exit 0, a
+    terminal {"event":"result","result":{"status":"SUCCESS",...}}. For older builds
+    the file-canary workaround (ask agent to write the answer to a file, read it) still
+    applies.
+
+# dispatch-review matrix leg (ticket 142). matrix.sh resolves a model to this tool
+# and uses per-tool invoke/parse; it does NOT printf-expand `command` (that string
+# documents the shape). Validation predicate is agy-specific: terminal event:"result"
+# + result.status=="SUCCESS" + non-empty result.response (NOT opencode's step_finish).
+dispatch_review:
+  command: 'agy --dangerously-skip-permissions --model {model} --output-format stream-json --print-timeout {timeout}s --print="{query}"'
+  timeout: 600
+  # Gemini Pro is the review-grade tier (controlled review benchmarks test Pro, not
+  # Flash). It is a high-SNR / high-precision, lower-recall DIVERSITY voice, not a
+  # solo reviewer — which matches the matrix design.
+  models:
+    - gemini-3.1-pro-high
+  result_validation: 'last event:"result" with .result.status=="SUCCESS" and non-empty .result.response'
 
 skill:
   location: ".agents/skills/{name}/SKILL.md"
@@ -83,12 +105,13 @@ notes: |
   Auth: system keyring + Google Sign-In. SSH sessions get printed auth URL.
   Enterprise: connects via GCP project. Consumer: Google AI Pro/Ultra.
 
-  KNOWN LIMITATIONS:
-  - Issue #76: --print drops stdout in non-TTY contexts (pipe, redirect, subprocess).
-    Output goes to console TUI handle only. Cannot capture programmatically.
-  - No --json or --output flag exists yet.
-  - Proofs use "write answer to file" workaround.
-  - Eval harness integration blocked until stdout capture is fixed.
+  RESOLVED / CORRECTED (2026-08-30, verified on agy 1.1.22):
+  - Issue #76 (--print drops stdout in non-TTY: pipe, redirect, subprocess) is FIXED.
+    Verified: piped + stdin </dev/null + stdout→file → 2030 bytes, exit 0, terminal
+    result event. Eval-harness/dispatch-review integration is UNBLOCKED.
+  - `--output-format {text,json,stream-json}` DOES exist; stream-json emits NDJSON on
+    stdout. Earlier "no --json/--output flag" note was stale.
+  - --print is a greedy value flag: attach the prompt as --print="..." (see invoke.notes).
 
   SESSION ANALYSIS:
   - --log-file captures tool calls and timing but NOT response text.
