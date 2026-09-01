@@ -24,27 +24,37 @@ Write a handoff document that lets the next session continue without re-discover
 
 ## Required Sections
 
+The handoff is the **volatile delta** on top of durable layers — never a mirror of them. Each layer owns one thing: the tracker (`.tickets/`) owns status/deps/ACs, the persistent store (recall/ADR/specs) owns durable decisions + why, and the handoff owns ONLY volatile in-flight state + the next action. Point, don't paste.
+
 ```markdown
 ---
 created_at: {ISO 8601 with offset}
 base_commit: {short SHA}
 handoff_key: {workstream-slug}
+in_flight_ticket: {NN or "none"}
 ---
 
 # Handoff
 
-## Objective
-## Constraints
-## Prior Decisions
-## Current State
-## Next Steps
+## Focus
+## In-Flight
 ## Fog (if applicable)
-## Evidence
+## Constraints
+## Pointers (if applicable)
+## Recommended Updates (if applicable)
 ```
 
-**Current State:** Reference PLAN.md for work status rather than restating it. Capture only what the plan doesn't know: what you were mid-way through, what's in your head that isn't in a file yet. Never duplicate ticket status or task graph position — those live in the plan.
+**Focus:** One-sentence workstream objective. Do NOT recap per-ticket status — derivable from `tkt ready` + `in_flight_ticket`.
 
-**Fog section:** If the project has a map (proposal-plan.md) or unresolved questions from a grill session, note what CANNOT yet be planned — decisions that surfaced but remain unclear. This tells the next session where the frontier is vs what's still in fog.
+**In-Flight:** The delta ONLY — what the durable layers don't know: uncommitted/mid-edit work, in-head findings not yet in a file, why-this-approach, dead-ends tried. NOT the ticket roster, NOT "working tree clean".
+
+**Fog:** Un-ticketable interpretive questions — decisions that surfaced but remain unclear (a ticketable question is a ticket). Tells the next session where the frontier is vs what's still fog.
+
+**Constraints:** Session-live env facts that block the NEXT step (tool versions, env vars, platform quirks). Strongest-earning — omit constraints that don't bear on what's next.
+
+**Pointers:** Terse spec/ADR/file paths to read next. Do NOT paste a commit list (`base_commit..HEAD` is derivable). Durable decisions live in recall/ADR — point, don't restate.
+
+**`in_flight_ticket` frontmatter:** id of the ticket in progress (or `"none"`). Replaces the old roster — ephemeral, operator-owned, not a `.tickets/` contract field.
 
 ## Rules
 
@@ -57,7 +67,7 @@ handoff_key: {workstream-slug}
 
 ## Quality Check
 
-Verify: (1) someone with NO context can continue, (2) next steps are actionable, (3) file paths are accurate.
+Verify: (1) someone with NO context can continue, (2) `in_flight_ticket` points to real in-progress work (or "none"), (3) file paths are accurate.
 
 ## Promotion Check
 
@@ -73,7 +83,7 @@ Before finalizing, review the session for promotable artifacts:
 
 Scan for findings that should propagate: skill gaps, AGENTS.md changes, repeatable processes (→ script), technical findings (→ `.memory/specs/`), new work (→ ticket), inconsistent terms (→ glossary).
 
-Add a `## Recommended Updates` section (after Next Steps) if applicable:
+Add a `## Recommended Updates` section if applicable:
 
 ```markdown
 ## Recommended Updates

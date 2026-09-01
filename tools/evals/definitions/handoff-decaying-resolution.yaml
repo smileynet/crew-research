@@ -25,13 +25,13 @@ tasks:
       1. Handoff is under 60 lines total.
       2. Session 1 is compressed to 1-2 lines (outcomes/decisions only, no exploration detail).
       3. Session 2 is compressed to 2-3 lines (outcomes/decisions only, e.g. "circular refs punted").
-      4. Session 3 (current) retains full detail: TypeScript types added, array merge fix (concat), 5 new tests passing.
-      5. Handoff includes explicit next steps or states "none".
-      6. Handoff includes evidence paths (test output, files changed) or base_commit placeholder.
+      4. Session 3 (current) retains full detail in the In-Flight section: TypeScript types added, array merge fix (concat), 5 new tests passing.
+      5. Handoff points to the next action (an in_flight_ticket value, an in-progress ticket, or explicitly "none").
+      6. Handoff includes evidence pointers (test output, files changed) or base_commit placeholder.
       7. Older sessions are visually separated or labeled as prior/decayed context.
       8. Handoff includes a handoff_key or session identifier.
-      9. Current work section includes specific file paths or code locations touched.
-      10. Format follows a structured template (sections for status, decisions, next steps) rather than prose.
+      9. Current work (In-Flight) includes specific file paths or code locations touched.
+      10. Format follows a structured template (Focus/In-Flight/Fog/Constraints sections) rather than prose.
 
       Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
 
@@ -45,11 +45,11 @@ tasks:
       2. States what was fixed (nested arrays test, recursion into array elements).
       3. Includes test evidence (23 tests pass).
       4. Includes push confirmation or commit reference.
-      5. Includes next steps or explicitly states "none needed".
+      5. Points to the next action (in_flight_ticket / in-progress ticket) or explicitly states "none needed".
       6. Includes base_commit or handoff_key.
       7. No unnecessary sections or padding for a single-fix session.
       8. Includes file paths or code locations of the fix.
-      9. Format follows a structured template (not prose paragraphs).
+      9. Format follows a structured template (Focus/In-Flight/Fog/Constraints, not prose paragraphs).
       10. Proportional to work done — concise for a small fix, no bloat.
 
       Scoring: count YES answers. 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5.
