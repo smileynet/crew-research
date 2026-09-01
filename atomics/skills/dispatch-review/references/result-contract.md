@@ -2,8 +2,8 @@
 
 Each reviewer must end with exactly one single-line JSON result prefixed by
 `REVIEW_RESULT `. The `reviewer` field identifies which reviewer produced it
-(`codex`, `opencode/<provider>/<model>`, or `agy/<model>`) so a matrix
-coordinator can collect N results per target.
+(`codex`, `opencode/<provider>/<model>`, `agy/<model>`, or `claude/<model>`) so a
+matrix coordinator can collect N results per target.
 
 Ticketed review:
 
@@ -46,6 +46,12 @@ opencode run --auto -m <provider>/<model> <prompt>
 #   --dangerously-skip-permissions elsewhere, or agy swallows the flag as the prompt.
 #   Validate by result.status=="SUCCESS" (terminal event:"result"), not exit code.
 agy --dangerously-skip-permissions --model <gemini-model> --output-format stream-json --print="<prompt>"
+
+# Claude Code (Anthropic family, matrix leg when on PATH)
+#   --output-format json = ONE result object; validate .is_error==false (+ subtype
+#   "success", non-empty .result), not exit code (exits 1 on the auth-error path).
+#   UNRESTRICTED — no CREW_ENV policy gate (PATH-gated only). Auth: subscription OAuth.
+claude --dangerously-skip-permissions --model <model> --output-format json -p "<prompt>"
 ```
 
 The bypass/auto flag is required (`--dangerously-bypass-approvals-and-sandbox` /

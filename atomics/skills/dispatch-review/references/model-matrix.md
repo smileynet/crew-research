@@ -31,6 +31,22 @@ Invocation (note the greedy `--print=`): `agy --dangerously-skip-permissions --m
 `agy` → skipped as a reported gap; `CREW_ENV=corp` → `policy-blocked` gap (never runs,
 zero token spend). Requires agy ≥ 1.1.22 (Issue #76 stdout-capture fix).
 
+### Claude leg via Claude Code (Anthropic family) — added ticket 143
+
+`matrix.sh` resolves this leg to the `claude` tool when the model is in
+`claude-code.yaml`'s `dispatch_review.models` or prefixed `claude:` in `--models`.
+Anthropic is the reference family much of crew-research is tuned against — a high-recall
+accuracy anchor complementing Gemini Pro's high-SNR/lower-recall voice.
+
+| Model | claude `--model` id | Notes |
+|-------|---------------------|-------|
+| Claude Opus | `opus` (→ claude-opus-5) | Review-grade accuracy/high-recall anchor (SWE-bench 80–88%). `sonnet`→claude-sonnet-5 is the cheaper alternative. |
+
+Invocation: `claude --dangerously-skip-permissions --model <id> --output-format json -p "<prompt>"`.
+**PATH-gated, UNRESTRICTED** — absent `claude` → skipped as a reported gap; NOT
+CREW_ENV-gated (allowed in all environments, unlike agy). Auth: subscription OAuth
+(expired session → `is_error:true`, re-login interactively `claude` → `/login`).
+
 ## Fan-out / fan-in (single-writer parent aggregation)
 
 1. **Parent pre-writes a manifest** listing the expected reviewer slugs for this
@@ -108,6 +124,22 @@ jq -rn 'last(inputs | select(.event=="result") | .result.status) // "none"' even
 Same rule: validate by content (`result.status=="SUCCESS"` + non-empty
 `result.response` + a `REVIEW_RESULT` line), never exit code. `matrix.sh` handles
 both tools' predicates via its per-tool `validate_stream`/`extract_text` wrappers.
+
+## Parsing Claude Code output (Anthropic, --output-format json — verified 2.1.223)
+
+Claude Code's `--output-format json` emits ONE result object (not NDJSON):
+`{type:"result", subtype:"success", is_error:bool, result:"<text>", stop_reason, num_turns}`.
+
+```bash
+# Final assistant text
+jq -rn 'input | .result // ""' out.json
+# Clean-stop check (must ALL hold for a valid result)
+jq -rn 'input | (.type=="result" and .is_error==false and .subtype=="success")' out.json
+```
+
+Validate by content (`is_error==false` + non-empty `.result` + a `REVIEW_RESULT`
+line), never exit code (claude exits 1 on the auth-error path, where
+`is_error:true` and `.result` carries the message). `matrix.sh` uses `validate_claude`.
 
 ## Concurrency
 

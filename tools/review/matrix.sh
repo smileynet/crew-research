@@ -19,6 +19,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ADAPTER="$REPO_ROOT/tools/proofs/adapters/opencode.yaml"
 AGY_ADAPTER="$REPO_ROOT/tools/proofs/adapters/agy.yaml"
+CLAUDE_ADAPTER="$REPO_ROOT/tools/proofs/adapters/claude-code.yaml"
 CREW_ENV="${CREW_ENV:-}"
 
 RUN_ID=""
@@ -57,18 +58,24 @@ done
 
 # ─── Model roster + per-model tool resolution ────────────────────────────────
 # The reviewer TOOL is resolved per model, so a matrix can mix opencode-hosted
-# models and agy-hosted Gemini models (ticket 142). Resolution order:
-#   1. explicit "tool:model" prefix in --models (e.g. agy:gemini-3.1-pro-high)
+# models, agy-hosted Gemini models (ticket 142), and Claude Code (ticket 143).
+# Resolution order:
+#   1. explicit "tool:model" prefix in --models (e.g. agy:gemini-3.1-pro-high, claude:opus)
 #   2. membership in an adapter's dispatch_review.models roster
 #   3. default → opencode
 # tool_of() writes to the global TOOL_OF associative array (model → tool).
 declare -A TOOL_OF=()
 declare -A AGY_ROSTER=()
+declare -A CLAUDE_ROSTER=()
 declare -A OC_ROSTER=()
 
 if [[ -f "$AGY_ADAPTER" ]]; then
   while IFS= read -r m; do [[ -n "$m" ]] && AGY_ROSTER["$m"]=1; done \
     < <(yq -r '.dispatch_review.models[]' "$AGY_ADAPTER" 2>/dev/null)
+fi
+if [[ -f "$CLAUDE_ADAPTER" ]]; then
+  while IFS= read -r m; do [[ -n "$m" ]] && CLAUDE_ROSTER["$m"]=1; done \
+    < <(yq -r '.dispatch_review.models[]' "$CLAUDE_ADAPTER" 2>/dev/null)
 fi
 while IFS= read -r m; do [[ -n "$m" ]] && OC_ROSTER["$m"]=1; done \
   < <(yq -r '.dispatch_review.models[]' "$ADAPTER" 2>/dev/null)
@@ -79,9 +86,11 @@ resolve_entry() {
   local tool="" model="$raw"
   case "$raw" in
     agy:*)      tool="agy";      model="${raw#agy:}" ;;
+    claude:*)   tool="claude";   model="${raw#claude:}" ;;
     opencode:*) tool="opencode"; model="${raw#opencode:}" ;;
     *)
       if [[ -n "${AGY_ROSTER[$raw]:-}" ]]; then tool="agy"
+      elif [[ -n "${CLAUDE_ROSTER[$raw]:-}" ]]; then tool="claude"
       elif [[ -n "${OC_ROSTER[$raw]:-}" ]]; then tool="opencode"
       else tool="opencode"; fi
       ;;
@@ -89,11 +98,11 @@ resolve_entry() {
   echo "$tool|$model"
 }
 
-# Default roster = opencode models + agy models (each tool contributes its leg).
+# Default roster = opencode + agy + claude models (each tool contributes its leg).
 DEFAULT_MODELS=()
 for m in "${!OC_ROSTER[@]}"; do DEFAULT_MODELS+=("$m"); done
-# stable-ish: append agy models after opencode
 for m in "${!AGY_ROSTER[@]}"; do DEFAULT_MODELS+=("agy:$m"); done
+for m in "${!CLAUDE_ROSTER[@]}"; do DEFAULT_MODELS+=("claude:$m"); done
 [[ ${#DEFAULT_MODELS[@]} -gt 0 ]] || { echo "Error: no dispatch_review.models in any adapter" >&2; exit 2; }
 
 RAW_MODELS=()
@@ -120,19 +129,27 @@ for raw in "${RAW_MODELS[@]}"; do
   ACTIVE_MODELS+=("$m")
 done
 
-# Require only the reviewer tools actually in play (an agy-only run must not
-# hard-fail on a missing opencode, and vice-versa).
-NEED_OC=false; NEED_AGY=false
+# Require only the reviewer tools actually in play (a single-tool run must not
+# hard-fail on the others). Note: claude is UNRESTRICTED (no CREW_ENV gate) — only
+# agy is policy-blocked on corp, handled in the roster loop above.
+NEED_OC=false; NEED_AGY=false; NEED_CLAUDE=false
 for m in "${ACTIVE_MODELS[@]}"; do
-  case "${TOOL_OF[$m]}" in opencode) NEED_OC=true ;; agy) NEED_AGY=true ;; esac
+  case "${TOOL_OF[$m]}" in
+    opencode) NEED_OC=true ;;
+    agy)      NEED_AGY=true ;;
+    claude)   NEED_CLAUDE=true ;;
+  esac
 done
 $NEED_OC && { command -v opencode &>/dev/null || { echo "Error: opencode required for the active roster but not found" >&2; exit 2; }; }
 $NEED_AGY && { command -v agy &>/dev/null || { echo "Error: agy required for the active roster but not found" >&2; exit 2; }; }
+$NEED_CLAUDE && { command -v claude &>/dev/null || { echo "Error: claude required for the active roster but not found" >&2; exit 2; }; }
 
 # Timeout: prefer opencode adapter's dispatch_review.timeout, else its invoke, else 300.
 TIMEOUT=$(yq -r '.dispatch_review.timeout // .invoke.timeout // 300' "$ADAPTER")
 AGY_TIMEOUT=$(yq -r '.dispatch_review.timeout // .invoke.timeout // 300' "$AGY_ADAPTER" 2>/dev/null)
 [[ "$AGY_TIMEOUT" =~ ^[0-9]+$ ]] || AGY_TIMEOUT="$TIMEOUT"
+CLAUDE_TIMEOUT=$(yq -r '.dispatch_review.timeout // .invoke.timeout // 300' "$CLAUDE_ADAPTER" 2>/dev/null)
+[[ "$CLAUDE_TIMEOUT" =~ ^[0-9]+$ ]] || CLAUDE_TIMEOUT="$TIMEOUT"
 
 # ─── Output layout ──────────────────────────────────────────────────────────
 OUT_DIR="$REPO_ROOT/.scratch/review/$RUN_ID"
@@ -232,7 +249,7 @@ extract_result_line() {
   grep -Eo 'REVIEW_RESULT \{.*\}' "$artifact" 2>/dev/null | tail -1
 }
 
-# ─── Tool-aware reviewer interface (opencode + agy) ──────────────────────────
+# ─── Tool-aware reviewer interface (opencode + agy + claude) ─────────────────
 # Each tool has a distinct invocation, clean-stop signal, and error surface. The
 # wrappers normalize all of that so the fan-out/health loops stay tool-agnostic:
 #   invoke_reviewer  <tool> <model> <prompt> <jsonl> <err> <run_dir> <timeout>
@@ -258,6 +275,13 @@ invoke_reviewer() {
               --print="$prompt" ) \
           > "$jsonl" 2> "$err"
       ;;
+    claude)
+      # --output-format json = a SINGLE result object (not NDJSON). -p prompt as arg.
+      ( cd "$run_dir" && timeout "$to" \
+          claude --dangerously-skip-permissions --model "$model" \
+              --output-format json -p "$prompt" ) \
+          > "$jsonl" 2> "$err"
+      ;;
     *) return 2 ;;
   esac
 }
@@ -272,11 +296,22 @@ validate_agy() {
   if [[ "$status" == "SUCCESS" && -n "$resp" ]]; then echo "valid"; else echo "indeterminate"; fi
 }
 
+# claude clean-stop: single object type=="result", is_error==false, subtype=="success",
+# non-empty .result. Validate by content — claude exits 1 on the auth-error path.
+validate_claude() {
+  local jsonl="$1"
+  [[ -s "$jsonl" ]] || { echo "empty"; return; }
+  local ok
+  ok=$(jq -rn 'input | (.type=="result" and .is_error==false and .subtype=="success" and ((.result//"")|length>0))' "$jsonl" 2>/dev/null || echo "false")
+  if [[ "$ok" == "true" ]]; then echo "valid"; else echo "indeterminate"; fi
+}
+
 validate_stream() {
   local tool="$1" jsonl="$2"
   case "$tool" in
     opencode) validate_output "$jsonl" ;;
     agy)      validate_agy "$jsonl" ;;
+    claude)   validate_claude "$jsonl" ;;
     *)        echo "indeterminate" ;;
   esac
 }
@@ -297,6 +332,9 @@ extract_text() {
       fi
       printf '%s' "$t"
       ;;
+    claude)
+      jq -rn 'input | .result // ""' "$jsonl" 2>/dev/null || echo ""
+      ;;
     *) echo "" ;;
   esac
 }
@@ -313,6 +351,10 @@ classify_error() {
       errtext=$(jq -rn 'last(inputs | select(.event=="result") | (.result.error // "")) // ""' "$jsonl" 2>/dev/null || echo "")
       # also scan tool_info errors and any error event
       errtext="$errtext $(jq -rn '[inputs | select(.event=="step_update") | .step_update.tool_info.error.message // empty] | join(" ")' "$jsonl" 2>/dev/null || echo "")"
+      ;;
+    claude)
+      # claude json: is_error:true carries the message in .result; .api_error_status too.
+      errtext=$(jq -rn 'input | ((.result//"") + " " + (.api_error_status//"" | tostring) + " " + (.subtype//""))' "$jsonl" 2>/dev/null || echo "")
       ;;
   esac
   errtext="$errtext $(cat "$err" 2>/dev/null)"
@@ -333,7 +375,8 @@ probe_model() {
   local tool="${TOOL_OF[$model]:-opencode}" s jsonl err status text
   s=$(slug "$model")
   jsonl="$OUT_DIR/health-$s.jsonl"; err="$OUT_DIR/health-$s.err"
-  local to="$TIMEOUT"; [[ "$tool" == "agy" ]] && to="$AGY_TIMEOUT"
+  local to="$TIMEOUT"
+  case "$tool" in agy) to="$AGY_TIMEOUT" ;; claude) to="$CLAUDE_TIMEOUT" ;; esac
   invoke_reviewer "$tool" "$model" "Reply with exactly: OK" "$jsonl" "$err" "$REPO_ROOT" "$to"
   status=$(validate_stream "$tool" "$jsonl")
   if [[ "$status" == "valid" ]]; then
@@ -421,7 +464,7 @@ for model in "${ACTIVE_MODELS[@]}"; do
   err="$OUT_DIR/$s.err"
   artifact="$OUT_DIR/$s.md"
   prompt=$(build_prompt "$s")
-  to="$TIMEOUT"; [[ "$tool" == "agy" ]] && to="$AGY_TIMEOUT"
+  to="$TIMEOUT"; case "$tool" in agy) to="$AGY_TIMEOUT" ;; claude) to="$CLAUDE_TIMEOUT" ;; esac
 
   echo ""
   echo "  ▶ $model  [$tool]"
@@ -430,6 +473,7 @@ for model in "${ACTIVE_MODELS[@]}"; do
     case "$tool" in
       opencode) echo "    [dry-run] (cd $RUN_IN && opencode run --auto -m $model --format json \"<findings-only prompt>\")" ;;
       agy)      echo "    [dry-run] (cd $RUN_IN && agy --dangerously-skip-permissions --model $model --output-format stream-json --print=\"<findings-only prompt>\")" ;;
+      claude)   echo "    [dry-run] (cd $RUN_IN && claude --dangerously-skip-permissions --model $model --output-format json -p \"<findings-only prompt>\")" ;;
     esac
     REVIEWER_ROWS+=("{\"reviewer\":\"$s\",\"model\":\"$model\",\"tool\":\"$tool\",\"result\":\"dry-run\"}")
     continue

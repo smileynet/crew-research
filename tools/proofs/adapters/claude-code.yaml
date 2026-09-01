@@ -6,6 +6,21 @@ invoke:
   command_no_agent: 'claude --print "{query}"'
   timeout: 90
 
+# dispatch-review matrix leg (ticket 143). matrix.sh resolves a model to this tool
+# and uses per-tool invoke/parse; it does NOT printf-expand `command`. Validation
+# predicate: single JSON object type=="result" + is_error==false + subtype=="success"
+# + non-empty result. UNRESTRICTED — no CREW_ENV policy gate (unlike agy). PATH-gated only.
+dispatch_review:
+  command: 'claude --dangerously-skip-permissions --model {model} --output-format json -p "{query}"'
+  timeout: 600
+  # Opus is the review-grade accuracy/high-recall anchor (complements Gemini Pro's
+  # high-SNR/lower-recall voice + the coding-plan models). alias resolves live:
+  # opus -> claude-opus-5, sonnet -> claude-sonnet-5.
+  models:
+    - opus
+  result_validation: '.type=="result" and .is_error==false and .subtype=="success" and (.result|length>0)'
+  auth: "Claude subscription OAuth; expired session → is_error:true result:'Failed to authenticate…', exit 1. Re-login interactively (claude → /login)."
+
 agent:
   format: markdown-frontmatter
   location: ".claude/agents/{name}.md"
