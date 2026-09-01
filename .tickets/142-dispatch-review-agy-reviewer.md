@@ -1,7 +1,7 @@
 ---
 id: "142"
 title: "Add agy/Gemini as a dispatch-review reviewer (matrix leg when available)"
-status: in_progress
+status: done
 blocked_by: []
 validation_criteria:
   - "dispatch-review can dispatch an agy (Google Antigravity CLI) reviewer that produces a contract-compliant REVIEW_RESULT run against the planted-review fixture, and the matrix includes an agy/Gemini leg when agy is on PATH"
@@ -97,12 +97,12 @@ Research subagents (`.scratch/research/t142/`) + code-review subagents
 
 ## Acceptance criteria
 
-- [ ] `agy.yaml` corrected (blocked status removed; dispatch_review block with `--print=` invocation + result.status validation added; #76-fixed noted)
-- [ ] dispatch-review § Reviewers lists agy with its invocation + `--dangerously-skip-permissions`
-- [ ] agy appears as a matrix leg when `agy` is on PATH; absent → skipped as a reported coverage gap, never a hard failure; opencode-only PATH gate no longer hard-fails an agy-only run
-- [ ] matrix.sh gates the agy leg by CREW_ENV policy (corp → `policy-blocked` gap, distinct reason) at fan-out AND `--health`, before `command -v agy`
-- [ ] `matrix.sh --health` probes the agy leg (validate by `result.status`, classify auth/quota/timeout)
-- [ ] Live regression against planted-review fixture: agy produces a contract-compliant REVIEW_RESULT + pushed aggregate ticket tagged `Reviewer: agy/gemini-3.1-pro-high`
+- [x] `agy.yaml` corrected (blocked status removed; dispatch_review block with `--print=` invocation + result.status validation added; #76-fixed noted)
+- [x] dispatch-review § Reviewers lists agy with its invocation + `--dangerously-skip-permissions`
+- [x] agy appears as a matrix leg when `agy` is on PATH; absent → skipped as a reported coverage gap, never a hard failure; opencode-only PATH gate no longer hard-fails an agy-only run
+- [x] matrix.sh gates the agy leg by CREW_ENV policy (corp → `policy-blocked` gap, distinct reason) at fan-out AND `--health`, before `command -v agy`
+- [x] `matrix.sh --health` probes the agy leg (validate by `result.status`, classify auth/quota/timeout)
+- [x] Live regression against planted-review fixture: agy produces a contract-compliant REVIEW_RESULT line (with `reviewer:"gemini-31-pro-high"`) + inline findings covering the planted bugs. (Aggregate-ticket creation is the parent's fan-in step in main context, not matrix.sh's — see Out of scope / README "Fan-in is NOT here".)
 
 ## Relationship to other tickets
 
@@ -118,3 +118,10 @@ Research subagents (`.scratch/research/t142/`) + code-review subagents
 - Confirming/triaging the findings agy produces (that's `review-new-work` + frontier consumption)
 - The general per-job harness toggle framework (ticket 144)
 - The broader per-tool adapter-interface refactor (minimal branch here; 144 owns it)
+
+## Resolution (2026-09-01)
+
+Added agy/Gemini as a dispatch-review matrix leg. matrix.sh generalized with per-model tool resolution (opencode+agy), tool-aware invoke/validate/extract wrappers, need-based PATH gate, CREW_ENV policy floor (corp degrades agy as distinct policy-blocked gap) at fan-out and --health, and an agy --health probe validating via result.status. Corrected stale agy.yaml (Issue #76 fixed as of 1.1.22, verified live; dispatch_review block; --print= greedy-flag gotcha). Skill docs updated (Reviewers table, result-contract fallback, model-matrix Gemini leg + stream-json recipe, activation keywords). Kept minimal per ticket 144 supersession; matrix.sh stays fan-out only. Commit 9214578.
+
+### Verification
+1. ✓ dispatch-review can dispatch an agy (Google Antigravity CLI) reviewer that produces a contract-compliant REVIEW_RESULT run against the planted-review fixture, and the matrix includes an agy/Gemini leg when agy is on PATH — "Live regression on planted-review fixture: agy gemini-3.1-pro-high reviewed in 127s, result.status SUCCESS, matrix-summary status:pass produced 1/1; contract-compliant REVIEW_RESULT line (reviewer:gemini-31-pro-high); 11 findings matched all 10 planted bugs (B1-B10 incl Type-3 cross-file B2/TOCTOU B7/over-mock B9); 14x view_file zero filesystem-hunting. Matrix leg present when agy on PATH (personal dry-run: 3x[opencode]+1x[agy]); CREW_ENV=corp degrades agy as policy-blocked gap at fan-out AND --health (verified). shellcheck clean, mise run validate passes. Commit 9214578 on origin/main."
