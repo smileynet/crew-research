@@ -1,7 +1,7 @@
 ---
 id: "150"
 title: "Restructure handoff to in-flight delta shape + in_flight_ticket frontmatter"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
