@@ -1,7 +1,7 @@
 ---
 id: "144"
 title: "User config to selectively enable/disable harnesses per job (eval, judge, review) — supersedes 142/143"
-status: open
+status: in_progress
 blocked_by: []
 validation_criteria:
   - "a user-level config selects which tools/harnesses run for each job type (eval, judge, code review, ...), the eval/proof/dispatch-review harnesses read it and include/exclude legs accordingly, and an unavailable or disabled tool degrades a job as a reported gap rather than failing it"
