@@ -1,7 +1,7 @@
 ---
 id: "144"
 title: "Machine-wide tool enable/disable map under the CREW_ENV floor — supersedes 142/143"
-status: in_progress
+status: done
 blocked_by: []
 validation_criteria:
   - "a machine-wide config enables/disables each tool/harness, one shared reader applies the CREW_ENV policy floor (stage 1, deny-wins) then the enable-map (stage 2), the harnesses consume it, and a disabled / unavailable / policy-blocked tool each degrades as a reported gap with a DISTINCT reason"
@@ -59,13 +59,13 @@ OS-level lock (steering/config is user-editable by design). ADR 0011 states this
 
 ## Acceptance criteria
 
-- [ ] `compositions/harness-tools.yaml` machine-wide `tools.<name>.enabled` map (YAML)
-- [ ] ADR 0011 documents enable-map + CREW_ENV floor precedence (deny-wins stage 1, map cannot widen) + convention-not-lock honesty
-- [ ] ONE shared reader `tools/lib/harness-selection.sh` applies floor(stage1) → enable-map(stage2) → availability(stage3); callable before `command -v`; canonical reason strings
-- [ ] `disabled` / `unavailable` / `policy-blocked` each degrade as a reported gap with a DISTINCT reason
-- [ ] matrix.sh consumes the reader (agy/claude/opencode legs honor enable-map + floor); dry-run regression green
-- [ ] doctor.sh reason-string drift fixed to the canonical `policy-blocked (CREW_ENV=corp)`
-- [ ] shellcheck + bash -n + `mise run validate` clean
+- [x] `compositions/harness-tools.yaml` machine-wide `tools.<name>.enabled` map (YAML)
+- [x] ADR 0011 documents enable-map + CREW_ENV floor precedence (deny-wins stage 1, map cannot widen) + convention-not-lock honesty
+- [x] ONE shared reader `tools/lib/harness-selection.sh` applies floor(stage1) → enable-map(stage2) → availability(stage3); callable before `command -v`; canonical reason strings
+- [x] `disabled` / `unavailable` / `policy-blocked` each degrade as a reported gap with a DISTINCT reason
+- [x] matrix.sh consumes the reader (agy/claude/opencode legs honor enable-map + floor); dry-run regression green
+- [x] doctor.sh reason-string drift fixed to the canonical `policy-blocked (CREW_ENV=corp)`
+- [x] shellcheck + bash -n + `mise run validate` clean
 
 ## Relationship to other tickets
 
@@ -79,3 +79,10 @@ OS-level lock (steering/config is user-editable by design). ADR 0011 states this
 - Per-JOB tool selection (dropped by the 2026-08-31 simplification — machine-wide only)
 - Changing CREW_ENV policy semantics (layers under it)
 - Migrating run-proof.sh's hardcoded model ids (only its CREW_ENV check moves to the reader)
+
+## Resolution (2026-09-01)
+
+Machine-wide tool enable-map under the CREW_ENV floor via one shared reader (simplified from per-job matrix per operator decision 2026-08-31). ADR 0011 documents enable-map + deny-wins stage-1 floor + convention-not-lock. compositions/harness-tools.yaml = flat tools.<name>.enabled map. tools/lib/harness-selection.sh = single reader (tool_verdict: enabled|policy-blocked|disabled|unavailable, distinct reasons, fail-closed, callable before command -v, claude-code->claude binary map). matrix.sh consumes it (disabled/unavailable now distinct gaps from policy-blocked in summary/manifest/health); run.sh x2 + run-proof.sh use the reader for the policy check+reason; doctor.sh reason-string drift fixed to canonical. Supersedes 142/143 (agy/claude are enable-map entries). Commit on origin/main.
+
+### Verification
+1. ✓ a machine-wide config enables/disables each tool/harness, one shared reader applies the CREW_ENV policy floor (stage 1, deny-wins) then the enable-map (stage 2), the harnesses consume it, and a disabled / unavailable / policy-blocked tool each degrades as a reported gap with a DISTINCT reason — "Reader unit cases: personal agy=enabled/opencode=enabled; corp agy=policy-blocked (canonical string)/claude-code=enabled; unlisted=disabled; fail-closed if yq/map missing. matrix.sh dry-runs: personal=5 legs [opencode]x3+[agy]+[claude]; corp=agy policy-blocked gap (expected5/policy_blocked1/coverage_gap) while claude stays active; opencode disabled via override map -> 3 distinct 'disabled (harness-tools.yaml)' gaps (disabled:3 in summary json). agy live regression through reader-refactored matrix.sh: status pass, produced 1/1, contract-compliant REVIEW_RESULT + 11 findings. Canonical policy-blocked (CREW_ENV=corp) now uniform across init/doctor/run/run-proof/matrix (doctor drift POLICY VIOLATION->canonical fixed, grep-verified). shellcheck -S warning clean on reader+matrix; -S error clean on run.sh/run-proof.sh/doctor.sh (pre-existing warnings only); mise run validate: refs resolve, Lint 0 errors, tickets valid."
