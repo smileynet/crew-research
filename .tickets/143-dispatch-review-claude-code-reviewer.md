@@ -20,44 +20,49 @@ families catch different bug categories — makes a Claude leg valuable, especia
 since much of crew-research's own tooling assumes Claude behavior (cross-model gap
 noted in AGENTS.md: skills tested on Claude may behave differently on GPT-5.x/Gemini).
 
-## Context
+## Verified findings (2026-08-31) — L1, live-probed on this machine
 
-- Reviewer table + fail-closed verify loop: `atomics/skills/dispatch-review/SKILL.md`.
-  Contract is reviewer-agnostic — coordinator owns the gate; a reviewer only emits
-  the `REVIEW_RESULT ` line and pushes the aggregate ticket.
-- Matrix roster: `tools/proofs/adapters/opencode.yaml` → `dispatch_review.models`.
-  A Claude leg needs its own headless invocation + auto-approve/bypass flag.
-- Claude Code headless: `claude -p "<prompt>"` (print mode) with a permission mode
-  that allows tool use without prompts (e.g. `--permission-mode` / `--dangerously-skip-permissions`).
-  Confirm the exact flag + output-validation contract during the ticket.
-- `matrix.sh --health` (ticket 134) must gain a Claude probe leg too.
+Sibling 142 (agy reviewer) already landed the reusable seam in `matrix.sh`
+(per-model tool resolution, tool-aware `invoke_reviewer`/`validate_stream`/
+`extract_text`/`classify_error` wrappers, need-based PATH gate, CREW_ENV floor,
+working-tree-centric prompt). 143 adds a third tool branch — small, mechanical.
 
-## Unknowns to resolve first
-
-1. Claude Code non-interactive invocation + the skip-permissions/auto-approve flag
-   (equivalent of codex `--dangerously-bypass-approvals-and-sandbox` / opencode `--auto`)
-   so the reviewer can run tests/linters and push.
-2. Headless output contract — validate by OUTPUT content, not exit code
-   (`--output-format stream-json` / json; confirm the clean-stop signal).
-3. Auth surface (Claude subscription vs API key) + quota behavior → `coding-plan-limits`.
+1. **Invocation + auto-approve flag** (Claude Code 2.1.223):
+   `claude --dangerously-skip-permissions --model <alias> --output-format json -p "<prompt>"`.
+   `--dangerously-skip-permissions` = the bypass/auto-approve flag (codex/agy/opencode equivalent).
+2. **Output contract — simpler than agy** (single JSON object, not NDJSON):
+   `{type:"result", subtype:"success", is_error:bool, result:"<text>", stop_reason, num_turns, modelUsage}`.
+   **Clean-stop = `type=="result" && is_error==false && subtype=="success"` + non-empty `result`.**
+   Validate by content, NOT exit code (it exits 1 on the auth-error path).
+3. **Models:** `opus` → `claude-opus-5`, `sonnet` → `claude-sonnet-5` (both live-verified).
+   Pin **`opus`** as the review-grade default — the high-recall accuracy anchor
+   (SWE-bench 80–88%) complementing Gemini Pro's high-SNR/lower-recall voice.
+4. **UNRESTRICTED — no CREW_ENV policy gate.** Unlike agy (corp-forbidden per ticket
+   36), Claude Code is allowed in all environments. The claude leg is PATH-gated only.
+5. **Auth:** Claude subscription OAuth. An expired session surfaces as
+   `is_error:true, result:"Failed to authenticate: OAuth session expired…"`, exit 1
+   (was blocking; re-authed 2026-08-31, now `is_error:false`). Classify auth/api_error
+   via `coding-plan-limits` (Claude carries `is_error` + `result` msg + `api_error_status`).
 
 ## What to build
 
-1. Determine + document Claude Code's headless auto-approve invocation + output contract.
-2. Add Claude to the § Reviewers table and as a matrix leg (roster + `matrix.sh`
-   fan-out), gated on `claude` present on PATH ("when available").
-3. Extend `matrix.sh --health` to probe the Claude leg (readiness, not liveness).
-4. Regression: run the Claude reviewer against `tools/review/fixtures/planted-review/`
-   and confirm a contract-compliant findings run (real findings + REVIEW_RESULT,
-   pushed aggregate ticket, provenance tag `Reviewer: claude/<model>`).
+1. `tools/proofs/adapters/claude-code.yaml` (exists) — add a `dispatch_review` block:
+   invocation (`--output-format json -p`), roster default `opus`, `is_error==false` contract.
+2. `matrix.sh` — add `claude` branches: `resolve_entry` (`claude:` prefix + roster),
+   `invoke_reviewer`, `validate_claude` (`is_error==false`), `extract_text` (`.result`),
+   `classify_error` (auth/api_error), `NEED_CLAUDE` PATH gate. **No policy gate.**
+3. `matrix.sh --health` — Claude probe leg via `validate_claude`.
+4. Skill docs — Reviewers row, result-contract fallback, model-matrix Claude leg +
+   json-parsing recipe, activation keywords.
+5. Live regression against `tools/review/fixtures/planted-review/`.
 
 ## Acceptance criteria
 
-- [ ] Claude Code non-interactive auto-approve invocation + output-validation contract documented
-- [ ] dispatch-review § Reviewers lists Claude with its invocation + required permission flag
-- [ ] Claude appears as a matrix leg when `claude` is on PATH; absent → skipped as a reported coverage gap, never a hard failure
-- [ ] `matrix.sh --health` probes the Claude leg (validate by output content, classify auth/quota/timeout)
-- [ ] Live regression against planted-review fixture: Claude produces a contract-compliant REVIEW_RESULT + pushed aggregate ticket tagged `Reviewer: claude/<model>`
+- [ ] `claude-code.yaml` has a dispatch_review block (invocation + `is_error==false` validation + opus roster)
+- [ ] dispatch-review § Reviewers lists Claude with `claude --dangerously-skip-permissions … --output-format json -p`
+- [ ] Claude appears as a matrix leg when `claude` is on PATH; absent → skipped as a reported coverage gap, never a hard failure; NOT policy-gated (unrestricted in all CREW_ENVs)
+- [ ] `matrix.sh --health` probes the Claude leg (validate by `is_error==false`, classify auth/quota/timeout)
+- [ ] Live regression against planted-review fixture: Claude opus produces a contract-compliant REVIEW_RESULT line (with `reviewer:"..."`) + inline findings covering the planted bugs. (Aggregate-ticket creation is the parent's fan-in step, not matrix.sh's.)
 
 ## Relationship to other tickets
 
