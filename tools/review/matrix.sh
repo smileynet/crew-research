@@ -22,6 +22,15 @@ AGY_ADAPTER="$REPO_ROOT/tools/proofs/adapters/agy.yaml"
 CLAUDE_ADAPTER="$REPO_ROOT/tools/proofs/adapters/claude-code.yaml"
 CREW_ENV="${CREW_ENV:-}"
 
+# Shared harness-tool selection reader (ticket 144, ADR 0011): CREW_ENV floor +
+# machine-wide enable-map, applied in one place. Replaces the former inline corp/agy check.
+# shellcheck source=../lib/harness-selection.sh
+source "$REPO_ROOT/tools/lib/harness-selection.sh"
+
+# Map the roster's resolver tool name → the enable-map/reader key (adapter name).
+# The resolver uses `claude`; the adapter/map key is `claude-code`.
+hs_key_for() { case "$1" in claude) echo "claude-code" ;; *) echo "$1" ;; esac; }
+
 RUN_ID=""
 TARGET=""
 MODEL_FILTER=""
@@ -112,37 +121,34 @@ else
   RAW_MODELS=("${DEFAULT_MODELS[@]}")
 fi
 
-# Build ACTIVE_MODELS (bare model ids) + TOOL_OF, applying the CREW_ENV policy
-# floor: on corp, agy is policy-blocked (ticket 36) — exclude the leg with a
-# DISTINCT reason (degrade-as-gap, like the eval judge leg; NOT a hard exit, since
-# a matrix has other legs). This is the hard floor ticket 144 layers under.
+# Build ACTIVE_MODELS (bare model ids) + TOOL_OF via the shared selection reader
+# (ADR 0011): each leg's tool gets a verdict — enabled | policy-blocked | disabled |
+# unavailable. Only `enabled` legs run; the other three are DISTINCT reported gaps
+# (degrade-as-gap, never a hard exit — a matrix has other legs). This is the hard
+# floor + enable-map, resolved in one place instead of an inline corp/agy check.
 ACTIVE_MODELS=()
-declare -A POLICY_BLOCKED=()
+declare -A POLICY_BLOCKED=()   # model → reason (policy-blocked)
+declare -A DISABLED=()         # model → reason (disabled / unavailable)
 for raw in "${RAW_MODELS[@]}"; do
   IFS='|' read -r t m < <(resolve_entry "$raw")
-  if [[ "$t" == "agy" && "$CREW_ENV" == "corp" ]]; then
-    POLICY_BLOCKED["$m"]="policy-blocked (CREW_ENV=corp)"
-    TOOL_OF["$m"]="$t"
-    continue
-  fi
   TOOL_OF["$m"]="$t"
-  ACTIVE_MODELS+=("$m")
-done
-
-# Require only the reviewer tools actually in play (a single-tool run must not
-# hard-fail on the others). Note: claude is UNRESTRICTED (no CREW_ENV gate) — only
-# agy is policy-blocked on corp, handled in the roster loop above.
-NEED_OC=false; NEED_AGY=false; NEED_CLAUDE=false
-for m in "${ACTIVE_MODELS[@]}"; do
-  case "${TOOL_OF[$m]}" in
-    opencode) NEED_OC=true ;;
-    agy)      NEED_AGY=true ;;
-    claude)   NEED_CLAUDE=true ;;
+  case "$(tool_verdict "$(hs_key_for "$t")")" in
+    enabled)        ACTIVE_MODELS+=("$m") ;;
+    policy-blocked) POLICY_BLOCKED["$m"]="$(hs_policy_reason)" ;;
+    disabled)       DISABLED["$m"]="disabled (harness-tools.yaml)" ;;
+    unavailable)    DISABLED["$m"]="unavailable (not on PATH)" ;;
   esac
 done
-$NEED_OC && { command -v opencode &>/dev/null || { echo "Error: opencode required for the active roster but not found" >&2; exit 2; }; }
-$NEED_AGY && { command -v agy &>/dev/null || { echo "Error: agy required for the active roster but not found" >&2; exit 2; }; }
-$NEED_CLAUDE && { command -v claude &>/dev/null || { echo "Error: claude required for the active roster but not found" >&2; exit 2; }; }
+
+# Availability is now part of the reader's verdict (`unavailable` → a reported gap),
+# so a single missing tool no longer hard-exits a mixed matrix — it degrades. But a
+# run with NO enabled legs at all is a usage error worth surfacing loudly.
+if [[ ${#ACTIVE_MODELS[@]} -eq 0 && "$HEALTH" != true ]]; then
+  echo "Error: no enabled+available reviewer legs for this roster" >&2
+  for m in "${!POLICY_BLOCKED[@]}"; do echo "  ⊘ $m — ${POLICY_BLOCKED[$m]}" >&2; done
+  for m in "${!DISABLED[@]}";       do echo "  ○ $m — ${DISABLED[$m]}" >&2; done
+  exit 2
+fi
 
 # Timeout: prefer opencode adapter's dispatch_review.timeout, else its invoke, else 300.
 TIMEOUT=$(yq -r '.dispatch_review.timeout // .invoke.timeout // 300' "$ADAPTER")
@@ -175,10 +181,19 @@ if [[ "$HEALTH" != true ]]; then
   for m in "${!POLICY_BLOCKED[@]}"; do
     $first || printf ', '; first=false; printf '"%s"' "$(slug "$m")"
   done
+  for m in "${!DISABLED[@]}"; do
+    $first || printf ', '; first=false; printf '"%s"' "$(slug "$m")"
+  done
   echo "],"
   printf '  "policy_blocked": ['
   first=true
   for m in "${!POLICY_BLOCKED[@]}"; do
+    $first || printf ', '; first=false; printf '"%s"' "$(slug "$m")"
+  done
+  echo "],"
+  printf '  "disabled": ['
+  first=true
+  for m in "${!DISABLED[@]}"; do
     $first || printf ', '; first=false; printf '"%s"' "$(slug "$m")"
   done
   echo "]"
@@ -395,13 +410,20 @@ run_health() {
   echo "  models: ${ACTIVE_MODELS[*]:-none}"
   [[ ${#POLICY_BLOCKED[@]} -gt 0 ]] && echo "  policy-blocked: ${!POLICY_BLOCKED[*]}"
   echo "═══════════════════════════════════════════════════════════"
-  local rows=() down=0 blocked=0
+  local rows=() down=0 blocked=0 disabled=0
   # Policy-blocked legs: reported as a distinct gap, no token spend, not "down".
   for model in "${!POLICY_BLOCKED[@]}"; do
     printf "  ▶ %-34s " "$model"
     echo "⊘ ${POLICY_BLOCKED[$model]}"
     blocked=$((blocked+1))
     rows+=("{\"model\":\"$model\",\"healthy\":false,\"reason\":\"policy-blocked\",\"detail\":\"${POLICY_BLOCKED[$model]}\"}")
+  done
+  # Disabled/unavailable legs: distinct gap, no probe, no token spend.
+  for model in "${!DISABLED[@]}"; do
+    printf "  ▶ %-34s " "$model"
+    echo "○ ${DISABLED[$model]}"
+    disabled=$((disabled+1))
+    rows+=("{\"model\":\"$model\",\"healthy\":false,\"reason\":\"disabled\",\"detail\":\"${DISABLED[$model]}\"}")
   done
   for model in "${ACTIVE_MODELS[@]}"; do
     printf "  ▶ %-34s " "$model"
@@ -416,15 +438,15 @@ run_health() {
     fi
   done
   local hsum="$OUT_DIR/health-summary.json" st="healthy"
-  { [[ $down -gt 0 ]] || [[ $blocked -gt 0 ]]; } && st="degraded"
-  local checked=$(( ${#ACTIVE_MODELS[@]} + blocked ))
+  { [[ $down -gt 0 ]] || [[ $blocked -gt 0 ]] || [[ $disabled -gt 0 ]]; } && st="degraded"
+  local checked=$(( ${#ACTIVE_MODELS[@]} + blocked + disabled ))
   { echo "{"; echo "  \"status\": \"$st\","; echo "  \"checked\": $checked,";
-    echo "  \"unhealthy\": $down,"; echo "  \"policy_blocked\": $blocked,"; printf '  "models": [';
+    echo "  \"unhealthy\": $down,"; echo "  \"policy_blocked\": $blocked,"; echo "  \"disabled\": $disabled,"; printf '  "models": [';
     for i in "${!rows[@]}"; do [[ $i -gt 0 ]] && printf ', '; printf '%s' "${rows[$i]}"; done
     echo "]"; echo "}"; } > "$hsum"
   echo ""
-  echo "  summary: $hsum  ($st — $checked checked, $down down, $blocked policy-blocked)"
-  { [[ $down -eq 0 ]] && [[ $blocked -eq 0 ]]; } && return 0 || return 1
+  echo "  summary: $hsum  ($st — $checked checked, $down down, $blocked policy-blocked, $disabled disabled)"
+  { [[ $down -eq 0 ]] && [[ $blocked -eq 0 ]] && [[ $disabled -eq 0 ]]; } && return 0 || return 1
 }
 
 if [[ "$HEALTH" == true ]]; then
@@ -514,14 +536,22 @@ for model in "${ACTIVE_MODELS[@]}"; do
   fi
 done
 
-# Policy-blocked legs are reported coverage gaps with a DISTINCT reason (ticket 36
-# floor; ticket 144 will layer under this). Never silently dropped, never clean.
+# Non-running legs are reported coverage gaps with DISTINCT reasons (ADR 0011):
+# policy-blocked (CREW_ENV floor) and disabled/unavailable (enable-map + PATH). Never
+# silently dropped, never clean.
 for model in "${!POLICY_BLOCKED[@]}"; do
-  s=$(slug "$model")
+  s=$(slug "$model"); tool="${TOOL_OF[$model]:-?}"
   echo ""
-  echo "  ⊘ $model  [agy] — ${POLICY_BLOCKED[$model]}"
+  echo "  ⊘ $model  [$tool] — ${POLICY_BLOCKED[$model]}"
   MISSING+=("$s")
-  REVIEWER_ROWS+=("{\"reviewer\":\"$s\",\"model\":\"$model\",\"tool\":\"agy\",\"result\":\"policy-blocked\",\"reason\":\"policy-blocked\",\"detail\":\"${POLICY_BLOCKED[$model]}\"}")
+  REVIEWER_ROWS+=("{\"reviewer\":\"$s\",\"model\":\"$model\",\"tool\":\"$tool\",\"result\":\"policy-blocked\",\"reason\":\"policy-blocked\",\"detail\":\"${POLICY_BLOCKED[$model]}\"}")
+done
+for model in "${!DISABLED[@]}"; do
+  s=$(slug "$model"); tool="${TOOL_OF[$model]:-?}"
+  echo ""
+  echo "  ○ $model  [$tool] — ${DISABLED[$model]}"
+  MISSING+=("$s")
+  REVIEWER_ROWS+=("{\"reviewer\":\"$s\",\"model\":\"$model\",\"tool\":\"$tool\",\"result\":\"disabled\",\"reason\":\"disabled\",\"detail\":\"${DISABLED[$model]}\"}")
 done
 
 # ─── Summary (machine-readable; fan-in reads this) ───────────────────────────
@@ -532,9 +562,10 @@ overall="pass"; [[ ${#MISSING[@]} -gt 0 ]] && overall="coverage_gap"
   echo "  \"status\": \"$overall\","
   echo "  \"run_id\": \"$RUN_ID\","
   echo "  \"target\": \"$TARGET\","
-  echo "  \"expected\": $(( ${#ACTIVE_MODELS[@]} + ${#POLICY_BLOCKED[@]} )),"
+  echo "  \"expected\": $(( ${#ACTIVE_MODELS[@]} + ${#POLICY_BLOCKED[@]} + ${#DISABLED[@]} )),"
   echo "  \"produced\": ${#PRODUCED[@]},"
   echo "  \"policy_blocked\": ${#POLICY_BLOCKED[@]},"
+  echo "  \"disabled\": ${#DISABLED[@]},"
   printf '  "missing": ['
   for i in "${!MISSING[@]}"; do [[ $i -gt 0 ]] && printf ', '; printf '"%s"' "${MISSING[$i]}"; done
   echo "],"
@@ -546,7 +577,7 @@ overall="pass"; [[ ${#MISSING[@]} -gt 0 ]] && overall="coverage_gap"
 
 echo ""
 echo "  summary: $SUMMARY"
-echo "  produced ${#PRODUCED[@]}/$(( ${#ACTIVE_MODELS[@]} + ${#POLICY_BLOCKED[@]} )); missing: ${MISSING[*]:-none}"
+echo "  produced ${#PRODUCED[@]}/$(( ${#ACTIVE_MODELS[@]} + ${#POLICY_BLOCKED[@]} + ${#DISABLED[@]} )); missing: ${MISSING[*]:-none}"
 echo ""
 echo "  NEXT (parent, main context): read artifacts + manifest, dedup by"
 echo "  (file,line,category), tier by agreement, create ONE aggregate ticket,"

@@ -1,100 +1,81 @@
 ---
 id: "144"
-title: "User config to selectively enable/disable harnesses per job (eval, judge, review) — supersedes 142/143"
+title: "Machine-wide tool enable/disable map under the CREW_ENV floor — supersedes 142/143"
 status: in_progress
 blocked_by: []
 validation_criteria:
-  - "a user-level config selects which tools/harnesses run for each job type (eval, judge, code review, ...), the eval/proof/dispatch-review harnesses read it and include/exclude legs accordingly, and an unavailable or disabled tool degrades a job as a reported gap rather than failing it"
+  - "a machine-wide config enables/disables each tool/harness, one shared reader applies the CREW_ENV policy floor (stage 1, deny-wins) then the enable-map (stage 2), the harnesses consume it, and a disabled / unavailable / policy-blocked tool each degrades as a reported gap with a DISTINCT reason"
 tags: ["kiro-v3"]
 ---
 
-# User config to selectively enable/disable harnesses per job (eval, judge, review)
+# Machine-wide tool enable/disable map under the CREW_ENV floor
 
 ## Intent source
 
-Session review 2026-08-30. Tickets 142 (agy reviewer) and 143 (Claude Code reviewer)
-each add a hard-coded reviewer leg to dispatch-review. That pattern doesn't scale —
-every new tool × every job type (eval runner, judge panel, code review matrix, proof
-legs, shadow execution) becomes bespoke branching, and machine-to-machine differences
-(which tools are installed, which models a plan can serve — cf. ticket 131 codex
-blocker) get hard-coded instead of configured. The general solution is a **user config
-that declares, per job type, which tools/harnesses participate** — turning "add agy as
-a reviewer" into a config entry rather than a code change.
+Session review 2026-08-30. Tickets 142/143 each added a reviewer leg by editing
+code; that doesn't scale across tools. **Simplified 2026-08-31 (user decision):**
+drop the per-JOB axis — make it a flat **machine-wide `tool → enabled|disabled`
+map** read by every harness, NOT a per-(job×tool) matrix. One list; a tool disabled
+here is disabled everywhere (eval, judge, review, proof).
 
-## Supersession
+## Design decision (ADR-not-pipeline)
 
-This **supersedes 142 and 143**: once a per-job harness registry exists, adding
-agy or Claude as a reviewer is a config edit, not a skill/script change. 142/143
-should build their adapters in a form this framework can absorb (declarative entry,
-not bespoke branching). If 144 is scheduled first, 142/143 collapse into config +
-adapter-doc work. Decide sequencing at planning: framework-first (142/143 shrink) vs
-prove-two-reviewers-first-then-generalize (142/143 inform the config schema).
+The simplification removes the granularity tension (per-job DRY vs control) that
+drove the design-gate. What remains is one durable invariant — the config sits UNDER
+the CREW_ENV floor and cannot widen it — captured in **ADR 0011**. Composes with the
+existing ★★ `layered-selection` pattern (staged filter → default; policy floor is an
+unbreakable Stage 1). No full archwright pipeline.
 
-## Scope of "jobs" (harness consumers to unify)
+Prior-art + code-review artifacts: `.scratch/research/t144/`, `.scratch/review/t144/`.
+Forces: `design/forces/pf-per-job-tool-selection.md`, `single-selection-reader.md`,
+existing `pf-env-policy.md`.
 
-- **eval** — `tools/evals/harness/run.sh` (which tools' legs run; corp already
-  excludes agy via CREW_ENV — see below)
-- **judge** — judge panel membership (`meta.json` judges.live/excluded)
-- **code review** — dispatch-review reviewer set + opencode matrix roster
-  (`tools/proofs/adapters/opencode.yaml` → `dispatch_review.models`)
-- **proof** — adapter proof legs (`tools/proofs/`)
-- **shadow execution** — ticket 122 model comparison
-- (extensible — the registry should not hard-enumerate consumers)
+## Precedence (deny-wins, staged — like layered-selection)
 
-## Tension / design gate (archwright — likely YES on all three)
+1. **Stage 1 — CREW_ENV floor (hard):** `CREW_ENV=corp` → agy is `policy-blocked`,
+   checked BEFORE the enable-map and BEFORE `command -v`. The map CANNOT re-enable it.
+2. **Stage 2 — enable-map:** `harness-tools.yaml` `tools.<name>.enabled: true|false`
+   (default-off for unlisted; known tools listed enabled). Disabled → `disabled` gap.
+3. **Stage 3 — availability:** `command -v <tool>` → `unavailable` gap if absent.
 
-1. **Tension:** per-job granularity (fine control) vs config sprawl / duplication
-   (every job re-declaring the same tool list). Naive per-job lists violate DRY;
-   a single global list violates the per-job requirement.
-2. **Durable invariant:** this config sits UNDER the existing **CREW_ENV policy**
-   (corp forbids agy MECHANICALLY — init refuses, doctor flags, harnesses exclude
-   with reason `policy-blocked`). A per-job toggle must NOT be able to re-enable a
-   policy-blocked tool. Policy is a hard floor; user config is a softer layer on top.
-   This guarantee must hold under hand-edits and future contributors.
-3. **Rejected alternative to pre-empt:** "just use CREW_ENV / env vars per job" —
-   env-only doesn't express per-job-type selection cleanly and doesn't survive as
-   shared project config. Also pre-empt "one flag per harness script" (unmaintainable).
+Three DISTINCT reasons: `policy-blocked (CREW_ENV=corp)` / `disabled` / `unavailable`
+— never shared code path or count (degrade-semantics research).
 
-→ Any YES ⇒ propose an **archwright pipeline run before building** (per AGENTS.md
-Design Gate). This ticket names the forces; the pipeline resolves the schema.
-Prior art to research first (source-authority gates): how eval/proof harnesses
-already gate legs by CREW_ENV; existing config layering (`.mise.local.toml`,
-`.tickets/config.toml`, opencode.yaml rosters); recall of decisions on tool-set
-gating (ticket 36 env-designation-agy-policy).
+**Honesty:** the floor is convention + the harness checks + doctor/prune, NOT an
+OS-level lock (steering/config is user-editable by design). ADR 0011 states this.
 
-## Open design questions (resolve in pipeline, don't pre-decide)
+## What to build
 
-- Where does the config live? (`~/.crew/config.*` user-level vs project `.mise.local.toml`
-  vs a new `compositions/` file) and how does it layer (project > user > defaults,
-  cf. spellbook ADR 0004)?
-- Schema shape: `jobs.{eval,judge,review,...}.tools: [...]` with an inherit/default
-  list? Enable-list vs disable-list (denylist composes better with the CREW_ENV floor)?
-- How do harnesses consume it uniformly without each re-implementing parsing?
-- Interaction with `matrix.sh --health` (probe only enabled legs) and with
-  `coding-plan-limits` degrade semantics.
-
-## What to build (post-pipeline)
-
-1. A per-job harness/tool selection config with defined layering + a CREW_ENV
-   policy floor that user config cannot override.
-2. A single shared reader the harnesses use (eval, judge, dispatch-review, proof)
-   to resolve "which legs run for job X on this machine".
-3. Migrate dispatch-review's reviewer set (and, if 142/143 landed, agy/Claude) to
-   registry entries.
-4. Degrade semantics: disabled OR unavailable OR policy-blocked tool → reported gap
-   for that job, never a hard failure; each with a DISTINCT reason
-   (disabled / unavailable / policy-blocked).
+1. **ADR 0011** — enable-map + floor precedence + single shared reader + convention-not-lock.
+2. `compositions/harness-tools.yaml` — flat `tools.<name>.enabled` map (YAML, yq-parsed,
+   matches repo plane split; NOT `.mise.local.toml`).
+3. `tools/lib/harness-selection.sh` — ONE shared reader: `tool_verdict <tool>` →
+   `enabled` | `policy-blocked` | `disabled` | `unavailable`, canonical reason strings,
+   callable before `command -v`; exposes CREW_ENV unset state.
+4. Re-point `matrix.sh` to the reader (replace inline CREW_ENV/POLICY_BLOCKED; add
+   `disabled` as a gap distinct from `policy-blocked`).
+5. Re-point the other clean CREW_ENV sites (eval run.sh ×2, run-proof.sh) to the reader;
+   fix doctor.sh reason-string drift (`POLICY VIOLATION…` → canonical) — verified drift.
 
 ## Acceptance criteria
 
-- [ ] Config selects participating tools/harnesses per job type (eval, judge, review, + extensible)
-- [ ] Documented layering (project > user > defaults) with a CREW_ENV policy floor user config CANNOT override (corp-agy stays blocked)
-- [ ] eval, judge, dispatch-review (+ proof) read the config through ONE shared reader; no per-script re-implementation
-- [ ] Disabled / unavailable / policy-blocked legs each degrade the job as a reported gap with a DISTINCT reason
-- [ ] dispatch-review reviewer set (incl. any 142/143 additions) expressed as config entries, not hard-coded branches
-- [ ] Design captured (archwright pipeline artifacts in design/ + gating checks, or an ADR if the pipeline is skipped with justification)
+- [ ] `compositions/harness-tools.yaml` machine-wide `tools.<name>.enabled` map (YAML)
+- [ ] ADR 0011 documents enable-map + CREW_ENV floor precedence (deny-wins stage 1, map cannot widen) + convention-not-lock honesty
+- [ ] ONE shared reader `tools/lib/harness-selection.sh` applies floor(stage1) → enable-map(stage2) → availability(stage3); callable before `command -v`; canonical reason strings
+- [ ] `disabled` / `unavailable` / `policy-blocked` each degrade as a reported gap with a DISTINCT reason
+- [ ] matrix.sh consumes the reader (agy/claude/opencode legs honor enable-map + floor); dry-run regression green
+- [ ] doctor.sh reason-string drift fixed to the canonical `policy-blocked (CREW_ENV=corp)`
+- [ ] shellcheck + bash -n + `mise run validate` clean
+
+## Relationship to other tickets
+
+- **Supersedes 142/143:** agy/claude are now enable-map entries; disabling a reviewer
+  is a config edit. Their matrix.sh legs already honor the floor — this generalizes it.
+- Composes with ADR 0006 (`.mise.local.toml` machine plane — distinct axis), ADR 0010
+  (judge panel degrade stamping — reasons must not contradict), ticket 36 (the floor).
 
 ## Out of scope
 
-- Adding specific reviewers (that's 142/143 — this is the mechanism they plug into)
-- Changing CREW_ENV policy semantics (this layers under it, doesn't replace it)
+- Per-JOB tool selection (dropped by the 2026-08-31 simplification — machine-wide only)
+- Changing CREW_ENV policy semantics (layers under it)
+- Migrating run-proof.sh's hardcoded model ids (only its CREW_ENV check moves to the reader)

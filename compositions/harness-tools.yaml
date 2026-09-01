@@ -1,0 +1,35 @@
+# Harness tool enable-map — machine-wide on/off for each tool/harness (ticket 144, ADR 0011).
+#
+# ONE flat map read by every harness (eval, judge, dispatch-review, proof) via the
+# shared reader tools/lib/harness-selection.sh. A tool disabled here is disabled
+# EVERYWHERE — this is machine-wide, not per-job (2026-08-31 simplification).
+#
+# Precedence the reader applies (deny-wins, staged — mirrors the layered-selection pattern):
+#   Stage 1  CREW_ENV floor (hard): CREW_ENV=corp → agy is `policy-blocked`, checked
+#            FIRST and BEFORE command -v. This map CANNOT re-enable a floor-blocked tool.
+#   Stage 2  this enable-map: tools.<name>.enabled: true|false. Absent OR false → `disabled`.
+#            Default-off for unlisted tools (fails in the same direction as the floor).
+#   Stage 3  availability: command -v <tool> → `unavailable` if not on PATH.
+#
+# Four distinct verdicts, never a shared count: enabled | policy-blocked | disabled | unavailable.
+#
+# NOTE: This is convention + reader + doctor enforcement, NOT an OS lock (config is
+# user-editable by design — ADR 0011 § Honesty). To disable a tool everywhere, set
+# enabled: false. To disable it on ONE machine only, edit this on that machine (it is
+# committed, so prefer a machine-local override only if you add one deliberately).
+
+tools:
+  kiro-cli:
+    enabled: true
+  codex:
+    enabled: true
+  crush:
+    enabled: true
+  opencode:
+    enabled: true
+  claude-code:
+    enabled: true
+  agy:
+    enabled: true
+    # Enabled where policy permits. On CREW_ENV=corp the Stage-1 floor forces this to
+    # `policy-blocked` regardless of this value — the map cannot re-enable it (ticket 36).

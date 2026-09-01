@@ -30,6 +30,12 @@ PROBE_TIMEOUT="${EVAL_PROBE_TIMEOUT:-30}"
 # Identity hashes (ticket 33): one hashing implementation shared with check-staleness.sh
 source "$SCRIPT_DIR/identity.sh"
 
+# Shared harness-tool selection (ticket 144, ADR 0011): CREW_ENV policy floor reason
+# from one source, so this harness and doctor/matrix emit byte-identical strings.
+REPO_ROOT="$(cd "$EVALS_DIR/../.." && pwd)"
+# shellcheck source=../../lib/harness-selection.sh
+source "$REPO_ROOT/tools/lib/harness-selection.sh"
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --adapter) ADAPTER="$2"; shift 2 ;;
@@ -60,9 +66,9 @@ done
 # Validate trials
 [[ "$TRIALS" -gt 0 ]] 2>/dev/null || { echo "Error: --trials must be > 0" >&2; exit 1; }
 
-# Policy gate (ticket 36): agy agent leg never runs on corp — before any probe
-if [[ "$ADAPTER" == "agy" && "${CREW_ENV:-}" == "corp" ]]; then
-  echo "Error: policy-blocked (CREW_ENV=corp) — agy may not run on corp machines (company policy)." >&2
+# Policy gate (ticket 36 / ADR 0011): agy agent leg never runs on corp — before any probe
+if hs_policy_blocked "$ADAPTER"; then
+  echo "Error: $(hs_policy_reason) — agy may not run on corp machines (company policy)." >&2
   exit 1
 fi
 
@@ -317,10 +323,10 @@ ensure_judges_probed() {
   local tool short
   for tool in kiro-cli codex crush agy; do
     short="${tool%%-*}"   # kiro-cli -> kiro
-    # Policy gate (ticket 36): agy never runs on corp — checked BEFORE command -v
-    # so the reason string can't be conflated with an access failure
-    if [[ "$tool" == "agy" && "${CREW_ENV:-}" == "corp" ]]; then
-      JUDGES_EXCLUDED="${JUDGES_EXCLUDED:+$JUDGES_EXCLUDED, }$short (policy-blocked (CREW_ENV=corp))"
+    # Policy gate (ticket 36 / ADR 0011): agy never runs on corp — checked BEFORE
+    # command -v so the reason string can't be conflated with an access failure
+    if hs_policy_blocked "$tool"; then
+      JUDGES_EXCLUDED="${JUDGES_EXCLUDED:+$JUDGES_EXCLUDED, }$short ($(hs_policy_reason))"
       continue
     fi
     if probe_tool "$tool"; then

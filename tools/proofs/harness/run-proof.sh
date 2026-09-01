@@ -8,6 +8,11 @@ PROOFS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 DEFS_DIR="$PROOFS_DIR/definitions"
 RESULTS_DIR="$PROOFS_DIR/results"
 
+# Shared harness-tool selection (ticket 144, ADR 0011): CREW_ENV policy floor from one source.
+REPO_ROOT="$(cd "$PROOFS_DIR/../.." && pwd)"
+# shellcheck source=../../lib/harness-selection.sh
+source "$REPO_ROOT/tools/lib/harness-selection.sh"
+
 PROOF=""
 TOOL="all"
 TIMEOUT=180
@@ -32,10 +37,10 @@ echo "Results: $RESULT_DIR"
 echo ""
 
 # Determine tools to run
-# Policy gate (ticket 36): agy never runs on corp (CREW_ENV=corp) — checked
+# Policy gate (ticket 36 / ADR 0011): agy never runs on corp (CREW_ENV=corp) — checked
 # BEFORE command -v so the exclusion reads as policy, not access
 agy_policy_blocked=false
-[[ "${CREW_ENV:-}" == "corp" ]] && agy_policy_blocked=true
+if hs_policy_blocked agy; then agy_policy_blocked=true; fi
 TOOLS=()
 if [[ "$TOOL" == "all" ]]; then
   command -v kiro-cli &>/dev/null && TOOLS+=("kiro-cli")

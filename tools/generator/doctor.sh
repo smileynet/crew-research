@@ -297,7 +297,7 @@ if [[ "${CREW_ENV:-}" == "corp" ]]; then
     echo ""
     echo "Policy (CREW_ENV=corp):"
     for v in "${agy_violations[@]}"; do
-      echo "  ❌ POLICY VIOLATION: $v — agy is forbidden on corp machines (company policy); remove it"
+      echo "  ❌ policy-blocked (CREW_ENV=corp): $v — agy is forbidden on corp machines (company policy); remove it"
       errors=$((errors + 1))
     done
   fi
