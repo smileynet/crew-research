@@ -1,7 +1,7 @@
 ---
 id: "119"
 title: "Write activation evals for 4 high-usage uncovered skills"
-status: open
+status: in_progress
 blocked_by: []
 ---
 
