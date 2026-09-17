@@ -1,7 +1,7 @@
 ---
 id: "159"
 title: "Remove stale dispatch-codex-review/ dir failing lint (empty, post-rename orphan)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -67,3 +67,7 @@ EMPTY subdirs (`agents/`, `assets/`) and NO `SKILL.md`.
 Since the dir is untracked, the removal won't show in `git diff` for tracked files — verify
 via `mise run lint` going green rather than a diff. If any environment has the dir tracked,
 `git rm -r` it instead of a plain delete.
+
+## Resolution (2026-09-17)
+
+Deleted the empty, untracked atomics/skills/dispatch-codex-review/ dir (only orphaned agents/ + assets/ subdirs, no SKILL.md) left behind by the ticket-127 rename to dispatch-review. mise run lint now passes 0 errors/0 warnings (was 2: 'deprecated name resurrected' + 'no SKILL.md'). deprecated.yaml entry retained per the prune contract. validate still passes. Dir was untracked so no code diff — verified by lint going green. Commit 114775c.
