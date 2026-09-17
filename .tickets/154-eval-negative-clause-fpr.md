@@ -28,8 +28,17 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 - Instrument: `tools/evals/harness/run-activation.sh` — `FPR = FP/(FP+TN)`,
   `TPR = TP/(TP+FN)`, gates `FPR_GATE=0.2` / `TPR_GATE=0.5` (env-overridable). Definitions
   are `definitions/activation-*.yaml` with `expect_activation: true/false` tasks.
-- Known limitation: ~5-10 tasks/def → FPR moves in 0.1-0.2 increments (low statistical power).
-  This eval likely needs ADDED adjacent-skill decoy negatives to resolve a real delta.
+- **HARD PREREQUISITE (second research pass, `.scratch/proposal-codebase/activation-decoys.md`):**
+  all 25 active defs currently have exactly **5 negative tasks** (dispatch-review has 6), so
+  **FPR quantum = 1/5 = 0.20 — identical to the gate.** A single false-positive flips
+  0.0→0.20. **No current def can resolve a sub-0.20 FPR delta.** Candidates MUST be expanded
+  to **≥10 negatives (quantum 0.10)** before this eval can produce a usable signal.
+- **First target:** `activation-code-review.yaml` — its 5 negatives are ALL unrelated
+  (deploy/UUID/JS-syntax/migration/endpoint), ZERO adjacent-skill decoys — the highest-value
+  gap. Model to copy: `activation-dispatch-review.yaml` / `activation-review-new-work.yaml` /
+  `activation-project-cleanup.yaml` already carry rich adjacent-skill decoys. Edit the per-skill
+  YAML directly (no central registry; runner reads `.tasks|length` per file). Do NOT change
+  `id:` (immutable) or touch `retired/`.
 
 ## Spike design
 
@@ -43,7 +52,7 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 
 ## Validation criteria
 
-- [ ] At least one candidate skill has an activation def with ≥6 negative decoys (adjacent + unrelated)
+- [ ] Candidate def(s) expanded to ≥10 negative tasks (quantum 0.10), including adjacent-skill decoys — code-review first (currently 0 adjacent)
 - [ ] TPR/FPR recorded for positive-only vs positive+negative on ≥2 skills
 - [ ] Verdict stated: does the negative clause lower FPR with TPR held? (with the delta + noise-floor caveat)
 - [ ] Result written to `.scratch/` or `docs/development/` and referenced back into ticket 151
