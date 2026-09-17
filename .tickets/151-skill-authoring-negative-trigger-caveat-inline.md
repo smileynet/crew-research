@@ -3,6 +3,7 @@ id: "151"
 title: "skill-authoring: positive-first activation guidance + happy-path caveats inline (P1+P2)"
 status: open
 blocked_by: []
+spec: "rider-skill-updates"
 ---
 
 # skill-authoring: positive-first activation guidance + happy-path caveats inline (P1+P2)
