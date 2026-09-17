@@ -1,12 +1,23 @@
 ---
 id: "154"
 title: "Eval: measure FPR effect of negative activation clause (gates P1 negative tactic)"
-status: in_progress
+status: open
 blocked_by: ["160"]
 spec: "rider-skill-updates"
 ---
 
 # Eval: measure FPR effect of negative activation clause (gates P1 negative tactic)
+
+## BLOCKED (2026-09-17) — activation detection non-functional on Windows/Git Bash
+
+Attempted the baseline run; code-review scored TP=0/FN=5 (TPR=0) because
+`check-activation.sh` cannot detect behavioral activation on this env (all 3 strategies fail —
+see ticket 160 + `docs/development/fpr-negative-clause-experiment-154.md`). With the detector
+reading ~0 activation regardless of description, the FPR comparison collapses to noise. Cannot
+produce a valid TPR-held verdict here. **Now blocked_by 160** (harness detection fix). No
+experimental description edits were made, so nothing to revert; the 157 decoy expansions
+remain committed and correct. Resume after 160 lands (or run on Linux/macOS/WSL where the
+detection paths may hold — verify first).
 
 ## Intent source
 
