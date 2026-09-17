@@ -50,11 +50,11 @@ EMPTY subdirs (`agents/`, `assets/`) and NO `SKILL.md`.
 
 ## Acceptance criteria
 
-- [ ] `atomics/skills/dispatch-codex-review/` no longer exists
-- [ ] `compositions/deprecated.yaml` unchanged (dispatch-codex-review entry retained)
-- [ ] `mise run lint` passes with 0 errors
-- [ ] `mise run validate` still passes
-- [ ] No other skill/dir touched (scope = directory removal only)
+- [x] `atomics/skills/dispatch-codex-review/` no longer exists (Test-Path → False)
+- [x] `compositions/deprecated.yaml` unchanged (git status empty; dispatch-codex-review entry retained)
+- [x] `mise run lint` passes with 0 errors (0 error(s), 0 warning(s) — was 2 errors)
+- [x] `mise run validate` still passes (all references resolve)
+- [x] No other skill/dir touched (dir was untracked; only tracked change is this ticket file)
 
 ## Out of scope
 
