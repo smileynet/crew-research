@@ -63,11 +63,11 @@ didn't populate. Likely the same mise install/version inconsistency (two mise ve
 
 ## Acceptance criteria
 
-- [ ] `tkt --version` (bare, via PATH) succeeds from a fresh shell — no recursive-shim error
-- [ ] `tkt ready` works via PATH (no direct-binary workaround needed)
-- [ ] `mise run generate -- codex` expands the tool arg (no literal `$usage_tool`)
-- [ ] Exactly one real mise is authoritative (PATH order or stale install removed) — documented which
-- [ ] Windows setup guidance updated (user-setup-guide.md or tool-installation skill) with the fix + trigger condition (double mise install / relocated cargo bin)
+- [x] `tkt --version` (bare, via PATH) succeeds from a fresh shell — no recursive-shim error (verified via `cmd /c "tkt --version"` → `tkt 0.3.1`)
+- [x] `tkt ready` works via PATH (no direct-binary workaround needed)
+- [x] `mise run generate -- codex` expands the tool arg (→ `Generating for codex`, no literal `$usage_tool`)
+- [x] Root cause resolved WITHOUT removing the double install: `mise reshim` rewrote the shims to file mode (the recursion came from binary-shim mode expecting a missing `mise-shim.exe`, not from PATH order). `mise which mise` still returns the cargo D: mise but that no longer causes recursion. Documented in the setup guide.
+- [x] Windows setup guidance updated (user-setup-guide.md Troubleshooting) with both fixes + trigger condition (double mise install / relocated cargo bin, `cmd /c` task shell)
 
 ## Out of scope
 

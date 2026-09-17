@@ -137,6 +137,8 @@ cargo install --path ~/code/tkt      # or: cargo install tkt (after crates.io pu
 | mise config not trusted (Windows) | Run `mise trust` in the project directory |
 | yq not found (Windows/WSL) | `sudo curl -sL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq` |
 | tkt: `ModuleNotFoundError: No module named 'tkt'` | Python tkt was removed. Install Rust version: `cargo install --path ~/code/tkt` (clone from github.com/smileynet/tkt first if needed) |
+| `mise-shim: recursive shim invocation detected` (Windows) — bare `tkt`/`mise run` fail | The mise shims can't reach the real mise (binary-shim mode expects `mise-shim.exe`, missing next to a winget mise; common when a second mise is `cargo install`ed, e.g. relocated `CARGO_HOME` on `D:`). Fix: `mise reshim` (rewrites shims to file mode). Workaround until then: call the real binary directly, e.g. `~/.cargo/bin/tkt.exe` (or wherever `mise which tkt` points). |
+| `mise run <task> -- <arg>` prints a literal `$usage_tool` / `$usage_*` instead of the value (Windows) | mise runs task scripts via `cmd /c` on Windows, so bash `${var:-default}` never expands. Fix (user-level, once): `mise settings set windows_default_inline_shell_args "bash -c"` (every crew-research task shells into `bash tools/...` anyway). Persists to `~/.config/mise/config.toml`. |
 
 ## Environment Designation (CREW_ENV)
 
