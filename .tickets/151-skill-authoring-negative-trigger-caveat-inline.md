@@ -1,7 +1,7 @@
 ---
 id: "151"
 title: "skill-authoring: positive-first activation guidance + happy-path caveats inline (P1+P2)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-skill-updates"
 ---
@@ -90,3 +90,7 @@ P2:
 
 If ticket 154's eval shows a real FPR drop from a negative clause (TPR held), promote the
 negative-clause tactic from "optional/unproven" to "recommended for broad-vocabulary skills".
+
+## Resolution (2026-09-17)
+
+Applied 7 edits to skill-authoring/SKILL.md. P1 (activation): Writing a Good Description now leads with front-load-keywords (Codex truncation rationale) + positive-first sharpening + wording-beats-length; negative 'Not for' clauses framed as optional/secondary/eval-gated (points to 154, notes the >=10-decoy prereq); added a note that disabling implicit invocation is tool-specific (kiro-cli none / Codex openai.yaml sidecar / opencode permission), not portable authoring guidance. Testing Activation now names FPR, the <=0.2 gate, mise run eval:activation, and the >=10-negatives caveat. P2 (progressive disclosure): Rule 4 sharpened so success-path caveats stay inline (never behind failure-only refs; cites tutorial-authoring:68 Pitfall dual-storage); added Gate G4d + an Anti-Patterns row, both referencing Rule 4 (no Rule 6 one-owner duplication). Verified: validate + generate kiro-cli clean; scope = 1 file; cross-ref accurate; coherent read-back. lint failure is pre-existing (dispatch-codex-review). Commit cb35a46.
