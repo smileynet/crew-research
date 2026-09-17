@@ -61,13 +61,14 @@ in_flight_ticket: {NN or "none"}
 - `handoff_key`: short slug for the workstream (e.g., `auth-flow`, `eval-harness`)
 - Be specific — file paths, function names, task IDs
 - Point to evidence; do not paste logs or transcripts
+- Never write secret *values* (keys, tokens, passwords, connection strings) — reference them by name; the file is committed to git
 - Include what was TRIED and failed (prevents repeated dead ends)
 - New handoff supersedes old for the same `handoff_key`
 - **Decay prior work**: current phase = full detail; prior phase = one-line outcomes + decisions; 2+ phases ago = drop (unless it's a decision or constraint)
 
 ## Quality Check
 
-Verify: (1) someone with NO context can continue, (2) `in_flight_ticket` points to real in-progress work (or "none"), (3) file paths are accurate.
+Verify: (1) someone with NO context can continue, (2) `in_flight_ticket` points to real in-progress work (or "none"), (3) file paths are accurate, (4) **no secrets** — HANDOFF.md is git-tracked, so scan the draft before saving and never let a credential through. Scan for: AWS keys (`AKIA`/`ASIA…` + 16 chars), private-key headers (`-----BEGIN … PRIVATE KEY`), provider tokens (`ghp_`/`github_pat_`, `xox[baprs]-`, `sk_live_`, `AIza…`), `Authorization:`/`Bearer` headers, and connection strings with inline passwords (`scheme://user:PASSWORD@host`). Ignore obvious placeholders (`${VAR}`, `<token>`, `changeme`). On a real hit, replace the value with `<redacted: KEY_NAME>` and reference the secret by name.
 
 ## Promotion Check
 
