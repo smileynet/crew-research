@@ -7,10 +7,56 @@ blocked_by: []
 
 # Eval: measure FPR effect of negative activation clause (gates P1 negative tactic)
 
-## What to build
+## Intent source
 
-TBD
+Rider review P1 (ticket 151). Research was INCONCLUSIVE-to-negative on whether a "Do not
+use when…" clause in a skill description actually lowers false activation: the one source
+recommending it measured no benefit, and all evidence is GPT-family (cross-model transfer
+to kiro-cli unverified). This eval settles it empirically before the tactic becomes guidance.
+Evidence: `.scratch/proposal-research/negative-triggers.md`,
+`.scratch/proposal-codebase/activation-evals.md`.
 
-## Acceptance criteria
+## Hypothesis
+
+Adding a short negative/exclusion clause to a broad-vocabulary skill's description lowers its
+false-positive rate (activates on `expect_activation: false` tasks) WITHOUT lowering its true-
+positive rate — on kiro-cli, measured by the existing activation harness.
+
+## Baseline
+
+- Instrument: `tools/evals/harness/run-activation.sh` — `FPR = FP/(FP+TN)`,
+  `TPR = TP/(TP+FN)`, gates `FPR_GATE=0.2` / `TPR_GATE=0.5` (env-overridable). Definitions
+  are `definitions/activation-*.yaml` with `expect_activation: true/false` tasks.
+- Known limitation: ~5-10 tasks/def → FPR moves in 0.1-0.2 increments (low statistical power).
+  This eval likely needs ADDED adjacent-skill decoy negatives to resolve a real delta.
+
+## Spike design
+
+1. Pick 1-2 broad-vocabulary candidate skills whose triggers overlap common dev chatter
+   (e.g. code-review "review/check"; a skill with generic verbs). Confirm each has (or gets)
+   an activation definition with enough `expect_activation: false` decoys to move FPR
+   meaningfully (add adjacent-skill decoys if needed).
+2. Run activation eval on the current (positive-only) description → record TPR/FPR.
+3. Add a keywords-first negative clause to the description; regenerate; re-run → record TPR/FPR.
+4. Compare. Repeat on the second candidate to guard against single-skill flukes.
+
+## Validation criteria
+
+- [ ] At least one candidate skill has an activation def with ≥6 negative decoys (adjacent + unrelated)
+- [ ] TPR/FPR recorded for positive-only vs positive+negative on ≥2 skills
+- [ ] Verdict stated: does the negative clause lower FPR with TPR held? (with the delta + noise-floor caveat)
+- [ ] Result written to `.scratch/` or `docs/development/` and referenced back into ticket 151
+
+## Reject if
+
+- Delta is within the measured activation noise floor (~0.78% F1) → inconclusive, keep P1's
+  "optional/unproven" framing and do NOT recommend negative clauses
+- TPR drops (negative clause suppresses real activations or truncates keywords)
+
+## References
+
+- Activation harness: `tools/evals/harness/run-activation.sh`, `check-activation.sh`
+- Research: `.scratch/proposal-research/negative-triggers.md`
+- Feeds: ticket 151 (skill-authoring P1)
 
 - [ ] TBD
