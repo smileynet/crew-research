@@ -65,13 +65,13 @@ P2:
 
 ## Acceptance criteria
 
-- [ ] Positive-first + FRONT-LOAD-keywords note added to `## Writing a Good Description` (Codex-truncation rationale; wording-beats-length)
-- [ ] Negative-clause tactic framed as optional + eval-gated (points to ticket 154), keywords-first
-- [ ] Note added that "disable implicit invocation" is tool-specific (kiro-cli none / Codex sidecar / opencode permission) — a deploy concern, not authoring guidance
-- [ ] `## Testing Activation` names FPR, the ≤0.2 gate, `mise run eval:activation`, and the ≥10-negatives caveat
-- [ ] Rule 4 sharpened with the happy-path-caveat sentence (cross-refs tutorial-authoring/SKILL.md:68)
-- [ ] Gate G4d added; one Anti-Patterns row added — both point back to Rule 4 (no Rule 6 duplication)
-- [ ] `mise run validate` + `mise run generate -- kiro-cli` clean; skill still reads as one coherent file (note: `mise run lint` has a pre-existing unrelated dispatch-codex-review failure)
+- [x] Positive-first + FRONT-LOAD-keywords note added to `## Writing a Good Description` (Codex-truncation rationale; wording-beats-length)
+- [x] Negative-clause tactic framed as optional + eval-gated (points to ticket 154), keywords-first
+- [x] Note added that "disable implicit invocation" is tool-specific (kiro-cli none / Codex sidecar / opencode permission) — a deploy concern, not authoring guidance
+- [x] `## Testing Activation` names FPR, the ≤0.2 gate, `mise run eval:activation`, and the ≥10-negatives caveat
+- [x] Rule 4 sharpened with the happy-path-caveat sentence (cross-refs tutorial-authoring/SKILL.md:68 — verified accurate)
+- [x] Gate G4d added; one Anti-Patterns row added — both point back to Rule 4 (no Rule 6 duplication)
+- [x] `mise run validate` + `mise run generate -- kiro-cli` clean; skill reads as one coherent file (note: `mise run lint` has a pre-existing unrelated dispatch-codex-review failure)
 
 ## Out of scope
 
@@ -90,5 +90,3 @@ P2:
 
 If ticket 154's eval shows a real FPR drop from a negative clause (TPR held), promote the
 negative-clause tactic from "optional/unproven" to "recommended for broad-vocabulary skills".
-
-- [ ] TBD
