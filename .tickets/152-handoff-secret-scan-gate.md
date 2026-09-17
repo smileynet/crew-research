@@ -46,12 +46,12 @@ Evidence: `.scratch/proposal-research/secret-scanning.md`,
 
 ## Acceptance criteria
 
-- [ ] `## Quality Check` has a 4th "no secrets" point with the concrete pattern shortlist + placeholder-ignore guidance
-- [ ] Rules bullet added forbidding secret values (references-by-name)
-- [ ] Redaction convention (`<redacted: KEY_NAME>`) stated
-- [ ] Remains a prose gate — no script, no new runtime dependency
-- [ ] `mise run validate` + `mise run lint` pass; `mise run generate -- kiro-cli` clean
-- [ ] Skill stays coherent with the new in-flight-delta structure (no stale references to old sections)
+- [x] `## Quality Check` has a 4th "no secrets" point with the concrete pattern shortlist + placeholder-ignore guidance
+- [x] Rules bullet added forbidding secret values (references-by-name)
+- [x] Redaction convention (`<redacted: KEY_NAME>`) stated
+- [x] Remains a prose gate — no script, no new runtime dependency
+- [x] `mise run validate` + `mise run generate -- kiro-cli` clean; `mise run lint` fails ONLY on the pre-existing `dispatch-codex-review` deprecation (confirmed identical with this change stashed — unrelated to this ticket)
+- [x] Skill stays coherent with the new in-flight-delta structure (no stale references to old sections)
 
 ## Out of scope
 
@@ -63,5 +63,3 @@ Evidence: `.scratch/proposal-research/secret-scanning.md`,
 
 If a repo-wide secret-hygiene owner is created, replace the inline pattern list here with a
 pointer to it (avoid duplicating the list in two places — Rule 6 one-owner).
-
-- [ ] TBD
