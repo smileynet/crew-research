@@ -24,6 +24,17 @@ tasks:
     expect_activation: false
   - input: "Generate a UUID in Python."
     expect_activation: false
+  # adjacent-skill decoys: share "review/check" vocabulary but belong to a neighboring skill
+  - input: "Dispatch an independent Codex reviewer to check all our changes and file findings."
+    expect_activation: false
+  - input: "Review all the new work since the last review marker and resume from there."
+    expect_activation: false
+  - input: "Review this README and the changelog for writing quality and tone."
+    expect_activation: false
+  - input: "Grill this design and poke holes in my architecture plan before I build it."
+    expect_activation: false
+  - input: "Check which ticket is ready to work on next."
+    expect_activation: false
 
 threshold: 3.5
 timeout: 60

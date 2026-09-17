@@ -24,6 +24,17 @@ tasks:
     expect_activation: false
   - input: "Rename the 'data' variable to 'userRecords' throughout."
     expect_activation: false
+  # adjacent-skill decoys: mention plan/scope/phase but belong to a neighboring skill
+  - input: "Write a formal spec file for the notification feature with validation criteria."
+    expect_activation: false
+  - input: "Break this work into tickets and mark which are ready."
+    expect_activation: false
+  - input: "What research and spikes do I need before I can implement this plan?"
+    expect_activation: false
+  - input: "The project feels stuck — what milestone should I work on next to prove the architecture?"
+    expect_activation: false
+  - input: "Capture the current session state in a handoff for the next session."
+    expect_activation: false
 
 threshold: 3.5
 timeout: 60

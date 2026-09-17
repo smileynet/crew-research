@@ -24,6 +24,17 @@ tasks:
     expect_activation: false
   - input: "Update the package.json scripts section."
     expect_activation: false
+  # adjacent-skill decoys: mention research/investigate/findings but belong to a neighboring skill
+  - input: "Format these research findings into our standard output structure with sources and related topics."
+    expect_activation: false
+  - input: "Stress-test my design and poke holes in it with evidence-backed questions."
+    expect_activation: false
+  - input: "Debug why this test intermittently fails — investigate the root cause in the code."
+    expect_activation: false
+  - input: "Study the reference repo in .references/ and extract its patterns."
+    expect_activation: false
+  - input: "Write an ADR documenting why we chose Postgres over DynamoDB."
+    expect_activation: false
 
 threshold: 3.5
 timeout: 60

@@ -50,12 +50,12 @@ misrouting. `activation-code-review.yaml`'s 5 negatives are ALL unrelated
 
 ## Acceptance criteria
 
-- [ ] `activation-code-review.yaml` has ≥10 negatives including ≥3 adjacent-skill decoys
-- [ ] ≥4 additional priority defs expanded to ≥10 negatives with adjacent decoys added
-- [ ] Adjacent decoys are genuine (same-domain wrong-task), verified against the neighbor skill's scope
-- [ ] `mise run eval:activation` runs clean on expanded defs; TPR unchanged, FPR now has 0.10 (or finer) quantum
-- [ ] No change to `id:` fields; `retired/` untouched
-- [ ] `mise run validate` passes
+- [x] `activation-code-review.yaml` has ≥10 negatives including ≥3 adjacent-skill decoys (10 neg, 5 adjacent: dispatch-review/review-new-work/prose-check/grill-with-docs/tkt)
+- [x] ≥4 additional priority defs expanded to ≥10 negatives with adjacent decoys added (testing-guide, planning-cycles, data-modeling, research-methodology, docs-audit — all 5→10 neg)
+- [x] Adjacent decoys are genuine (same-domain wrong-task), verified against the neighbor skill's scope (avoided over-close decoys, e.g. dropped "review this data model/test suite" from code-review as too within its own scope)
+- [x] FPR quantum now 0.10 (all 6 defs at 5 pos + 10 neg — verified via yq); TPR unchanged (positives untouched). Harness parse/enumeration verified with its exact read loop (`.tasks|length`, `.tasks[i].input/.expect_activation` → 15 tasks). NOTE: full live `mise run eval:activation` (invokes the model per task, spends tokens) deferred to ticket 154, which owns the measurement run
+- [x] No change to `id:` fields; `retired/` untouched (git diff: 6 files, additive only, no `id:` lines)
+- [x] `mise run validate` passes
 
 ## Out of scope
 

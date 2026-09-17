@@ -24,6 +24,17 @@ tasks:
     expect_activation: false
   - input: "Set up a Redis cluster for session storage."
     expect_activation: false
+  # adjacent-skill decoys: mention tests/quality but belong to a neighboring skill
+  - input: "Review this pull request diff for security issues and code quality."
+    expect_activation: false
+  - input: "My test is failing with a TypeError — help me debug why."
+    expect_activation: false
+  - input: "Dispatch an independent reviewer to check all our changes before merge."
+    expect_activation: false
+  - input: "Run the test suite and deploy if it passes."
+    expect_activation: false
+  - input: "The build's test step is timing out in CI — fix the pipeline config."
+    expect_activation: false
 
 threshold: 3.5
 timeout: 60

@@ -26,6 +26,17 @@ tasks:
     expect_activation: false
   - input: "Rename the variable `tmp` to `buffer` throughout this file."
     expect_activation: false
+  # adjacent-skill decoys: mention model/type/schema/review but belong to a neighboring skill
+  - input: "Review this pull request for security bugs and coding-standard violations."
+    expect_activation: false
+  - input: "Write a database migration to add a `status` column to the orders table."
+    expect_activation: false
+  - input: "Design the overall service architecture and how the modules connect."
+    expect_activation: false
+  - input: "Generate a diagram of how our data flows between services."
+    expect_activation: false
+  - input: "Write tests for the Order state machine."
+    expect_activation: false
 
 threshold: 3.5
 timeout: 60

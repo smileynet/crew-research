@@ -24,6 +24,17 @@ tasks:
     expect_activation: false
   - input: "Set up Terraform for our AWS infrastructure."
     expect_activation: false
+  # adjacent-skill decoys: mention docs/documentation/review but belong to a neighboring skill
+  - input: "Write the project README with a quick-start section."
+    expect_activation: false
+  - input: "Rewrite our AGENTS.md — it's too long and bloated."
+    expect_activation: false
+  - input: "Write the changelog entries for this release."
+    expect_activation: false
+  - input: "Review this documentation page for writing quality and AI-slop phrasing."
+    expect_activation: false
+  - input: "Review this pull request's code for bugs and security issues."
+    expect_activation: false
 
 threshold: 3.5
 timeout: 60
