@@ -1,7 +1,7 @@
 ---
 id: "152"
 title: "handoff: secret-scan gate before finalizing (P3)"
-status: open
+status: in_progress
 blocked_by: []
 spec: "rider-skill-updates"
 ---
