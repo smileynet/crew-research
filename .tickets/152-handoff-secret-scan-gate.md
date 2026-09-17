@@ -1,7 +1,7 @@
 ---
 id: "152"
 title: "handoff: secret-scan gate before finalizing (P3)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-skill-updates"
 ---
@@ -63,3 +63,7 @@ Evidence: `.scratch/proposal-research/secret-scanning.md`,
 
 If a repo-wide secret-hygiene owner is created, replace the inline pattern list here with a
 pointer to it (avoid duplicating the list in two places — Rule 6 one-owner).
+
+## Resolution (2026-09-17)
+
+Added secret-scan gate to handoff SKILL.md as a prose gate (no script, per the skill's script-free grain). Quality Check gained a 4th 'no secrets' point with a high-precision pattern shortlist (AWS/PEM/GitHub/Slack/Stripe/Google/Bearer/DSN), placeholder-ignore, and the <redacted: KEY_NAME> convention; a Rules bullet now forbids secret values (reference-by-name, file is git-tracked). Verified: mise run validate + generate kiro-cli pass; scope limited to handoff/SKILL.md (2 ins/1 del); lint failure is pre-existing (dispatch-codex-review deprecation, confirmed identical with change stashed). Commit 3d5c2ad.
