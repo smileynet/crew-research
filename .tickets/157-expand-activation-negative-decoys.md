@@ -1,7 +1,7 @@
 ---
 id: "157"
 title: "Expand activation defs to >=10 negative decoys (FPR resolution floor)"
-status: open
+status: in_progress
 blocked_by: []
 spec: "rider-skill-updates"
 ---
