@@ -1,7 +1,7 @@
 ---
 id: "161"
 title: "Fix mise shim recursion + usage arg non-expansion on Windows (tkt/mise run unusable via shim)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -81,3 +81,7 @@ didn't populate. Likely the same mise install/version inconsistency (two mise ve
 - This is a machine-local environment fix; the DOC update is the only repo-tracked deliverable.
   If the fix is purely PATH/uninstall (no repo change), close with the doc update + verified
   bare `tkt`/`mise run` as evidence.
+
+## Resolution (2026-09-17)
+
+Two Windows env issues fixed. (1) mise shim recursion: binary-shim mode expected mise-shim.exe (missing next to the winget mise; triggered by a second cargo-installed mise under relocated CARGO_HOME on D:). Fix: mise reshim rewrote shims to file mode. Bare tkt --version/tkt ready/mise run now work via PATH (verified from cmd). (2) mise run task -- arg printed literal usage_tool: mise runs tasks via cmd /c on Windows so bash param-default expansion never fires. Fix: set windows_default_inline_shell_args to bash -c (persisted to ~/.config/mise/config.toml). generate -- codex now expands. Both fixes machine-local + reversible; documented in user-setup-guide.md Troubleshooting. Double mise install remains but no longer harmful. Commit 53ddcf5.
