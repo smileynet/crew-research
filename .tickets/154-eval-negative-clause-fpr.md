@@ -28,11 +28,12 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 - Instrument: `tools/evals/harness/run-activation.sh` — `FPR = FP/(FP+TN)`,
   `TPR = TP/(TP+FN)`, gates `FPR_GATE=0.2` / `TPR_GATE=0.5` (env-overridable). Definitions
   are `definitions/activation-*.yaml` with `expect_activation: true/false` tasks.
-- **HARD PREREQUISITE (second research pass, `.scratch/proposal-codebase/activation-decoys.md`):**
+- **HARD PREREQUISITE (now split to ticket 157, which blocks this):**
   all 25 active defs currently have exactly **5 negative tasks** (dispatch-review has 6), so
   **FPR quantum = 1/5 = 0.20 — identical to the gate.** A single false-positive flips
-  0.0→0.20. **No current def can resolve a sub-0.20 FPR delta.** Candidates MUST be expanded
-  to **≥10 negatives (quantum 0.10)** before this eval can produce a usable signal.
+  0.0→0.20. **No current def can resolve a sub-0.20 FPR delta.** Ticket 157 expands the
+  candidates to **≥10 negatives (quantum 0.10)** with adjacent-skill decoys; this eval starts
+  once 157 lands (see `.scratch/proposal-codebase/activation-decoys.md`).
 - **First target:** `activation-code-review.yaml` — its 5 negatives are ALL unrelated
   (deploy/UUID/JS-syntax/migration/endpoint), ZERO adjacent-skill decoys — the highest-value
   gap. Model to copy: `activation-dispatch-review.yaml` / `activation-review-new-work.yaml` /
@@ -52,7 +53,7 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 
 ## Validation criteria
 
-- [ ] Candidate def(s) expanded to ≥10 negative tasks (quantum 0.10), including adjacent-skill decoys — code-review first (currently 0 adjacent)
+- [ ] Ticket 157 landed (candidate defs at ≥10 negatives with adjacent decoys) — the resolution prerequisite
 - [ ] TPR/FPR recorded for positive-only vs positive+negative on ≥2 skills
 - [ ] Verdict stated: does the negative clause lower FPR with TPR held? (with the delta + noise-floor caveat)
 - [ ] Result written to `.scratch/` or `docs/development/` and referenced back into ticket 151
