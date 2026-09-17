@@ -1,7 +1,7 @@
 ---
 id: "157"
 title: "Expand activation defs to >=10 negative decoys (FPR resolution floor)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-skill-updates"
 ---
@@ -75,3 +75,7 @@ other activation def independent of the experiment, so it earns its own ticket. 
 - Finding: `.scratch/proposal-codebase/activation-decoys.md`
 - Harness: `tools/evals/harness/run-activation.sh` (FPR = FP/(FP+TN), gate 0.2)
 - Feeds: ticket 154 (negative-clause FPR eval) → ticket 151 (skill-authoring P1)
+
+## Resolution (2026-09-17)
+
+Expanded 6 activation defs (code-review, testing-guide, planning-cycles, data-modeling, research-methodology, docs-audit) from 5→10 negative tasks each, adding adjacent-skill decoys that share vocabulary but route to a neighboring skill (e.g. code-review's decoys point at dispatch-review/review-new-work/prose-check/grill-with-docs/tkt). FPR quantum improved 0.20→0.10, so a sub-gate FPR delta is now measurable (unblocks 154). Positives untouched (TPR unaffected); ids immutable; retired/ untouched; additive-only diff. Verified via yq + the harness's exact read loop (15 tasks enumerated); full live activation run deferred to 154. Commit 6a7e299.
