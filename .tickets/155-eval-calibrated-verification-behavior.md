@@ -45,11 +45,11 @@ on hand-authored code.
 
 ## Validation criteria
 
-- [ ] ≥2 should-trust + ≥3 should-not-trust scenarios authored
-- [ ] Proposed wording: correctly trusts atomic+read-signal cases
-- [ ] Proposed wording: still requires full checks on hand-authored code, rejects bare exit codes, rejects stale runs
-- [ ] No increase in false-done vs current wording (the gate for adopting 153)
-- [ ] Result written to `docs/development/` and referenced back into ticket 153
+- [x] ≥2 should-trust + ≥3 should-not-trust scenarios authored (2 should-trust: atomic rename, transactional migration; 3 should-not-trust: hand-authored, bare exit code, stale run) in `verification-protocol-calibrated-trust.yaml`
+- [x] Proposed wording: correctly trusts atomic+read-signal cases (task 0 = 4.5, task 1 = 5.0)
+- [x] Proposed wording: still requires full checks on hand-authored code, rejects bare exit codes, rejects stale runs (tasks 2/3/4 all = 5.0)
+- [x] No increase in false-done vs baseline — all 3 should-not-trust scenarios scored 5.0 (the "reject if" condition did NOT trigger); PASS. Gate for 153 satisfied.
+- [x] Result written to `docs/development/calibrated-verification-eval-155.md`; references ticket 153
 
 ## Reject if
 

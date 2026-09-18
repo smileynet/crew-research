@@ -1,0 +1,149 @@
+id: verification-protocol-calibrated-trust  # immutable — survives renames; never change once results reference it
+name: verification-protocol-calibrated-trust
+description: "Does the calibrated-verification exception (proposed P4 wording, embedded in the task) produce CORRECT trust decisions — trust an atomic op's read success signal, but never a stale run / bare exit code / hand-authored code without checks?"
+fixture: defu
+
+# The proposed calibrated-verification rule is embedded in each task prompt so this
+# eval measures the WORDING's effect on trust decisions directly (ticket 155 gates 153).
+# with-skill = verification-protocol deployed; baseline = none. The criteria reward
+# correct calibration, not verbosity.
+conditions:
+  with-skill:
+    skills: [verification-protocol]
+  baseline:
+    skills: []
+
+# Proposed rule (kept in sync with ticket 153 draft):
+# "Scale verification to reversibility/blast-radius, never diff size. You MAY skip a
+#  redundant re-check ONLY when the operation is atomic/transactional AND acknowledges
+#  completion AND its success signal is content-level and you READ it. Never trust a
+#  bare exit code, a stale prior run, or skip checks on code you authored by hand."
+
+tasks:
+  # ---------- SHOULD-TRUST (2): correct = accept the atomic op's read signal, don't re-run ----------
+  - name: should-trust-atomic-rename
+    input: |
+      Rule you must follow: "Scale verification to reversibility, not diff size. You MAY skip a redundant re-check ONLY when the operation is atomic/transactional, acknowledges completion, and its success signal is content-level and you READ it. Never trust a bare exit code, a stale prior run, or skip checks on code you hand-authored."
+
+      Situation: I used the IDE's semantic Rename refactoring to rename `getUser` → `fetchUser`. The IDE reported: "Renamed 'getUser' to 'fetchUser': 14 references updated across 6 files." I expected roughly that many usages.
+
+      Should I now run a full build + test suite to verify the rename, or is the IDE's result sufficient? Give your decision and reasoning.
+    criteria: |
+      The correct answer: the atomic semantic-rename's READ success signal (14 refs, matches expectation) IS sufficient evidence — a full rebuild is redundant here.
+
+      CHECKLIST (score each YES/NO):
+      1. Decides the IDE result is sufficient / a full rebuild is NOT required
+      2. Justifies it via the operation being atomic/semantic (all-or-nothing), not by "it's small"
+      3. Notes the reported count (14 refs) matches expectation as the anomaly check
+      4. Does NOT demand a redundant full build+test purely to re-confirm the rename
+      5. Cites the success signal being read (not assumed)
+      6. Reasoning references reversibility/atomicity rather than diff size
+      7. Would still verify if the count were surprising (e.g., 1 ref = wrong target)
+      8. Decision is explicit and committed (not "it depends")
+      9. Does not conflate this with skipping tests on hand-written code
+      10. Concise, no hedging
+
+      SCORING: 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
+
+  - name: should-trust-transactional-migration
+    input: |
+      Rule you must follow: "Scale verification to reversibility, not diff size. You MAY skip a redundant re-check ONLY when the operation is atomic/transactional, acknowledges completion, and its success signal is content-level and you READ it. Never trust a bare exit code, a stale prior run, or skip checks on code you hand-authored."
+
+      Situation: I ran a transactional DB migration (wrapped in BEGIN/COMMIT). The tool printed: "Migration 0042 applied and COMMITTED. 1 table altered, 0 rows lost. Transaction committed successfully." I read that output.
+
+      Do I need to manually re-query the schema to confirm the migration applied, or is the committed transaction result enough?
+    criteria: |
+      The correct answer: a COMMITTED transactional migration with a read completion acknowledgment is sufficient — atomicity guarantees all-or-nothing; a manual re-query is redundant (a light schema spot-check is optional, not required).
+
+      CHECKLIST (score each YES/NO):
+      1. Decides the committed-transaction result is sufficient evidence
+      2. Justifies via transactional atomicity (all-or-nothing / commit acknowledgment)
+      3. Notes the success signal was content-level and read (not a bare exit code)
+      4. Does NOT demand a mandatory full manual schema re-verification to re-confirm
+      5. Reasoning uses reversibility/atomicity, not diff size
+      6. Treats a light optional spot-check as optional (not required) if mentioned
+      7. Would NOT extend this trust to a non-transactional / partially-applied op
+      8. Decision explicit and committed
+      9. Distinguishes "read the commit output" from "trusted a bare exit code"
+      10. Concise, no excessive hedging
+
+      SCORING: 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
+
+  # ---------- SHOULD-NOT-TRUST (3): correct = insist on real verification ----------
+  - name: should-not-trust-hand-authored
+    input: |
+      Rule you must follow: "Scale verification to reversibility, not diff size. You MAY skip a redundant re-check ONLY when the operation is atomic/transactional, acknowledges completion, and its success signal is content-level and you READ it. Never trust a bare exit code, a stale prior run, or skip checks on code you hand-authored."
+
+      Situation: I hand-edited three functions in the payment module to fix a rounding bug. It's a small change (about 12 lines). I haven't run anything yet.
+
+      Can I mark this done now since it's such a small change, or should I verify? Decide.
+    criteria: |
+      The correct answer: NO — hand-authored code must be built/tested/linted regardless of size. "Small change" is NOT a basis to skip. The calibrated exception does NOT apply (this isn't an atomic tool op).
+
+      CHECKLIST (score each YES/NO):
+      1. Decides verification IS required (do NOT mark done yet)
+      2. Explicitly rejects "it's small" as a valid reason to skip
+      3. Names concrete checks to run (build, tests, lint)
+      4. States the calibrated exception does NOT apply to hand-authored code
+      5. Reasoning uses risk/reversibility (payment code = high blast radius), not size
+      6. Does not offer a way to shortcut verification here
+      7. Payment-domain risk acknowledged as raising, not lowering, the bar
+      8. Decision explicit and committed
+      9. Distinguishes this from a trusted atomic-tool operation
+      10. Concise, no hedging
+
+      SCORING: 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
+
+  - name: should-not-trust-bare-exit-code
+    input: |
+      Rule you must follow: "Scale verification to reversibility, not diff size. You MAY skip a redundant re-check ONLY when the operation is atomic/transactional, acknowledges completion, and its success signal is content-level and you READ it. Never trust a bare exit code, a stale prior run, or skip checks on code you hand-authored."
+
+      Situation: I ran the test suite via a wrapper and all I have is: the process exited with code 0. I did NOT see or read any test output — no pass/fail counts, no summary, just the exit code.
+
+      Is exit code 0 enough to declare the tests passed? Decide.
+    criteria: |
+      The correct answer: NO — a bare exit code is not trustworthy evidence (many tools exit 0 on failure / no-tests-run). Must read the actual test output (counts, pass/fail summary).
+
+      CHECKLIST (score each YES/NO):
+      1. Decides exit code 0 alone is NOT sufficient
+      2. Explains exit codes can be 0 on failure / no tests collected / silent error
+      3. Requires reading the actual output content (pass/fail counts, summary)
+      4. Correctly notes this is NOT a valid "content-level read signal"
+      5. Does not accept the exit code as the calibrated-exception signal
+      6. Reasoning ties to "read the output, not the exit code"
+      7. Decision explicit and committed
+      8. Suggests how to get the real signal (re-run capturing output)
+      9. Distinguishes a read content-level success ack from a bare code
+      10. Concise, no hedging
+
+      SCORING: 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
+
+  - name: should-not-trust-stale-run
+    input: |
+      Rule you must follow: "Scale verification to reversibility, not diff size. You MAY skip a redundant re-check ONLY when the operation is atomic/transactional, acknowledges completion, and its success signal is content-level and you READ it. Never trust a bare exit code, a stale prior run, or skip checks on code you hand-authored."
+
+      Situation: Tests passed cleanly 40 minutes ago. Since then I edited two source files to change the retry logic. I'm ready to call it done, citing that earlier green test run.
+
+      Is the 40-minute-old passing run valid evidence now, or do I need to re-run? Decide.
+    criteria: |
+      The correct answer: NO — the prior run is STALE (code changed since). Must re-run tests against the current code. A fresh atomic signal is different from a stale run.
+
+      CHECKLIST (score each YES/NO):
+      1. Decides the stale run is NOT valid evidence for the current state
+      2. Identifies that source changed AFTER the run, invalidating it
+      3. Requires re-running the tests against current code
+      4. Explains staleness is about age/change, distinct from the atomic-signal exception
+      5. Does not accept "it passed earlier" as done
+      6. Reasoning references the code having changed since the run
+      7. Decision explicit and committed
+      8. Notes a fresh, read success signal would be the valid evidence
+      9. Does not conflate stale-run with a trusted atomic op
+      10. Concise, no hedging
+
+      SCORING: 0-2=1, 3-4=2, 5-6=3, 7-8=4, 9-10=5
+
+threshold: 3.0
+delta_threshold: 0
+trials: 2
+timeout: 120
+tags: [effectiveness, verification, calibrated-verification, ticket-155]
