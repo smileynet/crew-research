@@ -1,7 +1,7 @@
 ---
 id: "153"
 title: "verification-protocol: calibrated verification exception (P4)"
-status: in_progress
+status: done
 blocked_by: ["155"]
 spec: "rider-skill-updates"
 ---
@@ -79,3 +79,7 @@ always-on twin `atomics/eager-context/verification.md` must both change or they 
 
 If the exception measurably increases "claimed done without real evidence" (session review or
 eval), pull it. Re-open ticket 155 for re-measurement on any future change to the wording.
+
+## Resolution (2026-09-18)
+
+Implemented the calibrated-verification exception (P4) in atomics/skills/verification-protocol/SKILL.md (new 'Calibrated Verification' section framed on reversibility/blast-radius not size, requiring atomicity + a content-level READ signal + one anomaly check; annotated the two conflicting Violations lines for the stale-run vs fresh-atomic-signal distinction and size-is-never-the-basis) AND the eager-context twin atomics/eager-context/verification.md (concise always-on version, no drift). Wording validated by 155. Confirmation eval on the implemented skill: with-skill 4.80 PASS, all 3 should-not-trust scenarios 5.0 (no false-done regression), atomic-trust task improved 3.5 baseline to 5.0 with-skill. validate + lint (0/0) + generate clean. Commit 5d73846.
