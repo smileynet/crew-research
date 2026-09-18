@@ -1,7 +1,7 @@
 ---
 id: "158"
 title: "Incorporate teach-me SVG diagram skill + tooling (draw-diagram.py, presets, theme/visual-qa)"
-status: open
+status: in_progress
 blocked_by: ["151", "153"]
 spec: "rider-skill-updates"
 ---
