@@ -1,7 +1,7 @@
 ---
 id: "153"
 title: "verification-protocol: calibrated verification exception (P4)"
-status: open
+status: in_progress
 blocked_by: ["155"]
 spec: "rider-skill-updates"
 ---
