@@ -1,7 +1,7 @@
 ---
 id: "154"
 title: "Eval: measure FPR effect of negative activation clause (gates P1 negative tactic)"
-status: in_progress
+status: done
 blocked_by: ["160"]
 spec: "rider-skill-updates"
 ---
@@ -80,3 +80,7 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 - Activation harness: `tools/evals/harness/run-activation.sh`, `check-activation.sh`
 - Research: `.scratch/proposal-research/negative-triggers.md`
 - Feeds: ticket 151 (skill-authoring P1)
+
+## Resolution (2026-09-18)
+
+Ran the FPR experiment after 160 unblocked detection. code-review, 15-task activation runs, identical detector: baseline (positive-only) TPR=0.40 FPR=0.00; treatment (+ keywords-first negative clause) TPR=0.40 FPR=0.10. VERDICT: negative clause gives NO FPR benefit — baseline was already at the 0.00 floor, treatment unchanged-to-slightly-worse, TPR unchanged. Matches the prior-art prediction (no measurable benefit). Experimental description edit REVERTED (git diff confirms code-review/SKILL.md unchanged). 151's optional/unproven/not-recommended framing CONFIRMED; revisit trigger does not fire. Full writeup: docs/development/fpr-negative-clause-experiment-154.md. Commit a4d47c8.
