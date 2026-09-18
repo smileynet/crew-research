@@ -79,5 +79,3 @@ always-on twin `atomics/eager-context/verification.md` must both change or they 
 
 If the exception measurably increases "claimed done without real evidence" (session review or
 eval), pull it. Re-open ticket 155 for re-measurement on any future change to the wording.
-
-- [ ] TBD
