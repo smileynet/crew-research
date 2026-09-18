@@ -1,7 +1,7 @@
 ---
 id: "155"
 title: "Eval: calibrated-verification behavior regression (gates P4)"
-status: open
+status: in_progress
 blocked_by: []
 spec: "rider-skill-updates"
 ---
