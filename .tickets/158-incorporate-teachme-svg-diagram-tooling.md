@@ -1,7 +1,7 @@
 ---
 id: "158"
 title: "Incorporate teach-me SVG diagram skill + tooling (draw-diagram.py, presets, theme/visual-qa)"
-status: in_progress
+status: done
 blocked_by: ["151", "153"]
 spec: "rider-skill-updates"
 ---
@@ -96,3 +96,7 @@ Hence `blocked_by: 151, 153`.
 - Prior decisions: tickets 89, 90 (diagram tooling stays project-level)
 - Existing skill: `atomics/skills/diagrams/SKILL.md`
 - Applies: ticket 151 (skill-authoring P1/P2)
+
+## Resolution (2026-09-18)
+
+Intake of teach-me SVG tooling. Studied draw-diagram.py (drawsvg required; graphviz pip+system-binary optional with in-tool guard; builtin backend pure-Python cross-platform) — study note .scratch/teachme-svg-intake-158.md. DECISION: Option (a) — enriched the global diagrams skill with an 'Inline SVG (drawsvg)' section + the teaching color-preset vocabulary (concept/example/process/anti-pattern/infrastructure) + a builtin-vs-graphviz-vs-raw-SVG-vs-D2 decision table + the graphviz-binary prereq, all INLINE per ticket 151 G4d (success-path caveats not gated). Tool NOT vendored — respects 89/90 project-level precedent (teach-me is 1st adopter, not 3rd+); a project wanting the tool vendors it project-level. Overlap with diagrams resolved by scope (same owner, no negative clause) per 151 P1. theme/visual-qa OUT (lesson-UI-specific). validate + lint 0/0 + generate clean. Commit 31ad425.
