@@ -63,5 +63,3 @@ on hand-authored code.
 - Judged harness: `tools/evals/harness/run.sh`; eval-criteria skill
 - Proposal: `.scratch/skill-update-exploration/PROPOSALS.md` (P4)
 - Gates: ticket 153 (verification-protocol P4)
-
-- [ ] TBD
