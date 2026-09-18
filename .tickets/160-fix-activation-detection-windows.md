@@ -1,7 +1,7 @@
 ---
 id: "160"
 title: "Fix check-activation.sh detection on Windows/Git Bash (DB path + behavioral markers)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -73,3 +73,7 @@ reports "not activated" → TP=0 → every activation eval is unreliable on this
 - Runner: `tools/evals/harness/run-activation.sh`
 - Blocks: ticket 154
 - Related: "steering shadow / detection artifact" glossary note; ticket 24 (Strategy 1 wiring)
+
+## Resolution (2026-09-18)
+
+Root cause: kiro-cli headless --no-interactive emits NO skill-activation signal (verified: output has no load-line, conversations_v2 not written for headless runs, no log files). Fix: added behavioral-marker detection to check-activation.sh Strategy 1 for code-review + testing-guide/planning-cycles/data-modeling/research-methodology/docs-audit (each marker = behavior the skill uniquely makes the agent do/say); made Strategy 2 DB path cross-platform (LOCALAPPDATA/Linux/macOS) with unix+Windows key matching (fallback only, since headless does not persist). Result: activation-code-review TPR went 0 to 0.80 (full run TP=4 FP=2 TN=8 FN=1); marker then tightened to drop generic review-verbs that echoed adjacent-decoy prompts -> targeted re-test shows 2 positives ACTIVATED, 2 former-FP decoys not_activated. bash -n clean, validate passes. Unblocks 154. Commit eda47ec.
