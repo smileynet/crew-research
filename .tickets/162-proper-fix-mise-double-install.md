@@ -42,7 +42,6 @@ can't reliably reach the authoritative mise:
 - [x] Bare `tkt ready` works from a fresh `cmd` AND PowerShell (no direct-binary workaround) — verified both
 - [x] `mise run generate -- codex` still expands the arg (issue 2 regression check) → `Generating for codex`
 - [x] `tkt` (real tool) still installed and runnable (`tkt 0.3.1`)
-- [ ] `tkt` (real tool) still installed and runnable
 
 ## Out of scope
 
