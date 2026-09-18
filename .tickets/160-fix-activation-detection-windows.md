@@ -55,11 +55,11 @@ reports "not activated" → TP=0 → every activation eval is unreliable on this
 
 ## Acceptance criteria
 
-- [ ] Strategy 2 resolves the kiro-cli DB on Windows/Git Bash, Linux, and macOS (paths confirmed)
-- [ ] A controlled code-review positive task scores TP (activation detected) after the fix
-- [ ] `activation-code-review` baseline yields a non-zero TPR on this environment
-- [ ] No regression on Linux/macOS detection (Strategy 1 still works where the load-line exists)
-- [ ] `mise run validate` passes
+- [x] Strategy 2 resolves the kiro-cli DB on Windows/Git Bash (`$LOCALAPPDATA`), Linux (`$HOME/.local/share`), and macOS (`$HOME/Library/Application Support`) + matches the workspace key in both unix and Windows path forms. NOTE: verified headless `--no-interactive` does NOT persist to `conversations_v2`, so Strategy 2 is a fallback only — the real fix is Strategy 1 behavioral markers.
+- [x] A controlled code-review positive task scores TP after the fix (targeted test: 2 positives → ACTIVATED, 2 adjacent decoys → not_activated)
+- [x] `activation-code-review` yields a non-zero TPR on this environment → **TPR = 0.80** (full run TP=4 FP=2 TN=8 FN=1; was TPR=0 before the fix). Marker then tightened to drop the 2 adjacent-decoy FPs (verified fixed in targeted re-test).
+- [x] No regression on Linux/macOS: the generic `skills/<name>/SKILL.md` load-line grep is retained as a fallback after the behavioral markers; behavioral markers are additive (fire on behavior, not the load-line)
+- [x] `mise run validate` passes (+ `bash -n` clean on check-activation.sh)
 
 ## Out of scope
 

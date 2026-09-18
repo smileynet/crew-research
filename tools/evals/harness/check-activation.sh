@@ -25,6 +25,11 @@ fi
 OUTPUT_FILE="$WORKSPACE/.eval-output"
 if [[ -f "$OUTPUT_FILE" ]]; then
   # Skill-specific behavioral markers — stronger evidence than a content grep.
+  # kiro-cli headless emits NO skill-load line, DB, or log signal (verified
+  # 2026-09-18, ticket 160), so behavioral markers are the ONLY reliable
+  # detector for behavioral skills on this platform. Each marker matches what
+  # the skill uniquely makes the agent DO/SAY, chosen to fire on positives and
+  # stay silent on the def's negatives.
   # (recall marker removed: activation-recall def retired, ticket 19.)
   case "$SKILL_NAME" in
     handoff)
@@ -35,14 +40,45 @@ if [[ -f "$OUTPUT_FILE" ]]; then
       # live def: orientation behavior mentions the handoff file / prior session
       grep -qi "HANDOFF.md\|read.*handoff\|prior session\|last session" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
       ;;
+    code-review)
+      # Distinctive code-review behaviors only (two-axis Standards/Spec framing,
+      # verdict vocabulary, or reviewing code for security+quality with a
+      # diff/git focus). Deliberately NOT generic "review" verbs — those echo
+      # adjacent-skill prompts (dispatch-review, prose-check) and cause FPs.
+      grep -qiE "two-axis|standards axis|spec axis|code standards.*(requirement|spec|intent)|verdict: (approved|changes requested|needs discussion)|(diff|review) the .* branch (against|vs)|injection.*(auth|input validation|trust boundar)|review the (pr|pull request|diff) (for|against)" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
+      ;;
+    testing-guide)
+      grep -qiE "what to test|test (pyramid|coverage|behavior not implementation)|arrange.act.assert|test the contract|edge case" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
+      ;;
+    planning-cycles)
+      grep -qiE "brainstorm|validate.*scope|phase (1|one|breakdown)|planning cycle|scope (down|the work)|clarifying question" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
+      ;;
+    data-modeling)
+      grep -qiE "invalid states|illegal states|discriminated union|sum type|make .* unrepresentable|source of truth|parse.*validate" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
+      ;;
+    research-methodology)
+      grep -qiE "source (authority|hierarchy)|confidence (label|level)|structured (research|investigation)|\\[L[0-9]|cite (the )?source" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
+      ;;
+    docs-audit)
+      grep -qiE "documentation (health|audit)|stale|freshness|completeness|coverage gap|diataxis" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
+      ;;
   esac
-  # Generic: kiro-cli logs the SKILL.md path when it loads a skill
+  # Generic fallback: kiro-cli logs the SKILL.md path when it loads a skill
+  # (NOT emitted in headless --no-interactive on Windows; kept for other tools/modes)
   grep -qi "skills/$SKILL_NAME/SKILL.md" "$OUTPUT_FILE" && { echo "activated"; exit 0; }
 fi
 
-# --- Strategy 2: Session DB (legacy, may not exist) ---
-DB="$HOME/.local/share/kiro-cli/data.sqlite3"
-if [[ -f "$DB" ]] && command -v sqlite3 &>/dev/null; then
+# --- Strategy 2: Session DB (cross-platform path; may not exist for headless runs) ---
+# kiro-cli DB location differs by OS. Headless --no-interactive may not persist
+# to conversations_v2 (verified 2026-09-18), so this is a fallback only.
+DB=""
+for candidate in \
+  "${LOCALAPPDATA:-}/kiro-cli/data.sqlite3" \
+  "$HOME/.local/share/kiro-cli/data.sqlite3" \
+  "$HOME/Library/Application Support/kiro-cli/data.sqlite3"; do
+  if [[ -n "$candidate" && -f "$candidate" ]]; then DB="$candidate"; break; fi
+done
+if [[ -n "$DB" ]] && command -v sqlite3 &>/dev/null; then
   SKILL_DIR="$(cd "$(dirname "$0")/../../.." && pwd)/atomics/skills/$SKILL_NAME"
   MARKER=""
   if [[ -f "$SKILL_DIR/SKILL.md" ]]; then
@@ -50,7 +86,11 @@ if [[ -f "$DB" ]] && command -v sqlite3 &>/dev/null; then
   fi
   [[ -z "$MARKER" ]] && MARKER="$SKILL_NAME"
 
-  FOUND=$(sqlite3 "$DB" "SELECT value FROM conversations_v2 WHERE key='$WORKSPACE' ORDER BY created_at DESC LIMIT 1" 2>/dev/null | grep -c "$MARKER" || true)
+  # kiro-cli stores the workspace path as the key; on Windows it's a backslash
+  # path, so match both the unix mktemp path and its Windows form.
+  WORKSPACE_WIN=""
+  command -v cygpath &>/dev/null && WORKSPACE_WIN=$(cygpath -w "$WORKSPACE" 2>/dev/null || true)
+  FOUND=$(sqlite3 "$DB" "SELECT value FROM conversations_v2 WHERE key IN ('$WORKSPACE','$WORKSPACE_WIN','$WORKSPACE/.kiro','$WORKSPACE_WIN\\.kiro') ORDER BY updated_at DESC LIMIT 1" 2>/dev/null | grep -c "$MARKER" || true)
   if [[ "$FOUND" -gt 0 ]]; then
     echo "activated"
     exit 0
