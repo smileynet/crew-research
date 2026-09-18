@@ -1,7 +1,7 @@
 ---
 id: "154"
 title: "Eval: measure FPR effect of negative activation clause (gates P1 negative tactic)"
-status: open
+status: in_progress
 blocked_by: ["160"]
 spec: "rider-skill-updates"
 ---
