@@ -41,9 +41,26 @@ Unrelated changes = scope violation. Revert or split.
 ## Violations (NOT acceptable as verification)
 
 - "Should pass" / "looks fine"
-- Trusting a previous run without re-running
-- Skipping checks because "it's a small change"
+- Trusting a previous run without re-running *(this is about STALE evidence — code changed since; a fresh, read, content-level success signal from an atomic operation is the Calibrated Verification exception below)*
+- Skipping checks because "it's a small change" *(size is never the basis; reversibility / blast-radius is — see Calibrated Verification)*
 - Claiming done without citing evidence
+
+## Calibrated Verification (narrow, evidence-gated exception)
+
+Scale verification to **reversibility and blast radius — never to diff size** ("it's a small
+change" stays a Violation). You MAY skip a redundant re-check ONLY when ALL hold:
+
+- The operation is **atomic / transactional** — it applies fully or not at all AND
+  acknowledges completion (an IDE semantic rename, a commit-or-rollback migration). A rebuild
+  can't reveal a fault the operation would itself have surfaced.
+- Its success signal is **content-level and you READ it** — a terminal event with confirming
+  content, never a bare exit code (exit codes lie — see step 3 and the "read the output" rule).
+- Pair it with one **high-value anomaly check** where cheap and diagnostic (a rename reporting
+  1 site changed when you expected many = wrong target → verify).
+
+This does NOT license skipping build/test/lint on code you authored by hand, and does NOT
+license trusting a **stale** prior run. Precedent: enforcement-hierarchy scales the enforcement
+*mechanism* by consequence severity; this scales verification *depth* by reversibility.
 
 ## Evidence Format
 

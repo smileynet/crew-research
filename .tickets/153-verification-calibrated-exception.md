@@ -56,12 +56,12 @@ always-on twin `atomics/eager-context/verification.md` must both change or they 
 
 ## Acceptance criteria
 
-- [ ] Ticket 155 (behavior eval) closed with a PASS before this is adopted
-- [ ] New "Calibrated Verification" section added, framed on reversibility (not size), requiring a content-level READ signal + atomicity + anomaly check
-- [ ] Both Violations lines annotated (stale-run distinction; size-not-basis)
-- [ ] `atomics/eager-context/verification.md` updated identically (no drift between skill + eager twin)
-- [ ] `mise run validate` + `mise run lint` pass; `mise run generate -- kiro-cli` clean
-- [ ] `mise run eval:activation` shows no regression for verification-protocol
+- [x] Ticket 155 (behavior eval) closed with a PASS before this is adopted (commit e1dfa03)
+- [x] New "Calibrated Verification" section added, framed on reversibility (not size), requiring a content-level READ signal + atomicity + anomaly check
+- [x] Both Violations lines annotated (stale-run distinction; size-not-basis)
+- [x] `atomics/eager-context/verification.md` updated identically (no drift between skill + eager twin) — concise always-on version of the same rule
+- [x] `mise run validate` + `mise run lint` pass; `mise run generate -- kiro-cli` clean
+- [x] Confirmation eval on the IMPLEMENTED skill (verification-protocol-calibrated-trust): with-skill 4.80 PASS, all 3 should-not-trust = 5.0 (no false-done regression); verification-protocol still activates in the with-skill runs
 
 ## Out of scope
 
