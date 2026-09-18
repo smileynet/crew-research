@@ -71,12 +71,12 @@ symlink stubs pointing here):
 
 ## Acceptance criteria
 
-- [ ] Source studied; draw-diagram.py dependency + portability documented (`.scratch/` or `.memory/specs/`)
-- [ ] Incorporation shape decided and recorded (ADR if hard-to-reverse); respects the 89/90 project-level precedent
-- [ ] If a skill is added/enriched: passes skill-authoring gates (incl. G4d from ticket 151 — success-path caveats inline), `mise run validate` + `mise run lint`
-- [ ] If tool vendored: graphviz-binary prereq + builtin fallback documented via tool-installation
-- [ ] Overlap with the existing `diagrams` skill resolved by scope (not a negative clause), per ticket 151 guidance
-- [ ] Explicit decision on theme/visual-qa inclusion (in or out, with reason)
+- [x] Source studied; draw-diagram.py dependency + portability documented in `.scratch/teachme-svg-intake-158.md` (drawsvg required; graphviz pip+binary optional with in-tool guard; builtin backend pure-Python cross-platform)
+- [x] Incorporation shape decided: **Option (a)** — enrich the global `diagrams` skill with the inline-SVG-via-drawsvg approach + teaching-preset vocabulary as GUIDANCE, tool NOT vendored (respects 89/90: teach-me is 1st adopter, not 3rd+). Not hard-to-reverse → no ADR (rationale in the study note).
+- [x] Skill enriched: new "Inline SVG (drawsvg)" section in `diagrams/SKILL.md` with G4d-compliant inline caveats (decision table + graphviz prereq inline, not gated). `mise run validate` + `mise run lint` (0/0) + `generate` clean.
+- [x] Tool NOT vendored (guidance-only per 89/90), so the "if tool vendored" clause doesn't bind — but the graphviz-binary prereq + builtin fallback ARE documented inline in the diagrams skill with per-OS install commands.
+- [x] Overlap resolved by scope, not a negative clause: the new content lives IN the existing `diagrams` skill (same owner), so no new skill collides with it; no negative clause needed (per 151 P1).
+- [x] theme/visual-qa: **OUT** — both are teach-me lesson-UI-specific (palette JSON, Playwright screenshot QA); no general crew-research need (documented in the study note).
 
 ## Out of scope
 

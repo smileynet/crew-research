@@ -71,6 +71,41 @@ system.api -> system.db: Reads/Writes
 
 Render: `POST https://kroki.io/d2/svg`
 
+## Inline SVG (drawsvg) — teaching diagrams
+
+For **embeddable inline SVG generated locally** (no external service), use a drawsvg-based
+generator like teach-me's `tools/draw-diagram.py` (the tool stays project-level — vendor it per
+project, don't rely on a global copy; precedent: tickets 89/90). Types: `stack` (layers),
+`flow` (L→R pipeline), `hub` (hub-and-spoke), `graph` (auto-ranked fan-out/in).
+
+**Teaching color vocabulary** (color = pedagogical role, not decoration — portable to any
+diagram format):
+
+| Preset | Color | Use for |
+|--------|-------|---------|
+| concept | blue | the thing being taught / primary component |
+| example | green | concrete instances, outputs, results |
+| process | amber | processing, transformation, operational steps |
+| anti-pattern | red | problems, errors, what NOT to do |
+| infrastructure | gray | supporting services, neutral context |
+
+**When to use which (all inline — these matter on the happy path):**
+
+| Situation | Use |
+|-----------|-----|
+| Standard teaching diagram (stack/flow/hub, small graph 3–7 nodes) | drawsvg builtin backend |
+| Complex graph: cycles, cross-edges, 9+ nodes | drawsvg `--backend graphviz` |
+| Custom layout / annotated component | hand-written raw inline SVG |
+| GitHub-rendered or quick markup | Mermaid (above) |
+| Auto-layout container architecture | D2 (above) |
+
+**Graphviz-backend prerequisite (success-path caveat — don't skip):** the graphviz backend
+needs BOTH the `graphviz` pip package AND the **system graphviz binary**
+(`apt install graphviz` / `brew install graphviz` / `winget install graphviz`). If the binary
+is absent, fall back to the builtin backend (works for 3–7 elements) — the tool guards this and
+errors helpfully rather than producing a broken diagram. Always pair a diagram with a one-line
+verbal summary (dual-coding).
+
 ## C4 Checklist
 
 Every architecture diagram must answer:
