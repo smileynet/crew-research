@@ -1,7 +1,7 @@
 ---
 id: "160"
 title: "Fix check-activation.sh detection on Windows/Git Bash (DB path + behavioral markers)"
-status: open
+status: in_progress
 blocked_by: []
 priority: high
 ---
