@@ -1,7 +1,7 @@
 ---
 id: "162"
 title: "Proper fix: remove double mise install so shims are durable (161 reshim was a band-aid)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 ---
@@ -53,3 +53,7 @@ can't reliably reach the authoritative mise:
 
 - Proposal: `.scratch/mise-proper-fix-proposal.md`
 - Predecessor: ticket 161 (reshim band-aid + issue-2 fix + docs)
+
+## Resolution (2026-09-18)
+
+Option A executed. Self-updated winget mise 2026.8.10 to 2026.9.11; cargo uninstall mise removed the stale duplicate (kept tkt); removed the orphaned cargo mise-shim.exe; set windows_shim_mode to file (deterministic, no silent fallback); reshim x2 cleared stale Godot shims. Result: mise doctor = No problems found; bare tkt --version + tkt ready work from PowerShell AND fresh cmd (this close ran via bare tkt); mise run generate -- codex expands correctly; no recursion anywhere. Correction to AC3: tkt is NOT mise-managed so there is no tkt shim by design — the old recursion came from a stale tkt shim left by the removed cargo mise; tkt now resolves directly from D:/dev-tools/cargo/bin on PATH. Supersedes 161 reshim band-aid. Setup-guide troubleshooting updated with the durable recipe. Commit 8c6cbe6.
