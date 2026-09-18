@@ -1,7 +1,7 @@
 ---
 id: "155"
 title: "Eval: calibrated-verification behavior regression (gates P4)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-skill-updates"
 ---
@@ -63,3 +63,7 @@ on hand-authored code.
 - Judged harness: `tools/evals/harness/run.sh`; eval-criteria skill
 - Proposal: `.scratch/skill-update-exploration/PROPOSALS.md` (P4)
 - Gates: ticket 153 (verification-protocol P4)
+
+## Resolution (2026-09-18)
+
+Authored + ran the calibrated-verification behavior eval (verification-protocol-calibrated-trust.yaml): 2 should-trust (atomic rename, transactional migration) + 3 should-not-trust (hand-authored code, bare exit code, stale run), 2 conditions x 2 trials, kiro-cli judge. RESULT PASS: all 3 should-not-trust scenarios scored 5.0 (agent correctly insisted on verification — no false-done regression), both should-trust scored 4.5-5.0 (correctly trusts atomic read signals). The reject-if condition (increased false-done) did NOT trigger. Gate for 153 SATISFIED — proceed with the P4 wording. Verdict: docs/development/calibrated-verification-eval-155.md. Commit e1dfa03.
