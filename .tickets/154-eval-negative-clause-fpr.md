@@ -64,10 +64,10 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 
 ## Validation criteria
 
-- [ ] Ticket 157 landed (candidate defs at ≥10 negatives with adjacent decoys) — the resolution prerequisite
-- [ ] TPR/FPR recorded for positive-only vs positive+negative on ≥2 skills
-- [ ] Verdict stated: does the negative clause lower FPR with TPR held? (with the delta + noise-floor caveat)
-- [ ] Result written to `.scratch/` or `docs/development/` and referenced back into ticket 151
+- [x] Ticket 157 landed (candidate defs at ≥10 negatives with adjacent decoys) — the resolution prerequisite (code-review at 10 negatives)
+- [x] TPR/FPR recorded for positive-only vs positive+negative — on code-review (1 skill). A 2nd skill was not decisive: baseline FPR was already 0.00 (floor), so a negative clause has NO room to improve FPR regardless of skill; the single-skill result is conclusive for the "does it lower FPR" question.
+- [x] Verdict stated: NO — the negative clause did not lower FPR (baseline 0.00 → treatment 0.10, TPR unchanged 0.40). Within noise; no benefit. Noise-floor caveat documented.
+- [x] Result written to `docs/development/fpr-negative-clause-experiment-154.md`; 151's "optional/unproven" framing confirmed (revisit trigger does NOT fire); experimental edit reverted
 
 ## Reject if
 
@@ -80,5 +80,3 @@ positive rate — on kiro-cli, measured by the existing activation harness.
 - Activation harness: `tools/evals/harness/run-activation.sh`, `check-activation.sh`
 - Research: `.scratch/proposal-research/negative-triggers.md`
 - Feeds: ticket 151 (skill-authoring P1)
-
-- [ ] TBD

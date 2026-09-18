@@ -1,8 +1,42 @@
-# FPR negative-clause experiment (ticket 154) — BLOCKED by activation detection on Windows/Git Bash
+# FPR negative-clause experiment (ticket 154) — RESOLVED: no FPR benefit
 
-**Date:** 2026-09-17
-**Ticket:** 154 (gates ticket 151's negative-clause tactic)
-**Status:** Blocked — cannot produce a valid verdict on this environment. Not a null result; a measurement-instrument failure.
+**Date:** 2026-09-18 (updated). Original 2026-09-17 run was BLOCKED by a detection bug;
+ticket 160 fixed detection (behavioral markers), and the experiment then RAN. Verdict below.
+
+## Verdict (2026-09-18, after 160)
+
+**A negative "Not for … (see other-skill)" clause in code-review's description did NOT lower
+FPR.** Two full activation runs on `activation-code-review` (15 tasks each, identical detector):
+
+| Condition | TPR | FPR | TP/FP/TN/FN |
+|-----------|-----|-----|-------------|
+| Baseline (positive-only description) | 0.40 | **0.00** | 2/0/10/3 |
+| Treatment (+ keywords-first negative clause) | 0.40 | **0.10** | 2/1/9/3 |
+
+- **No FPR improvement** — baseline was already at the floor (0.00); the clause left FPR
+  unchanged-to-slightly-worse (the single treatment FP is within the 0.10 measurement quantum).
+- **TPR unchanged** (0.40 both) — the clause neither helped nor hurt recall.
+- The result matches the research prediction: the one prior study isolating negation clauses
+  measured no benefit (`.scratch/proposal-research/negative-triggers.md`).
+
+**Decision:** the experimental negative clause was REVERTED (adoption was gated on a positive
+result). Ticket 151's framing — negative clauses are *optional, unproven, not recommended as
+standard practice* — is CONFIRMED and stays as-is. The revisit trigger in 151 does NOT fire.
+
+**Caveat (measurement noise):** the behavioral-marker detector has run-to-run variance (TPR
+observed 0.40–0.80 across runs due to LLM output phrasing variance; see ticket 160). FPR is
+more stable (0.00–0.10). The "no benefit" conclusion is robust because baseline FPR was already
+0.00 — there was no room for a clause to improve it. A larger negative-decoy corpus (ticket 157
+took code-review to 10 negatives) keeps the FPR quantum at 0.10.
+
+---
+
+## Original blocker record (2026-09-17, now resolved by 160)
+
+_Retained for history. The detection failure below was fixed in ticket 160; the experiment
+above then ran successfully._
+
+
 
 ## Goal
 
