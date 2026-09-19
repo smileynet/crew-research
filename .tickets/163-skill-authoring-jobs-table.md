@@ -1,7 +1,7 @@
 ---
 id: "163"
 title: "skill-authoring: add Jobs-to-be-done activation table technique (P4 ADD-TO)"
-status: open
+status: in_progress
 blocked_by: []
 spec: "rider-followups"
 ---
