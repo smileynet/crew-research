@@ -1,7 +1,7 @@
 ---
 id: "164"
 title: "source-authority: disclosure-mandated fallback tiers (P3 ADD-TO)"
-status: open
+status: in_progress
 blocked_by: []
 spec: "rider-followups"
 ---
