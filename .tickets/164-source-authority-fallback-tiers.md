@@ -24,10 +24,10 @@ stale cached copy as if it were live docs.
 
 ## Acceptance criteria
 
-- [ ] `source-authority` gains a "Freshness fallback tiers" section (ordered ladder + mandatory disclosure of tier + date)
-- [ ] Tiers mapped to the existing confidence labels (snapshot ≠ verified)
-- [ ] Names the environments where it matters (offline, corp proxy, Bedrock)
-- [ ] `mise run validate` + `mise run lint` pass; section stays inline (success-path guidance, per 151 G4d)
+- [x] `source-authority` gains a "Freshness fallback tiers" section (ordered ladder + mandatory disclosure of tier + date)
+- [x] Tiers mapped to the existing confidence labels (snapshot ≠ verified)
+- [x] Names the environments where it matters (offline, corp proxy, Bedrock)
+- [x] `mise run validate` + `mise run lint` pass; section stays inline (success-path guidance, per 151 G4d)
 
 ## Out of scope
 

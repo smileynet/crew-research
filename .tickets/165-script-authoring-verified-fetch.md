@@ -25,10 +25,10 @@ fetcher). Relevant to the corp-proxy / Bedrock environments crew-research suppor
 
 ## Acceptance criteria
 
-- [ ] `script-authoring` gains a concise "Hardened remote fetch" pattern (atomic write, integrity check, proxy-tolerant transport)
-- [ ] Names the corp-proxy/Bedrock relevance
-- [ ] `mise run validate` + `mise run lint` pass; stays a pattern note, not a vendored script
-- [ ] No duplication with existing script-authoring content
+- [x] `script-authoring` gains a concise "Hardened remote fetch" pattern (atomic write, integrity check, proxy-tolerant transport)
+- [x] Names the corp-proxy/Bedrock relevance
+- [x] `mise run validate` + `mise run lint` pass; stays a pattern note, not a vendored script
+- [x] No duplication with existing script-authoring content
 
 ## Out of scope
 

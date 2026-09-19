@@ -25,10 +25,10 @@ picks the right command).
 
 ## Acceptance criteria
 
-- [ ] `skill-authoring` gains a concise "Jobs-to-be-done table" technique note (where/when to use it)
-- [ ] Framed as a technique for multi-command tool-wrapper skills, not all skills
-- [ ] `mise run validate` + `mise run lint` pass; skill stays coherent
-- [ ] No duplication of existing activation guidance (references it, doesn't restate)
+- [x] `skill-authoring` gains a concise "Jobs-to-be-done table" technique note (where/when to use it)
+- [x] Framed as a technique for multi-command tool-wrapper skills, not all skills
+- [x] `mise run validate` + `mise run lint` pass; skill stays coherent
+- [x] No duplication of existing activation guidance (references it, doesn't restate)
 
 ## Out of scope
 

@@ -48,6 +48,23 @@ Format: `[L{n}:{confidence}]` — use in research findings, multi-agent handoffs
 | **Inferred** | Reasoning from evidence. State the reasoning. |
 | **Tentative** | Plausible but unconfirmed. Flag explicitly. |
 
+## Freshness Fallback Tiers
+
+When the authoritative source is unreachable (offline, corp proxy, Bedrock sandbox, rate-limited),
+fall back in this DECLARED order and **disclose which tier you used and its date** — never present
+a stale copy as if it were live:
+
+| Tier | Source | Max confidence |
+|------|--------|----------------|
+| 1 | Live fetch of the authoritative source | up to **Verified** |
+| 2 | Cached/resolver copy (recent, dated) | **Reported** (name the cache + date) |
+| 3 | Bundled snapshot (shipped with the skill/repo) | **Reported/Tentative** — snapshot may be stale |
+
+Rules:
+- State the tier explicitly: "live source unreachable — using the bundled snapshot from 2026-08, which may be stale."
+- A snapshot is NEVER "Verified" — it's at best "Reported" and decays with age.
+- If a claim depends on freshness (model IDs, prices, API shapes, versions) and you're below tier 1, flag it and prefer re-fetching over answering from a snapshot.
+
 ## Citation Rules
 
 - Cite the source, not just the claim

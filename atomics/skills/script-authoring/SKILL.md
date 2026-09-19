@@ -82,6 +82,27 @@ Every script starts with: shebang, description comment, usage comment. If it tak
 - Hardcoded paths → variables at top or flags
 - Retry without backoff → exponential backoff or fail after N
 
+## Hardened Remote Fetch
+
+When a script fetches a remote resource (docs, models, releases), build for corp-proxy / Bedrock
+/ flaky-network reality:
+
+1. **Atomic write** — fetch to a temp file, then `mv` into place. Never leave a half-written
+   cache a later run trusts.
+   ```bash
+   tmp=$(mktemp) && curl -fsSL "$url" -o "$tmp" && mv "$tmp" "$dest"
+   ```
+2. **Integrity check** — when a hash is served/known, verify before trusting (a truncated or
+   MITM'd download fails closed rather than silently corrupting the cache).
+   ```bash
+   echo "$expected_sha256  $dest" | sha256sum -c - || { rm -f "$dest"; exit 1; }
+   ```
+3. **Proxy-tolerant transport** — prefer `curl` under a corporate proxy (honors `HTTPS_PROXY`,
+   handles TLS interception better), fall back to a native fetcher only if curl is absent.
+
+Pair with the freshness-disclosure ladder in `source-authority` when the fetched content is a
+factual source.
+
 ## Output Conventions
 
 ```

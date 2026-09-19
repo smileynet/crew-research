@@ -87,6 +87,21 @@ Use compact pretrained concepts to anchor behavior in few tokens. "tight" recrui
 | Rule duplicated from another skill/AGENTS.md | Drifts out of sync; agents get conflicting guidance | One owner + link |
 | No frontmatter | Won't be discovered | Add complete YAML header |
 
+## Jobs-to-be-done table (multi-command tool-wrapper skills)
+
+For a skill that wraps a multi-command tool (git-protocol, tkt, mise-helper shape), organize the
+body around an **intent→action table indexed by the agent's SITUATION, not the tool's verbs**:
+
+| When you need to… | Do |
+|-------------------|-----|
+| park work you can't finish now | `tkt new … --status backlog` |
+| decide what to work on next | `tkt ready` |
+
+This activates and routes better than a flag reference because it matches how a user actually
+phrases the need ("what should I work on?") rather than requiring them to know the command name.
+Use it for skills with 4+ commands where picking the RIGHT one is the hard part; a single-command
+skill doesn't need it.
+
 ## Companion Files
 
 Place in `references/` within the skill directory:
