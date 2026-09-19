@@ -1,7 +1,7 @@
 ---
 id: "163"
 title: "skill-authoring: add Jobs-to-be-done activation table technique (P4 ADD-TO)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-followups"
 ---
@@ -33,3 +33,7 @@ picks the right command).
 ## Out of scope
 
 - Rewriting existing tool-wrapper skills to add the table (guidance only)
+
+## Resolution (2026-09-19)
+
+Added Jobs-to-be-done table technique to skill-authoring (intent-indexed table for multi-command tool-wrapper skills, scoped to 4+ command skills). validate + lint 0/0 pass. Commit 9627043.
