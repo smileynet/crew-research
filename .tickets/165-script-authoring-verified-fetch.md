@@ -1,7 +1,7 @@
 ---
 id: "165"
 title: "script-authoring: sha256-verified atomic cached fetch + proxy fallback (P5 ADD-TO)"
-status: open
+status: in_progress
 blocked_by: []
 spec: "rider-followups"
 ---
