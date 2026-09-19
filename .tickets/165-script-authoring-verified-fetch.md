@@ -1,7 +1,7 @@
 ---
 id: "165"
 title: "script-authoring: sha256-verified atomic cached fetch + proxy fallback (P5 ADD-TO)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-followups"
 ---
@@ -33,3 +33,7 @@ fetcher). Relevant to the corp-proxy / Bedrock environments crew-research suppor
 ## Out of scope
 
 - Vendoring an actual fetch script
+
+## Resolution (2026-09-19)
+
+Added Hardened Remote Fetch pattern to script-authoring (atomic temp+rename, sha256 integrity check, curl-preferred proxy-tolerant transport; cross-refs source-authority freshness ladder; corp-proxy/Bedrock relevance noted). Pattern note, no vendored script. validate + lint 0/0. Commit 9627043.
