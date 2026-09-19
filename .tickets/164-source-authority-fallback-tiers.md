@@ -1,7 +1,7 @@
 ---
 id: "164"
 title: "source-authority: disclosure-mandated fallback tiers (P3 ADD-TO)"
-status: in_progress
+status: done
 blocked_by: []
 spec: "rider-followups"
 ---
@@ -32,3 +32,7 @@ stale cached copy as if it were live docs.
 ## Out of scope
 
 - Building a fetch tool (that's script-authoring / ticket 165 territory)
+
+## Resolution (2026-09-19)
+
+Added Freshness Fallback Tiers section to source-authority (live->cached->snapshot ladder with mandatory tier+date disclosure, tiers mapped to confidence labels, snapshot never Verified; names offline/corp-proxy/Bedrock). Inline per 151 G4d. validate + lint 0/0. Commit 9627043.
