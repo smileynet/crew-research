@@ -16,6 +16,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- ADR guidance leads with a gate that stops over-producing records — a decision earns an ADR only if it is costly to reverse AND would be re-litigated; reversible scoping and implementation choices stay in the ticket, one decision per ADR
 - Architecture reviews push back on rubber-stamping — accepting 3+ candidates without discussion triggers a pause and trade-off challenge
 - Debugging guidance covers continuous signals (memory leaks, latency) — establish baseline, set numeric pass/fail, change one thing, re-measure
 - Debugging evals test against real injected bugs instead of hypothetical ones

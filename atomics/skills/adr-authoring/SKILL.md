@@ -11,6 +11,27 @@ metadata:
 
 Record decisions so future-you (and future-teammates) know WHY, not just WHAT.
 
+## Gate — test each decision before writing (do this first)
+
+An ADR is for a decision that is **costly or risky to reverse AND would otherwise get
+re-litigated** — a future reader would re-propose the rejected path without the record.
+Before writing, test each candidate decision:
+
+- **Reverse-and-relitigate test:** "Is this expensive to undo once built, AND will someone
+  later ask 'why did we do it this way?' and try the rejected alternative?" Both yes → ADR.
+  Either no → NOT an ADR (reversible scoping, implementation choice, or not-building-a-thing
+  belong in the ticket or a code comment).
+- **"Write an ADR" is not a license to document the whole initiative.** When asked to write
+  an ADR, still apply the gate per decision and scope the record to the decision(s) that
+  pass. A feature's reversible choices (which library, which emit path, deferring a sub-feature)
+  stay in the ticket — only the durable, contested decision earns the ADR.
+- **One independently-reversible decision per ADR.** If two choices can change on their own
+  timelines, they are two ADRs (or one is just a ticket). Bundling is an anti-pattern: it
+  forces an all-or-nothing supersede when only one part changes.
+
+Signs you are over-producing: the ADR restates the ticket; a "decision" is just not building
+something; you cannot name a tempting rejected alternative; the record is >~2 pages.
+
 ## When to write an ADR
 
 - Choosing between competing approaches (framework A vs B)
@@ -18,7 +39,8 @@ Record decisions so future-you (and future-teammates) know WHY, not just WHAT.
 - Rejecting an obvious approach (explain why not)
 - Changing a previous decision (superseding)
 
-Do NOT write ADRs for: trivial choices, temporary experiments, or decisions that are easily reversed.
+Do NOT write ADRs for: trivial choices, temporary experiments, decisions that are easily
+reversed, implementation details that live fine in a ticket, or the absence of a feature.
 
 If archwright skills are available and the decision resolves a named force tension, also consider `archwright-formalize` — a pattern with a mechanical check outlives an ADR's prose.
 
