@@ -52,10 +52,36 @@ but the `resources` (file://, skill://) binding is where the v2 shape falls shor
 - Blocks full v3 adoption of the proof/eval suite, but NOT the stream-json grading
   (124) or the engine selector (126), which both work.
 
+## Findings (2026-10-02, empirical on kiro-cli 2.27.0)
+
+Root cause of the "needs upgrading → using default" fallback: v3 recognizes a config
+as v3-native by the presence of the **`permissions`** field. `kiro-cli agent validate`
+on the v2-shape config returns NO error (it's structurally valid) — the warning is
+purely the engine deciding the config predates v3 and routing to the default agent,
+which drops the named agent's `resources` (eager files). Minimal-fix experiment:
+- `+ "permissions": {"rules": []}` alone → **0 upgrade warnings**, named agent loads resources.
+- `+ mcpServers + toolsSettings + includeMcpJson` WITHOUT permissions → still warns.
+So the fix is a single field. v3-canonical (`agent create`) also adds mcpServers/
+toolAliases/toolsSettings/includeMcpJson/model/permissions, but only `permissions` is
+needed to stop the fallback. Backward-compatible: v2 engine runs clean with the field present.
+
+Fix applied to the proof harness's **inline agent JSON** (`run.sh deploy_agent`, the
+actual generator) AND the adapter `agent.template` (documentation/parity). Eval harness
+does not generate kiro-cli agent JSON the same way (no inline agent heredoc found); if a
+future eval path adds one, apply the same field.
+
 ## Acceptance criteria
 
-- [ ] Determine the exact v3-compatible agent-config format (diff a `/upgrade-agent` output vs the current template)
-- [ ] Update `adapters/kiro-cli.yaml` `agent.template` (and eval agent deploy) to emit v3-compatible configs, OR add a workdir-scoped migrate step
-- [ ] Agent-based proof (e.g. A4) passes on `--agent-engine v3` with resources actually pre-loaded (no "needs upgrading" warning, no default fallback)
-- [ ] v2 path unchanged (template still works on v2 engine)
-- [ ] No global agent dir mutated (migrate scoped to workdir KIRO_HOME)
+- [x] Determined the exact v3-recognition requirement: the `permissions` field (minimal `{"rules":[]}`); `agent validate` passes on v2-shape, fallback is engine-side
+- [x] Updated proof `run.sh deploy_agent` inline JSON + `adapters/kiro-cli.yaml agent.template` to emit `"permissions": {"rules": []}`
+- [x] Agent-based proofs pass on v3 with resources pre-loaded: **A4 and A5 PASS on `PROOF_ENGINE=v3 PROOF_OUTPUT_FORMAT=stream-json`** (no "needs upgrading" warning, canary loaded by the named agent). (A4 on v3 WITHOUT stream-json still fails only at the log_check stage = ticket 124's known limit; its text grading passes.)
+- [x] v2 path unchanged (A4 default PASS; `permissions` field is backward-compatible on v2)
+- [x] No global agent dir mutated (configs are generated per-proof under the workdir `KIRO_HOME`; no `agent migrate`/`/upgrade-agent` on global)
+
+## Observation (out of scope, not a 170 regression)
+
+Proof **A3** (skill-absence) does not complete on the v3 path within the adapter's
+90s timeout (produces no verdict), while it passes on v2. A3's agent has no special
+resources, so this is unrelated to the permissions fix — it looks like v3's slower cold
+start vs the adapter `invoke.timeout: 90`. If v3 becomes the proof default, the adapter
+timeout likely needs raising for v3. Noted for a future ticket, not fixed here.

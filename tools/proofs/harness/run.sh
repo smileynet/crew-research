@@ -248,7 +248,8 @@ deploy_agent() {
   "tools": $tools,
   "allowedTools": $tools,
   "resources": $full_resources,
-  "prompt": "$prompt"
+  "prompt": "$prompt",
+  "permissions": { "rules": [] }
 }
 EOF
   elif [[ "$AGENT_FORMAT" == "markdown-frontmatter" ]]; then

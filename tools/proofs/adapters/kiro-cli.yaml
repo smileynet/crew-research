@@ -26,7 +26,8 @@ agent:
       "tools": {tools},
       "allowedTools": {allowed_tools},
       "resources": {resources},
-      "prompt": "{prompt}"
+      "prompt": "{prompt}",
+      "permissions": { "rules": [] }
     }
 
 skill:
