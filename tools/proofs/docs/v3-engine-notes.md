@@ -65,6 +65,19 @@ jq -r 'select(.type=="runFinished")|.data.finalText' events.jsonl
   probe sessions landed in the real `~/.kiro/sessions/cli/*.jsonl` with fresh
   timestamps. Benign (unique UUIDs) but note for cleanup — sweep by UUID if needed.
 
+## Correction (ticket 169, 2026-10-02): SQLite is NOT live on this host
+
+An earlier note here/elsewhere implied v3 "dual-writes JSONL + SQLite". **Corrected:**
+on this kiro-cli 2.27.0 (TUI client), the **live** session store is **JSONL**
+(`~/.kiro/sessions/cli/*.jsonl`, 178 files/24h). The SQLite DB
+`~/.local/share/kiro-cli/data.sqlite3` (`conversations_v2`) has a fresh file *mtime*
+but its content `max(updated_at)` is frozen at **2026-09-01** — it is historical, not
+live, here. The "dual-write" read came from trusting the DB file mtime instead of its
+content. Downstream (ticket 169) therefore selects session source by **freshness**
+(SQLite only when its `max(updated_at)` beats the newest JSONL mtime), not by SQLite
+existence. SQLite becoming the live store is still the forward risk; it just hasn't
+happened on this build.
+
 ## Per-ticket unblock mapping
 
 - **126 (harness v3 path):** UNBLOCKED. v3 headless works; `-a`/`--trust-all-tools`

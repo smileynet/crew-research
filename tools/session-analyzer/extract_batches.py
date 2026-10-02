@@ -19,17 +19,15 @@ def find_recent_files(days):
     cli_dir = sessions_dir / "cli"
     cutoff = datetime.now() - timedelta(days=days)
     files = []
-    # V2
+    # Live store (kiro-cli 2.27.0): ~/.kiro/sessions/cli/*.jsonl
     if cli_dir.exists():
         for f in cli_dir.glob("*.jsonl"):
             mtime = datetime.fromtimestamp(f.stat().st_mtime)
             if mtime > cutoff:
                 files.append((f, mtime))
-    # V3
-    for f in sessions_dir.glob("*/sess_*/messages.jsonl"):
-        mtime = datetime.fromtimestamp(f.stat().st_mtime)
-        if mtime > cutoff:
-            files.append((f, mtime))
+    # NOTE (ticket 169): the real v3 store is SQLite data.sqlite3 (conversations_v2),
+    # NOT sess_*/messages.jsonl (that glob never populated). Reader + field map:
+    # session_review.py + v3-sqlite-format.md. Port here when SQLite becomes live.
     return sorted(files, key=lambda x: x[1])
 
 def extract_summary(filepath):

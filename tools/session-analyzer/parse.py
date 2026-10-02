@@ -33,15 +33,23 @@ def find_sessions(days):
     cli_dir = sessions_dir / "cli"
     cutoff = datetime.now() - timedelta(days=days)
     files = []
-    # V2: ~/.kiro/sessions/cli/*.jsonl
+    # Live store (kiro-cli 2.27.0 TUI): ~/.kiro/sessions/cli/*.jsonl
     if cli_dir.exists():
         for f in cli_dir.glob("*.jsonl"):
             if datetime.fromtimestamp(f.stat().st_mtime) > cutoff:
                 files.append(f)
-    # V3: ~/.kiro/sessions/<hash>/sess_*/messages.jsonl
-    for f in sessions_dir.glob("*/sess_*/messages.jsonl"):
-        if datetime.fromtimestamp(f.stat().st_mtime) > cutoff:
-            files.append(f)
+    # NOTE (ticket 169, verified 2026-10-02): the real v3 store is the SQLite DB
+    # ~/.local/share/kiro-cli/data.sqlite3 (table conversations_v2), NOT a
+    # `sess_*/messages.jsonl` tree — that glob never populated (0 files) and was a
+    # wrong-surface guess. The authoritative SQLite reader + conversations_v2.value
+    # field map lives in session_review.py + v3-sqlite-format.md. This metrics
+    # parser still reads the live JSONL tree; when a kiro build makes SQLite the
+    # live store (its max(updated_at) leading JSONL mtime), port the SQLite reader
+    # here too. Until then JSONL is live, so no behavior change.
+    if not files:
+        print("parse: WARNING no JSONL sessions in window; if kiro-cli moved to the "
+              "SQLite store see tools/session-analyzer/v3-sqlite-format.md",
+              file=sys.stderr)
     return sorted(files, key=lambda f: f.stat().st_mtime)
 
 def extract_shell_command(tool_input):

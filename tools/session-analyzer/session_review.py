@@ -38,6 +38,7 @@ Output: JSON summary to stdout (validation contract), digest markdown to
 import argparse
 import json
 import re
+import sqlite3
 import subprocess
 import sys
 import time
@@ -45,6 +46,35 @@ from collections import defaultdict
 from pathlib import Path
 
 SESS = Path.home() / ".kiro" / "sessions" / "cli"
+
+
+def sqlite_db_path() -> Path:
+    """v3 session store (ticket 169). Linux XDG + macOS locations."""
+    import os
+    xdg = os.environ.get("XDG_DATA_HOME")
+    candidates = []
+    if xdg:
+        candidates.append(Path(xdg) / "kiro-cli" / "data.sqlite3")
+    candidates.append(Path.home() / ".local" / "share" / "kiro-cli" / "data.sqlite3")
+    candidates.append(Path.home() / "Library" / "Application Support" / "kiro-cli" / "data.sqlite3")
+    for c in candidates:
+        if c.exists():
+            return c
+    return candidates[0]  # default (may not exist)
+
+
+def _sqlite_latest_ms(db: Path) -> int:
+    """Max updated_at (ms) in conversations_v2, or 0 if unreadable/empty.
+    Read-only — the DB may be written live by kiro-cli."""
+    try:
+        conn = sqlite3.connect(f"file:{db}?mode=ro&immutable=1", uri=True, timeout=5)
+        try:
+            row = conn.execute("SELECT max(updated_at) FROM conversations_v2").fetchone()
+            return int(row[0]) if row and row[0] is not None else 0
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return 0
 
 P1_PATTERNS = [
     r"^no[,.\s]",
@@ -169,6 +199,78 @@ def scan_session(path: Path):
     return p1_hits, p2_lines, p2_kinds
 
 
+def _add_p2(text, p2_lines, p2_kinds):
+    """Shared P2 scan over one text blob (distinct-line dedupe, FP class b)."""
+    for rx in P2_RE:
+        for m in rx.finditer(text):
+            ls = text.rfind("\n", 0, m.start()) + 1
+            le = text.find("\n", m.end())
+            p2_lines.add(text[ls: le if le != -1 else m.end() + 120][:200])
+            p2_kinds.add(rx.pattern)
+
+
+def scan_v3_conversation(value_json: str):
+    """Scan a v3 conversations_v2.value JSON for P1/P2 — mirrors scan_session.
+    Format map: tools/session-analyzer/v3-sqlite-format.md."""
+    p1_hits, p2_lines, p2_kinds = [], set(), set()
+    try:
+        v = json.loads(value_json)
+    except (json.JSONDecodeError, TypeError):
+        return p1_hits, p2_lines, p2_kinds
+
+    for turn in v.get("history") or []:
+        if not isinstance(turn, dict):
+            continue
+        # map tool_use_id -> name from the assistant turn (for FETCH_TOOLS filter)
+        tool_names = {}
+        a = turn.get("assistant") or {}
+        tu = (a.get("ToolUse") or {}).get("tool_uses") or []
+        for t in tu:
+            if isinstance(t, dict) and t.get("id") and t.get("name"):
+                tool_names[t["id"]] = t["name"]
+
+        u = (turn.get("user") or {}).get("content") or {}
+        # P1 — user prompt text
+        if isinstance(u, dict) and "Prompt" in u:
+            text = ((u.get("Prompt") or {}).get("prompt")) or ""
+            if isinstance(text, str) and text and len(text) <= 2000 \
+                    and not any(mk in text for mk in TEMPLATED_MARKERS):
+                for rx in P1_RE:
+                    if rx.search(text):
+                        p1_hits.append({"pattern": rx.pattern, "excerpt": text[:400]})
+                        break
+        # P2 — tool results (skip fetched-content tools)
+        if isinstance(u, dict) and "ToolUseResults" in u:
+            for r in (u.get("ToolUseResults") or {}).get("tool_use_results") or []:
+                if not isinstance(r, dict):
+                    continue
+                if tool_names.get(r.get("tool_use_id", "")) in FETCH_TOOLS:
+                    continue
+                for text in _texts(r.get("content")):
+                    _add_p2(text, p2_lines, p2_kinds)
+        # P2 — assistant response text can also carry error strings
+        resp = (a.get("Response") or {}).get("content")
+        if isinstance(resp, str) and resp:
+            _add_p2(resp, p2_lines, p2_kinds)
+    return p1_hits, p2_lines, p2_kinds
+
+
+def iter_sqlite_conversations(db: Path, cutoff_s: float):
+    """Yield (conv_id, cwd, value_json) for conversations updated since cutoff.
+    Read-only; the DB is written live by kiro-cli."""
+    uri = f"file:{db}?mode=ro&immutable=1"
+    conn = sqlite3.connect(uri, uri=True, timeout=5)
+    try:
+        cur = conn.execute(
+            "SELECT conversation_id, key, value FROM conversations_v2 "
+            "WHERE updated_at >= ? ORDER BY updated_at DESC",
+            (int(cutoff_s * 1000),))
+        for conv_id, key, value in cur:
+            yield conv_id, (key or ""), value
+    finally:
+        conn.close()
+
+
 def confirm_with_llm(excerpt_file: Path, probe: str, timeout: int = 120) -> str:
     """Optional headless confirmation leg. Returns verdict text or 'SKIPPED: reason'."""
     import shutil
@@ -198,40 +300,83 @@ def main():
     args = ap.parse_args()
 
     cutoff = time.time() - args.days * 86400
-    files = sorted(f for f in SESS.glob("*.jsonl") if f.stat().st_mtime >= cutoff)
+
+    # Source selection (ticket 169): choose the store with the FRESHER data, not
+    # merely "SQLite if it exists". Verified 2026-10-02: on kiro-cli 2.27.0 (TUI
+    # client) the live store is JSONL while an older SQLite data.sqlite3 can sit
+    # frozen (content max a month stale) with a touched mtime — preferring it by
+    # existence alone would read stale data and silently miss all recent sessions.
+    # When a true 3.0 build makes SQLite the live store, its max(updated_at) will
+    # lead and this picks it automatically. Format map: tools/session-analyzer/v3-sqlite-format.md.
+    db = sqlite_db_path()
+    sqlite_latest = _sqlite_latest_ms(db) if db.exists() else 0  # ms, 0 if none
+    jsonl_latest = 0.0
+    if SESS.exists():
+        mts = [f.stat().st_mtime for f in SESS.glob("*.jsonl")]
+        jsonl_latest = max(mts) * 1000 if mts else 0  # to ms
+    use_sqlite = sqlite_latest > jsonl_latest
+    source = "sqlite" if use_sqlite else "jsonl"
 
     date = time.strftime("%Y-%m-%d")
     digest_path = Path(args.digest) if args.digest else Path(f".scratch/session-review-digest-{date}.md")
     exdir = digest_path.parent / f"session-review-excerpts-{date}"
     exdir.mkdir(parents=True, exist_ok=True)
 
+    # Build a uniform work list: (source_id, cwd, scan_fn producing (p1,p2l,p2k))
+    units = []  # (sid, cwd)
+    results = {}  # sid -> (p1_hits, p2_lines, p2_kinds)
+    if use_sqlite:
+        try:
+            for conv_id, key, value in iter_sqlite_conversations(db, cutoff):
+                sid = conv_id[:8]
+                units.append((sid, key))
+                results[sid] = scan_v3_conversation(value)
+        except sqlite3.Error as e:
+            # SQLite unreadable -> fall back to JSONL rather than failing silently
+            print(f"session_review: sqlite read failed ({e}); falling back to JSONL",
+                  file=sys.stderr)
+            use_sqlite = False
+            source = "jsonl"
+    if not use_sqlite:
+        files = sorted(f for f in SESS.glob("*.jsonl") if f.stat().st_mtime >= cutoff)
+        for f in files:
+            sid = f.stem[:8]
+            units.append((sid, session_cwd(f)))
+            results[sid] = scan_session(f)
+
     by_project = defaultdict(lambda: {"p1": [], "p2": []})
     scanned = 0
-    for f in files:
+    for sid, cwd in units:
         scanned += 1
-        cwd = session_cwd(f)
         project = Path(cwd).name if cwd else "unknown"
-        p1_hits, p2_lines, p2_kinds = scan_session(f)
+        p1_hits, p2_lines, p2_kinds = results[sid]
 
         if p1_hits:
-            ex = exdir / f"p1-{f.stem[:8]}.md"
-            ex.write_text(f"# {f.stem} ({project})\n\n" + "\n\n---\n\n".join(
+            ex = exdir / f"p1-{sid}.md"
+            ex.write_text(f"# {sid} ({project})\n\n" + "\n\n---\n\n".join(
                 h["excerpt"] for h in p1_hits[:10]))
-            rec = {"session": f.stem[:8], "hits": len(p1_hits), "excerpt_file": str(ex)}
+            rec = {"session": sid, "hits": len(p1_hits), "excerpt_file": str(ex)}
             if args.confirm:
                 rec["verdict"] = confirm_with_llm(ex, "p1")
             by_project[project]["p1"].append(rec)
         if len(p2_lines) >= P2_BURST and len(p2_kinds) >= P2_MIN_KINDS:
-            ex = exdir / f"p2-{f.stem[:8]}.md"
-            ex.write_text(f"# {f.stem} ({project})\n\n" + "\n\n---\n\n".join(sorted(p2_lines)[:25]))
-            rec = {"session": f.stem[:8], "distinct_failure_lines": len(p2_lines),
+            ex = exdir / f"p2-{sid}.md"
+            ex.write_text(f"# {sid} ({project})\n\n" + "\n\n---\n\n".join(sorted(p2_lines)[:25]))
+            rec = {"session": sid, "distinct_failure_lines": len(p2_lines),
                    "excerpt_file": str(ex)}
             if args.confirm:
                 rec["verdict"] = confirm_with_llm(ex, "p2")
             by_project[project]["p2"].append(rec)
 
+    # Zero-data guard (ticket 169): a window with no sessions from EITHER store is
+    # a loud warning, not a silent pass (the JSONL-dual-write-stopped failure mode).
+    if scanned == 0:
+        print(f"session_review: WARNING no sessions found in {args.days}d window "
+              f"(source={source}, sqlite={'present' if db.exists() else 'absent'}, "
+              f"jsonl_dir={'present' if SESS.exists() else 'absent'})", file=sys.stderr)
+
     # Digest — grouped per project; crew-research rows are the GLOBAL lane
-    lines = [f"# Session Review Digest — {date} ({args.days}d, {scanned} sessions)",
+    lines = [f"# Session Review Digest — {date} ({args.days}d, {scanned} sessions, source={source})",
              "",
              "Human triage artifact — this pipeline never creates tickets.",
              "Routing: crew-research rows = GLOBAL lane (proposals become crew-research",
@@ -258,6 +403,7 @@ def main():
     print(json.dumps({
         "status": "pass",
         "window_days": args.days,
+        "source": source,
         "sessions_scanned": scanned,
         "p1_candidates": total_p1,
         "p2_candidates": total_p2,
