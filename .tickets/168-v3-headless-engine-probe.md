@@ -159,11 +159,11 @@ template (adapt trust flags for v3). BUILD NEW: the v3 capture itself (no
 
 ## Acceptance criteria
 
-- [ ] Active engine DETECTED from `runStarted.data.engine` for the unflagged run (not assumed)
-- [ ] v3 stream-json schema captured on 2.27.0 and diffed against v2 (ticket-125) — same or delta documented, with `acpProtocolVersion` recorded
-- [ ] `--trust-all-tools` AND `--trust-tools=read` behavior under headless v3 recorded with exit codes (resolves #7398 for our use)
-- [ ] KIRO_API_KEY requirement + `whoami` account type for headless v3 on this account determined
-- [ ] **Skill-discovery A/B (v2 vs v3) run; result states whether the 2026-09-22 skill-discovery bug reproduces on 2.27.0** — distinguishing engine bug from fixture error
-- [ ] v2 path confirmed still working (no regression)
-- [ ] Findings written to deliverable with per-ticket unblock mapping
-- [ ] Containment verified: `~/.kiro/settings/` sha256 unchanged, `git status` clean, no user-global permissions.yaml created, no stray/hung kiro-cli PIDs left (clean up any 137s)
+- [x] Active engine DETECTED from `runStarted.data.engine` for the unflagged run (not assumed)
+- [x] v3 stream-json schema captured on 2.27.0 and diffed against v2 (ticket-125) — same or delta documented, with `acpProtocolVersion` recorded
+- [x] `--trust-all-tools` AND `--trust-tools=read` behavior under headless v3 recorded with exit codes (resolves #7398 for our use)
+- [x] KIRO_API_KEY requirement + `whoami` account type for headless v3 on this account determined
+- [x] **Skill-discovery A/B (v2 vs v3) run; result states whether the 2026-09-22 skill-discovery bug reproduces on 2.27.0** — distinguishing engine bug from fixture error
+- [x] v2 path confirmed still working (no regression)
+- [x] Findings written to deliverable with per-ticket unblock mapping
+- [x] Containment verified: `~/.kiro/settings/` sha256 unchanged, `git status` clean, no user-global permissions.yaml created, no stray/hung kiro-cli PIDs left (clean up any 137s)
