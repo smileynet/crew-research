@@ -1,7 +1,7 @@
 ---
 id: "169"
 title: "session-analyzer: read v3 SQLite sessions before JSONL dual-write stops"
-status: open
+status: in_progress
 blocked_by: ["168"]
 tags: [kiro-v3]
 ---
