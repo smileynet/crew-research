@@ -39,3 +39,15 @@ Exploration spike: investigate kiro-cli v3 (`kiro-cli --v3`) to understand what 
 ## Resolution (2026-08-11)
 
 Explored. v3 is Early Access (opt-in since 2.8.0). NO changes needed now — skills/steering/deploy all backward compatible. CRITICAL when v3 becomes default: recall + session-analysis need SQLite ingestion path (sessions move from JSONL to data.sqlite3). Medium: eval harness needs permissions.yaml (replaces --trust-all-tools), tool ID references should update to snake_case. Low: hooks could automate recall-prime but not essential. Findings: .scratch/research/kiro-v3-exploration.md. Follow-up tickets deferred until v3 default is announced — no point building adapters for an opt-in beta.
+
+## Update (2026-10-02) — v3 is now DEFAULT; deferral trigger has fired
+
+Re-researched on kiro-cli **2.27.0** (`.scratch/research/kiro-v3-2026-10/`). The
+2026-08-11 conclusion above is now stale: **v3 is the default engine** (binary labels
+`--v2` "the pre-3.0 default"), **headless works** (the old Known Gap is closed), and
+**v2 is soft-deprecated** (deprecation notice in 2.26.0; no removal date). JSONL + SQLite
+are both still live on 2.27.0, so nothing is broken yet, but the SQLite cutover is the
+real risk. Follow-up tickets filed: **168** (v3 headless probe — de-risk spike),
+**169** (session-analyzer SQLite reader), **126** reopened (harness v3 path), and
+recall **74** (recall SQLite ingestion; recall ticket 28's reopening criteria met).
+Do NOT re-trust the "NO changes needed" line above.

@@ -1,12 +1,22 @@
 ---
 id: "126"
 title: "Add v3-engine invocation path to proof/eval harness when non-TUI v3 ships"
-status: backlog
+status: open
 blocked_by: ["168"]
 tags: ["kiro-v3"]
 ---
 
 # Add v3-engine invocation path to proof/eval harness when non-TUI v3 ships
+
+> **Trigger fired (2026-10-02):** the activation trigger below ("non-TUI/headless
+> support for the v3 engine, OR v3 becomes default") has HAPPENED on kiro-cli
+> 2.27.0 — v3 is now the default engine and runs headless (research in
+> `.scratch/research/kiro-v3-2026-10/`). Moved off backlog → open. Re-gated from
+> ticket 125 (v2 schema, done-enough) to **ticket 168** (the v3 headless probe that
+> captures the actual v3 stream-json schema + trust behavior this ticket needs).
+> Note the ticket-125 disruption analysis still stands: do NOT adopt a user-global
+> `permissions.yaml` allow-all for CI (weakens interactive trust) — use a
+> workspace-scoped `KIRO_HOME`/permissions or session-scope trust flags.
 
 ## Context
 
