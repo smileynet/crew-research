@@ -1,7 +1,7 @@
 ---
 id: "126"
 title: "Add v3-engine invocation path to proof/eval harness when non-TUI v3 ships"
-status: in_progress
+status: done
 blocked_by: ["168"]
 tags: ["kiro-v3"]
 ---
@@ -73,3 +73,6 @@ passes** (agent runs on v3). The **`log_checks` stage fails on v3** because
 `expect.present/absent` work now; v3 proofs using `log_checks` wait on 124. Recorded
 in `tools/proofs/docs/v3-engine-notes.md` → "Harness integration".
 
+## Resolution (2026-10-02)
+
+Added opt-in v3 engine selector to proof harness (adapters/kiro-cli.yaml invoke.engine, PROOF_ENGINE=v3 override, run.sh injects --agent-engine after 'kiro-cli chat'). Fixed v3 tool-name extraction in extract-session-summary.sh (kind/title fallback since _meta.kiro.toolName is null on v3). v2 remains default -> no regression (A4 passes). KNOWN LIMIT: v3 log_checks still fail because inspect-session.sh can't parse v3's session store; that's ticket 124's stream-json event grading (updated 124 with the exact v3 facts: runFinished/.data.finalText, kind/title). So v3 proofs using expect.present/absent work now; log_checks-based proofs stay on v2 until 124.
