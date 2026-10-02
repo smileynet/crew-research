@@ -85,6 +85,11 @@ for def_file in "${DEFS[@]}"; do
     # Invoke agent — capture output for check-activation.sh Strategy 1
     # (was > /dev/null: Strategy 1 was dead code until ticket 24)
     cmd=$(echo "$INVOKE_NO_AGENT_CMD" | sed "s|{query}|$input|")
+    # Optional engine selector (ticket 179): ACT_ENGINE=v3 injects --agent-engine
+    # after `kiro-cli chat` to measure activation parity on v3. Default unset = v2.
+    if [[ -n "${ACT_ENGINE:-}" && "$cmd" == *"kiro-cli chat"* ]]; then
+      cmd="${cmd/kiro-cli chat/kiro-cli chat --agent-engine $ACT_ENGINE}"
+    fi
     cd "$workdir"
     timeout "$DEFAULT_TIMEOUT" bash -c "$cmd" 2>&1 | strip_ansi > "$workdir/.eval-output" || true
 
