@@ -5,6 +5,11 @@ invoke:
   command: 'kiro-cli chat --no-interactive -a --wrap never --agent {agent} "{query}"'
   command_no_agent: 'kiro-cli chat --no-interactive -a --wrap never "{query}"'
   timeout: 90
+  # engine: optional agent-engine selector (v2 | v3). Omit for the binary default
+  # (v2 on kiro-cli 2.27.0 headless). Override per-run with PROOF_ENGINE=v3.
+  # Spike 168 (tools/proofs/docs/v3-engine-notes.md): v3 runs headless with -a;
+  # stream-json is ACP v1 + extra info subtypes; tool name is kind/title (not _meta.kiro.toolName).
+  # engine: v2
 
 agent:
   format: json

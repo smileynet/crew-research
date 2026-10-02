@@ -49,6 +49,13 @@ VERSION_CMD=$(yq '.version_command' "$ADAPTER_FILE")
 INVOKE_CMD=$(yq '.invoke.command' "$ADAPTER_FILE")
 INVOKE_NO_AGENT_CMD=$(yq '.invoke.command_no_agent' "$ADAPTER_FILE")
 DEFAULT_TIMEOUT=$(yq '.invoke.timeout // 90' "$ADAPTER_FILE")
+# Engine selector (kiro-cli v2/v3). Precedence: $PROOF_ENGINE env > adapter invoke.engine > unset (binary default).
+# When unset, no --agent-engine flag is passed and the binary default engine runs (v2 on kiro-cli 2.27.0).
+# See tools/proofs/docs/v3-engine-notes.md (spike 168): v3 runs headless with -a; schema is ACP v1 + extra info subtypes.
+ADAPTER_ENGINE=$(yq '.invoke.engine // ""' "$ADAPTER_FILE")
+ENGINE="${PROOF_ENGINE:-$ADAPTER_ENGINE}"
+ENGINE_FLAG=""
+[[ -n "$ENGINE" && "$ENGINE" != "null" ]] && ENGINE_FLAG="--agent-engine $ENGINE"
 AGENT_FORMAT=$(yq '.agent.format' "$ADAPTER_FILE")
 AGENT_LOCATION=$(yq '.agent.location' "$ADAPTER_FILE")
 SKILL_LOCATION=$(yq '.skill.location' "$ADAPTER_FILE")
@@ -242,6 +249,11 @@ run_proof() {
       return 2
     fi
     cmd=$(echo "$INVOKE_NO_AGENT_CMD" | sed "s|{query}|$query|")
+  fi
+
+  # Inject engine flag (kiro-cli only) right after `chat` when an engine is selected.
+  if [[ -n "$ENGINE_FLAG" && "$cmd" == *"kiro-cli chat"* ]]; then
+    cmd="${cmd/kiro-cli chat/kiro-cli chat $ENGINE_FLAG}"
   fi
 
   local output=""

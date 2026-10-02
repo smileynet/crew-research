@@ -8,6 +8,20 @@ tags: [kiro-v3]
 
 # Add stream-json event grading to proof harness
 
+> **v3 gating note (2026-10-02, from spikes 168 + 126):** this ticket is now ALSO
+> the v3-headless blocker for `log_checks`-based proofs. Ticket 126 added a proof
+> engine selector (`PROOF_ENGINE=v3`); with it, v3 proofs that use `expect.present/
+> absent` (stdout text) PASS, but proofs using `log_checks` FAIL because
+> `inspect-session.sh` can't parse v3's session store (SQLite `conversations_v2` +
+> changed `sessions/` layout). Stream-json event grading (this ticket) removes the
+> session-log dependency entirely and is the fix. Two concrete facts for the
+> implementer (verified on 2.27.0, see `tools/proofs/docs/v3-engine-notes.md`):
+> (1) terminal event is `runFinished`, final text at `.data.finalText` — NOT
+> `.type=="result"`/`.result` as the draft below assumes (that was the Cursor/Claude
+> schema guess; the real kiro schema is ACP v1). (2) **tool identity is `kind`/
+> `title`, NOT `_meta.kiro.toolName`** (null in v3). Update the `events:` grading
+> and the jq patterns below accordingly.
+
 ## Problem
 
 `inspect-session.sh` has a race condition: it finds the session log via `find ~/.kiro/sessions/cli/ -name "*.jsonl" | xargs ls -t | head -1` — picking the most recent file by mtime. This can grab a judge session, concurrent proof, or user session instead of the trial under test. The `--session-id` flag exists but kiro-cli doesn't expose session IDs in stdout, so it's never populated.

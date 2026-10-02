@@ -54,11 +54,19 @@ case "$ADAPTER" in
 
     if [[ "$is_v3" == "true" ]]; then
       # V3 format: {id, timestamp, payload: {type, toolName, content, ...}}
+      # NOTE (spike 168): in the v3 ACP stream-json, _meta.kiro.toolName is NULL;
+      # tool identity is carried by "kind" (e.g. "read") / "title" (e.g. "Read File").
+      # Fall back to kind/title when toolName yields nothing so both the older
+      # payload.type JSONL and an ACP-stream capture are handled.
       local_tool_calls=$(grep -o '"toolName":"[^"]*"' "$SESSION_FILE" | sort | uniq -c | sort -rn | head -10)
+      if [[ -z "$local_tool_calls" ]]; then
+        local_tool_calls=$(grep -o '"kind":"[^"]*"' "$SESSION_FILE" | sort | uniq -c | sort -rn | head -10)
+      fi
       local_files_read=$(grep -o '"path":"[^"]*"' "$SESSION_FILE" | sort -u | head -20)
       local_errors=$(grep -c '"status":"error"' "$SESSION_FILE" 2>/dev/null || echo 0)
       local_skill_reads=$(grep -o 'skill://[^"]*' "$SESSION_FILE" | sort -u)
       local_total_tools=$(grep -c '"type":"tool_use"' "$SESSION_FILE" 2>/dev/null || echo 0)
+      [[ "$local_total_tools" -eq 0 ]] && local_total_tools=$(grep -c '"sessionUpdate":"tool_call"' "$SESSION_FILE" 2>/dev/null || echo 0)
       local_retries=$(grep -o '"toolName":"[^"]*".*"path":"[^"]*"' "$SESSION_FILE" 2>/dev/null | sort | uniq -d | wc -l)
     else
       # V2 format: {"version":"v1","kind":"ToolResults|AssistantMessage|Prompt","data":{...}}

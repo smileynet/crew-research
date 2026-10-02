@@ -58,9 +58,18 @@ the real work is (1) an adapter engine selector and (2) the tool-name field fix.
 ## Acceptance criteria
 
 - [x] v3 non-TUI headless confirmed available in a kiro-cli release (2.27.0 — spike 168)
-- [ ] `adapters/kiro-cli.yaml` has an optional engine selector (default v2/binary, v3 opt-in)
-- [ ] proof `run.sh` interpolates `--agent-engine` when the adapter sets it (idiom from eval run.sh:438-439)
-- [ ] Tool-name extraction uses `kind`/`title` (not null `_meta.kiro.toolName`) for v3 compatibility
-- [ ] v3 stream-json schema documented (DONE — tools/proofs/docs/v3-engine-notes.md)
-- [ ] v2 path unchanged (existing proofs pass; default engine still v2)
+- [x] `adapters/kiro-cli.yaml` has an optional engine selector (default v2/binary, v3 opt-in)
+- [x] proof `run.sh` interpolates `--agent-engine` when the adapter sets it (idiom from eval run.sh:438-439; also `PROOF_ENGINE=v3` override)
+- [x] Tool-name extraction uses `kind`/`title` (not null `_meta.kiro.toolName`) for v3 compatibility (extract-session-summary.sh v3 branch)
+- [x] v3 stream-json schema documented (tools/proofs/docs/v3-engine-notes.md)
+- [x] v2 path unchanged (A4 proof passes on default engine; selector is opt-in, default unset)
+
+## Outcome note (2026-10-02)
+
+Engine selector works end-to-end: with `PROOF_ENGINE=v3`, proof A4's **text grading
+passes** (agent runs on v3). The **`log_checks` stage fails on v3** because
+`inspect-session.sh` can't parse v3's session store — this is **ticket 124's scope**
+(stream-json event grading replaces session-log inspection). So: v3 proofs using
+`expect.present/absent` work now; v3 proofs using `log_checks` wait on 124. Recorded
+in `tools/proofs/docs/v3-engine-notes.md` → "Harness integration".
 

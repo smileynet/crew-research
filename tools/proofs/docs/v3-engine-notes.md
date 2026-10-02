@@ -82,6 +82,27 @@ jq -r 'select(.type=="runFinished")|.data.finalText' events.jsonl
   bug does not reproduce on 2.27.0, so eval/activation harnesses can run v3 headless
   without false-negative skill loading. (Keep the A/B control for future versions.)
 
+## Harness integration (ticket 126, 2026-10-02)
+
+The proof harness now has an optional engine selector:
+`invoke.engine` in `adapters/kiro-cli.yaml` (default unset = binary default v2),
+overridable per-run with `PROOF_ENGINE=v3`. `run.sh` injects `--agent-engine <e>`
+after `kiro-cli chat` when set.
+
+E2e on proof A4 (2.27.0):
+- **Default (v2):** PASS (text grading + log_check).
+- **`PROOF_ENGINE=v3`:** the **text-grading stage PASSES** (agent ran on v3, reported
+  the canary) — the engine injection works end-to-end. The **`log_checks` stage
+  FAILS** because `inspect-session.sh` cannot locate/parse the v3 session store
+  (v3 writes SQLite `conversations_v2` + a different `sessions/` layout than the v2
+  inspector greps). This is **ticket 124's domain** (replace session-log inspection
+  with stream-json event grading), NOT a defect in the engine selector.
+
+**Takeaway:** v3 proofs that rely only on `expect.present/absent` (stdout text) work
+today via `PROOF_ENGINE=v3`. v3 proofs that rely on `log_checks` need ticket 124's
+stream-json event grading first. Until then, keep `log_checks`-based proofs on the
+default (v2) engine.
+
 ## Caveats / residual unknowns
 
 - Default headless engine is **v2** on this 2.27.0 build — so to exercise v3 you MUST
