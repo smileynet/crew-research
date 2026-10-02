@@ -212,6 +212,6 @@ Remove-Job $j -Force
 - [x] `runFinished.data.finalText` extraction jq pattern confirmed (ticket 124 needs this)
 - [x] `tool_call`/`tool_call_update` shape documented (_meta.kiro.toolName, rawInput, rawOutput)
 - [x] v3 engine finding documented (cannot run headless — pin to v2)
-- [ ] Test 5 (`--wrap never`) flag interaction — DEFERRED to resume
-- [ ] Findings written to `tools/proofs/docs/stream-json-schema.md` — DEFERRED to resume
-- [ ] Raw captured JSONL saved to `tools/proofs/docs/discovery-raw/` — DEFERRED to resume
+- [x] Test 5 (`--wrap never`) flag interaction — DONE: coexists cleanly, valid JSON, exit 0 (discovery-raw/v2-wrap-never-reply.jsonl)
+- [x] Findings written to `tools/proofs/docs/stream-json-schema.md` (+ v3-engine-notes.md)
+- [x] Raw captured JSONL saved to `tools/proofs/docs/discovery-raw/` (v2-wrap-never, v3-reply, v3-toolcall)
