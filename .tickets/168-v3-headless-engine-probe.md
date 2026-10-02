@@ -1,7 +1,7 @@
 ---
 id: "168"
 title: "Spike: empirically probe v3 default engine headless on 2.27.0 (schema, trust, API key)"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 tags: [kiro-v3]
@@ -167,3 +167,7 @@ template (adapt trust flags for v3). BUILD NEW: the v3 capture itself (no
 - [x] v2 path confirmed still working (no regression)
 - [x] Findings written to deliverable with per-ticket unblock mapping
 - [x] Containment verified: `~/.kiro/settings/` sha256 unchanged, `git status` clean, no user-global permissions.yaml created, no stray/hung kiro-cli PIDs left (clean up any 137s)
+
+## Resolution (2026-10-02)
+
+v3 runs headless on 2.27.0 (engine:v3, exit 0) — ticket-125 'no headless' conclusion dead. Schema = same ACP v1 wrapper + 3 new info subtypes; tool name MOVED from _meta.kiro.toolName (null in v3) to kind/title (breaks v2 grading path, affects 124/126). --trust-all-tools AND --trust-tools=read both work on v3 (no #7398 hang). KIRO_API_KEY NOT required (IdC session serves inference). Default headless engine still v2 — must pass --agent-engine v3 explicitly; detect via runStarted.data.engine. CRITICAL: internal 2026-09-22 v3 skill-discovery bug does NOT reproduce on 2.27.0 (v2+v3 A/B both activated fixture skill) — v3-headless skill evals are safe. Unblocks 126; 169/recall-74 engine-independent.
