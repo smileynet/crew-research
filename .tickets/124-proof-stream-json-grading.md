@@ -1,7 +1,7 @@
 ---
 id: "124"
 title: "Add stream-json event grading to proof harness"
-status: in_progress
+status: done
 blocked_by: ["125"]
 tags: [kiro-v3]
 ---
@@ -90,3 +90,7 @@ and `-s '[.[]|select]|length'` instead. Tool identity graded on `kind`/`title`
 grading on `--agent-engine v3` because v3 won't load v2-format agent-config `resources`
 (falls back to default agent, "needs upgrading"). That's an agent-config format gap, not
 a grading issue — stream-json grading itself works on both engines.
+
+## Resolution (2026-10-02)
+
+Added opt-in stream-json event grading to the proof harness. When invoke.output_format=stream-json (or PROOF_OUTPUT_FORMAT=stream-json) on kiro-cli>=2.19.2, the harness captures the trial's ACP event stream to events.jsonl and grades expect.present/absent (from runFinished.data.finalText), log_checks (file_read/tool_used/context_contains/etc via kind/title), and a new events: section (present/absent/count) directly from it — bypassing inspect-session.sh and its most-recent-by-mtime race, and working on v3 where inspect-session.sh cannot parse the session store. Legacy text+inspect-session path retained as default (no regression). Deterministic: A4 v2+stream-json passed 3/3 vs flaky legacy. Discovered + filed 170: v3 ignores v2-format agent-config resources (agent-config gap, separate from grading).
