@@ -65,10 +65,28 @@ When the adapter supports `--output-format stream-json` (kiro-cli ≥ 2.19.2), c
 
 ## Acceptance criteria
 
-- [ ] `adapters/kiro-cli.yaml` declares `output_format: stream-json`
-- [ ] `run.sh` captures events.jsonl when adapter supports stream-json
-- [ ] Final text extracted from result event feeds into existing `expect.present/absent`
-- [ ] `grade_events()` evaluates `events.present`, `events.absent`, `events.count`
-- [ ] Existing proofs (A1-A5) pass with stream-json path (no regression)
-- [ ] Version gate: graceful fallback when kiro-cli < 2.19.2
-- [ ] `inspect-session.sh` race condition bypassed for stream-json-capable adapters
+- [x] `adapters/kiro-cli.yaml` declares `output_format: stream-json` (opt-in; `PROOF_OUTPUT_FORMAT` override)
+- [x] `run.sh` captures events.jsonl when adapter supports stream-json (stdout separate from stderr)
+- [x] Final text extracted from `runFinished.data.finalText` feeds into existing `expect.present/absent`
+- [x] `grade_events()` evaluates `events.present`, `events.absent`, `events.count` (by `kind`/`title`)
+- [x] Existing proofs pass with stream-json path (A4 v2+stream-json: deterministic PASS 3/3; log_check graded from events)
+- [x] Version gate: graceful fallback when kiro-cli < 2.19.2
+- [x] `inspect-session.sh` race condition bypassed for stream-json-capable adapters
+
+## Outcome (2026-10-02)
+
+Implemented + verified. The stream-json path grades `log_checks` (file_read/no_file_read/
+tool_used/no_tool_used/context_contains/context_absent) and a new `events:` section from
+the trial's own stdout event stream — **no `inspect-session.sh`, no mtime race, v3-safe**.
+Decisive evidence: A4 with `PROOF_OUTPUT_FORMAT=stream-json` passed **3/3 deterministically**,
+while the legacy session-log path is flaky on a busy host (the exact race this ticket
+removes). Legacy path unchanged (wrapped in an else-branch; opt-in, default off).
+
+jq idiom gotcha fixed: `any(inputs; …)` requires `jq -n`; used slurp (`-es 'any(.[]; …)'`)
+and `-s '[.[]|select]|length'` instead. Tool identity graded on `kind`/`title`
+(spike 168: `_meta.kiro.toolName` is null on v3). Schema ref: tools/proofs/docs/stream-json-schema.md.
+
+**Out of scope, filed as ticket 170:** agent-based proofs (A4/A5) fail their *text*
+grading on `--agent-engine v3` because v3 won't load v2-format agent-config `resources`
+(falls back to default agent, "needs upgrading"). That's an agent-config format gap, not
+a grading issue — stream-json grading itself works on both engines.

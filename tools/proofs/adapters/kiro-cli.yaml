@@ -10,6 +10,11 @@ invoke:
   # Spike 168 (tools/proofs/docs/v3-engine-notes.md): v3 runs headless with -a;
   # stream-json is ACP v1 + extra info subtypes; tool name is kind/title (not _meta.kiro.toolName).
   # engine: v2
+  # output_format: when set to stream-json (kiro-cli >= 2.19.2), the harness captures the
+  # ACP event stream and grades log_checks/events from it instead of inspect-session.sh
+  # (no session-log race; works on v3). Opt-in; default = legacy text path.
+  # Override per-run with PROOF_OUTPUT_FORMAT=stream-json. Schema: tools/proofs/docs/stream-json-schema.md.
+  # output_format: stream-json
 
 agent:
   format: json

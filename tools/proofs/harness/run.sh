@@ -56,6 +56,21 @@ ADAPTER_ENGINE=$(yq '.invoke.engine // ""' "$ADAPTER_FILE")
 ENGINE="${PROOF_ENGINE:-$ADAPTER_ENGINE}"
 ENGINE_FLAG=""
 [[ -n "$ENGINE" && "$ENGINE" != "null" ]] && ENGINE_FLAG="--agent-engine $ENGINE"
+# Output format (ticket 124): when the adapter declares `invoke.output_format: stream-json`
+# AND the kiro-cli build supports it (>=2.19.2), capture the ACP event stream and grade
+# log_checks/events from it instead of inspect-session.sh. Opt-in; default = legacy text path.
+# PROOF_OUTPUT_FORMAT overrides per-run (e.g. PROOF_OUTPUT_FORMAT=stream-json).
+ADAPTER_OUTPUT_FORMAT=$(yq '.invoke.output_format // ""' "$ADAPTER_FILE")
+OUTPUT_FORMAT="${PROOF_OUTPUT_FORMAT:-$ADAPTER_OUTPUT_FORMAT}"
+USE_STREAM_JSON=false
+if [[ "$OUTPUT_FORMAT" == "stream-json" ]]; then
+  _ver=$(kiro-cli --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  if [[ -n "$_ver" ]] && [[ "$(printf '%s\n%s\n' "2.19.2" "$_ver" | sort -V | head -1)" == "2.19.2" ]]; then
+    USE_STREAM_JSON=true
+  else
+    echo "  ⚠️  stream-json requested but kiro-cli '${_ver:-unknown}' < 2.19.2 — using legacy text path" >&2
+  fi
+fi
 AGENT_FORMAT=$(yq '.agent.format' "$ADAPTER_FILE")
 AGENT_LOCATION=$(yq '.agent.location' "$ADAPTER_FILE")
 SKILL_LOCATION=$(yq '.skill.location' "$ADAPTER_FILE")
@@ -95,6 +110,87 @@ declare -a RESULTS=()
 
 strip_ansi() {
   sed 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+}
+
+# --- stream-json grading (ticket 124) ---
+# The event stream (events.jsonl) replaces inspect-session.sh: no session-log
+# discovery race, and it works on v3 (which inspect-session.sh cannot parse).
+# Schema reference: tools/proofs/docs/stream-json-schema.md. Tool identity is
+# `kind`/`title`, NOT _meta.kiro.toolName (null on v3).
+
+# Final assistant text from the terminal runFinished event.
+events_final_text() {
+  jq -rs 'map(select(.type=="runFinished"))[0].data.finalText // ""' "$1" 2>/dev/null
+}
+
+# Grade one legacy log_checks assertion against the event stream.
+# Echoes "FAIL: <reason>" on failure, nothing on pass.
+grade_log_check_from_events() {
+  local events="$1" check="$2"
+  local kind="${check%%:*}" arg="${check#*:}"
+  case "$kind" in
+    file_read)
+      jq -es --arg p "$arg" 'any(.[]; .type=="sessionUpdate"
+        and .data.update.sessionUpdate=="tool_call" and .data.update.kind=="read"
+        and (((.data.update.rawInput|tostring) + ((.data.update.locations//[])|tostring)) | contains($p)))' \
+        "$events" >/dev/null 2>&1 || echo "FAIL: expected read of '$arg' not in event stream" ;;
+    no_file_read)
+      jq -es --arg p "$arg" 'any(.[]; .type=="sessionUpdate"
+        and .data.update.sessionUpdate=="tool_call" and .data.update.kind=="read"
+        and (((.data.update.rawInput|tostring) + ((.data.update.locations//[])|tostring)) | contains($p)))' \
+        "$events" >/dev/null 2>&1 && echo "FAIL: unexpected read of '$arg' in event stream" ;;
+    tool_used)
+      jq -es --arg k "$arg" 'any(.[]; .type=="sessionUpdate"
+        and .data.update.sessionUpdate=="tool_call"
+        and (.data.update.kind==$k or .data.update.title==$k))' \
+        "$events" >/dev/null 2>&1 || echo "FAIL: tool '$arg' not used (by kind/title) in event stream" ;;
+    no_tool_used)
+      jq -es --arg k "$arg" 'any(.[]; .type=="sessionUpdate"
+        and .data.update.sessionUpdate=="tool_call"
+        and (.data.update.kind==$k or .data.update.title==$k))' \
+        "$events" >/dev/null 2>&1 && echo "FAIL: tool '$arg' was used (by kind/title) in event stream" ;;
+    context_contains)
+      grep -qF "$arg" "$events" || echo "FAIL: '$arg' not in event stream" ;;
+    context_absent)
+      grep -qF "$arg" "$events" && echo "FAIL: '$arg' present in event stream" ;;
+    *) echo "FAIL: unknown log_check '$kind'" ;;
+  esac
+}
+
+# Grade the new events: section (events.present / events.absent / events.count).
+grade_events_section() {
+  local events="$1" def_file="$2" i kind inp min max n
+  local n_present=$(yq '.events.present | length // 0' "$def_file" 2>/dev/null)
+  for ((i=0; i<n_present; i++)); do
+    kind=$(yq -r ".events.present[$i].kind // .events.present[$i].tool // \"\"" "$def_file")
+    inp=$(yq -r ".events.present[$i].input_contains // \"\"" "$def_file")
+    jq -es --arg k "$kind" --arg s "$inp" 'any(.[]; .type=="sessionUpdate"
+      and .data.update.sessionUpdate=="tool_call"
+      and ($k=="" or .data.update.kind==$k or .data.update.title==$k)
+      and ($s=="" or ((.data.update.rawInput|tostring)|contains($s))))' \
+      "$events" >/dev/null 2>&1 || { echo "FAIL: expected event (kind='$kind' input~'$inp') absent"; return; }
+  done
+  local n_absent=$(yq '.events.absent | length // 0' "$def_file" 2>/dev/null)
+  for ((i=0; i<n_absent; i++)); do
+    kind=$(yq -r ".events.absent[$i].kind // .events.absent[$i].tool // \"\"" "$def_file")
+    jq -es --arg k "$kind" 'any(.[]; .type=="sessionUpdate"
+      and .data.update.sessionUpdate=="tool_call"
+      and ($k=="" or .data.update.kind==$k or .data.update.title==$k))' \
+      "$events" >/dev/null 2>&1 && { echo "FAIL: forbidden event (kind='$kind') present"; return; }
+  done
+  local n_count=$(yq '.events.count | length // 0' "$def_file" 2>/dev/null)
+  for ((i=0; i<n_count; i++)); do
+    kind=$(yq -r ".events.count[$i].kind // .events.count[$i].tool // \"\"" "$def_file")
+    min=$(yq -r ".events.count[$i].min // 0" "$def_file")
+    max=$(yq -r ".events.count[$i].max // 999999" "$def_file")
+    n=$(jq -s --arg k "$kind" '[.[] | select(.type=="sessionUpdate"
+      and .data.update.sessionUpdate=="tool_call"
+      and ($k=="" or .data.update.kind==$k or .data.update.title==$k))] | length' "$events" 2>/dev/null)
+    n=${n:-0}
+    if (( n < min || n > max )); then
+      echo "FAIL: event count (kind='$kind')=$n outside [$min,$max]"; return
+    fi
+  done
 }
 
 # Deploy eager files based on adapter strategy
@@ -256,19 +352,37 @@ run_proof() {
     cmd="${cmd/kiro-cli chat/kiro-cli chat $ENGINE_FLAG}"
   fi
 
+  # stream-json capture (ticket 124): inject the flag and capture the event stream.
+  local events_file=""
+  if [[ "$USE_STREAM_JSON" == true && "$cmd" == *"kiro-cli chat"* ]]; then
+    cmd="${cmd/kiro-cli chat/kiro-cli chat --output-format stream-json}"
+    events_file="$workdir/events.jsonl"
+  fi
+
   local output=""
   local tmpfile=$(mktemp)
 
-  # Retry once on empty output
-  for attempt in 1 2; do
-    cd "$workdir"
-    timeout "$timeout" bash -c "$cmd" > "$tmpfile" 2>&1 || true
-    output=$(cat "$tmpfile" | strip_ansi)
-    if [[ -n "$(echo "$output" | tr -d '[:space:]')" ]]; then
-      break
-    fi
-    [[ $attempt -eq 1 ]] && sleep 1
-  done
+  if [[ -n "$events_file" ]]; then
+    # Capture stdout (events) separately from stderr — merging corrupts the JSON stream.
+    for attempt in 1 2; do
+      cd "$workdir"
+      timeout "$timeout" bash -c "$cmd" > "$events_file" 2>"$workdir/stderr.log" || true
+      output=$(events_final_text "$events_file")
+      [[ -n "$(echo "$output" | tr -d '[:space:]')" || -s "$events_file" ]] && break
+      [[ $attempt -eq 1 ]] && sleep 1
+    done
+  else
+    # Retry once on empty output (legacy text path; stdout+stderr merged)
+    for attempt in 1 2; do
+      cd "$workdir"
+      timeout "$timeout" bash -c "$cmd" > "$tmpfile" 2>&1 || true
+      output=$(cat "$tmpfile" | strip_ansi)
+      if [[ -n "$(echo "$output" | tr -d '[:space:]')" ]]; then
+        break
+      fi
+      [[ $attempt -eq 1 ]] && sleep 1
+    done
+  fi
   rm -f "$tmpfile"
 
   # Grade
@@ -293,22 +407,41 @@ run_proof() {
     done
   fi
 
-  # Log inspection (structural validation via session logs)
+  # Log inspection (structural validation)
   if [[ "$status" == "PASS" ]]; then
     local log_check_count=$(yq '.log_checks | length // 0' "$def_file")
     if [[ $log_check_count -gt 0 ]]; then
-      local inspect_args="--adapter $ADAPTER"
-      for lc in $(yq -r '.log_checks[]' "$def_file" 2>/dev/null); do
-        inspect_args="$inspect_args --check $lc"
-      done
-      local inspect_result
-      inspect_result=$("$SCRIPT_DIR/inspect-session.sh" $inspect_args 2>&1) || true
-      if echo "$inspect_result" | grep -q "FAIL:"; then
-        status="FAIL"
-        reason="Log check: $(echo "$inspect_result" | grep "FAIL:" | head -1)"
-      elif echo "$inspect_result" | grep -q "SKIP:"; then
-        echo "    ⚠️  log inspection skipped (no session log found)"
+      if [[ -n "$events_file" ]]; then
+        # Grade log_checks against the captured event stream (no session-log race; v3-safe).
+        for lc in $(yq -r '.log_checks[]' "$def_file" 2>/dev/null); do
+          local r
+          r=$(grade_log_check_from_events "$events_file" "$lc")
+          if [[ -n "$r" ]]; then status="FAIL"; reason="$r"; break; fi
+        done
+      else
+        local inspect_args="--adapter $ADAPTER"
+        for lc in $(yq -r '.log_checks[]' "$def_file" 2>/dev/null); do
+          inspect_args="$inspect_args --check $lc"
+        done
+        local inspect_result
+        inspect_result=$("$SCRIPT_DIR/inspect-session.sh" $inspect_args 2>&1) || true
+        if echo "$inspect_result" | grep -q "FAIL:"; then
+          status="FAIL"
+          reason="Log check: $(echo "$inspect_result" | grep "FAIL:" | head -1)"
+        elif echo "$inspect_result" | grep -q "SKIP:"; then
+          echo "    ⚠️  log inspection skipped (no session log found)"
+        fi
       fi
+    fi
+  fi
+
+  # events: section (ticket 124) — only when the event stream was captured.
+  if [[ "$status" == "PASS" && -n "$events_file" ]]; then
+    local events_count=$(yq '.events | length // 0' "$def_file" 2>/dev/null)
+    if [[ "$events_count" != "0" && -n "$events_count" ]]; then
+      local er
+      er=$(grade_events_section "$events_file" "$def_file")
+      if [[ -n "$er" ]]; then status="FAIL"; reason="$er"; fi
     fi
   fi
 
