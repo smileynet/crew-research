@@ -1,7 +1,7 @@
 ---
 id: "168"
 title: "Spike: empirically probe v3 default engine headless on 2.27.0 (schema, trust, API key)"
-status: open
+status: in_progress
 blocked_by: []
 priority: high
 tags: [kiro-v3]
