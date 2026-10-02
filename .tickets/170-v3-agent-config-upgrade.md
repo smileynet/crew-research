@@ -1,7 +1,7 @@
 ---
 id: "170"
 title: "Proof/eval agent configs need v3 upgrade — v3 ignores v2 resources/, falls back to default agent"
-status: in_progress
+status: done
 blocked_by: []
 tags: [kiro-v3]
 ---
@@ -85,3 +85,7 @@ Proof **A3** (skill-absence) does not complete on the v3 path within the adapter
 resources, so this is unrelated to the permissions fix — it looks like v3's slower cold
 start vs the adapter `invoke.timeout: 90`. If v3 becomes the proof default, the adapter
 timeout likely needs raising for v3. Noted for a future ticket, not fixed here.
+
+## Resolution (2026-10-02)
+
+v3 routes v2-shape agent configs to the DEFAULT agent ('needs upgrading' warning), which drops the named agent's resources/ (eager files) — the cause of A4/A5 failing on v3. Fix: add the permissions field ({rules:[]}) to generated agent JSON — v3 recognizes it as native and loads the named agent's resources. Minimal: permissions ALONE suffices (mcpServers/toolsSettings without it still warn); the field is backward-compatible (v2 runs clean). Applied to run.sh deploy_agent inline JSON (the real generator) + adapters/kiro-cli.yaml template. Proven: A4+A5 pass on the full v3 path (engine v3 + stream-json); v2 unchanged. Note: A4 on v3 WITHOUT stream-json still fails at the log_check stage = ticket 124's known limit (text grading passes). Separate observation (not fixed): A3 doesn't finish on v3 within adapter timeout 90s (v3 slower cold start) — raise adapter timeout for v3 if v3 becomes the proof default.
