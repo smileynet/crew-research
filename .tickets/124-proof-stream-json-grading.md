@@ -1,7 +1,7 @@
 ---
 id: "124"
 title: "Add stream-json event grading to proof harness"
-status: open
+status: in_progress
 blocked_by: ["125"]
 tags: [kiro-v3]
 ---
