@@ -38,8 +38,8 @@ set (that is ticket 173/174), so it cannot run in unrelated user projects.
 
 ## Acceptance criteria
 
-- [ ] `.kiro/hooks/crew-validate-on-save.json` committed, valid v1 schema (jq parses)
-- [ ] Matchers target SKILL.md + compositions yaml only
-- [ ] Commands call existing `mise run validate` / `mise run lint`; explicit timeout
-- [ ] Does NOT enter the global deploy set (project-only; init.sh unchanged)
-- [ ] Documented in AGENTS.md (dev-only hook) so contributors know it exists
+- [x] `.kiro/hooks/crew-validate-on-save.json` committed, valid v1 schema (jq parses)
+- [x] Matchers target SKILL.md + compositions yaml only
+- [x] Commands call existing `mise run validate` / `mise run lint`; explicit timeout
+- [x] Does NOT enter the global deploy set (project-only; init.sh unchanged)
+- [x] Documented in AGENTS.md (dev-only hook) so contributors know it exists

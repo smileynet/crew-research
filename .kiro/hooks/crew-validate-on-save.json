@@ -1,0 +1,25 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "crew-validate-skill-on-save",
+      "trigger": "PostFileSave",
+      "matcher": "SKILL\\.md$",
+      "action": {
+        "type": "command",
+        "command": "mise run validate 2>&1 | tail -20"
+      },
+      "timeout": 120
+    },
+    {
+      "name": "crew-lint-compositions-on-save",
+      "trigger": "PostFileSave",
+      "matcher": "compositions/.*\\.(ya?ml)$",
+      "action": {
+        "type": "command",
+        "command": "mise run lint 2>&1 | tail -20"
+      },
+      "timeout": 120
+    }
+  ]
+}

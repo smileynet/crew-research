@@ -136,6 +136,7 @@ On Windows, **only init.sh requires WSL** (the generator is bash) — everything
 - **Scratch**: `.scratch/` — ephemeral; promote to `.memory/` or delete
 - **Tiers**: `compositions/tiers/{name}.yaml` — structured skill references
 - **Results**: `tools/evals/results/` — gitignored, kept locally
+- **Dev hook (kiro-cli v3)**: `.kiro/hooks/crew-validate-on-save.json` is a PROJECT-ONLY `PostFileSave` hook that runs `mise run validate` on `SKILL.md` saves and `mise run lint` on `compositions/*.yaml` saves — in-loop feedback while editing crew-research sources. It is NOT part of the user-facing deploy set (never shipped to `~/.kiro/hooks/`); kiro-cli v2 ignores it. Global/opt-in hooks are a separate effort (tickets 173/174).
 
 ## Issue Triage
 
