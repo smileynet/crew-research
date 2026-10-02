@@ -1,7 +1,7 @@
 ---
 id: "175"
 title: "Project PostFileSave hook — validate SKILL.md/compositions on save in crew-research repo"
-status: in_progress
+status: done
 blocked_by: []
 tags: [kiro-v3]
 ---
@@ -43,3 +43,7 @@ set (that is ticket 173/174), so it cannot run in unrelated user projects.
 - [x] Commands call existing `mise run validate` / `mise run lint`; explicit timeout
 - [x] Does NOT enter the global deploy set (project-only; init.sh unchanged)
 - [x] Documented in AGENTS.md (dev-only hook) so contributors know it exists
+
+## Resolution (2026-10-02)
+
+Added .kiro/hooks/crew-validate-on-save.json — a project-only kiro-cli v3 PostFileSave hook pair: SKILL.md saves -> mise run validate, compositions/*.yaml saves -> mise run lint. Gives in-loop validation feedback while editing crew-research sources (non-zero exit returns stderr to the agent). Project-scoped by matcher + committed to this repo only; NOT in the user deploy set (no generator reference); v2 ignores it. Documented in AGENTS.md. The global SessionStart->recall-prime hook (ticket 174) remains gated on the hooks deploy class (ticket 173).
