@@ -289,6 +289,11 @@ run_proof() {
   local id=$(yq '.id' "$def_file")
   local query=$(yq '.query' "$def_file")
   local timeout=$(yq ".timeout // $DEFAULT_TIMEOUT" "$def_file")
+  # v3 engine has a slower cold start (KAS harness) — scale the timeout so proofs
+  # don't false-timeout (observed: A3 didn't finish within 90s on v3). Ticket 172.
+  if [[ "$ENGINE" == "v3" ]]; then
+    timeout=$(( timeout * 2 ))
+  fi
 
   # Create isolated workspace
   local workdir=$(mktemp -d -t "proof-${id}-XXXX")

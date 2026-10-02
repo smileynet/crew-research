@@ -81,7 +81,18 @@ tr -d '\000' < /tmp/full-eval-run.log | grep -E "✅|❌"
 
 When invoking `kiro-cli chat` headlessly to capture structured output:
 
-- **`--agent-engine v2 -a` is MANDATORY for headless.** v1 rejects `--output-format stream-json` ("not supported on the v1 engine"). **v3 CANNOT run headless at all** — it forwards `session/new` to the TUI and HANGS with no non-TUI path (2026-08-28: `--agent-engine v3` headless hung 3× before diagnosis; kiro.dev v3 "Known Gaps" confirms "legacy non-TUI mode does not support the v3 engine"). v3 also rejects `-a` (capability `permissions.yaml` model). Pin v2 for anything scripted/non-interactive; bound the call (see the project-conventions windows.md Start-Job wrapper) so a v3/hang can't wedge the session.
+- **Engine selection for headless (CORRECTED 2026-10-02, spike 168 on kiro-cli 2.27.0).**
+  v1 rejects `--output-format stream-json` ("not supported on the v1 engine"), so always
+  pass an explicit engine. **v3 DOES run headless** on 2.27.0 (the earlier "v3 CANNOT run
+  headless / forwards to TUI / hangs" note was 2.19.2-era and is now false): `--agent-engine v3
+  --no-interactive` returns clean, `-a`/`--trust-tools` work (no hang, GH#7398 not reproduced),
+  and `--output-format stream-json` emits the same ACP v1 schema as v2 (+ extra v3 info subtypes).
+  Two v3 gotchas: (a) generated agent configs need a `permissions` field or v3 routes them to
+  the default agent and drops `resources` (ticket 170); (b) tool identity is `kind`/`title`,
+  not `_meta.kiro.toolName` (null on v3). The **default** headless engine on 2.27.0 is still
+  **v2** (unflagged `--no-interactive` → `engine:"v2"`), so pass `--agent-engine v3` explicitly
+  to exercise v3, or `v2` to pin. Still bound every scripted call with a `timeout -k` wrapper.
+  Full facts: `tools/proofs/docs/v3-engine-notes.md` + `stream-json-schema.md`.
 - **Separate stdout from stderr**: `> events.jsonl 2>err.log`. NEVER `2>&1` — the JSON stream is stdout-only; merging stderr corrupts it.
 - **Validate by output content, never exit code** — kiro-cli, opencode, AND codex all exit 0 on failure / nonzero on would-be success. Confirm a real terminal event (`runFinished`/`step_finish reason:"stop"`) + non-empty final text.
 - **Run the invocation ALONE, inspect output in a SEPARATE call.** A `kiro-cli chat` stream call chained with trailing `Get-Content`/`jq`/`Write-Host` in one PowerShell invocation blocks the whole call and wastes it (observed 2026-08-27: test-4 cancelled 3× from chaining). Invoke, wait, then read the file in the next command.
