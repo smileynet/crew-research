@@ -1,7 +1,7 @@
 ---
 id: "172"
 title: "v3 cutover readiness: fix stale v2-pin doc, verify eval suite on v3, engine-conditional timeout"
-status: in_progress
+status: done
 blocked_by: []
 priority: high
 tags: [kiro-v3]
@@ -67,3 +67,7 @@ harness-level quirk is NOT a v3 blocker and is out of this ticket's scope.
 - [x] A representative eval runs on `--engine v3` with parity to v2 (beacon A/B: v2 3/3, v3 3/3; code-review clean on both) — documented above
 - [x] Harness timeout made engine-conditional for v3 (2× on v3); A3 symptom re-diagnosed as a pre-existing harness quirk, not a v3 timeout (invocation runs clean on v3)
 - [x] Readiness verdict recorded (opt-in ready; default flip is kiro's call)
+
+## Resolution (2026-10-02)
+
+v3 cutover readiness assessed. (1) Fixed stale execution.md v2-pin that falsely said v3 can't run headless/rejects -a. (2) GATE PASS: crew-research skills activate under v3 headless at parity with v2 (beacon A/B 3/3 both engines; a first fixture showing v2 1/2 v3 0/2 was flawed - no diff to review - both engines behaved identically, skill WAS loaded on v3). (3) proof timeout now 2x on v3; A3's no-verdict re-diagnosed as a pre-existing harness quirk (its invocation runs clean on v3), not a v3 timeout. VERDICT: opt-in v3 is READY (proof harness green on v3: 126+124+170; activation parity; trust flags work; no API key on IdC). Default flip remains kiro's call - headless default is still v2 on 2.27.0; when kiro flips it, 169 freshness selector + SQLite path auto-engage. Residual non-blocking: A3 harness quirk; ticket 171 (secondary-script SQLite, triggers when SQLite live).
