@@ -1,7 +1,7 @@
 ---
 id: "125"
 title: "Run stream-json schema discovery proof"
-status: open
+status: done
 blocked_by: []
 tags: [kiro-v3]
 ---
@@ -215,3 +215,7 @@ Remove-Job $j -Force
 - [x] Test 5 (`--wrap never`) flag interaction — DONE: coexists cleanly, valid JSON, exit 0 (discovery-raw/v2-wrap-never-reply.jsonl)
 - [x] Findings written to `tools/proofs/docs/stream-json-schema.md` (+ v3-engine-notes.md)
 - [x] Raw captured JSONL saved to `tools/proofs/docs/discovery-raw/` (v2-wrap-never, v3-reply, v3-toolcall)
+
+## Resolution (2026-10-02)
+
+Stream-json schema discovery complete. ACP v1 envelope (runStarted/sessionUpdate/runFinished); final text at runFinished.data.finalText; tool identity kind/title (NOT _meta.kiro.toolName, null on v3); v3 adds session_info_update/available_commands_update/config_option_update subtypes. Deliverables: stream-json-schema.md + discovery-raw/ + v3-engine-notes.md. Unblocks 124.
