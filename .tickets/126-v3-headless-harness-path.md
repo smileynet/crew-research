@@ -2,7 +2,7 @@
 id: "126"
 title: "Add v3-engine invocation path to proof/eval harness when non-TUI v3 ships"
 status: backlog
-blocked_by: ["125"]
+blocked_by: ["168"]
 tags: ["kiro-v3"]
 ---
 
