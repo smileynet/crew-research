@@ -1,7 +1,7 @@
 ---
 id: "169"
 title: "session-analyzer: read v3 SQLite sessions before JSONL dual-write stops"
-status: in_progress
+status: done
 blocked_by: ["168"]
 tags: [kiro-v3]
 ---
@@ -85,3 +85,7 @@ the live store, its `updated_at` leads and the selector switches automatically.
 - [x] Zero-data case reports loudly to stderr (no silent exit 0) in `session_review.py` and `parse.py`
 - [x] Read-only SQLite open verified (`mode=ro&immutable=1`; never a write lock)
 - [ ] DEFERRED: full SQLite parser retrofit of the SECONDARY scripts (`parse.py`, `extract_batches.py`, `skill_usage.py`) — their own file-based parsers would need the `value`-object model ported. Deferred until SQLite is the live store here (JSONL is live now, so they work); dead glob already removed and each warns on empty. Tracked as follow-up ticket 171 (backlog, trigger = SQLite becomes live store).
+
+## Resolution (2026-10-02)
+
+Added v3 SQLite reader + freshness-based source selection to session_review.py (the primary probe). Reads conversations_v2 read-only; maps value.history to the P1/P2 model (field map in v3-sqlite-format.md, shared with recall-074); chooses source by max(updated_at) vs newest JSONL mtime (NOT existence) so it is correct whether JSONL or SQLite is live; loud zero-data warning. KEY CORRECTION: spike-168's 'both stores live' was a file-mtime misread — on 2.27.0 JSONL is the LIVE store and SQLite is frozen (2026-09-01); fixed in v3-engine-notes.md. Removed the dead sess_*/messages.jsonl wrong-surface glob from parse.py+extract_batches.py. 1 AC DEFERRED (--force): full SQLite retrofit of the 3 secondary scripts -> backlog ticket 171, triggered when SQLite becomes the live store (JSONL is live now so they work; dead glob removed, warn-on-empty added). The silent-failure risk this ticket targets is covered by the primary probe + freshness selector.
