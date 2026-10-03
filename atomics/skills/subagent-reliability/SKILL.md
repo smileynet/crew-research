@@ -21,6 +21,7 @@ Subagent calls are unreliable. Expect failures and design around them.
 | Partial response | Starts output then cuts off | Rare |
 | Silent success | Returns but missed key content (no way to detect) | Unknown |
 | Approval stall | Stage sits idle, no error, no output — worker hit a permission prompt for a tool not in its `allowedTools` | Config-dependent |
+| Completed-but-silent | Stage finished the work on disk (files written, tests run) but stalled at the idle deadline before emitting its final report — reads as "no progress" when it actually succeeded | Occasional |
 
 **Root cause (validated):** failures correlate with **prompt size**, not task complexity. Dispatch prompts under ~1K tokens with work happening via tool calls succeed (~93%); prompts with 5-10K+ tokens of inlined data fail (~90%).
 
@@ -39,7 +40,7 @@ Similarly, preserve subagent output for later phases: save raw results to `.scra
 
 1. **Never silently absorb a failure.** When a stage returns empty or errors, report it immediately ("[N] of [M] stages failed"), state what coverage was lost, and recommend remediation (retry, read directly, or skip with documented gap). Do NOT quietly fall back to reading everything in main context.
 2. **Design for partial failure.** Keep stages small (one logical unit each), idempotent (retry produces same output), and tracked ("5/11 succeeded, 6/11 need retry").
-3. **Retry before fallback.** First retry: re-dispatch failed stages only. Second retry: split large stages further. Only after 2 retries, read directly in main context — and say so.
+3. **Retry before fallback — but check partial progress FIRST.** When a stage stalls or is cancelled at the idle deadline, inspect its on-disk effects (git status, the files it was told to write, test output) BEFORE re-dispatching — a Completed-but-silent stage finished the work and only lost its final report; re-dispatching repeats done work or clobbers it. If progress is complete, verify it directly and move on. If genuinely incomplete: first retry re-dispatches failed stages only; second retry splits large stages further; only after 2 retries, read directly in main context — and say so.
 4. **Validate output.** Non-empty ≠ complete. Check: covers all files in the prompt? Expected structure? Volume proportional to input? Flag thin output explicitly.
 5. **Report coverage gaps in deliverables.** The final artifact declares its own completeness: ✅ fully extracted / ⚠️ partial / ❌ not extracted, per area.
 
