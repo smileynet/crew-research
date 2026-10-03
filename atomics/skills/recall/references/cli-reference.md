@@ -75,6 +75,7 @@ recall ingest <path> --project ~/code/myapp   # filter to one project
 
 recall import .memory/ --wing name            # import a project's markdown into a wing
 recall import .memory/ --wing name --force    # WIPES the wing's imports first, then reimports
+recall import .memory/ --wing name --force --yes  # same, skipping the confirmation prompt
 recall import-all                             # import every discovered .memory/ dir
 recall import-all --force                     # wipe + reimport all discovered dirs
 
@@ -94,6 +95,12 @@ Never: recall import .memory/cards/ --wing X --force   # wipes all but cards
 ```
 
 Incident 2026-08-17: a subdirectory `--force` wiped 11,409 drawers → 68; recovery took a 60-minute full reimport.
+
+Since then a guard prints the blast radius (how many chunks `--force` will delete)
+and asks for confirmation before wiping a non-empty wing. `--yes` skips the prompt;
+a non-interactive run (e.g. the scheduled task) without `--yes` **refuses** rather
+than wiping unattended. The guard is a safety net, not a substitute for using the
+full root — a confirmed `--force` on a subdirectory still wipes the rest of the wing.
 
 ## Types for write-back
 
@@ -124,4 +131,4 @@ Incident 2026-08-17: a subdirectory `--force` wiped 11,409 drawers → 68; recov
 | Issue | Symptom | Workaround |
 |-------|---------|------------|
 | `recall status` empty output | Command returns exit 0 but prints nothing, even with indexed data | Use `recall search "test"` to verify DB is populated; status display is cosmetic |
-| `import --force` wing wipe | `--force` on a subdirectory deletes the whole wing, keeping only that subdir | Always `--force` from the full `.memory/` root (see Commands warning above) |
+| `import --force` wing wipe | `--force` on a subdirectory deletes the whole wing, keeping only that subdir | Guarded since 2026-10: `--force` on a non-empty wing shows the chunk count and prompts (`--yes` to skip; non-TTY refuses without it). Still `--force` from the full `.memory/` root — a confirmed subdirectory force wipes the rest |
