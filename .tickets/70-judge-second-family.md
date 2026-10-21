@@ -1,7 +1,7 @@
 ---
 id: "70"
 title: "Restore a second judge family on corp (codex sandbox fix or Bedrock non-Anthropic leg)"
-status: open
+status: in_progress
 blocked_by: []
 env: corp
 priority: high
