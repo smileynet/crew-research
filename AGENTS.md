@@ -1,3 +1,8 @@
+> **FROZEN (2026-10-27): superseded by grey-matter.** Never run `mise run init`, `tools:deploy`
+> or any `recall:*` task here: they would reinstall crew skills, steering and recall over the
+> grey-matter cutover. This repo is kept as prior art only. Rollback is documented in
+> grey-matter `docs/agents/proposals/04-crew-research-migration.md`.
+
 # AGENTS.md
 
 ## Project
